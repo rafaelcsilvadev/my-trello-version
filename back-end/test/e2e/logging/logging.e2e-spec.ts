@@ -77,16 +77,16 @@ describe('Structured logging with request id (e2e)', () => {
     expect(accessLinesFor(lines, 'malformed-json')).toHaveLength(1);
   });
 
-  it('writes one JSON line with requestId, method, path, status and duration', async () => {
+  it('writes one JSON line with requestId, method, URL, status and duration', async () => {
     await http()
-      .post('/api/v1/test-only/validation')
+      .post('/api/v1/test-only/validation?source=e2e')
       .set('X-Request-Id', 'access-line')
       .send({ name: 'ok', quantity: 1 });
 
     const access = accessLinesFor(lines, 'access-line');
     expect(access).toHaveLength(1);
     expect(access[0].req.method).toBe('POST');
-    expect(access[0].req.url).toBe('/api/v1/test-only/validation');
+    expect(access[0].req.url).toBe('/api/v1/test-only/validation?source=e2e');
     expect(access[0].res.statusCode).toBe(201);
     expect(typeof access[0].responseTime).toBe('number');
   });

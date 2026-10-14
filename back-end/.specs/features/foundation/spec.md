@@ -111,7 +111,7 @@ Every API feature (auth, boards, lists, cards) needs the same base: a running Ne
 1. WHEN a request arrives with an `X-Request-Id` header that is a non-empty string of at most 128 characters THEN the system SHALL use that value as the request id.  <!-- FND-13 -->
 2. WHEN a request arrives without a valid `X-Request-Id` header THEN the system SHALL generate a UUID v4 as the request id.  <!-- FND-14 -->
 3. The system SHALL return the request id in the `X-Request-Id` response header of every response.  <!-- FND-15 -->
-4. WHEN a request completes THEN the system SHALL write one JSON log line containing `requestId`, HTTP method, path, status code and duration in milliseconds.  <!-- FND-16 -->
+4. WHEN a request completes THEN the system SHALL write one JSON log line containing `requestId`, HTTP method, request URL (path plus query string), status code and duration in milliseconds.  <!-- FND-16 -->
 5. The system SHALL redact the `Authorization` header and any `password` field as `"[REDACTED]"` in every log line.  <!-- FND-17 -->
 6. The system SHALL use the log level given by the `LOG_LEVEL` environment variable, defaulting to `info`.  <!-- FND-18 -->
 

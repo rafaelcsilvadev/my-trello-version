@@ -300,7 +300,7 @@ T12 → T13 → T14
 **Done when**:
 
 - [x] Unit tests for request id: valid header reused; empty, missing and 129-char header → UUID v4
-- [x] E2E tests with captured log stream: `X-Request-Id` echoed; one JSON line with `requestId`, method, path, status, duration; `Authorization` and `password` → `"[REDACTED]"`; throwing route logs `error` level with stack and `requestId`; `LOG_LEVEL=warn` suppresses the `info` access line
+- [x] E2E tests with captured log stream: `X-Request-Id` echoed; one JSON line with `requestId`, method, URL (path plus query string), status, duration; `Authorization` and `password` → `"[REDACTED]"`; throwing route logs `error` level with stack and `requestId`; `LOG_LEVEL=warn` suppresses the `info` access line
 - [x] Gate check passes: full gate
 - [x] Test count: ≥ 8 new tests pass
 
@@ -311,7 +311,7 @@ T12 → T13 → T14
 
 **Status**: ✅ Complete (gate: build 0, lint 0, test 27/27 — 5 new, test:integration 1/1, test:e2e 15/15 — 8 new; mutants "logger mounted after the body-parser/prefix middlewares" and "filter does not log unhandled errors" both killed)
 
-**Notes**: Nest mounts module middleware after every `app.use()` from `configureApp`, so nestjs-pino's own pino-http would miss body-parser and out-of-prefix errors (no `X-Request-Id`, no access line). `LoggingModule` builds one pino-http instance (`HTTP_LOGGER`) that `configureApp` mounts as the first middleware; nestjs-pino runs with `useExisting: true` and only binds the request context for `PinoLogger`. The filter now always has `req.id`, so the T7 `randomUUID()` fallback is gone, and it logs non-`HttpException` errors through `req.log`. `genReqId` lives in `src/logging/request-id.ts` (pure, no Nest imports). The access line carries `requestId`, `req.method`, `req.url`, `res.statusCode` and `responseTime`; `req.url` keeps the query string. Tests swap the destination through the `LOG_DESTINATION` provider. Loading `AppModule` in `jest.isolateModules` now also needs `@nestjs/testing` from the same registry (nestjs-pino injects `ApplicationConfig`), so `app.module.spec.ts` loads `Test` there. `nestjs-pino` 5.3.1, `pino` 10.4.0 and `pino-http` 11.0.0 were added in a separate `chore` commit.
+**Notes**: Nest mounts module middleware after every `app.use()` from `configureApp`, so nestjs-pino's own pino-http would miss body-parser and out-of-prefix errors (no `X-Request-Id`, no access line). `LoggingModule` builds one pino-http instance (`HTTP_LOGGER`) that `configureApp` mounts as the first middleware; nestjs-pino runs with `useExisting: true` and only binds the request context for `PinoLogger`. The filter now always has `req.id`, so the T7 `randomUUID()` fallback is gone, and it logs non-`HttpException` errors through `req.log`. `genReqId` lives in `src/logging/request-id.ts` (pure, no Nest imports). The access line carries `requestId`, `req.method`, `req.url`, `res.statusCode` and `responseTime`; `req.url` keeps the query string, so FND-16 was updated from "path" to "request URL (path plus query string)". Tests swap the destination through the `LOG_DESTINATION` provider. Loading `AppModule` in `jest.isolateModules` now also needs `@nestjs/testing` from the same registry (nestjs-pino injects `ApplicationConfig`), so `app.module.spec.ts` loads `Test` there. `nestjs-pino` 5.3.1, `pino` 10.4.0 and `pino-http` 11.0.0 were added in a separate `chore` commit.
 
 ---
 
