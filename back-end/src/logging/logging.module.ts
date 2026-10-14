@@ -4,6 +4,7 @@ import { LoggerModule } from 'nestjs-pino';
 import { pino, type DestinationStream } from 'pino';
 import { pinoHttp, type HttpLogger } from 'pino-http';
 import type { Env } from '../config/env.schema';
+import { redactLogLine } from './redact-passwords';
 import { genReqId } from './request-id';
 
 export const LOG_DESTINATION = Symbol('LOG_DESTINATION');
@@ -26,13 +27,10 @@ export const HTTP_LOGGER = Symbol('HTTP_LOGGER');
                 {
                   level: config.get('LOG_LEVEL', { infer: true }),
                   redact: {
-                    paths: [
-                      'req.headers.authorization',
-                      '*.password',
-                      '*.*.password',
-                    ],
+                    paths: ['req.headers.authorization'],
                     censor: '[REDACTED]',
                   },
+                  hooks: { streamWrite: redactLogLine },
                 },
                 destination,
               ),

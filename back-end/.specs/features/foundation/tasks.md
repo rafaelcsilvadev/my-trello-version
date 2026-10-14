@@ -10,7 +10,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 
 **Spec**: `back-end/.specs/features/foundation/spec.md`
 **Design**: `back-end/.specs/features/foundation/design.md`
-**Status**: In Progress
+**Status**: ✅ Complete (Verifier PASS on iteration 3, see `validation.md`)
 
 **Execution mode** (approved 2026-10-14): inline in the main session, no batch sub-agents; the Verifier still runs automatically after T14. Logic tasks run with the `pair-programming` skill so every change is reviewed in small TDD steps instead of one large review at the end.
 
@@ -493,6 +493,46 @@ T12 → T13 → T14
 **Status**: ✅ Complete (gate: build 0, lint 0, test 30/30, test:integration 3/3, test:e2e 19/19; Docker smoke from `down -v`: both services `healthy`, `GET /api/v1/health` → `200` `{"status":"ok","checks":{"database":"up"}}`)
 
 **Notes**: Foundation ships no migrations and TypeORM logging is off, so the logs carry no migration line. Evidence instead: after boot the `migrations` table exists with 0 rows (the runner ran via `migrationsRun`), and `TypeOrmCoreModule dependencies initialized` is logged before `Nest application successfully started`; the run-before-listen order itself is covered by the T9 integration test. PostgreSQL publishes no host port (only the `api` reaches it on the compose network), so a local PostgreSQL on `5432` does not conflict. The volume mounts `/var/lib/postgresql`, the data root that the PostgreSQL 18 image expects. Dev credentials `trello/trello/trello` match `back-end/.env.example`.
+
+---
+
+### F1: Redact password fields at any depth (Verifier gap, iteration 1)
+
+**What**: FND-17 says "any `password` field"; the pino paths `*.password` / `*.*.password` missed top-level, 3+ levels deep and array items. A `formatters.log` hook (`redactPasswords`) now walks plain objects and arrays and censors every `password` key; the `Authorization` header stays on pino `redact`.
+**Where**: `back-end/src/logging/redact-passwords.ts`, `back-end/src/logging/logging.module.ts`
+**Requirement**: FND-17
+
+**Done when**:
+
+- [x] Unit: top-level, 3 levels deep, array items, no mutation, `Error` kept, circular reference
+- [x] E2E: nested and array `password` fields logged as `"[REDACTED]"` (red before the fix: `p3`, `p4` leaked)
+- [x] Gate check passes: build gate
+
+**Tests**: unit, e2e
+**Gate**: build
+
+**Commit**: `fix(logging): redact password fields at any depth`
+
+**Status**: ✅ Complete (gate: build 0, lint 0, test 36/36, test:integration 3/3, test:e2e 20/20)
+
+### F2: Redact passwords in class instances and logger bindings (Verifier gap, iteration 2)
+
+**What**: The F1 `formatters.log` hook skipped class instances (DTOs from `ValidationPipe({ transform: true })`) and never saw child/`assign` bindings, a regression from the old paths. Redaction now runs on the final JSON line through pino `hooks.streamWrite` (`redactLogLine`), after serializers and bindings. `design.md` updated to match.
+**Where**: `back-end/src/logging/redact-passwords.ts`, `back-end/src/logging/logging.module.ts`, `back-end/test/support/test-only.controller.ts` (`log-instance` route)
+**Requirement**: FND-17
+
+**Done when**:
+
+- [x] E2E: class instance in the log object and in `assign` bindings logged as `"[REDACTED]"`, raw value absent from every line (red before the fix: `p5` leaked)
+- [x] Unit: `redactLogLine` censors a serialized line and keeps the trailing newline
+- [x] Gate check passes: build gate
+
+**Tests**: unit, e2e
+**Gate**: build
+
+**Commit**: `fix(logging): redact passwords in class instances and bindings`
+
+**Status**: ✅ Complete (gate: build 0, lint 0, test 37/37, test:integration 3/3, test:e2e 21/21)
 
 ---
 
