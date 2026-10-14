@@ -238,15 +238,19 @@ T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Integration smoke test runs `SELECT 1` against the container through `pg`
-- [ ] Unit test: the container-start wrapper rethrows `Docker is required to run integration and e2e tests (Testcontainers could not reach a Docker daemon).` when the starter fails
-- [ ] Gate check passes: `pnpm test && pnpm test:integration`
-- [ ] Test count: ≥ 2 new tests pass
+- [x] Integration smoke test runs `SELECT 1` against the container through `pg`
+- [x] Unit test: the container-start wrapper rethrows `Docker is required to run integration and e2e tests (Testcontainers could not reach a Docker daemon).` when the starter fails
+- [x] Gate check passes: `pnpm test && pnpm test:integration`
+- [x] Test count: ≥ 2 new tests pass
 
 **Tests**: integration
 **Gate**: full
 
 **Commit**: `test(back-end): add Testcontainers integration and e2e harness`
+
+**Status**: ✅ Complete (gate: build 0, lint 0, test 22/22 — 1 new, test:integration 1/1; no container left running after the run; with `DOCKER_HOST=tcp://127.0.0.1:1` the run exits 1 with the Docker-required message)
+
+**Notes**: The wrapper lives in `test/support/start-postgres.ts` and takes the starter as a parameter so the unit test can inject a failing one. The global setup stores the container on `globalThis` for the teardown and exports `DATABASE_URL`; Jest workers start after global setup and inherit it. `pg` 8.23.1 is a runtime dependency (TypeORM needs it in T9); `@testcontainers/postgresql` 12.2.1 and `@types/pg` were added in a separate `chore` commit, with the `cpu-features`, `protobufjs` and `ssh2` install scripts denied. `pnpm test:e2e` exits 1 ("No tests found") until T7 adds the first e2e test. FND-22 "apply migrations" lands with T9.
 
 ---
 

@@ -11,7 +11,9 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "oxlint --type-aware src/ test/ && prettier --check \"src/**/*.ts\" \"test/**/*.ts\"",
-    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --config test/jest-unit.config.ts"
+    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --config test/jest-unit.config.ts",
+    "test:integration": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --config test/jest-integration.config.ts",
+    "test:e2e": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --config test/jest-e2e.config.ts"
   },
   "dependencies": {
     "@nestjs/common": "^12.1.3",
