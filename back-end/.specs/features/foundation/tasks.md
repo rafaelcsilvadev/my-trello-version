@@ -24,7 +24,7 @@ Skill scripts for this app run with `--root back-end`. All `pnpm` commands below
 
 | Code Layer | Required Test Type | Coverage Expectation | Location Pattern | Run Command |
 | ---------- | ------------------ | -------------------- | ---------------- | ----------- |
-| Pure TS functions (env schema, problem builder, validation mapper, request id, db check) | unit | All branches; 1:1 to spec ACs; every listed edge case | `src/**/*.spec.ts` | `pnpm test` |
+| Pure TS functions (env schema, problem builder, validation mapper, request id, db check) | unit | All branches; 1:1 to spec ACs; every listed edge case | `test/unit/**/*.spec.ts` | `pnpm test` |
 | Database infrastructure (TypeORM module, migrations) | integration | Connection, migrations applied, error path | `test/integration/**/*.int-spec.ts` | `pnpm test:integration` |
 | HTTP layer (configureApp, filter, logging, controllers, Swagger) | e2e | Every route/behavior in scope: happy + edge + error paths | `test/e2e/**/*.e2e-spec.ts` | `pnpm test:e2e` |
 | Workspace / tooling / Docker config | none | Build gate + command smoke check in `Done when` | - | build gate only |
@@ -105,7 +105,7 @@ T12 → T13 → T14
 
 ### T2: Scaffold NestJS 12 app with lint and unit test runner
 
-**What**: `back-end/` Nest 12 app from the official template (`package.json` scripts `build`, `start`, `start:dev`, `lint`, `format`, `test`; `tsconfig*.json` with `typescript@~6.0.3`; `nest-cli.json`; `.oxlintrc.json`; `.prettierrc`; `test/jest-unit.config.ts` matching `src/**/*.spec.ts`), minimal `src/main.ts` + `src/app.module.ts`, template sample controller removed.
+**What**: `back-end/` Nest 12 app from the official template (`package.json` scripts `build`, `start`, `start:dev`, `lint`, `format`, `test`; `tsconfig*.json` with `typescript@~6.0.3`; `nest-cli.json`; `.oxlintrc.json`; `.prettierrc`; `test/jest-unit.config.ts` matching `test/unit/**/*.spec.ts`), minimal `src/main.ts` + `src/app.module.ts`, template sample controller removed.
 **Where**: `back-end/package.json` and template config files
 **Depends on**: T1
 **Reuses**: `@nestjs/schematics` 12.0.7 `application/files/ts` template

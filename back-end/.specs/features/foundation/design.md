@@ -64,10 +64,10 @@ my-trello-version/
         ├── support/postgres.global-teardown.ts
         ├── support/create-test-app.ts         # Test module + configureApp()
         ├── support/test-only.controller.ts    # routes used only by error-format e2e tests
-        └── e2e/  integration/
+        └── unit/  integration/  e2e/
 ```
 
-Unit tests sit next to the source as `*.spec.ts`; integration and e2e tests live under `test/` as `*.int-spec.ts` and `*.e2e-spec.ts`.
+All tests live under `back-end/test/`, never next to production code: unit tests in `test/unit/` mirroring `src/` (`*.spec.ts`), integration in `test/integration/` (`*.int-spec.ts`), e2e in `test/e2e/` (`*.e2e-spec.ts`).
 
 ---
 
@@ -178,7 +178,7 @@ No migration ships in this feature (no tables); the mechanism is proven by an in
 - **Purpose**: FND-21..25.
 - **Location**: `back-end/test/`
 - **Interfaces**:
-  - `pnpm test` → `jest-unit.config.ts` (`src/**/*.spec.ts`, no Docker).
+  - `pnpm test` → `jest-unit.config.ts` (`test/unit/**/*.spec.ts`, no Docker).
   - `pnpm test:integration` → `jest-integration.config.ts` with `globalSetup`/`globalTeardown` (Testcontainers `postgres:18.6-alpine`).
   - `pnpm test:e2e` → `jest-e2e.config.ts`, same global setup, `createTestApp()` boots `AppModule` + `TestOnlyController` and calls `configureApp`.
   - `globalSetup` catches the container start failure and throws `Docker is required to run integration and e2e tests (Testcontainers could not reach a Docker daemon).` (FND-25).
@@ -239,6 +239,7 @@ None. Foundation creates no tables.
 | Request DTO validation | class-validator + class-transformer | Nest-native; `@nestjs/swagger` reads the same decorators for OpenAPI |
 | Migrations on boot | `migrationsRun: true` in the TypeORM config | Works the same in Docker, local dev and e2e; no extra entrypoint script |
 | Config of DB | Single `DATABASE_URL` | Testcontainers exposes a connection URI; one variable instead of five |
+| Test location | All tests under `test/` (`unit/`, `integration/`, `e2e/`), unit mirroring `src/` | Pair-programming rule: tests separate from production code (decided 2026-10-14, replaces co-located `src/**/*.spec.ts`) |
 | Images | `postgres:18.6-alpine`, `node:24.17.0-alpine` | Latest stable PostgreSQL (19 is beta); Node matches `.nvmrc` |
 
 Project-level decision recorded: BE-AD-004 (RFC 9457 error contract through one global filter). Everything else is foundation-local.
