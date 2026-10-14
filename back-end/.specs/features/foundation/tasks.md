@@ -391,14 +391,18 @@ T12 → T13 → T14
 
 **Done when**:
 
-- [ ] E2E tests: DB up → `200 { status: 'ok', checks: { database: 'up' } }`; DB unreachable (overridden `DataSource` that hangs) → `503 { status: 'error', checks: { database: 'down' } }`
-- [ ] Gate check passes: full gate
-- [ ] Test count: ≥ 2 new tests pass
+- [x] E2E tests: DB up → `200 { status: 'ok', checks: { database: 'up' } }`; DB unreachable (overridden `DataSource` that hangs) → `503 { status: 'error', checks: { database: 'down' } }`
+- [x] Gate check passes: full gate
+- [x] Test count: ≥ 2 new tests pass
 
 **Tests**: e2e
 **Gate**: full
 
 **Commit**: `feat(health): expose GET /api/v1/health`
+
+**Status**: ✅ Complete (gate: build 0, lint 0, test 30/30, test:integration 3/3, test:e2e 17/17 — 2 new, stable over 3 runs; mutants "HealthModule not registered" and "down reported with 200" both killed)
+
+**Notes**: The controller sets `503` on the response (`@Res({ passthrough: true })`) instead of throwing, so the body skips `ProblemDetailsFilter` (the BE-AD-004 exception). The 503 test overrides the TypeORM `DataSource` through a new `createTestApp({ dataSource })` option with one whose `query` never settles, so it runs the real 3 s timeout. The `AppModule` unit spec now swaps `DatabaseModule` for a global module that provides a stand-in `DataSource`, so `HealthController` resolves without Docker. Adding a third e2e suite exposed a race from T9: parallel Jest workers each boot the app and run migrations against the same database, colliding on `CREATE TABLE migrations` (already flaky before T11, 2 of 3 runs failed); a separate `fix(test)` commit runs e2e with `maxWorkers: 1`.
 
 ---
 
