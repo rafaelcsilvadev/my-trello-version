@@ -269,14 +269,18 @@ T12 → T13 → T14
 
 **Done when**:
 
-- [ ] E2E tests: unknown route → `404` problem; invalid body → `400` + `errors`; extra property → `400` listing it; malformed JSON → `400` "Request body is not valid JSON."; throwing route → `500` with generic detail and no stack; every error has `Content-Type: application/problem+json`, `instance` and `requestId`; routes live under `/api/v1`
-- [ ] Gate check passes: full gate
-- [ ] Test count: ≥ 7 new tests pass
+- [x] E2E tests: unknown route → `404` problem; invalid body → `400` + `errors`; extra property → `400` listing it; malformed JSON → `400` "Request body is not valid JSON."; throwing route → `500` with generic detail and no stack; every error has `Content-Type: application/problem+json`, `instance` and `requestId`; routes live under `/api/v1`
+- [x] Gate check passes: full gate
+- [x] Test count: ≥ 7 new tests pass
 
 **Tests**: e2e
 **Gate**: full
 
 **Commit**: `feat(errors): return RFC 9457 problem details for every error`
+
+**Status**: ✅ Complete (gate: build 0, lint 0, test 22/22, test:integration 1/1, test:e2e 7/7 — 7 new)
+
+**Notes**: Nest's Express adapter turns the body-parser `SyntaxError` into `BadRequestException(error.message)`, so the filter cannot recognize malformed JSON. `configureApp` registers the JSON parser itself (`useBodyParser('json')`; Nest then skips its own) followed by an error middleware that replaces the parse error with `BadRequestException('Request body is not valid JSON.')`. Nest mounts its 404 handler only inside the global prefix, so a path outside `/api/v1` got Express's HTML 404; a second middleware rejects those with `NotFoundException`. T12 must let `/api/docs` and `/api/docs-json` through that middleware. The filter falls back to `randomUUID()` when `req.id` is missing, because body-parser errors happen before any request-id middleware (relevant for T8). `instance` is `req.originalUrl` without the query string. The filter does not log yet; FND-12 lands in T8. `supertest` 7.3.1 was added in a separate `chore` commit.
 
 ---
 
