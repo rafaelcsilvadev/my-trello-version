@@ -1,19 +1,19 @@
-export type Env = {
-  NODE_ENV: string;
-  PORT: number;
-  LOG_LEVEL: string;
-  DATABASE_URL: string;
-};
+import { z } from 'zod';
+
+const envSchema = z.object({
+  NODE_ENV: z.string().default('development'),
+  PORT: z.coerce.number().int().default(3000),
+  LOG_LEVEL: z.string().default('info'),
+  DATABASE_URL: z.string().min(1),
+});
+
+export type Env = z.infer<typeof envSchema>;
 
 export function validateEnv(raw: Record<string, unknown>): Env {
-  if (raw.DATABASE_URL === undefined) {
-    throw new Error('Invalid environment: DATABASE_URL');
+  const result = envSchema.safeParse(raw);
+  if (!result.success) {
+    const names = result.error.issues.map((issue) => issue.path.join('.'));
+    throw new Error(`Invalid environment: ${names.join(', ')}`);
   }
-
-  return {
-    NODE_ENV: String(raw.NODE_ENV ?? 'development'),
-    PORT: Number(raw.PORT ?? 3000),
-    LOG_LEVEL: String(raw.LOG_LEVEL ?? 'info'),
-    DATABASE_URL: String(raw.DATABASE_URL),
-  };
+  return result.data;
 }

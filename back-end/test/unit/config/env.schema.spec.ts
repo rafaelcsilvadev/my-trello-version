@@ -33,4 +33,10 @@ describe('validateEnv', () => {
   it('throws naming DATABASE_URL when it is missing', () => {
     expect(() => validateEnv({})).toThrow(/DATABASE_URL/);
   });
+
+  it('throws naming every invalid variable at once', () => {
+    expect(() => validateEnv({ PORT: 'abc' })).toThrow(
+      /(?=.*DATABASE_URL)(?=.*PORT)/s,
+    );
+  });
 });
