@@ -148,14 +148,18 @@ T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Unit tests: valid env parses with defaults (`PORT=3000`, `LOG_LEVEL=info`); missing `DATABASE_URL` throws naming it; two invalid vars throw naming both; invalid `LOG_LEVEL` throws naming it
-- [ ] Gate check passes: `pnpm test`
-- [ ] Test count: ≥ 4 new tests pass
+- [x] Unit tests: valid env parses with defaults (`PORT=3000`, `LOG_LEVEL=info`); missing `DATABASE_URL` throws naming it; two invalid vars throw naming both; invalid `LOG_LEVEL` throws naming it
+- [x] Gate check passes: `pnpm test`
+- [x] Test count: ≥ 4 new tests pass
 
 **Tests**: unit
 **Gate**: quick
 
 **Commit**: `feat(config): validate environment variables at startup`
+
+**Status**: ✅ Complete (gate: build 0, lint 0, test 9/9 — 8 new; mutants "validate removed from ConfigModule" and "extra LOG_LEVEL accepted" both killed)
+
+**Notes**: `@nestjs/config` 12 makes `ConfigModule.forRoot` async, so an invalid env rejects when the app module graph compiles (`NestFactory.create` / `compile()`), not at import. The `AppModule` spec loads the module in `jest.isolateModules` so each test sets its env first. `DATABASE_URL` also requires a `postgres://` / `postgresql://` URL (design "Env schema").
 
 ---
 
