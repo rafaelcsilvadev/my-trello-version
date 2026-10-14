@@ -89,7 +89,7 @@ Every API feature (auth, boards, lists, cards) needs the same base: a running Ne
 
 **Acceptance Criteria**:
 
-1. The system SHALL return every error response (status ≥ 400) with `Content-Type: application/problem+json` and a body containing `type`, `title`, `status`, `detail`, `instance` (the request path) and `requestId`.  <!-- FND-07 -->
+1. The system SHALL return every error response (status ≥ 400), except the health `503` body defined by FND-06, with `Content-Type: application/problem+json` and a body containing `type`, `title`, `status`, `detail`, `instance` (the request path) and `requestId`.  <!-- FND-07 -->
 2. IF a request body fails validation THEN the system SHALL return `400` with an `errors` array where each item has `field` (property path) and `message`.  <!-- FND-08 -->
 3. IF a request body contains a property not declared in the endpoint contract THEN the system SHALL return `400` listing that property in `errors`.  <!-- FND-09 -->
 4. WHEN a client calls a route that does not exist THEN the system SHALL return `404` in Problem Details format.  <!-- FND-10 -->
