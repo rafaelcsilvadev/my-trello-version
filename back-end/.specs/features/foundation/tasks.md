@@ -208,14 +208,18 @@ T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Unit tests: one error per failed constraint; nested property path `a.b`; non-whitelisted property listed with its name
-- [ ] Gate check passes: `pnpm test`
-- [ ] Test count: ≥ 3 new tests pass
+- [x] Unit tests: one error per failed constraint; nested property path `a.b`; non-whitelisted property listed with its name
+- [x] Gate check passes: `pnpm test`
+- [x] Test count: ≥ 3 new tests pass
 
 **Tests**: unit
 **Gate**: quick
 
 **Commit**: `feat(errors): map validation errors to field errors`
+
+**Status**: ✅ Complete (gate: build 0, lint 0, test 21/21 — 4 new; mutants "nested path without parent prefix" and "children not flattened" both killed)
+
+**Notes**: Tests run the real class-validator `validate()` with `whitelist` + `forbidNonWhitelisted` (the `ValidationPipe` options from the design) instead of hand-built `ValidationError` objects. `class-validator` 0.15.1 and `class-transformer` 0.5.1 were added in a separate `chore` commit. The exception message (used as `detail` by the T7 filter) is `"Request validation failed."`; the spec does not define the 400 `detail`, so it has no test.
 
 ---
 
