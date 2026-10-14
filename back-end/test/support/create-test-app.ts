@@ -1,15 +1,24 @@
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { Test } from '@nestjs/testing';
+import type { DestinationStream } from 'pino';
 import { AppModule } from '../../src/app.module';
 import { configureApp } from '../../src/app.setup';
+import { LOG_DESTINATION } from '../../src/logging/logging.module';
 import { TestOnlyController } from './test-only.controller';
 
 // Boots the real AppModule with the same HTTP wiring as main.ts.
-export async function createTestApp(): Promise<NestExpressApplication> {
-  const moduleRef = await Test.createTestingModule({
+// logDestination captures the JSON log lines instead of writing to stdout.
+export async function createTestApp(
+  options: { logDestination?: DestinationStream } = {},
+): Promise<NestExpressApplication> {
+  const builder = Test.createTestingModule({
     imports: [AppModule],
     controllers: [TestOnlyController],
-  }).compile();
+  });
+  if (options.logDestination) {
+    builder.overrideProvider(LOG_DESTINATION).useValue(options.logDestination);
+  }
+  const moduleRef = await builder.compile();
 
   const app = moduleRef.createNestApplication<NestExpressApplication>();
   configureApp(app);
