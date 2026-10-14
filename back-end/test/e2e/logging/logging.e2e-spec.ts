@@ -119,6 +119,24 @@ describe('Structured logging with request id (e2e)', () => {
     });
   });
 
+  it('redacts password fields at any depth and inside arrays', async () => {
+    await http()
+      .post('/api/v1/test-only/log')
+      .set('X-Request-Id', 'redact-deep-password')
+      .send({
+        a: { b: { password: 'p3' } },
+        users: [{ password: 'p4' }],
+      });
+
+    const logged = lines.find(
+      (line) => line.requestId === 'redact-deep-password' && 'body' in line,
+    );
+    expect(logged?.body).toEqual({
+      a: { b: { password: '[REDACTED]' } },
+      users: [{ password: '[REDACTED]' }],
+    });
+  });
+
   it('logs an unhandled exception at error level with its stack and requestId', async () => {
     await http().get('/api/v1/test-only/throw').set('X-Request-Id', 'boom');
 

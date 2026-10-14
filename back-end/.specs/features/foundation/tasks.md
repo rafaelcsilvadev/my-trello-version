@@ -496,6 +496,27 @@ T12 → T13 → T14
 
 ---
 
+### F1: Redact password fields at any depth (Verifier gap, iteration 1)
+
+**What**: FND-17 says "any `password` field"; the pino paths `*.password` / `*.*.password` missed top-level, 3+ levels deep and array items. A `formatters.log` hook (`redactPasswords`) now walks plain objects and arrays and censors every `password` key; the `Authorization` header stays on pino `redact`.
+**Where**: `back-end/src/logging/redact-passwords.ts`, `back-end/src/logging/logging.module.ts`
+**Requirement**: FND-17
+
+**Done when**:
+
+- [x] Unit: top-level, 3 levels deep, array items, no mutation, `Error` kept, circular reference
+- [x] E2E: nested and array `password` fields logged as `"[REDACTED]"` (red before the fix: `p3`, `p4` leaked)
+- [x] Gate check passes: build gate
+
+**Tests**: unit, e2e
+**Gate**: build
+
+**Commit**: `fix(logging): redact password fields at any depth`
+
+**Status**: ✅ Complete (gate: build 0, lint 0, test 36/36, test:integration 3/3, test:e2e 20/20)
+
+---
+
 ## Phase Execution Map
 
 ```
