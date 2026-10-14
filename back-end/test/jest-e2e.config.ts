@@ -10,6 +10,9 @@ const config: Config = {
   globalSetup: '<rootDir>/test/support/postgres.global-setup.ts',
   globalTeardown: '<rootDir>/test/support/postgres.global-teardown.ts',
   testEnvironment: 'node',
+  // Every suite boots the app against the same database, and parallel boots
+  // race on TypeORM's "CREATE TABLE migrations".
+  maxWorkers: 1,
 };
 
 export default config;
