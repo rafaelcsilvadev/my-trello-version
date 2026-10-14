@@ -451,14 +451,18 @@ T12 → T13 → T14
 
 **Done when**:
 
-- [ ] `docker build -f back-end/Dockerfile .` at repo root exits `0`
-- [ ] Image has no dev dependencies (`jest` absent from `node_modules`)
-- [ ] Gate check passes: build gate
+- [x] `docker build -f back-end/Dockerfile .` at repo root exits `0`
+- [x] Image has no dev dependencies (`jest` absent from `node_modules`)
+- [x] Gate check passes: build gate
 
 **Tests**: none
 **Gate**: build
 
 **Commit**: `build(back-end): add multi-stage Dockerfile`
+
+**Status**: ✅ Complete (gate: build 0, lint 0, test 30/30, test:integration 3/3, test:e2e 19/19; `docker build` 0; image 448 MB, no `jest`/`ts-jest`/`@nestjs/cli` in the store; `docker run` without env exits on "Invalid environment: DATABASE_URL")
+
+**Notes**: The runtime stage runs `pnpm install --prod --frozen-lockfile --filter back-end` (design's fallback) instead of `pnpm deploy`. The pnpm store and metadata cache sit in BuildKit cache mounts, which cut the image from 583 MB to 448 MB. `.dockerignore` drops `*.tsbuildinfo` so the incremental `nest build` cannot skip emitting after `deleteOutDir`. `typescript` stays in the image as a peer of `@nestjs/swagger` and `typeorm` (prod deps), not as a dev dependency. The image runs as the `node` user.
 
 ---
 

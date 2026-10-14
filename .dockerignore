@@ -1,0 +1,10 @@
+**/node_modules
+**/dist
+**/coverage
+**/*.tsbuildinfo
+**/.env
+**/.specs
+.git
+.idea
+.codegraph
+back-end/test
