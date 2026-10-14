@@ -178,14 +178,18 @@ T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Unit tests: `type` defaults to `about:blank`; `title` is the reason phrase for 400/404/500/503; all required fields present; `errors` included only when given
-- [ ] Gate check passes: `pnpm test`
-- [ ] Test count: ≥ 4 new tests pass
+- [x] Unit tests: `type` defaults to `about:blank`; `title` is the reason phrase for 400/404/500/503; all required fields present; `errors` included only when given
+- [x] Gate check passes: `pnpm test`
+- [x] Test count: ≥ 4 new tests pass
 
 **Tests**: unit
 **Gate**: quick
 
 **Commit**: `feat(errors): add RFC 9457 problem details builder`
+
+**Status**: ✅ Complete (gate: build 0, lint 0, test 17/17 — 8 new)
+
+**Notes**: `title` comes from Node's `http.STATUS_CODES` (no framework import). A status with no reason phrase falls back to `"Unknown Status"`; the spec does not define it, so it has no test.
 
 ---
 
