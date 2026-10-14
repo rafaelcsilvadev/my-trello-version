@@ -10,7 +10,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 
 **Spec**: `back-end/.specs/features/foundation/spec.md`
 **Design**: `back-end/.specs/features/foundation/design.md`
-**Status**: Approved
+**Status**: In Progress
 
 **Execution mode** (approved 2026-10-14): inline in the main session, no batch sub-agents; the Verifier still runs automatically after T14. Logic tasks run with the `pair-programming` skill so every change is reviewed in small TDD steps instead of one large review at the end.
 
@@ -91,13 +91,15 @@ T12 → T13 → T14
 
 **Done when**:
 
-- [ ] `pnpm install` at repo root exits `0`
-- [ ] `git status` no longer lists `.idea/` or `.codegraph/`
+- [x] `pnpm install` at repo root exits `0`
+- [x] `git status` no longer lists `.idea/` or `.codegraph/`
 
 **Tests**: none
 **Gate**: build
 
 **Commit**: `chore: set up pnpm workspace monorepo root`
+
+**Status**: ✅ Complete (gate: `pnpm install` exit 0)
 
 ---
 
