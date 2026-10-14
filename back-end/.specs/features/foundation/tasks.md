@@ -421,14 +421,18 @@ T12 → T13 → T14
 
 **Done when**:
 
-- [ ] E2E tests: `GET /api/docs` → `200` HTML; `GET /api/docs-json` → `200`, `openapi` starts with `3.`, `paths` has `/api/v1/health`
-- [ ] Gate check passes: build gate (phase end)
-- [ ] Test count: ≥ 2 new tests pass
+- [x] E2E tests: `GET /api/docs` → `200` HTML; `GET /api/docs-json` → `200`, `openapi` starts with `3.`, `paths` has `/api/v1/health`
+- [x] Gate check passes: build gate (phase end)
+- [x] Test count: ≥ 2 new tests pass
 
 **Tests**: e2e
 **Gate**: build
 
 **Commit**: `feat(docs): serve Swagger UI and OpenAPI document`
+
+**Status**: ✅ Complete (gate: build 0, lint 0, test 30/30, test:integration 3/3, test:e2e 19/19 — 2 new; mutants "docs path rejected by rejectOutsidePrefix", "docs-json path rejected" and "setupSwagger not called" all killed)
+
+**Notes**: `@nestjs/swagger` 12.0.2 is added in a separate `chore` commit; its `@scarf/scarf` telemetry build script is denied in `pnpm-workspace.yaml`. `rejectOutsidePrefix` (T7) 404s every path outside `/api/v1` before Nest's routes run, so it now also lets `/api/docs`, `/api/docs/*` (Swagger UI assets) and `/api/docs-json` through. The document is built lazily (factory passed to `SwaggerModule.setup`) so it reflects every route registered by `app.init()`. The health route carries `@ApiTags('health')` plus `200`/`503` response descriptions.
 
 ---
 

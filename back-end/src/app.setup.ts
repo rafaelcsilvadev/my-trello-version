@@ -4,6 +4,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import type { NestExpressApplication } from '@nestjs/platform-express';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import type { NextFunction, Request, Response } from 'express';
 import { Logger } from 'nestjs-pino';
 import type { HttpLogger } from 'pino-http';
@@ -12,6 +13,8 @@ import { validationExceptionFactory } from './errors/validation.exception';
 import { HTTP_LOGGER } from './logging/logging.module';
 
 const API_PREFIX = '/api/v1';
+// Swagger UI and its assets live here; the JSON document at `${DOCS_PATH}-json`.
+const DOCS_PATH = '/api/docs';
 
 // All cross-cutting HTTP wiring, shared by main.ts and the e2e test app.
 export function configureApp(app: NestExpressApplication): void {
@@ -35,7 +38,19 @@ export function configureApp(app: NestExpressApplication): void {
     }),
   );
   app.useGlobalFilters(new ProblemDetailsFilter());
+  setupSwagger(app);
   app.enableShutdownHooks();
+}
+
+function setupSwagger(app: NestExpressApplication): void {
+  const config = new DocumentBuilder()
+    .setTitle('My Trello API')
+    .setVersion('1.0')
+    .build();
+  // useGlobalPrefix is off by default, so the docs stay at /api/docs.
+  SwaggerModule.setup(DOCS_PATH, app, () =>
+    SwaggerModule.createDocument(app, config),
+  );
 }
 
 function rejectInvalidJson(
@@ -59,10 +74,13 @@ function rejectOutsidePrefix(
   _res: Response,
   next: NextFunction,
 ): void {
-  const insidePrefix =
-    req.path === API_PREFIX || req.path.startsWith(`${API_PREFIX}/`);
+  const served =
+    req.path === `${DOCS_PATH}-json` ||
+    [API_PREFIX, DOCS_PATH].some(
+      (prefix) => req.path === prefix || req.path.startsWith(`${prefix}/`),
+    );
   next(
-    insidePrefix
+    served
       ? undefined
       : new NotFoundException(`Cannot ${req.method} ${req.path}`),
   );

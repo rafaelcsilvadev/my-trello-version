@@ -1,4 +1,9 @@
 import { Controller, Get, HttpStatus, Res } from '@nestjs/common';
+import {
+  ApiOkResponse,
+  ApiServiceUnavailableResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import type { Response } from 'express';
 import { DataSource } from 'typeorm';
 import { checkDatabase, type DatabaseStatus } from './database-health';
@@ -8,6 +13,7 @@ export type HealthResponse = {
   checks: { database: DatabaseStatus };
 };
 
+@ApiTags('health')
 @Controller('health')
 export class HealthController {
   constructor(private readonly dataSource: DataSource) {}
@@ -15,6 +21,10 @@ export class HealthController {
   // The 503 body is the health contract, not Problem Details (BE-AD-004),
   // so the status is set on the response instead of throwing.
   @Get()
+  @ApiOkResponse({ description: "Database answered: `{ status: 'ok' }`." })
+  @ApiServiceUnavailableResponse({
+    description: "Database down or slower than 3 s: `{ status: 'error' }`.",
+  })
   async get(
     @Res({ passthrough: true }) res: Response,
   ): Promise<HealthResponse> {
