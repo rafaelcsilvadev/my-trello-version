@@ -4,7 +4,7 @@
 **Context**: `back-end/.specs/features/foundation/context.md`
 **Status**: Approved
 
-Conforms to GL-AD-001 (pnpm workspace), GL-AD-002 (specs layout), GL-AD-003 (Docker), BE-AD-001 (modular + pure domain), BE-AD-002 (TypeORM, migrations, no `synchronize`), BE-AD-003 (three test levels).
+Conforms to GL-AD-001 (pnpm workspace), GL-AD-002 (specs layout), GL-AD-003 (Docker), BE-AD-003 (three test levels), BE-AD-004 (error contract), BE-AD-005 (entity / repository / service / controller per module; TypeORM, migrations, no `synchronize`).
 
 ---
 
@@ -126,7 +126,7 @@ Variables: `NODE_ENV` (default `development`), `PORT` (default `3000`), `LOG_LEV
 
 ### ProblemDetails builder (pure TS)
 
-- **Purpose**: Build RFC 9457 bodies without framework imports (BE-AD-001), unit-testable.
+- **Purpose**: Build RFC 9457 bodies as a plain function with no framework imports, unit-testable.
 - **Location**: `back-end/src/errors/problem-details.ts`
 - **Interfaces**:
   - `type FieldError = { field: string; message: string }`

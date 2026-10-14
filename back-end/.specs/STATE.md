@@ -10,7 +10,7 @@ App decisions for the NestJS API. Must conform to the global decisions in `../..
 - **Trade-off**: More files and mapping code than a plain Nest CRUD service; fewer guarantees than a strict layered architecture (no enforced dependency rule tooling).
 - **Scope**: all back-end modules
 - **Date**: 2026-10-14
-- **Status**: active
+- **Status**: superseded by BE-AD-005
 
 ### BE-AD-002
 - **Decision**: Persistence uses TypeORM on PostgreSQL; TypeORM entity classes are infrastructure-only persistence models, mapped to and from the pure domain entities inside the repository implementation; schema changes go through TypeORM migrations (`synchronize` disabled).
@@ -18,7 +18,7 @@ App decisions for the NestJS API. Must conform to the global decisions in `../..
 - **Trade-off**: Duplicate model per aggregate (domain + persistence) plus mappers; TypeORM's typing is looser than Prisma/Drizzle.
 - **Scope**: all back-end modules with persistence
 - **Date**: 2026-10-14
-- **Status**: active
+- **Status**: superseded by BE-AD-005
 
 ### BE-AD-003
 - **Decision**: Test strategy has three levels: unit tests for domain code (no I/O), integration tests for repositories against a real PostgreSQL started with Testcontainers, and e2e HTTP tests with supertest against the full Nest app; no coverage percentage target.
@@ -33,6 +33,14 @@ App decisions for the NestJS API. Must conform to the global decisions in `../..
 - **Reason**: Front-end and mobile handle every error with one code path; domain code stays free of HTTP concerns (BE-AD-001).
 - **Trade-off**: Each new domain error needs a mapping entry; the health `503` body is the single documented exception.
 - **Scope**: all back-end modules
+- **Date**: 2026-10-14
+- **Status**: active
+
+### BE-AD-005
+- **Decision**: Each feature module follows the classic NestJS layering, wired by dependency injection: `*.entity.ts` (TypeORM entity = the table), `*.repository.ts` (all queries for that entity, injected TypeORM `Repository`), `*.service.ts` (business rules), `*.controller.ts` (HTTP contract between client and service, with DTOs); one flat folder per module (`src/<module>/` + `dto/`). Persistence stays on TypeORM + PostgreSQL with migrations and `synchronize` disabled.
+- **Reason**: Simple, familiar pattern that matches the size of the domain; one entity model instead of domain + ORM models + mappers; business rules stay unit-testable by injecting a mocked repository into the service.
+- **Trade-off**: Services depend on TypeORM entity classes (no framework-free domain layer); swapping the ORM would touch services. Domain errors are still plain TS error classes thrown by services and mapped by the global filter (BE-AD-004).
+- **Scope**: all back-end modules (supersedes BE-AD-001 and BE-AD-002)
 - **Date**: 2026-10-14
 - **Status**: active
 
