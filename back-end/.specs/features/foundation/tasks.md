@@ -118,14 +118,18 @@ T12 → T13 → T14
 
 **Done when**:
 
-- [ ] `pnpm build` and `pnpm lint` exit `0`
-- [ ] `pnpm test` runs with no Docker and exits `0` (one placeholder-free sanity test of `AppModule` compilation)
-- [ ] `pnpm lint` exits non-zero on an injected formatting violation (checked once, then reverted)
+- [x] `pnpm build` and `pnpm lint` exit `0`
+- [x] `pnpm test` runs with no Docker and exits `0` (one placeholder-free sanity test of `AppModule` compilation)
+- [x] `pnpm lint` exits non-zero on an injected formatting violation (checked once, then reverted)
 
 **Tests**: unit
 **Gate**: build
 
 **Commit**: `chore(back-end): scaffold NestJS 12 app with oxlint and jest`
+
+**Status**: ✅ Complete (gate: build 0, lint 0, test 1/1; lint exits 1 on injected violation)
+
+**Notes**: Nest 12 packages are ESM, so jest runs with `node --experimental-vm-modules` (same as the official template). `allowBuilds` denies `@parcel/watcher` and `unrs-resolver` install scripts (prebuilt binaries are used).
 
 ---
 
