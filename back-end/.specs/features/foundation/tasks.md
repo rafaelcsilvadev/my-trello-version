@@ -330,15 +330,19 @@ T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Integration test: booting the module against the container applies a test-only migration (table exists in `migrations` history)
-- [ ] Integration test: invalid `DATABASE_URL` makes the module init reject
-- [ ] Gate check passes: full gate
-- [ ] Test count: ≥ 2 new tests pass
+- [x] Integration test: booting the module against the container applies a test-only migration (table exists in `migrations` history)
+- [x] Integration test: invalid `DATABASE_URL` makes the module init reject
+- [x] Gate check passes: full gate
+- [x] Test count: ≥ 2 new tests pass
 
 **Tests**: integration
 **Gate**: full
 
 **Commit**: `feat(database): connect TypeORM and run migrations on boot`
+
+**Status**: ✅ Complete (gate: build 0, lint 0, test 27/27, test:integration 3/3 — 2 new, test:e2e 15/15; mutant "migrationsRun: false" killed; `migration:run`, `migration:revert` and `migration:generate` smoke-checked against a throwaway `postgres:18.6-alpine`)
+
+**Notes**: `DatabaseModule` is registered in `AppModule`, so the e2e suites now boot with a real connection. The migration list comes from a `MIGRATIONS` provider (default: `src|dist/database/migrations/*.{js,ts}` next to the module, TypeORM skips `.d.ts`), and the integration test overrides it with a test-only migration, then reverts it with `undoLastMigration()`. The "invalid `DATABASE_URL`" case uses the container URL with a wrong password, because a non-`postgres://` URL is already rejected by the env schema (T3). `retryAttempts: 0`: the module fails on the first connection error instead of Nest's default 9 retries, since compose starts the API only after PostgreSQL is healthy (T14). The `AppModule` unit spec now swaps `DatabaseModule` for an empty module (`overrideModule`), so `pnpm test` still needs no Docker (FND-21); its assertions are unchanged. The CLI uses `src/database/data-source.ts` through `typeorm-ts-node-commonjs` and reads `DATABASE_URL` through `validateEnv`. `@nestjs/typeorm` 12.0.2 and `typeorm` 1.1.2 were added in a separate `chore` commit.
 
 ---
 
