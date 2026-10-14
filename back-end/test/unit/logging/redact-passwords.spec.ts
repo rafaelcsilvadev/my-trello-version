@@ -32,19 +32,6 @@ describe('redactPasswords', () => {
 
     expect(logged.user.password).toBe('p');
   });
-
-  it('keeps an Error instance as is so pino can serialize its stack', () => {
-    const err = new Error('boom');
-
-    expect(redactPasswords({ err }).err).toBe(err);
-  });
-
-  it('handles circular references without overflowing the stack', () => {
-    const logged: Record<string, unknown> = { password: 'p' };
-    logged.self = logged;
-
-    expect(redactPasswords(logged).password).toBe('[REDACTED]');
-  });
 });
 
 describe('redactLogLine', () => {

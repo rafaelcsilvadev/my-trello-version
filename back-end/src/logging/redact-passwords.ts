@@ -1,37 +1,17 @@
 const CENSOR = '[REDACTED]';
 
-const isPlainObject = (value: unknown): value is Record<string, unknown> => {
-  if (value === null || typeof value !== 'object') return false;
-  const proto = Object.getPrototypeOf(value);
-  return proto === Object.prototype || proto === null;
-};
-
 // pino redact paths allow one wildcard per segment, so they cannot reach a
-// `password` key at any depth. Only plain objects and arrays are walked;
-// other instances (e.g. Errors) are returned as is.
-export function redactPasswords(
-  logged: Record<string, unknown>,
-): Record<string, unknown> {
-  const seen = new WeakSet<object>();
-
-  const walk = (value: unknown): unknown => {
-    if (Array.isArray(value)) {
-      if (seen.has(value)) return value;
-      seen.add(value);
-      return value.map(walk);
-    }
-    if (!isPlainObject(value)) return value;
-    if (seen.has(value)) return value;
-    seen.add(value);
-    return Object.fromEntries(
-      Object.entries(value).map(([key, field]) => [
-        key,
-        key === 'password' ? CENSOR : walk(field),
-      ]),
-    );
-  };
-
-  return walk(logged) as Record<string, unknown>;
+// `password` key at any depth. The input is parsed JSON: plain objects,
+// arrays and primitives only.
+export function redactPasswords(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(redactPasswords);
+  if (value === null || typeof value !== 'object') return value;
+  return Object.fromEntries(
+    Object.entries(value).map(([key, field]) => [
+      key,
+      key === 'password' ? CENSOR : redactPasswords(field),
+    ]),
+  );
 }
 
 // Runs on the final JSON line (pino `hooks.streamWrite`), after serializers
