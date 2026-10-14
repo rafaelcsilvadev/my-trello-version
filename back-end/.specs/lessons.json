@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "promote_threshold": 2,
+  "window_days": 45,
+  "quarantine_threshold": 2,
+  "next_id": 4,
+  "lessons": [
+    {
+      "id": "L-001",
+      "key": "ac_gap::redact sensitive keys at any nesting depth including top level and array items not only at fixed wildcard paths",
+      "text": "Redact sensitive keys at any nesting depth, including top level and array items, not only at fixed wildcard paths",
+      "signal": "ac_gap",
+      "scope": "logging",
+      "status": "candidate",
+      "features": [
+        "foundation"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "FND-17 src/logging/logging.module.ts:29-33 (logging)"
+      ],
+      "created": "2026-10-14T20:13:56Z",
+      "last_seen": "2026-10-14T20:13:56Z"
+    },
+    {
+      "id": "L-002",
+      "key": "spec_precision_gap::when one ac defines an exception to a global rule state the carve out in the global ac text too",
+      "text": "When one AC defines an exception to a global rule, state the carve-out in the global AC text too",
+      "signal": "spec_precision_gap",
+      "scope": "spec",
+      "status": "candidate",
+      "features": [
+        "foundation"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "FND-07 vs FND-06 spec.md (spec)"
+      ],
+      "created": "2026-10-14T20:13:56Z",
+      "last_seen": "2026-10-14T20:13:56Z"
+    },
+    {
+      "id": "L-003",
+      "key": "ac_gap::redact sensitive keys in class instances and child logger bindings too not only in plain log objects",
+      "text": "Redact sensitive keys in class instances and child logger bindings too, not only in plain log objects",
+      "signal": "ac_gap",
+      "scope": "logging",
+      "status": "candidate",
+      "features": [
+        "foundation"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "FND-17 src/logging/redact-passwords.ts:3-7,23 (iteration 2) (logging)"
+      ],
+      "created": "2026-10-14T20:23:11Z",
+      "last_seen": "2026-10-14T20:23:11Z"
+    }
+  ]
+}
