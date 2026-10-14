@@ -361,14 +361,18 @@ T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Unit tests with a fake `DataSource`: resolves → `'up'`; rejects → `'down'`; hangs past timeout → `'down'` (fake timers)
-- [ ] Gate check passes: `pnpm test`
-- [ ] Test count: ≥ 3 new tests pass
+- [x] Unit tests with a fake `DataSource`: resolves → `'up'`; rejects → `'down'`; hangs past timeout → `'down'` (fake timers)
+- [x] Gate check passes: `pnpm test`
+- [x] Test count: ≥ 3 new tests pass
 
 **Tests**: unit
 **Gate**: quick
 
 **Commit**: `feat(health): add database health check with timeout`
+
+**Status**: ✅ Complete (gate: build 0, lint 0, test 30/30 — 3 new; mutants "default timeout 5000", "error reported as up" and "query not raced against the timer" all killed)
+
+**Notes**: The timeout test uses the default `timeoutMs`, so it pins the spec's 3 s: still pending at 2999 ms, `'down'` at 3000 ms. The timer is cleared once the check settles, so a fast answer leaves no pending timer behind. A hung query is abandoned, not cancelled; the health endpoint (T11) only needs the verdict.
 
 ---
 
