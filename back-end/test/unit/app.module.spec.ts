@@ -1,17 +1,20 @@
 import type * as Testing from '@nestjs/testing';
 import type { ConfigService } from '@nestjs/config';
 import { Module, type Type } from '@nestjs/common';
+import type * as TypeOrm from 'typeorm';
 
 type LoadedApp = {
   AppModule: Type;
   DatabaseModule: Type;
   ConfigService: Type<ConfigService>;
+  DataSource: typeof TypeOrm.DataSource;
   Test: typeof Testing.Test;
 };
 
 // Fresh module registry per call: ConfigModule.forRoot reads process.env when
 // app.module is loaded, so each test must load it after setting its env.
-// Test comes from the same registry so Nest core tokens match AppModule's.
+// Test and DataSource come from the same registry so their tokens match
+// AppModule's.
 // DatabaseModule is swapped out so unit tests never open a connection.
 function loadApp(): LoadedApp {
   let loaded: LoadedApp | undefined;
@@ -22,6 +25,7 @@ function loadApp(): LoadedApp {
         require('../../src/database/database.module') as LoadedApp
       ).DatabaseModule,
       ConfigService: (require('@nestjs/config') as LoadedApp).ConfigService,
+      DataSource: (require('typeorm') as typeof TypeOrm).DataSource,
       Test: (require('@nestjs/testing') as typeof Testing).Test,
     };
   });
@@ -31,10 +35,16 @@ function loadApp(): LoadedApp {
 @Module({})
 class NoDatabaseModule {}
 
+// Stand-in DataSource so modules that inject it (health) still compile.
 function compileWithoutDatabase(app: LoadedApp) {
   return app.Test.createTestingModule({ imports: [app.AppModule] })
     .overrideModule(app.DatabaseModule)
-    .useModule(NoDatabaseModule)
+    .useModule({
+      module: NoDatabaseModule,
+      global: true,
+      providers: [{ provide: app.DataSource, useValue: {} }],
+      exports: [app.DataSource],
+    })
     .compile();
 }
 
