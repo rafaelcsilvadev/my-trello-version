@@ -8,7 +8,7 @@ const isPlainObject = (value: unknown): value is Record<string, unknown> => {
 
 // pino redact paths allow one wildcard per segment, so they cannot reach a
 // `password` key at any depth. Only plain objects and arrays are walked;
-// Errors and other instances are kept as is for pino's serializers.
+// other instances (e.g. Errors) are returned as is.
 export function redactPasswords(
   logged: Record<string, unknown>,
 ): Record<string, unknown> {
@@ -33,3 +33,8 @@ export function redactPasswords(
 
   return walk(logged) as Record<string, unknown>;
 }
+
+// Runs on the final JSON line (pino `hooks.streamWrite`), after serializers
+// and child bindings, so class instances such as DTOs are plain JSON here.
+export const redactLogLine = (line: string): string =>
+  `${JSON.stringify(redactPasswords(JSON.parse(line)))}\n`;

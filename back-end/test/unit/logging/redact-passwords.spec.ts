@@ -1,4 +1,7 @@
-import { redactPasswords } from '../../../src/logging/redact-passwords';
+import {
+  redactLogLine,
+  redactPasswords,
+} from '../../../src/logging/redact-passwords';
 
 describe('redactPasswords', () => {
   it('redacts a top-level password field', () => {
@@ -41,5 +44,16 @@ describe('redactPasswords', () => {
     logged.self = logged;
 
     expect(redactPasswords(logged).password).toBe('[REDACTED]');
+  });
+});
+
+describe('redactLogLine', () => {
+  it('redacts password fields in a serialized log line and keeps the newline', () => {
+    const line =
+      '{"level":30,"password":"p","user":{"password":"p"},"msg":"x"}\n';
+
+    expect(redactLogLine(line)).toBe(
+      '{"level":30,"password":"[REDACTED]","user":{"password":"[REDACTED]"},"msg":"x"}\n',
+    );
   });
 });

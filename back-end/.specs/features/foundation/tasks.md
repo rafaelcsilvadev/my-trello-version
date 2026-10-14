@@ -515,6 +515,25 @@ T12 → T13 → T14
 
 **Status**: ✅ Complete (gate: build 0, lint 0, test 36/36, test:integration 3/3, test:e2e 20/20)
 
+### F2: Redact passwords in class instances and logger bindings (Verifier gap, iteration 2)
+
+**What**: The F1 `formatters.log` hook skipped class instances (DTOs from `ValidationPipe({ transform: true })`) and never saw child/`assign` bindings, a regression from the old paths. Redaction now runs on the final JSON line through pino `hooks.streamWrite` (`redactLogLine`), after serializers and bindings. `design.md` updated to match.
+**Where**: `back-end/src/logging/redact-passwords.ts`, `back-end/src/logging/logging.module.ts`, `back-end/test/support/test-only.controller.ts` (`log-instance` route)
+**Requirement**: FND-17
+
+**Done when**:
+
+- [x] E2E: class instance in the log object and in `assign` bindings logged as `"[REDACTED]"`, raw value absent from every line (red before the fix: `p5` leaked)
+- [x] Unit: `redactLogLine` censors a serialized line and keeps the trailing newline
+- [x] Gate check passes: build gate
+
+**Tests**: unit, e2e
+**Gate**: build
+
+**Commit**: `fix(logging): redact passwords in class instances and bindings`
+
+**Status**: ✅ Complete (gate: build 0, lint 0, test 37/37, test:integration 3/3, test:e2e 21/21)
+
 ---
 
 ## Phase Execution Map

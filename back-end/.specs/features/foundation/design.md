@@ -119,7 +119,7 @@ Variables: `NODE_ENV` (default `development`), `PORT` (default `3000`), `LOG_LEV
 - **Location**: `back-end/src/logging/logging.module.ts`
 - **Interfaces**: `LoggerModule.forRootAsync` with `pinoHttp`:
   - `genReqId(req, res)`: reuse `x-request-id` when it is a non-empty string ≤ 128 chars, else `randomUUID()`; always `res.setHeader('X-Request-Id', id)`.
-  - `redact: { paths: ['req.headers.authorization', '*.password', '*.*.password'], censor: '[REDACTED]' }`.
+  - `redact: { paths: ['req.headers.authorization'], censor: '[REDACTED]' }` plus `hooks.streamWrite: redactLogLine`, which censors every `password` key at any depth in the final JSON line (class instances and child bindings included; pino paths allow one wildcard per segment).
   - `level` from `LOG_LEVEL`; `customProps` / serializers keep `requestId`, method, URL (path plus query string, as `req.url`), status, `responseTime`.
 - **Dependencies**: `nestjs-pino` 5.3, `pino` 10, `pino-http` 11.
 - **Reuses**: `app.useLogger(app.get(Logger))` so Nest's own logs are JSON too.

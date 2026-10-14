@@ -137,6 +137,20 @@ describe('Structured logging with request id (e2e)', () => {
     });
   });
 
+  it('redacts password fields of class instances and logger bindings', async () => {
+    await http()
+      .post('/api/v1/test-only/log-instance')
+      .set('X-Request-Id', 'redact-instance')
+      .send({ password: 'p5' });
+
+    const logged = lines.find(
+      (line) => line.requestId === 'redact-instance' && 'body' in line,
+    );
+    expect(logged?.body).toEqual({ password: '[REDACTED]' });
+    expect(logged?.bound).toEqual({ password: '[REDACTED]' });
+    expect(JSON.stringify(lines)).not.toContain('p5');
+  });
+
   it('logs an unhandled exception at error level with its stack and requestId', async () => {
     await http().get('/api/v1/test-only/throw').set('X-Request-Id', 'boom');
 
