@@ -2,6 +2,7 @@ packages:
   - back-end
 allowBuilds:
   '@parcel/watcher': false
+  '@scarf/scarf': false
   cpu-features: false
   protobufjs: false
   ssh2: false
