@@ -481,14 +481,18 @@ T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Docker smoke passes from a clean state (`docker compose down -v` first): health returns `200`
-- [ ] `api` logs show migrations ran before "listening"
-- [ ] Gate check passes: build gate
+- [x] Docker smoke passes from a clean state (`docker compose down -v` first): health returns `200`
+- [x] `api` logs show migrations ran before "listening"
+- [x] Gate check passes: build gate
 
 **Tests**: none
 **Gate**: build
 
 **Commit**: `build: add docker compose for API and PostgreSQL`
+
+**Status**: ✅ Complete (gate: build 0, lint 0, test 30/30, test:integration 3/3, test:e2e 19/19; Docker smoke from `down -v`: both services `healthy`, `GET /api/v1/health` → `200` `{"status":"ok","checks":{"database":"up"}}`)
+
+**Notes**: Foundation ships no migrations and TypeORM logging is off, so the logs carry no migration line. Evidence instead: after boot the `migrations` table exists with 0 rows (the runner ran via `migrationsRun`), and `TypeOrmCoreModule dependencies initialized` is logged before `Nest application successfully started`; the run-before-listen order itself is covered by the T9 integration test. PostgreSQL publishes no host port (only the `api` reaches it on the compose network), so a local PostgreSQL on `5432` does not conflict. The volume mounts `/var/lib/postgresql`, the data root that the PostgreSQL 18 image expects. Dev credentials `trello/trello/trello` match `back-end/.env.example`.
 
 ---
 
