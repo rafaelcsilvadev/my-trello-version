@@ -1,20 +1,23 @@
-import { Test } from '@nestjs/testing';
+import type * as Testing from '@nestjs/testing';
 import type { ConfigService } from '@nestjs/config';
 import type { Type } from '@nestjs/common';
 
 type LoadedApp = {
   AppModule: Type;
   ConfigService: Type<ConfigService>;
+  Test: typeof Testing.Test;
 };
 
 // Fresh module registry per call: ConfigModule.forRoot reads process.env when
 // app.module is loaded, so each test must load it after setting its env.
+// Test comes from the same registry so Nest core tokens match AppModule's.
 function loadApp(): LoadedApp {
   let loaded: LoadedApp | undefined;
   jest.isolateModules(() => {
     loaded = {
       AppModule: (require('../../src/app.module') as LoadedApp).AppModule,
       ConfigService: (require('@nestjs/config') as LoadedApp).ConfigService,
+      Test: (require('@nestjs/testing') as typeof Testing).Test,
     };
   });
   return loaded!;
@@ -36,7 +39,7 @@ describe('AppModule', () => {
     delete process.env.PORT;
     const app = loadApp();
 
-    const moduleRef = await Test.createTestingModule({
+    const moduleRef = await app.Test.createTestingModule({
       imports: [app.AppModule],
     }).compile();
 
@@ -50,8 +53,10 @@ describe('AppModule', () => {
   it('fails to compile when DATABASE_URL is missing', async () => {
     delete process.env.DATABASE_URL;
 
+    const app = loadApp();
+
     await expect(
-      Test.createTestingModule({ imports: [loadApp().AppModule] }).compile(),
+      app.Test.createTestingModule({ imports: [app.AppModule] }).compile(),
     ).rejects.toThrow(/DATABASE_URL/);
   });
 });

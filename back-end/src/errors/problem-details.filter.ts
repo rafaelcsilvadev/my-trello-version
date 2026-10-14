@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto';
 import {
   type ArgumentsHost,
   Catch,
@@ -16,15 +15,19 @@ const UNEXPECTED_ERROR_DETAIL = 'An unexpected error occurred.';
 export class ProblemDetailsFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost): void {
     const http = host.switchToHttp();
-    const req = http.getRequest<Request & { id?: string }>();
+    const req = http.getRequest<Request>();
     const res = http.getResponse<Response>();
 
     const problem = buildProblem({
       ...describe(exception),
       instance: req.originalUrl.split('?')[0],
-      // Errors raised before the request-id middleware runs have no req.id.
-      requestId: req.id ?? randomUUID(),
+      // genReqId (pino-http, first middleware) always assigns a string id.
+      requestId: req.id as string,
     });
+
+    if (!(exception instanceof HttpException)) {
+      req.log.error({ err: exception }, 'Unhandled exception');
+    }
 
     res
       .status(problem.status)
