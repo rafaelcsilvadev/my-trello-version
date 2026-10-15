@@ -311,9 +311,9 @@ T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] Unit tests (mocked `Reflector`/repository, real `JwtService`): public handler → allowed without header; no header / `Basic x` / `Bearer` without token / bad signature / expired token / `alg: none` token / unknown `sub` → `UnauthorizedException`; valid token → allowed and `req.user` set
-- [ ] Existing health, docs, errors and logging e2e suites still pass unchanged (AUTH-16 public routes)
-- [ ] Full gate passes; ≥ 8 new unit tests
+- [x] Unit tests (mocked `Reflector`/repository, real `JwtService`): public handler → allowed without header; no header / `Basic x` / `Bearer` without token / bad signature / expired token / `alg: none` token / unknown `sub` → `UnauthorizedException`; valid token → allowed and `req.user` set
+- [x] Existing health, docs, errors and logging e2e suites still pass unchanged (AUTH-16 public routes)
+- [x] Full gate passes; ≥ 8 new unit tests
 
 **Tests**: unit
 **Gate**: full
