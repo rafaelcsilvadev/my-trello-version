@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsEmail, IsString, Length, MaxLength } from 'class-validator';
+import { IsEmail, IsString, Length } from 'class-validator';
 
 // Transforms leave non-strings untouched, so @IsString still rejects them.
 const trim = ({ value }: { value: unknown }) =>
@@ -18,8 +18,8 @@ export class RegisterDto {
 
   @ApiProperty({ maxLength: 254, format: 'email', example: 'ana@example.com' })
   @Transform(normalizeEmail)
+  // @IsEmail already rejects emails longer than 254 characters (AUTH-04).
   @IsEmail()
-  @MaxLength(254)
   email!: string;
 
   @ApiProperty({ minLength: 8, maxLength: 72 })
