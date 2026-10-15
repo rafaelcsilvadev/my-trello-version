@@ -211,8 +211,8 @@ T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] Integration tests: `create` returns the user with generated `id` and `createdAt`; duplicate email → `EmailAlreadyRegisteredError`; two concurrent `create` with the same email → exactly one fulfils and one rejects with `EmailAlreadyRegisteredError`; `findByEmail` / `findById` return the user or `null`
-- [ ] Full gate passes; ≥ 5 new integration tests
+- [x] Integration tests: `create` returns the user with generated `id` and `createdAt`; duplicate email → `EmailAlreadyRegisteredError`; two concurrent `create` with the same email → exactly one fulfils and one rejects with `EmailAlreadyRegisteredError`; `findByEmail` / `findById` return the user or `null`
+- [x] Full gate passes; ≥ 5 new integration tests
 
 **Tests**: integration
 **Gate**: full
