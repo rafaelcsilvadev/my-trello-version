@@ -362,9 +362,9 @@ T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] e2e tests with `{ rateLimit: true }`: 10 login requests pass the limit and the 11th → `429` Problem Details with a numeric `Retry-After` header; same for register; after 11 login requests a register request is not `429`; `GET /me` is never throttled
-- [ ] Docker smoke passes
-- [ ] Build gate passes; ≥ 4 new e2e tests
+- [x] e2e tests with `{ rateLimit: true }`: 10 login requests pass the limit and the 11th → `429` Problem Details with a numeric `Retry-After` header; same for register; after 11 login requests a register request is not `429`; `GET /me` is never throttled
+- [x] Docker smoke passes
+- [x] Build gate passes; ≥ 4 new e2e tests
 
 **Tests**: e2e
 **Gate**: build
