@@ -7,6 +7,7 @@ import {
 } from '@nestjs/jwt';
 import type { Env } from '../config/env.schema';
 import { UsersModule } from '../users/users.module';
+import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { PasswordHasher } from './password-hasher';
 
@@ -34,6 +35,7 @@ export function createJwtOptions(
       useFactory: createJwtOptions,
     }),
   ],
+  controllers: [AuthController],
   providers: [AuthService, PasswordHasher],
 })
 export class AuthModule {}
