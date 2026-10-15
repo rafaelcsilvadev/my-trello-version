@@ -261,8 +261,8 @@ T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] e2e tests: valid body → `201` with `accessToken` and `user` `{ id, name, email, createdAt }` only (no `password`/`passwordHash` keys); `  Ana  ` stored as `Ana`; `  ANA@X.COM ` returned as `ana@x.com`; same email in other case → `409` `/problems/email-already-registered`; name empty after trim / 101 chars → `400` with `errors` for `name`; invalid email / 255-char email → `400` for `email`; password 7 / 73 chars → `400` for `password`; boundaries 1/100 name and 8/72 password → `201`; unknown property → `400`
-- [ ] Full gate passes; ≥ 12 new e2e tests
+- [x] e2e tests: valid body → `201` with `accessToken` and `user` `{ id, name, email, createdAt }` only (no `password`/`passwordHash` keys); `  Ana  ` stored as `Ana`; `  ANA@X.COM ` returned as `ana@x.com`; same email in other case → `409` `/problems/email-already-registered`; name empty after trim / 101 chars → `400` with `errors` for `name`; invalid email / 255-char email → `400` for `email`; password 7 / 73 chars → `400` for `password`; boundaries 1/100 name and 8/72 password → `201`; unknown property → `400`
+- [x] Full gate passes; ≥ 12 new e2e tests
 
 **Tests**: e2e
 **Gate**: full
