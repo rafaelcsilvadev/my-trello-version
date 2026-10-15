@@ -337,8 +337,8 @@ T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] e2e tests: register → `/me` with its token → `200` `{ id, name, email, createdAt }` matching the registered user; login token also works; no header → `401` Problem Details `about:blank`; token signed with another secret → `401`; expired token → `401`; token whose user row was deleted → `401`; `/api/docs-json` lists `/api/v1/me` with a bearer security scheme
-- [ ] Full gate passes; ≥ 7 new e2e tests
+- [x] e2e tests: register → `/me` with its token → `200` `{ id, name, email, createdAt }` matching the registered user; login token also works; no header → `401` Problem Details `about:blank`; token signed with another secret → `401`; expired token → `401`; token whose user row was deleted → `401`; `/api/docs-json` lists `/api/v1/me` with a bearer security scheme
+- [x] Full gate passes; ≥ 7 new e2e tests
 
 **Tests**: e2e
 **Gate**: full
