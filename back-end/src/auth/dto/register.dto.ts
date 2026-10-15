@@ -6,7 +6,7 @@ import { IsEmail, IsString, Length } from 'class-validator';
 const trim = ({ value }: { value: unknown }) =>
   typeof value === 'string' ? value.trim() : value;
 
-const normalizeEmail = ({ value }: { value: unknown }) =>
+export const normalizeEmail = ({ value }: { value: unknown }) =>
   typeof value === 'string' ? value.trim().toLowerCase() : value;
 
 export class RegisterDto {

@@ -286,8 +286,8 @@ T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] e2e tests: right credentials → `200` `{ accessToken, user }`; email in upper case with spaces → `200`; wrong password and unknown email → `401` with identical `type`, `title` and `detail` `"Invalid email or password."`; missing email / missing password / non-string password → `400` with `errors` per field
-- [ ] Full gate passes; ≥ 7 new e2e tests
+- [x] e2e tests: right credentials → `200` `{ accessToken, user }`; email in upper case with spaces → `200`; wrong password and unknown email → `401` with identical `type`, `title` and `detail` `"Invalid email or password."`; missing email / missing password / non-string password → `400` with `errors` per field
+- [x] Full gate passes; ≥ 7 new e2e tests
 
 **Tests**: e2e
 **Gate**: full
