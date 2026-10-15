@@ -10,6 +10,8 @@ const config: Config = {
   globalSetup: '<rootDir>/test/support/postgres.global-setup.ts',
   globalTeardown: '<rootDir>/test/support/postgres.global-teardown.ts',
   testEnvironment: 'node',
+  // Suites share one database and some apply or revert migrations.
+  maxWorkers: 1,
 };
 
 export default config;
