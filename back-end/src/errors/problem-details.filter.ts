@@ -6,6 +6,8 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
+import { DomainError } from './domain-error';
+import { findDomainErrorMapping } from './domain-error-mappings';
 import { buildProblem, type FieldError } from './problem-details';
 import { RequestValidationException } from './validation.exception';
 
@@ -25,7 +27,7 @@ export class ProblemDetailsFilter implements ExceptionFilter {
       requestId: req.id as string,
     });
 
-    if (!(exception instanceof HttpException)) {
+    if (problem.status === HttpStatus.INTERNAL_SERVER_ERROR) {
       req.log.error({ err: exception }, 'Unhandled exception');
     }
 
@@ -40,6 +42,7 @@ function describe(exception: unknown): {
   status: number;
   detail: string;
   errors?: FieldError[];
+  type?: string;
 } {
   if (exception instanceof RequestValidationException) {
     return {
@@ -47,6 +50,16 @@ function describe(exception: unknown): {
       detail: exception.message,
       errors: exception.fieldErrors,
     };
+  }
+  if (exception instanceof DomainError) {
+    const mapping = findDomainErrorMapping(exception);
+    if (mapping) {
+      return {
+        status: mapping.status,
+        detail: exception.message,
+        type: mapping.type,
+      };
+    }
   }
   if (exception instanceof HttpException) {
     return { status: exception.getStatus(), detail: exception.message };
