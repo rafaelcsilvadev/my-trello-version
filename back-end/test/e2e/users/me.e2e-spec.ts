@@ -90,6 +90,16 @@ describe('GET /api/v1/me (e2e)', () => {
     expectUnauthorized(await getMe());
   });
 
+  it('returns 401 for a valid token sent with the Basic scheme', async () => {
+    const { accessToken } = await register();
+
+    const res = await request(app.getHttpServer())
+      .get('/api/v1/me')
+      .set('Authorization', `Basic ${accessToken}`);
+
+    expectUnauthorized(res);
+  });
+
   it('returns 401 for a token signed with another secret', async () => {
     const { user } = await register();
     const token = signToken(

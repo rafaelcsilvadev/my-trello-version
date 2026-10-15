@@ -88,4 +88,13 @@ describe('AppModule', () => {
 
     await expect(compileWithoutDatabase(app)).rejects.toThrow(/DATABASE_URL/);
   });
+
+  it('fails to compile when JWT_SECRET is missing', async () => {
+    process.env.DATABASE_URL = 'postgres://user:pass@localhost:5432/app';
+    delete process.env.JWT_SECRET;
+
+    const app = loadApp();
+
+    await expect(compileWithoutDatabase(app)).rejects.toThrow(/JWT_SECRET/);
+  });
 });

@@ -373,6 +373,44 @@ T9 → T10 → T11 → T12
 
 ---
 
+## Fix Tasks (from validation)
+
+Coverage gaps found by the Verifier (`validation.md`, Fix Plans). Tests only: the behavior already existed, so each test passed at once; each was proven discriminating by a temporary mutation that made it fail.
+
+### F1: Non-string email on login
+
+**Requirement**: AUTH-10 · **Tests**: e2e · **Gate**: full
+
+- [x] e2e: `email: 12345678` → `400` with an `email` field error (killed mutant: number coerced to string)
+
+**Commit**: `test(auth): reject a non-string email on login`
+
+### F2: Boot fails without JWT_SECRET
+
+**Requirement**: AUTH-12 · **Tests**: unit · **Gate**: quick
+
+- [x] unit: `AppModule` compile without `JWT_SECRET` rejects with `/JWT_SECRET/` (killed mutant: schema default)
+
+**Commit**: `test(config): fail boot when JWT_SECRET is missing`
+
+### F3: 254-character email accepted
+
+**Requirement**: AUTH-04 · **Tests**: e2e · **Gate**: full
+
+- [x] e2e: 254-char email → `201` and returned unchanged (killed mutant: `@MaxLength(253)`)
+
+**Commit**: `test(auth): accept a 254-character email on register`
+
+### F4: Basic scheme rejected over HTTP
+
+**Requirement**: AUTH-14 · **Tests**: e2e · **Gate**: full
+
+- [x] e2e: valid token sent as `Basic <token>` to `GET /me` → `401` Problem Details (killed mutant: scheme check removed)
+
+**Commit**: `test(users): reject a token sent with the Basic scheme`
+
+---
+
 ## Phase Execution Map
 
 ```

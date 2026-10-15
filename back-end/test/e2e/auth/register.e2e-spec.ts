@@ -145,6 +145,16 @@ describe('POST /api/v1/auth/register (e2e)', () => {
     expectFieldError(await register({ ...valid, email }), 'email');
   });
 
+  it('accepts an email with 254 characters', async () => {
+    const email = `${'a'.repeat(64)}@${'b'.repeat(63)}.${'c'.repeat(63)}.${'d'.repeat(61)}`;
+    expect(email).toHaveLength(254);
+
+    const res = await register({ ...valid, email });
+
+    expect(res.status).toBe(201);
+    expect(res.body.user.email).toBe(email);
+  });
+
   it('returns 400 for password when it has 7 characters', async () => {
     expectFieldError(
       await register({ ...valid, password: 'a'.repeat(7) }),
