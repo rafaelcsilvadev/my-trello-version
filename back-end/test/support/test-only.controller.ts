@@ -1,6 +1,11 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { IsInt, IsString, Min } from 'class-validator';
 import { PinoLogger } from 'nestjs-pino';
+import {
+  EmailAlreadyRegisteredError,
+  InvalidCredentialsError,
+} from '../../src/auth/auth.errors';
+import { DomainError } from '../../src/errors/domain-error';
 
 export class TestOnlyBody {
   @IsString()
@@ -13,6 +18,12 @@ export class TestOnlyBody {
 
 export class TestOnlyCredentials {
   password!: string;
+}
+
+export class TestOnlyUnmappedError extends DomainError {
+  constructor() {
+    super('secret unmapped domain failure');
+  }
 }
 
 // Routes used only by e2e tests to exercise the global error format.
@@ -42,5 +53,20 @@ export class TestOnlyController {
   @Get('throw')
   throwUnhandled(): never {
     throw new Error('secret internal failure');
+  }
+
+  @Get('throw/email-already-registered')
+  throwEmailAlreadyRegistered(): never {
+    throw new EmailAlreadyRegisteredError();
+  }
+
+  @Get('throw/invalid-credentials')
+  throwInvalidCredentials(): never {
+    throw new InvalidCredentialsError();
+  }
+
+  @Get('throw/unmapped-domain-error')
+  throwUnmappedDomainError(): never {
+    throw new TestOnlyUnmappedError();
   }
 }
