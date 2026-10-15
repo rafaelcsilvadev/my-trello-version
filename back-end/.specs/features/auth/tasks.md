@@ -236,8 +236,8 @@ T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] Unit tests (mocked repository, real hasher and `JwtService`): register stores a hash, never the password, and returns `{ accessToken, user }`; repository conflict propagates `EmailAlreadyRegisteredError`; login with right password returns a token; unknown email → `InvalidCredentialsError` and the dummy verify ran; wrong password → `InvalidCredentialsError`; decoded token has `sub` = user id, header `alg` `HS256`, `exp - iat` = 3600 by default
-- [ ] Quick gate passes; ≥ 6 new unit tests
+- [x] Unit tests (mocked repository, real hasher and `JwtService`): register stores a hash, never the password, and returns `{ accessToken, user }`; repository conflict propagates `EmailAlreadyRegisteredError`; login with right password returns a token; unknown email → `InvalidCredentialsError` and the dummy verify ran; wrong password → `InvalidCredentialsError`; decoded token has `sub` = user id, header `alg` `HS256`, `exp - iat` = 3600 by default
+- [x] Quick gate passes; ≥ 6 new unit tests
 
 **Tests**: unit
 **Gate**: quick
