@@ -46,6 +46,7 @@ function setupSwagger(app: NestExpressApplication): void {
   const config = new DocumentBuilder()
     .setTitle('My Trello API')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
   // useGlobalPrefix is off by default, so the docs stay at /api/docs.
   SwaggerModule.setup(DOCS_PATH, app, () =>
