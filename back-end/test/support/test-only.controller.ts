@@ -5,6 +5,7 @@ import {
   EmailAlreadyRegisteredError,
   InvalidCredentialsError,
 } from '../../src/auth/auth.errors';
+import { Public } from '../../src/auth/public.decorator';
 import { DomainError } from '../../src/errors/domain-error';
 
 export class TestOnlyBody {
@@ -27,6 +28,7 @@ export class TestOnlyUnmappedError extends DomainError {
 }
 
 // Routes used only by e2e tests to exercise the global error format.
+@Public()
 @Controller('test-only')
 export class TestOnlyController {
   constructor(private readonly logger: PinoLogger) {}

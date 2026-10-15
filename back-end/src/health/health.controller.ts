@@ -6,6 +6,7 @@ import {
 } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { DataSource } from 'typeorm';
+import { Public } from '../auth/public.decorator';
 import { checkDatabase, type DatabaseStatus } from './database-health';
 
 export type HealthResponse = {
@@ -14,6 +15,8 @@ export type HealthResponse = {
 };
 
 @ApiTags('health')
+// The Docker healthcheck calls it without a token.
+@Public()
 @Controller('health')
 export class HealthController {
   constructor(private readonly dataSource: DataSource) {}
