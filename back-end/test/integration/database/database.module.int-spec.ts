@@ -23,7 +23,11 @@ function bootDatabaseModule(databaseUrl: string): Promise<TestingModule> {
       ConfigModule.forRoot({
         isGlobal: true,
         ignoreEnvFile: true,
-        validate: () => validateEnv({ DATABASE_URL: databaseUrl }),
+        validate: () =>
+          validateEnv({
+            DATABASE_URL: databaseUrl,
+            JWT_SECRET: process.env.JWT_SECRET,
+          }),
       }),
       DatabaseModule,
     ],

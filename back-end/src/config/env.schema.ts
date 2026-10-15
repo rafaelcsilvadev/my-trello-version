@@ -9,6 +9,11 @@ const envSchema = z.object({
     .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
     .default('info'),
   DATABASE_URL: z.url({ protocol: /^postgres(ql)?$/ }),
+  JWT_SECRET: z.string().min(32),
+  JWT_EXPIRES_IN: z
+    .string()
+    .regex(/^\d+[smhd]$/)
+    .default('1h'),
 });
 
 export type Env = z.infer<typeof envSchema>;
