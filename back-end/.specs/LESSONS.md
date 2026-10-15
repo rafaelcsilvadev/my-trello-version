@@ -32,6 +32,24 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: FND-17 src/logging/redact-passwords.ts:3-7,23 (iteration 2) (logging)
 - last seen: 2026-10-14T20:23:11Z
 
+### L-004 - For every length limit, test both the largest accepted value and the first rejected one.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `test/e2e` · harmful: 0
+- features: auth
+- evidence: AUTH-04 test/e2e/auth/register.e2e-spec.ts:141 (test/e2e)
+- last seen: 2026-10-15T18:54:00Z
+
+### L-005 - Give each required DTO field its own wrong-type e2e test, not only the first field.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `test/e2e` · harmful: 0
+- features: auth
+- evidence: AUTH-10 test/e2e/auth/login.e2e-spec.ts:137 (test/e2e)
+- last seen: 2026-10-15T18:54:00Z
+
+### L-006 - Cover each guard rejection path once over HTTP, not only in guard unit tests.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `test/e2e` · harmful: 0
+- features: auth
+- evidence: AUTH-14 test/unit/auth/jwt-auth.guard.spec.ts:92 (test/e2e)
+- last seen: 2026-10-15T18:54:00Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

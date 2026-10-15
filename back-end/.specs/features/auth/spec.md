@@ -148,28 +148,28 @@ Every board, list and card belongs to one user, so the API must know who is call
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| AUTH-01 | P1: Register | - | Pending |
-| AUTH-02 | P1: Register | - | Pending |
-| AUTH-03 | P1: Register | - | Pending |
-| AUTH-04 | P1: Register | - | Pending |
-| AUTH-05 | P1: Register | - | Pending |
-| AUTH-06 | P1: Register | - | Pending |
-| AUTH-07 | P1: Register | - | Pending |
-| AUTH-08 | P1: Login | - | Pending |
-| AUTH-09 | P1: Login | - | Pending |
-| AUTH-10 | P1: Login | - | Pending |
-| AUTH-11 | P1: Access token and current user | - | Pending |
-| AUTH-12 | P1: Access token and current user | - | Pending |
-| AUTH-13 | P1: Access token and current user | - | Pending |
-| AUTH-14 | P1: Access token and current user | - | Pending |
-| AUTH-15 | P1: Access token and current user | - | Pending |
-| AUTH-16 | P1: Access token and current user | - | Pending |
-| AUTH-17 | P1: Rate limit on login and register | - | Pending |
-| AUTH-18 | P1: Rate limit on login and register | - | Pending |
-| AUTH-19 | P1: Rate limit on login and register | - | Pending |
-| AUTH-20 | Edge case: concurrent register | - | Pending |
+| AUTH-01 | P1: Register | Validate | ✅ Verified |
+| AUTH-02 | P1: Register | Validate | ✅ Verified |
+| AUTH-03 | P1: Register | Validate | ✅ Verified |
+| AUTH-04 | P1: Register | Validate | ✅ Verified |
+| AUTH-05 | P1: Register | Validate | ✅ Verified |
+| AUTH-06 | P1: Register | Validate | ✅ Verified |
+| AUTH-07 | P1: Register | Validate | ✅ Verified |
+| AUTH-08 | P1: Login | Validate | ✅ Verified |
+| AUTH-09 | P1: Login | Validate | ✅ Verified |
+| AUTH-10 | P1: Login | Validate | ✅ Verified |
+| AUTH-11 | P1: Access token and current user | Validate | ✅ Verified |
+| AUTH-12 | P1: Access token and current user | Validate | ✅ Verified |
+| AUTH-13 | P1: Access token and current user | Validate | ✅ Verified |
+| AUTH-14 | P1: Access token and current user | Validate | ✅ Verified |
+| AUTH-15 | P1: Access token and current user | Validate | ✅ Verified |
+| AUTH-16 | P1: Access token and current user | Validate | ✅ Verified |
+| AUTH-17 | P1: Rate limit on login and register | Validate | ✅ Verified |
+| AUTH-18 | P1: Rate limit on login and register | Validate | ✅ Verified |
+| AUTH-19 | P1: Rate limit on login and register | Validate | ✅ Verified |
+| AUTH-20 | Edge case: concurrent register | Validate | ✅ Verified |
 
-**Coverage:** 20 total, 0 mapped to tasks, 20 unmapped ⚠️
+**Coverage:** 20 total, 20 mapped to tasks, 0 unmapped
 
 ---
 
