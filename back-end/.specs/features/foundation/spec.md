@@ -180,33 +180,33 @@ Every API feature (auth, boards, lists, cards) needs the same base: a running Ne
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| FND-01 | P1: Run the API from a fresh clone | Tasks | In Tasks |
-| FND-02 | P1: Run the API from a fresh clone | Tasks | In Tasks |
-| FND-03 | P1: Run the API from a fresh clone | Tasks | In Tasks |
-| FND-04 | P1: Run the API from a fresh clone | Tasks | In Tasks |
-| FND-05 | P1: Health check | Tasks | In Tasks |
-| FND-06 | P1: Health check | Tasks | In Tasks |
-| FND-07 | P1: Standard error format | Tasks | In Tasks |
-| FND-08 | P1: Standard error format | Tasks | In Tasks |
-| FND-09 | P1: Standard error format | Tasks | In Tasks |
-| FND-10 | P1: Standard error format | Tasks | In Tasks |
-| FND-11 | P1: Standard error format | Tasks | In Tasks |
-| FND-12 | P1: Standard error format | Tasks | In Tasks |
-| FND-13 | P1: Request tracing and structured logs | Tasks | In Tasks |
-| FND-14 | P1: Request tracing and structured logs | Tasks | In Tasks |
-| FND-15 | P1: Request tracing and structured logs | Tasks | In Tasks |
-| FND-16 | P1: Request tracing and structured logs | Tasks | In Tasks |
-| FND-17 | P1: Request tracing and structured logs | Tasks | In Tasks |
-| FND-18 | P1: Request tracing and structured logs | Tasks | In Tasks |
-| FND-19 | P1: API documentation | Tasks | In Tasks |
-| FND-20 | P1: API documentation | Tasks | In Tasks |
-| FND-21 | P1: Test and quality harness | Tasks | In Tasks |
-| FND-22 | P1: Test and quality harness | Tasks | In Tasks |
-| FND-23 | P1: Test and quality harness | Tasks | In Tasks |
-| FND-24 | P1: Test and quality harness | Tasks | In Tasks |
-| FND-25 | P1: Test and quality harness | Tasks | In Tasks |
-| FND-26 | Edge case: malformed JSON | Tasks | In Tasks |
-| FND-27 | Edge case: database not ready | Tasks | In Tasks |
+| FND-01 | P1: Run the API from a fresh clone | Validate | ✅ Verified |
+| FND-02 | P1: Run the API from a fresh clone | Validate | ✅ Verified |
+| FND-03 | P1: Run the API from a fresh clone | Validate | ✅ Verified |
+| FND-04 | P1: Run the API from a fresh clone | Validate | ✅ Verified |
+| FND-05 | P1: Health check | Validate | ✅ Verified |
+| FND-06 | P1: Health check | Validate | ✅ Verified |
+| FND-07 | P1: Standard error format | Validate | ✅ Verified |
+| FND-08 | P1: Standard error format | Validate | ✅ Verified |
+| FND-09 | P1: Standard error format | Validate | ✅ Verified |
+| FND-10 | P1: Standard error format | Validate | ✅ Verified |
+| FND-11 | P1: Standard error format | Validate | ✅ Verified |
+| FND-12 | P1: Standard error format | Validate | ✅ Verified |
+| FND-13 | P1: Request tracing and structured logs | Validate | ✅ Verified |
+| FND-14 | P1: Request tracing and structured logs | Validate | ✅ Verified |
+| FND-15 | P1: Request tracing and structured logs | Validate | ✅ Verified |
+| FND-16 | P1: Request tracing and structured logs | Validate | ✅ Verified |
+| FND-17 | P1: Request tracing and structured logs | Validate | ✅ Verified |
+| FND-18 | P1: Request tracing and structured logs | Validate | ✅ Verified |
+| FND-19 | P1: API documentation | Validate | ✅ Verified |
+| FND-20 | P1: API documentation | Validate | ✅ Verified |
+| FND-21 | P1: Test and quality harness | Validate | ✅ Verified |
+| FND-22 | P1: Test and quality harness | Validate | ✅ Verified |
+| FND-23 | P1: Test and quality harness | Validate | ✅ Verified |
+| FND-24 | P1: Test and quality harness | Validate | ✅ Verified |
+| FND-25 | P1: Test and quality harness | Validate | ✅ Verified |
+| FND-26 | Edge case: malformed JSON | Validate | ✅ Verified |
+| FND-27 | Edge case: database not ready | Validate | ✅ Verified |
 
 **Coverage:** 27 total, 27 mapped to tasks, 0 unmapped
 
