@@ -60,5 +60,15 @@ App decisions for the NestJS API. Must conform to the global decisions in `../..
 - **Date**: 2026-10-15
 - **Status**: active
 
+## Open Items
+
+### P1
+- **Item**: `PasswordHasher.verify` trusts the argon2 parameters (`m`, `t`, `p`) recorded in the stored hash, with no upper bound; a stored hash with a huge `m` or `t` would exhaust memory or CPU on login.
+- **Likelihood**: unrealistic / improbable. Only `PasswordHasher.hash` writes `password_hash`, with fixed parameters; the API never returns or accepts it, and the user's password does not change the parameters. Exploiting it needs write access to the database, which already allows worse attacks.
+- **Decision**: accepted as is, no fix planned. Revisit only if stored hashes ever come from an external source (e.g. an import).
+- **Source**: auth T4 (`src/auth/password-hasher.ts`)
+- **Date**: 2026-10-15
+- **Status**: accepted
+
 ## Handoff
 
