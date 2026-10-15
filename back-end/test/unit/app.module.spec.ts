@@ -35,14 +35,21 @@ function loadApp(): LoadedApp {
 @Module({})
 class NoDatabaseModule {}
 
-// Stand-in DataSource so modules that inject it (health) still compile.
+// Stand-in DataSource so modules that inject it (health, and the
+// repositories from TypeOrmModule.forFeature) still compile.
+const stubDataSource = {
+  entityMetadatas: [],
+  options: {},
+  getRepository: () => ({}),
+};
+
 function compileWithoutDatabase(app: LoadedApp) {
   return app.Test.createTestingModule({ imports: [app.AppModule] })
     .overrideModule(app.DatabaseModule)
     .useModule({
       module: NoDatabaseModule,
       global: true,
-      providers: [{ provide: app.DataSource, useValue: {} }],
+      providers: [{ provide: app.DataSource, useValue: stubDataSource }],
       exports: [app.DataSource],
     })
     .compile();

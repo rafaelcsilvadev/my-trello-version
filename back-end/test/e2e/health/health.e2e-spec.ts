@@ -20,7 +20,14 @@ describe('GET /api/v1/health (e2e)', () => {
   });
 
   it('returns 503 with database down when the database does not answer within 3 seconds', async () => {
-    const hangingDataSource = { query: () => new Promise(() => {}) };
+    // entityMetadatas/options/getRepository let TypeOrmModule.forFeature
+    // build its repositories on top of the stand-in.
+    const hangingDataSource = {
+      query: () => new Promise(() => {}),
+      entityMetadatas: [],
+      options: {},
+      getRepository: () => ({}),
+    };
     app = await createTestApp({ dataSource: hangingDataSource });
 
     const res = await request(app.getHttpServer()).get('/api/v1/health');
