@@ -44,5 +44,21 @@ App decisions for the NestJS API. Must conform to the global decisions in `../..
 - **Date**: 2026-10-14
 - **Status**: active
 
+### BE-AD-006
+- **Decision**: Every route requires a valid access token through the global `JwtAuthGuard` (`APP_GUARD`); public routes opt out explicitly with `@Public()`, and handlers read the caller with `@CurrentUser()`.
+- **Reason**: Routes added by later features are protected by default; forgetting a decorator fails closed, not open.
+- **Trade-off**: Every public route (health, register, login) must remember `@Public()`; each protected request costs one user lookup by primary key.
+- **Scope**: all back-end modules
+- **Date**: 2026-10-15
+- **Status**: active
+
+### BE-AD-007
+- **Decision**: Domain errors extend `DomainError` (`src/errors/domain-error.ts`) and are mapped to an HTTP `status` and Problem `type` only in `src/errors/domain-error-mappings.ts`, which `ProblemDetailsFilter` consults; an unmapped `DomainError` becomes `500`.
+- **Reason**: Refines BE-AD-004 with a concrete single mapping place; services throw plain errors with no HTTP knowledge.
+- **Trade-off**: The mapping file imports error classes from every feature module.
+- **Scope**: all back-end modules
+- **Date**: 2026-10-15
+- **Status**: active
+
 ## Handoff
 
