@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 4,
+  "next_id": 7,
   "lessons": [
     {
       "id": "L-001",
@@ -58,6 +58,60 @@
       ],
       "created": "2026-10-14T20:23:11Z",
       "last_seen": "2026-10-14T20:23:11Z"
+    },
+    {
+      "id": "L-004",
+      "key": "ac_gap::for every length limit test both the largest accepted value and the first rejected one",
+      "text": "For every length limit, test both the largest accepted value and the first rejected one.",
+      "signal": "ac_gap",
+      "scope": "test/e2e",
+      "status": "candidate",
+      "features": [
+        "auth"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "AUTH-04 test/e2e/auth/register.e2e-spec.ts:141 (test/e2e)"
+      ],
+      "created": "2026-10-15T18:54:00Z",
+      "last_seen": "2026-10-15T18:54:00Z"
+    },
+    {
+      "id": "L-005",
+      "key": "ac_gap::give each required dto field its own wrong type e2e test not only the first field",
+      "text": "Give each required DTO field its own wrong-type e2e test, not only the first field.",
+      "signal": "ac_gap",
+      "scope": "test/e2e",
+      "status": "candidate",
+      "features": [
+        "auth"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "AUTH-10 test/e2e/auth/login.e2e-spec.ts:137 (test/e2e)"
+      ],
+      "created": "2026-10-15T18:54:00Z",
+      "last_seen": "2026-10-15T18:54:00Z"
+    },
+    {
+      "id": "L-006",
+      "key": "ac_gap::cover each guard rejection path once over http not only in guard unit tests",
+      "text": "Cover each guard rejection path once over HTTP, not only in guard unit tests.",
+      "signal": "ac_gap",
+      "scope": "test/e2e",
+      "status": "candidate",
+      "features": [
+        "auth"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "AUTH-14 test/unit/auth/jwt-auth.guard.spec.ts:92 (test/e2e)"
+      ],
+      "created": "2026-10-15T18:54:00Z",
+      "last_seen": "2026-10-15T18:54:00Z"
     }
   ]
 }
