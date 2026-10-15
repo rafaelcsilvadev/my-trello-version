@@ -122,6 +122,12 @@ describe('POST /api/v1/auth/login (e2e)', () => {
     expectFieldError(res, 'email');
   });
 
+  it('returns 400 for a non-string email', async () => {
+    const res = await login({ ...credentials, email: 12345678 });
+
+    expectFieldError(res, 'email');
+  });
+
   it('returns 400 for a missing password', async () => {
     const res = await login({ email: credentials.email });
 
