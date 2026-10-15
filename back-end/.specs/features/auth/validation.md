@@ -135,25 +135,27 @@ Observation (no action): the filter now logs `Unhandled exception` for any `500`
 
 ## Fix Plans (minor, non-blocking)
 
-### Fix 1: Non-string email on login not asserted (AUTH-10)
+**Status**: all 4 resolved by fix tasks F1-F4 (`tasks.md`), commits `56ab97d`, `17eb567`, `d948abd`, `eb5605d`. Gate after fixes: unit 87, integration 15, e2e 67, 0 failed.
+
+### Fix 1: Non-string email on login not asserted (AUTH-10) ✅ resolved
 
 - **Root cause**: `test/e2e/auth/login.e2e-spec.ts` covers non-string `password` (`:137`) but not non-string `email`.
 - **Fix task**: add `login({ ...credentials, email: 123 })` → `expectFieldError(res, 'email')`.
 - **Priority**: Minor
 
-### Fix 2: No boot-level test for missing `JWT_SECRET` (AUTH-12)
+### Fix 2: No boot-level test for missing `JWT_SECRET` (AUTH-12) ✅ resolved
 
 - **Root cause**: `validateEnv` is tested (`test/unit/config/env.schema.spec.ts:75,81`), but `test/unit/app.module.spec.ts:84-90` checks boot failure only for `DATABASE_URL`.
 - **Fix task**: add an `AppModule` compile test with `JWT_SECRET` deleted → `rejects.toThrow(/JWT_SECRET/)`.
 - **Priority**: Minor
 
-### Fix 3: 254-char email accept boundary not asserted (AUTH-04)
+### Fix 3: 254-char email accept boundary not asserted (AUTH-04) ✅ resolved
 
 - **Root cause**: only the 255-char rejection is tested (`test/e2e/auth/register.e2e-spec.ts:141`); the code relies on `@IsEmail` for the bound (`src/auth/dto/register.dto.ts:21`).
 - **Fix task**: add a 254-char valid email → `201`.
 - **Priority**: Minor
 
-### Fix 4: Non-Bearer header only covered at unit level (AUTH-14)
+### Fix 4: Non-Bearer header only covered at unit level (AUTH-14) ✅ resolved
 
 - **Root cause**: `Basic x` is asserted in `test/unit/auth/jwt-auth.guard.spec.ts:92`, not over HTTP.
 - **Fix task**: add `GET /me` with `Authorization: Basic x` → `expectUnauthorized` in `test/e2e/users/me.e2e-spec.ts`.
