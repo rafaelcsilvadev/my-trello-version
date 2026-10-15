@@ -84,8 +84,8 @@ T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] `pnpm install` exits `0` and both packages are in `dependencies`
-- [ ] Build gate passes with the same test counts as before
+- [x] `pnpm install` exits `0` and both packages are in `dependencies`
+- [x] Build gate passes with the same test counts as before
 
 **Tests**: none
 **Gate**: build
@@ -109,9 +109,9 @@ T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] Unit tests in `test/unit/config/env.schema.spec.ts`: missing `JWT_SECRET` → error naming `JWT_SECRET`; 31-char secret → error; 32-char secret → ok; `JWT_EXPIRES_IN` default `1h`; invalid `JWT_EXPIRES_IN` (`1week`) → error naming it
-- [ ] Docker smoke passes
-- [ ] Build gate passes; ≥ 5 new unit tests, no existing test removed
+- [x] Unit tests in `test/unit/config/env.schema.spec.ts`: missing `JWT_SECRET` → error naming `JWT_SECRET`; 31-char secret → error; 32-char secret → ok; `JWT_EXPIRES_IN` default `1h`; invalid `JWT_EXPIRES_IN` (`1week`) → error naming it
+- [x] Docker smoke passes
+- [x] Build gate passes; ≥ 5 new unit tests, no existing test removed
 
 **Tests**: unit
 **Gate**: build
@@ -135,8 +135,8 @@ T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] e2e tests via test-only routes: throwing `EmailAlreadyRegisteredError` → `409`, `type` `/problems/email-already-registered`, detail `"Email is already registered."`, Problem Details shape; `InvalidCredentialsError` → `401`, `type` `/problems/invalid-credentials`, detail `"Invalid email or password."`; an unmapped `DomainError` subclass → `500` with the generic detail
-- [ ] Full gate passes; ≥ 3 new e2e tests
+- [x] e2e tests via test-only routes: throwing `EmailAlreadyRegisteredError` → `409`, `type` `/problems/email-already-registered`, detail `"Email is already registered."`, Problem Details shape; `InvalidCredentialsError` → `401`, `type` `/problems/invalid-credentials`, detail `"Invalid email or password."`; an unmapped `DomainError` subclass → `500` with the generic detail
+- [x] Full gate passes; ≥ 3 new e2e tests
 
 **Tests**: e2e
 **Gate**: full
@@ -160,8 +160,8 @@ T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] Unit tests: hash differs from the password and starts with `argon2id$`; two hashes of the same password differ (salt); `verify` true for the right password; false for a wrong one; false for a malformed stored string; `verifyAgainstDummy` resolves `false`
-- [ ] Quick gate passes; ≥ 6 new unit tests
+- [x] Unit tests: hash differs from the password and starts with `argon2id$`; two hashes of the same password differ (salt); `verify` true for the right password; false for a wrong one; false for a malformed stored string; `verifyAgainstDummy` resolves `false`
+- [x] Quick gate passes; ≥ 6 new unit tests
 
 **Tests**: unit
 **Gate**: quick
@@ -185,9 +185,9 @@ T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] Integration test: after boot, table `users` exists with columns `id`, `name`, `email`, `password_hash`, `created_at`; inserting two rows with the same email fails with `23505` on `UQ_users_email`; `id` and `created_at` get defaults
-- [ ] `migration:revert` drops the table (checked in the integration test via `undoLastMigration`)
-- [ ] Full gate passes; ≥ 3 new integration tests
+- [x] Integration test: after boot, table `users` exists with columns `id`, `name`, `email`, `password_hash`, `created_at`; inserting two rows with the same email fails with `23505` on `UQ_users_email`; `id` and `created_at` get defaults
+- [x] `migration:revert` drops the table (checked in the integration test via `undoLastMigration`)
+- [x] Full gate passes; ≥ 3 new integration tests
 
 **Tests**: integration
 **Gate**: full
