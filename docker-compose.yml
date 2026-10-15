@@ -25,6 +25,10 @@ services:
       PORT: 3000
       LOG_LEVEL: info
       DATABASE_URL: postgres://trello:trello@postgres:5432/trello
+      # Dev-only secret: anyone who knows it can forge tokens. Never reuse it
+      # in a real deployment.
+      JWT_SECRET: dev-only-jwt-secret-do-not-use-in-production
+      JWT_EXPIRES_IN: 1h
     ports:
       - "3000:3000"
     healthcheck:

@@ -61,6 +61,7 @@ describe('AppModule', () => {
 
   it('exposes the validated env through ConfigService', async () => {
     process.env.DATABASE_URL = 'postgres://user:pass@localhost:5432/app';
+    process.env.JWT_SECRET = 'a'.repeat(32);
     delete process.env.PORT;
     const app = loadApp();
 
