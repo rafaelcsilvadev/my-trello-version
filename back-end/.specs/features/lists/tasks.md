@@ -190,12 +190,12 @@ T4 → T5 → T6 → T7 → T8 → T9 → T10
 
 **Done when**:
 
-- [ ] e2e: valid body → `201` with exactly `{ id, boardId, title, position, archivedAt: null, createdAt, updatedAt }`; `"  To do  "` stored as `"To do"`; second list gets `position` `1`
-- [ ] e2e: `title` missing, non-string, `null`, `"   "`, 101 chars → `400` with `errors` item `field` `title` and no row; 100 chars → `201`
-- [ ] e2e: unknown property (`position`) → `400`; no token → `401`
-- [ ] e2e: unknown, foreign and malformed `boardId` → `404` `/problems/board-not-found` with identical bodies; archived board → `409` `/problems/board-archived`, no row
-- [ ] e2e: 10 concurrent creates on one board all return `201` and the board's active lists hold positions `0..9` exactly once
-- [ ] Full gate passes; ≥ 12 new e2e tests
+- [x] e2e: valid body → `201` with exactly `{ id, boardId, title, position, archivedAt: null, createdAt, updatedAt }`; `"  To do  "` stored as `"To do"`; second list gets `position` `1`
+- [x] e2e: `title` missing, non-string, `null`, `"   "`, 101 chars → `400` with `errors` item `field` `title` and no row; 100 chars → `201`
+- [x] e2e: unknown property (`position`) → `400`; no token → `401`
+- [x] e2e: unknown, foreign and malformed `boardId` → `404` `/problems/board-not-found` with identical bodies; archived board → `409` `/problems/board-archived`, no row
+- [x] e2e: 10 concurrent creates on one board all return `201` and the board's active lists hold positions `0..9` exactly once
+- [x] Full gate passes; ≥ 12 new e2e tests
 
 **Tests**: e2e
 **Gate**: full
