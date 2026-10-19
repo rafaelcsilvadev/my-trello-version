@@ -8,6 +8,11 @@ import {
   BoardNotArchivedError,
   BoardNotFoundError,
 } from '../boards/boards.errors';
+import {
+  ListArchivedError,
+  ListNotArchivedError,
+  ListNotFoundError,
+} from '../lists/lists.errors';
 import type { DomainError } from './domain-error';
 
 export type DomainErrorMapping = {
@@ -42,6 +47,21 @@ export const DOMAIN_ERROR_MAPPINGS: ReadonlyArray<DomainErrorMapping> = [
     error: BoardNotArchivedError,
     status: HttpStatus.CONFLICT,
     type: '/problems/board-not-archived',
+  },
+  {
+    error: ListNotFoundError,
+    status: HttpStatus.NOT_FOUND,
+    type: '/problems/list-not-found',
+  },
+  {
+    error: ListArchivedError,
+    status: HttpStatus.CONFLICT,
+    type: '/problems/list-archived',
+  },
+  {
+    error: ListNotArchivedError,
+    status: HttpStatus.CONFLICT,
+    type: '/problems/list-not-archived',
   },
 ];
 
