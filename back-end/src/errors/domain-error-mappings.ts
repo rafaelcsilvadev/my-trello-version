@@ -3,6 +3,11 @@ import {
   EmailAlreadyRegisteredError,
   InvalidCredentialsError,
 } from '../auth/auth.errors';
+import {
+  BoardArchivedError,
+  BoardNotArchivedError,
+  BoardNotFoundError,
+} from '../boards/boards.errors';
 import type { DomainError } from './domain-error';
 
 export type DomainErrorMapping = {
@@ -22,6 +27,21 @@ export const DOMAIN_ERROR_MAPPINGS: ReadonlyArray<DomainErrorMapping> = [
     error: InvalidCredentialsError,
     status: HttpStatus.UNAUTHORIZED,
     type: '/problems/invalid-credentials',
+  },
+  {
+    error: BoardNotFoundError,
+    status: HttpStatus.NOT_FOUND,
+    type: '/problems/board-not-found',
+  },
+  {
+    error: BoardArchivedError,
+    status: HttpStatus.CONFLICT,
+    type: '/problems/board-archived',
+  },
+  {
+    error: BoardNotArchivedError,
+    status: HttpStatus.CONFLICT,
+    type: '/problems/board-not-archived',
   },
 ];
 
