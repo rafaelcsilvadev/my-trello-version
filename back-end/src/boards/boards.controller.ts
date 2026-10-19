@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -14,6 +15,7 @@ import {
   ApiBearerAuth,
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiTags,
@@ -109,5 +111,17 @@ export class BoardsController {
     @Param('id') id: string,
   ): Promise<BoardResponseDto> {
     return toBoardResponse(await this.boardsService.unarchive(user.id, id));
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiNoContentResponse({ description: 'The board was deleted.' })
+  @ApiNotFoundResponse({ description: 'Missing, foreign or malformed id.' })
+  @ApiConflictResponse({ description: 'The board is not archived.' })
+  async remove(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+  ): Promise<void> {
+    await this.boardsService.remove(user.id, id);
   }
 }
