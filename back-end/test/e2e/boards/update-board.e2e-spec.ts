@@ -197,11 +197,15 @@ describe('PATCH /api/v1/boards/:id (e2e)', () => {
       ),
     );
 
-    for (const res of responses) {
+    const bodies = responses.map((res) => {
       expect(res.status).toBe(404);
       expect(res.headers['content-type']).toMatch(PROBLEM_JSON);
-      expect(res.body.type).toBe('/problems/board-not-found');
-    }
+      const { instance: _instance, requestId: _requestId, ...rest } = res.body;
+      return rest;
+    });
+    expect(bodies[0].type).toBe('/problems/board-not-found');
+    expect(bodies[1]).toEqual(bodies[0]);
+    expect(bodies[2]).toEqual(bodies[0]);
     expect(await read(bobToken, bobs.id)).toEqual(bobs);
   });
 
