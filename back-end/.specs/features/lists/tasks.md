@@ -104,13 +104,13 @@ T4 → T5 → T6 → T7 → T8 → T9 → T10
 
 **Done when**:
 
-- [ ] Integration tests: `findOwned` returns the list for its board's owner and `null` for another owner and for an unknown id
-- [ ] `listInBoard(boardId, false)` returns only active lists by `position` ascending; `listInBoard(boardId, true)` returns only archived lists by `archivedAt` descending
-- [ ] `countActive` counts only active lists of that board
-- [ ] `shift(boardId, from, to, ±1)` moves exactly the positions in `[from, to]` of that board, leaves other boards untouched, and keeps `updatedAt` of the shifted rows
-- [ ] `lockOwnedBoard` returns the board for its owner and `null` for another owner; while one transaction holds the lock, a second `lockOwnedBoard` on the same board waits until the first commits
-- [ ] `transaction` rolls back every write when `work` throws
-- [ ] Full gate passes; ≥ 10 new integration tests
+- [x] Integration tests: `findOwned` returns the list for its board's owner and `null` for another owner and for an unknown id
+- [x] `listInBoard(boardId, false)` returns only active lists by `position` ascending; `listInBoard(boardId, true)` returns only archived lists by `archivedAt` descending
+- [x] `countActive` counts only active lists of that board
+- [x] `shift(boardId, from, to, ±1)` moves exactly the positions in `[from, to]` of that board, leaves other boards untouched, and keeps `updatedAt` of the shifted rows
+- [x] `lockOwnedBoard` returns the board for its owner and `null` for another owner; while one transaction holds the lock, a second `lockOwnedBoard` on the same board waits until the first commits
+- [x] `transaction` rolls back every write when `work` throws
+- [x] Full gate passes; ≥ 10 new integration tests
 
 **Tests**: integration
 **Gate**: build
