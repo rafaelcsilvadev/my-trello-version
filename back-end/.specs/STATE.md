@@ -68,6 +68,14 @@ App decisions for the NestJS API. Must conform to the global decisions in `../..
 - **Date**: 2026-10-19
 - **Status**: active
 
+### BE-AD-009
+- **Decision**: Ordered children (lists in a board, cards in a list) store a contiguous 0-based `position` (`NULL` while archived), backed by `UNIQUE (parent_id, position) DEFERRABLE INITIALLY DEFERRED`; every write that changes positions runs in one transaction that first locks the parent row with `SELECT ... FOR UPDATE`, then shifts siblings with raw SQL so their `updated_at` stays unchanged.
+- **Reason**: The move API takes a target index; the parent row lock serializes concurrent reorders and also serializes with parent archive/delete, which take the same row lock; the deferred constraint catches any renumbering bug at commit.
+- **Trade-off**: Writes on one parent queue behind each other, and a move rewrites up to `n` sibling rows; fine at personal scale, not for very large or highly concurrent collections.
+- **Scope**: lists, cards
+- **Date**: 2026-10-19
+- **Status**: active
+
 ## Open Items
 
 ### P1
