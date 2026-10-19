@@ -173,31 +173,31 @@ Boards are the top-level container of the product: lists and cards live inside a
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| BRD-01 | P1: Create a board | - | Pending |
-| BRD-02 | P1: Create a board | - | Pending |
-| BRD-03 | P1: Create a board | - | Pending |
-| BRD-04 | P1: Create a board | - | Pending |
-| BRD-05 | P1: List and read boards | - | Pending |
-| BRD-06 | P1: List and read boards | - | Pending |
-| BRD-07 | P1: List and read boards | - | Pending |
-| BRD-08 | P1: List and read boards | - | Pending |
-| BRD-09 | P1: List and read boards | - | Pending |
-| BRD-10 | P1: Update a board | - | Pending |
-| BRD-11 | P1: Update a board | - | Pending |
-| BRD-12 | P1: Update a board | - | Pending |
-| BRD-13 | P1: Update a board | - | Pending |
-| BRD-14 | P1: Update a board | - | Pending |
-| BRD-15 | P1: Archive and unarchive a board | - | Pending |
-| BRD-16 | P1: Archive and unarchive a board | - | Pending |
-| BRD-17 | P1: Archive and unarchive a board | - | Pending |
-| BRD-18 | P1: Archive and unarchive a board | - | Pending |
-| BRD-19 | P1: Delete a board | - | Pending |
-| BRD-20 | P1: Delete a board | - | Pending |
-| BRD-21 | P1: Ownership boundary | - | Pending |
-| BRD-22 | P1: Ownership boundary | - | Pending |
-| BRD-23 | Edge case: user deletion cascade | - | Pending |
+| BRD-01 | P1: Create a board | Tasks | In Tasks |
+| BRD-02 | P1: Create a board | Tasks | In Tasks |
+| BRD-03 | P1: Create a board | Tasks | In Tasks |
+| BRD-04 | P1: Create a board | Tasks | In Tasks |
+| BRD-05 | P1: List and read boards | Tasks | In Tasks |
+| BRD-06 | P1: List and read boards | Tasks | In Tasks |
+| BRD-07 | P1: List and read boards | Tasks | In Tasks |
+| BRD-08 | P1: List and read boards | Tasks | In Tasks |
+| BRD-09 | P1: List and read boards | Tasks | In Tasks |
+| BRD-10 | P1: Update a board | Tasks | In Tasks |
+| BRD-11 | P1: Update a board | Tasks | In Tasks |
+| BRD-12 | P1: Update a board | Tasks | In Tasks |
+| BRD-13 | P1: Update a board | Tasks | In Tasks |
+| BRD-14 | P1: Update a board | Tasks | In Tasks |
+| BRD-15 | P1: Archive and unarchive a board | Tasks | In Tasks |
+| BRD-16 | P1: Archive and unarchive a board | Tasks | In Tasks |
+| BRD-17 | P1: Archive and unarchive a board | Tasks | In Tasks |
+| BRD-18 | P1: Archive and unarchive a board | Tasks | In Tasks |
+| BRD-19 | P1: Delete a board | Tasks | In Tasks |
+| BRD-20 | P1: Delete a board | Tasks | In Tasks |
+| BRD-21 | P1: Ownership boundary | Tasks | In Tasks |
+| BRD-22 | P1: Ownership boundary | Tasks | In Tasks |
+| BRD-23 | Edge case: user deletion cascade | Tasks | In Tasks |
 
-**Coverage:** 23 total, 0 mapped to tasks, 23 unmapped ⚠️ (mapped at Tasks)
+**Coverage:** 23 total, 23 mapped to tasks, 0 unmapped
 
 ---
 
