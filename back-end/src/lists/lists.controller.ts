@@ -115,4 +115,28 @@ export class ListsController {
     const list = await this.listsService.move(user.id, id, body.position);
     return toListResponse(list);
   }
+
+  @Post('lists/:id/archive')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ type: ListResponseDto })
+  @ApiNotFoundResponse({ description: 'Missing, foreign or malformed id.' })
+  @ApiConflictResponse({ description: 'The board is archived.' })
+  async archive(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+  ): Promise<ListResponseDto> {
+    return toListResponse(await this.listsService.archive(user.id, id));
+  }
+
+  @Post('lists/:id/unarchive')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ type: ListResponseDto })
+  @ApiNotFoundResponse({ description: 'Missing, foreign or malformed id.' })
+  @ApiConflictResponse({ description: 'The board is archived.' })
+  async unarchive(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+  ): Promise<ListResponseDto> {
+    return toListResponse(await this.listsService.unarchive(user.id, id));
+  }
 }
