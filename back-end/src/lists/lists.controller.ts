@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -14,6 +22,7 @@ import type { User } from '../users/user.entity';
 import { CreateListDto } from './dto/create-list.dto';
 import { ListListsQueryDto } from './dto/list-lists-query.dto';
 import { ListResponseDto, toListResponse } from './dto/list-response.dto';
+import { UpdateListDto } from './dto/update-list.dto';
 import { ListsService } from './lists.service';
 
 // No prefix: routes live under both boards/:boardId/lists and lists/:id.
@@ -67,5 +76,23 @@ export class ListsController {
     @Param('id') id: string,
   ): Promise<ListResponseDto> {
     return toListResponse(await this.listsService.findOwned(user.id, id));
+  }
+
+  @Patch('lists/:id')
+  @ApiOkResponse({ type: ListResponseDto })
+  @ApiBadRequestResponse({ description: 'Invalid body: `errors[]` per field.' })
+  @ApiNotFoundResponse({ description: 'Missing, foreign or malformed id.' })
+  @ApiConflictResponse({
+    description: 'The list or its board is archived.',
+  })
+  async update(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+    @Body() body: UpdateListDto,
+  ): Promise<ListResponseDto> {
+    const list = await this.listsService.update(user.id, id, {
+      title: body.title,
+    });
+    return toListResponse(list);
   }
 }
