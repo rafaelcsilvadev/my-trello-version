@@ -292,11 +292,11 @@ T5 → T6 → T7 → T8 → T9 → T10
 
 **Done when**:
 
-- [ ] e2e: archive active board → `200` with `archivedAt` an ISO date; board leaves `GET /boards` and appears in `?archived=true`
-- [ ] e2e: archive again → `200` with the same `archivedAt`
-- [ ] e2e: unarchive archived board → `200` with `archivedAt` `null`, back in `GET /boards`; unarchive active board → `200` unchanged
-- [ ] e2e: both routes on foreign / unknown / malformed id → `404` `/problems/board-not-found`, foreign board unchanged
-- [ ] Full gate passes; ≥ 6 new e2e tests
+- [x] e2e: archive active board → `200` with `archivedAt` an ISO date; board leaves `GET /boards` and appears in `?archived=true`
+- [x] e2e: archive again → `200` with the same `archivedAt`
+- [x] e2e: unarchive archived board → `200` with `archivedAt` `null`, back in `GET /boards`; unarchive active board → `200` unchanged
+- [x] e2e: both routes on foreign / unknown / malformed id → `404` `/problems/board-not-found`, foreign board unchanged
+- [x] Full gate passes; ≥ 6 new e2e tests
 
 **Tests**: e2e
 **Gate**: full
