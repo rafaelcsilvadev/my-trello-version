@@ -173,29 +173,29 @@ Boards are the top-level container of the product: lists and cards live inside a
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| BRD-01 | P1: Create a board | Tasks | In Tasks |
-| BRD-02 | P1: Create a board | Tasks | In Tasks |
-| BRD-03 | P1: Create a board | Tasks | In Tasks |
-| BRD-04 | P1: Create a board | Tasks | In Tasks |
-| BRD-05 | P1: List and read boards | Tasks | In Tasks |
-| BRD-06 | P1: List and read boards | Tasks | In Tasks |
-| BRD-07 | P1: List and read boards | Tasks | In Tasks |
-| BRD-08 | P1: List and read boards | Tasks | In Tasks |
-| BRD-09 | P1: List and read boards | Tasks | In Tasks |
-| BRD-10 | P1: Update a board | Tasks | In Tasks |
-| BRD-11 | P1: Update a board | Tasks | In Tasks |
-| BRD-12 | P1: Update a board | Tasks | In Tasks |
-| BRD-13 | P1: Update a board | Tasks | In Tasks |
-| BRD-14 | P1: Update a board | Tasks | In Tasks |
-| BRD-15 | P1: Archive and unarchive a board | Tasks | In Tasks |
-| BRD-16 | P1: Archive and unarchive a board | Tasks | In Tasks |
-| BRD-17 | P1: Archive and unarchive a board | Tasks | In Tasks |
-| BRD-18 | P1: Archive and unarchive a board | Tasks | In Tasks |
-| BRD-19 | P1: Delete a board | Tasks | In Tasks |
-| BRD-20 | P1: Delete a board | Tasks | In Tasks |
-| BRD-21 | P1: Ownership boundary | Tasks | In Tasks |
-| BRD-22 | P1: Ownership boundary | Tasks | In Tasks |
-| BRD-23 | Edge case: user deletion cascade | Tasks | In Tasks |
+| BRD-01 | P1: Create a board | Validate | ✅ Verified |
+| BRD-02 | P1: Create a board | Validate | ✅ Verified |
+| BRD-03 | P1: Create a board | Validate | ✅ Verified |
+| BRD-04 | P1: Create a board | Validate | ✅ Verified |
+| BRD-05 | P1: List and read boards | Validate | ✅ Verified |
+| BRD-06 | P1: List and read boards | Validate | ✅ Verified |
+| BRD-07 | P1: List and read boards | Validate | ✅ Verified |
+| BRD-08 | P1: List and read boards | Validate | ✅ Verified |
+| BRD-09 | P1: List and read boards | Validate | ✅ Verified |
+| BRD-10 | P1: Update a board | Validate | ✅ Verified |
+| BRD-11 | P1: Update a board | Validate | ✅ Verified |
+| BRD-12 | P1: Update a board | Validate | ✅ Verified |
+| BRD-13 | P1: Update a board | Validate | ✅ Verified |
+| BRD-14 | P1: Update a board | Validate | ✅ Verified |
+| BRD-15 | P1: Archive and unarchive a board | Validate | ✅ Verified |
+| BRD-16 | P1: Archive and unarchive a board | Validate | ✅ Verified |
+| BRD-17 | P1: Archive and unarchive a board | Validate | ✅ Verified |
+| BRD-18 | P1: Archive and unarchive a board | Validate | ✅ Verified |
+| BRD-19 | P1: Delete a board | Validate | ✅ Verified |
+| BRD-20 | P1: Delete a board | Validate | ✅ Verified |
+| BRD-21 | P1: Ownership boundary | Validate | ✅ Verified |
+| BRD-22 | P1: Ownership boundary | Validate | ✅ Verified |
+| BRD-23 | Edge case: user deletion cascade | Validate | ✅ Verified |
 
 **Coverage:** 23 total, 23 mapped to tasks, 0 unmapped
 
