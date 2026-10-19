@@ -6,6 +6,7 @@ import {
   DatabaseModule,
   MIGRATIONS,
 } from '../../../src/database/database.module';
+import { revertAllMigrations } from '../../support/revert-all-migrations';
 
 class CreateProbeTable1700000000000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
@@ -50,7 +51,7 @@ describe('DatabaseModule', () => {
     });
 
     afterAll(async () => {
-      await dataSource.undoLastMigration();
+      await revertAllMigrations(dataSource);
       await moduleRef.close();
     });
 

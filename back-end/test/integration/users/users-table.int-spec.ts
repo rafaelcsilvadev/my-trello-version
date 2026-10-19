@@ -2,6 +2,7 @@ import type { TestingModule } from '@nestjs/testing';
 import { DataSource, QueryFailedError } from 'typeorm';
 import { UsersModule } from '../../../src/users/users.module';
 import { bootWithDatabase } from '../../support/boot-with-database';
+import { revertAllMigrations } from '../../support/revert-all-migrations';
 
 type Column = { column_name: string; data_type: string; is_nullable: string };
 
@@ -20,10 +21,10 @@ describe('users table', () => {
     }
   });
 
-  // Leave the shared database without this migration, as other suites
-  // assert the exact migration history.
+  // Leave the shared database without migrations, as other suites assert the
+  // exact migration history.
   afterAll(async () => {
-    await dataSource.undoLastMigration();
+    await revertAllMigrations(dataSource);
     await moduleRef.close();
   });
 
@@ -93,8 +94,8 @@ describe('users table', () => {
     });
   });
 
-  it('is dropped when the migration is reverted', async () => {
-    await dataSource.undoLastMigration();
+  it('is dropped when the migrations are reverted', async () => {
+    await revertAllMigrations(dataSource);
     const dropped = !(await tableExists());
     await dataSource.runMigrations();
 

@@ -4,6 +4,7 @@ import { EmailAlreadyRegisteredError } from '../../../src/auth/auth.errors';
 import { UsersModule } from '../../../src/users/users.module';
 import { UsersRepository } from '../../../src/users/users.repository';
 import { bootWithDatabase } from '../../support/boot-with-database';
+import { revertAllMigrations } from '../../support/revert-all-migrations';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
@@ -24,10 +25,10 @@ describe('UsersRepository', () => {
     await dataSource.query('DELETE FROM "users"');
   });
 
-  // Leave the shared database without this migration, as other suites
-  // assert the exact migration history.
+  // Leave the shared database without migrations, as other suites assert the
+  // exact migration history.
   afterAll(async () => {
-    await dataSource.undoLastMigration();
+    await revertAllMigrations(dataSource);
     await moduleRef.close();
   });
 
