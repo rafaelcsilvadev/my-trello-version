@@ -159,14 +159,14 @@ T4 → T5 → T6 → T7 → T8 → T9 → T10
 
 **Done when**:
 
-- [ ] Unit tests: `findOwned` throws `ListNotFoundError` for a non-UUID id without calling the repository, and for a `null` result; every write throws `ListNotFoundError` when `lockOwnedBoard` returns `null`
-- [ ] `create` throws `BoardNotFoundError` for an unknown board and `BoardArchivedError` for an archived board without creating; otherwise creates at `position = countActive`
-- [ ] Every item write (`update`, `move`, `archive`, `unarchive`, `remove`) throws `BoardArchivedError` when the locked board is archived, before any list-state check and without writing
-- [ ] `update` saves a new title; returns the list without saving for `{}`; throws `ListArchivedError` on an archived list
-- [ ] `move`: `k < i` shifts `[k, i-1]` by `+1`; `k > i` shifts `[i+1, k]` by `-1`; `k > n-1` clamps to `n-1`; `k === i` returns without shift or save; archived list → `ListArchivedError`
-- [ ] `archive` shifts `[i+1, n-1]` by `-1`, sets `position` `null` and `archivedAt`; already archived → returned without save; `unarchive` sets `position = countActive` and `archivedAt` `null`; already active → returned without save
-- [ ] `remove` throws `ListNotArchivedError` on an active list without deleting; deletes an archived list
-- [ ] Quick gate passes; ≥ 20 new unit tests
+- [x] Unit tests: `findOwned` throws `ListNotFoundError` for a non-UUID id without calling the repository, and for a `null` result; every write throws `ListNotFoundError` when `lockOwnedBoard` returns `null`
+- [x] `create` throws `BoardNotFoundError` for an unknown board and `BoardArchivedError` for an archived board without creating; otherwise creates at `position = countActive`
+- [x] Every item write (`update`, `move`, `archive`, `unarchive`, `remove`) throws `BoardArchivedError` when the locked board is archived, before any list-state check and without writing
+- [x] `update` saves a new title; returns the list without saving for `{}`; throws `ListArchivedError` on an archived list
+- [x] `move`: `k < i` shifts `[k, i-1]` by `+1`; `k > i` shifts `[i+1, k]` by `-1`; `k > n-1` clamps to `n-1`; `k === i` returns without shift or save; archived list → `ListArchivedError`
+- [x] `archive` shifts `[i+1, n-1]` by `-1`, sets `position` `null` and `archivedAt`; already archived → returned without save; `unarchive` sets `position = countActive` and `archivedAt` `null`; already active → returned without save
+- [x] `remove` throws `ListNotArchivedError` on an active list without deleting; deletes an archived list
+- [x] Quick gate passes; ≥ 20 new unit tests
 
 **Tests**: unit
 **Gate**: build
