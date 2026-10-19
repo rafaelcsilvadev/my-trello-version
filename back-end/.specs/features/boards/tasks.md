@@ -75,9 +75,9 @@ T5 → T6 → T7 → T8 → T9 → T10
 
 **Done when**:
 
-- [ ] No integration suite calls `undoLastMigration()` once to clean up; all use `revertAllMigrations`
-- [ ] Users "dropped when reverted" test reverts every migration and checks `users` is gone, then re-runs migrations
-- [ ] Full gate passes; integration test count unchanged (no silent deletions)
+- [x] No integration suite calls `undoLastMigration()` once to clean up; all use `revertAllMigrations`
+- [x] Users "dropped when reverted" test reverts every migration and checks `users` is gone, then re-runs migrations
+- [x] Full gate passes; integration test count unchanged (no silent deletions)
 
 **Tests**: integration
 **Gate**: full
