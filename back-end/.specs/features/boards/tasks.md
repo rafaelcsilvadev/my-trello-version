@@ -209,11 +209,11 @@ T5 → T6 → T7 → T8 → T9 → T10
 
 **Done when**:
 
-- [ ] e2e: valid body → `201` with exactly `{ id, title, description, archivedAt: null, createdAt, updatedAt }` (no `ownerId`); `"  Roadmap  "` stored as `"Roadmap"`; missing, `""` and `"   "` description → `null`
-- [ ] e2e: `title` missing, non-string, `"   "`, 101 chars → `400` with `errors` item `field` `title`; 100 chars → `201`
-- [ ] e2e: `description` number → `400` field `description`; 1001 chars → `400`; 1000 chars → `201`; `null` → `201` with `null`
-- [ ] e2e: unknown property (`archivedAt`) → `400`; no token → `401`
-- [ ] Full gate passes; ≥ 10 new e2e tests
+- [x] e2e: valid body → `201` with exactly `{ id, title, description, archivedAt: null, createdAt, updatedAt }` (no `ownerId`); `"  Roadmap  "` stored as `"Roadmap"`; missing, `""` and `"   "` description → `null`
+- [x] e2e: `title` missing, non-string, `"   "`, 101 chars → `400` with `errors` item `field` `title`; 100 chars → `201`
+- [x] e2e: `description` number → `400` field `description`; 1001 chars → `400`; 1000 chars → `201`; `null` → `201` with `null`
+- [x] e2e: unknown property (`archivedAt`) → `400`; no token → `401`
+- [x] Full gate passes; ≥ 10 new e2e tests
 
 **Tests**: e2e
 **Gate**: full
