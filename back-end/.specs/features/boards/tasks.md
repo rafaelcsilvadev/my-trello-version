@@ -181,11 +181,11 @@ T5 → T6 → T7 → T8 → T9 → T10
 
 **Done when**:
 
-- [ ] Unit tests: `findOwned` throws `BoardNotFoundError` for a non-UUID id without calling the repository, and for a `null` repository result
-- [ ] `update` applies only present keys, keeps `description: null`, throws `BoardArchivedError` on an archived board without saving, and returns the board without saving for `{}`
-- [ ] `archive` sets `archivedAt` and saves on an active board; returns an archived board unchanged without saving; `unarchive` mirrors both cases
-- [ ] `remove` throws `BoardNotArchivedError` on an active board without deleting; deletes an archived board through `deleteOwned`
-- [ ] Quick gate passes; ≥ 12 new unit tests
+- [x] Unit tests: `findOwned` throws `BoardNotFoundError` for a non-UUID id without calling the repository, and for a `null` repository result
+- [x] `update` applies only present keys, keeps `description: null`, throws `BoardArchivedError` on an archived board without saving, and returns the board without saving for `{}`
+- [x] `archive` sets `archivedAt` and saves on an active board; returns an archived board unchanged without saving; `unarchive` mirrors both cases
+- [x] `remove` throws `BoardNotArchivedError` on an active board without deleting; deletes an archived board through `deleteOwned`
+- [x] Quick gate passes; ≥ 12 new unit tests
 
 **Tests**: unit
 **Gate**: quick
