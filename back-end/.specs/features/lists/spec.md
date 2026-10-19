@@ -215,37 +215,37 @@ A board is empty until it holds lists: lists are the columns ("To do", "Doing", 
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| LST-01 | P1: Create a list | - | Pending |
-| LST-02 | P1: Create a list | - | Pending |
-| LST-03 | P1: Create a list | - | Pending |
-| LST-04 | P1: Create a list | - | Pending |
-| LST-05 | P1: Create a list | - | Pending |
-| LST-06 | P1: List and read lists | - | Pending |
-| LST-07 | P1: List and read lists | - | Pending |
-| LST-08 | P1: List and read lists | - | Pending |
-| LST-09 | P1: List and read lists | - | Pending |
-| LST-10 | P1: Rename a list | - | Pending |
-| LST-11 | P1: Rename a list | - | Pending |
-| LST-12 | P1: Rename a list | - | Pending |
-| LST-13 | P1: Rename a list | - | Pending |
-| LST-14 | P1: Reorder lists | - | Pending |
-| LST-15 | P1: Reorder lists | - | Pending |
-| LST-16 | P1: Reorder lists | - | Pending |
-| LST-17 | P1: Reorder lists | - | Pending |
-| LST-18 | P1: Reorder lists | - | Pending |
-| LST-19 | P1: Reorder lists | - | Pending |
-| LST-20 | P1: Archive and unarchive a list | - | Pending |
-| LST-21 | P1: Archive and unarchive a list | - | Pending |
-| LST-22 | P1: Archive and unarchive a list | - | Pending |
-| LST-23 | P1: Archive and unarchive a list | - | Pending |
-| LST-24 | P1: Delete a list | - | Pending |
-| LST-25 | P1: Delete a list | - | Pending |
-| LST-26 | P1: Archived board protects its lists | - | Pending |
-| LST-27 | P1: Ownership boundary | - | Pending |
-| LST-28 | P1: Ownership boundary | - | Pending |
-| LST-29 | Edge case: board deletion cascade | - | Pending |
+| LST-01 | P1: Create a list | Tasks | In Tasks |
+| LST-02 | P1: Create a list | Tasks | In Tasks |
+| LST-03 | P1: Create a list | Tasks | In Tasks |
+| LST-04 | P1: Create a list | Tasks | In Tasks |
+| LST-05 | P1: Create a list | Tasks | In Tasks |
+| LST-06 | P1: List and read lists | Tasks | In Tasks |
+| LST-07 | P1: List and read lists | Tasks | In Tasks |
+| LST-08 | P1: List and read lists | Tasks | In Tasks |
+| LST-09 | P1: List and read lists | Tasks | In Tasks |
+| LST-10 | P1: Rename a list | Tasks | In Tasks |
+| LST-11 | P1: Rename a list | Tasks | In Tasks |
+| LST-12 | P1: Rename a list | Tasks | In Tasks |
+| LST-13 | P1: Rename a list | Tasks | In Tasks |
+| LST-14 | P1: Reorder lists | Tasks | In Tasks |
+| LST-15 | P1: Reorder lists | Tasks | In Tasks |
+| LST-16 | P1: Reorder lists | Tasks | In Tasks |
+| LST-17 | P1: Reorder lists | Tasks | In Tasks |
+| LST-18 | P1: Reorder lists | Tasks | In Tasks |
+| LST-19 | P1: Reorder lists | Tasks | In Tasks |
+| LST-20 | P1: Archive and unarchive a list | Tasks | In Tasks |
+| LST-21 | P1: Archive and unarchive a list | Tasks | In Tasks |
+| LST-22 | P1: Archive and unarchive a list | Tasks | In Tasks |
+| LST-23 | P1: Archive and unarchive a list | Tasks | In Tasks |
+| LST-24 | P1: Delete a list | Tasks | In Tasks |
+| LST-25 | P1: Delete a list | Tasks | In Tasks |
+| LST-26 | P1: Archived board protects its lists | Tasks | In Tasks |
+| LST-27 | P1: Ownership boundary | Tasks | In Tasks |
+| LST-28 | P1: Ownership boundary | Tasks | In Tasks |
+| LST-29 | Edge case: board deletion cascade | Tasks | In Tasks |
 
-**Coverage:** 29 total, 0 mapped to tasks, 29 unmapped ⚠️
+**Coverage:** 29 total, 29 mapped to tasks, 0 unmapped
 
 ---
 
