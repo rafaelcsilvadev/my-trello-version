@@ -219,12 +219,12 @@ T4 → T5 → T6 → T7 → T8 → T9 → T10
 
 **Done when**:
 
-- [ ] e2e: board without lists → `[]`; active lists by `position` ascending; `archived=false` same as default; works on an archived board
-- [ ] e2e: `archived=true` → only archived lists, `position` `null`, newest `archivedAt` first
-- [ ] e2e: `archived=yes` → `400` field `archived`
-- [ ] e2e: unknown / foreign / malformed `boardId` → `404` `/problems/board-not-found`
-- [ ] e2e: `GET /lists/:id` → `200` for an active list, an archived list and a list of an archived board; unknown / foreign / malformed id → `404` `/problems/list-not-found` with identical bodies
-- [ ] Full gate passes; ≥ 10 new e2e tests
+- [x] e2e: board without lists → `[]`; active lists by `position` ascending; `archived=false` same as default; works on an archived board
+- [x] e2e: `archived=true` → only archived lists, `position` `null`, newest `archivedAt` first
+- [x] e2e: `archived=yes` → `400` field `archived`
+- [x] e2e: unknown / foreign / malformed `boardId` → `404` `/problems/board-not-found`
+- [x] e2e: `GET /lists/:id` → `200` for an active list, an archived list and a list of an archived board; unknown / foreign / malformed id → `404` `/problems/list-not-found` with identical bodies
+- [x] Full gate passes; ≥ 10 new e2e tests
 
 **Tests**: e2e
 **Gate**: full
