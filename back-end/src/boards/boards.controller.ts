@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -85,5 +87,27 @@ export class BoardsController {
       description: body.description,
     });
     return toBoardResponse(board);
+  }
+
+  @Post(':id/archive')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ type: BoardResponseDto })
+  @ApiNotFoundResponse({ description: 'Missing, foreign or malformed id.' })
+  async archive(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+  ): Promise<BoardResponseDto> {
+    return toBoardResponse(await this.boardsService.archive(user.id, id));
+  }
+
+  @Post(':id/unarchive')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ type: BoardResponseDto })
+  @ApiNotFoundResponse({ description: 'Missing, foreign or malformed id.' })
+  async unarchive(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+  ): Promise<BoardResponseDto> {
+    return toBoardResponse(await this.boardsService.unarchive(user.id, id));
   }
 }
