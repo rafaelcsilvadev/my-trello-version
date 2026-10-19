@@ -1,7 +1,16 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiConflictResponse,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -14,6 +23,7 @@ import { BoardsService } from './boards.service';
 import { BoardResponseDto, toBoardResponse } from './dto/board-response.dto';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { ListBoardsQueryDto } from './dto/list-boards-query.dto';
+import { UpdateBoardDto } from './dto/update-board.dto';
 
 @ApiTags('boards')
 @ApiBearerAuth()
@@ -58,5 +68,22 @@ export class BoardsController {
     @Param('id') id: string,
   ): Promise<BoardResponseDto> {
     return toBoardResponse(await this.boardsService.findOwned(user.id, id));
+  }
+
+  @Patch(':id')
+  @ApiOkResponse({ type: BoardResponseDto })
+  @ApiBadRequestResponse({ description: 'Invalid body: `errors[]` per field.' })
+  @ApiNotFoundResponse({ description: 'Missing, foreign or malformed id.' })
+  @ApiConflictResponse({ description: 'The board is archived.' })
+  async update(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+    @Body() body: UpdateBoardDto,
+  ): Promise<BoardResponseDto> {
+    const board = await this.boardsService.update(user.id, id, {
+      title: body.title,
+      description: body.description,
+    });
+    return toBoardResponse(board);
   }
 }
