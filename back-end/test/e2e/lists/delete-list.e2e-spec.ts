@@ -76,6 +76,13 @@ describe('DELETE /api/v1/lists/:id (e2e)', () => {
       .expect(200);
   };
 
+  const unarchiveBoard = async (id: string) => {
+    await request(app.getHttpServer())
+      .post(`/api/v1/boards/${id}/unarchive`)
+      .set('Authorization', `Bearer ${anaToken}`)
+      .expect(200);
+  };
+
   const archive = async (id: string, token = anaToken) => {
     const res = await request(app.getHttpServer())
       .post(`/api/v1/lists/${id}/archive`)
@@ -160,18 +167,23 @@ describe('DELETE /api/v1/lists/:id (e2e)', () => {
     expect(await listsInBoard('?archived=true')).toEqual([]);
   });
 
-  it('returns 409 board-archived on an archived list of an archived board and keeps it', async () => {
-    const [a] = await createLists('A');
-    const archived = await archive(a.id);
-    await archiveBoard(boardId);
+  // Board-archived wins over list-not-archived for an active list (LST-26).
+  it.each([['an archived'], ['an active']])(
+    'returns 409 board-archived on %s list of an archived board and keeps it',
+    async (state) => {
+      const [a] = await createLists('A');
+      const before = state === 'an archived' ? await archive(a.id) : a;
+      await archiveBoard(boardId);
 
-    const res = await remove(a.id);
+      const res = await remove(a.id);
 
-    expect(res.status).toBe(409);
-    expect(res.headers['content-type']).toMatch(PROBLEM_JSON);
-    expect(res.body.type).toBe('/problems/board-archived');
-    expect((await read(a.id).expect(200)).body).toEqual(archived);
-  });
+      expect(res.status).toBe(409);
+      expect(res.headers['content-type']).toMatch(PROBLEM_JSON);
+      expect(res.body.type).toBe('/problems/board-archived');
+      await unarchiveBoard(boardId);
+      expect((await read(a.id).expect(200)).body).toEqual(before);
+    },
+  );
 
   it("answers another user's, an unknown and a malformed id with the same 404 and keeps the foreign list", async () => {
     const bobsBoardId = await createBoard(bobToken, 'Bob board');

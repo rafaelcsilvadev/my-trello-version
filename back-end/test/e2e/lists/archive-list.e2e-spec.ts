@@ -60,6 +60,13 @@ describe('POST /api/v1/lists/:id/archive and /unarchive (e2e)', () => {
       .expect(200);
   };
 
+  const unarchiveBoard = async (id: string) => {
+    await request(app.getHttpServer())
+      .post(`/api/v1/boards/${id}/unarchive`)
+      .set('Authorization', `Bearer ${anaToken}`)
+      .expect(200);
+  };
+
   const action = (
     id: string,
     name: 'archive' | 'unarchive',
@@ -173,11 +180,18 @@ describe('POST /api/v1/lists/:id/archive and /unarchive (e2e)', () => {
     expect(await read(b.id)).toEqual(b);
   });
 
-  it.each([['archive' as const], ['unarchive' as const]])(
-    'returns 409 board-archived on %s of a list of an archived board',
-    async (name) => {
+  // Every list state, including the ones where the list-state branch would
+  // otherwise no-op with 200 (LST-26).
+  it.each([
+    ['archive' as const, 'an active'],
+    ['archive' as const, 'an archived'],
+    ['unarchive' as const, 'an active'],
+    ['unarchive' as const, 'an archived'],
+  ])(
+    'returns 409 board-archived on %s of %s list of an archived board',
+    async (name, state) => {
       const [a] = await createLists('A', 'B');
-      if (name === 'unarchive') {
+      if (state === 'an archived') {
         await action(a.id, 'archive').expect(200);
       }
       const before = await read(a.id);
@@ -188,6 +202,7 @@ describe('POST /api/v1/lists/:id/archive and /unarchive (e2e)', () => {
       expect(res.status).toBe(409);
       expect(res.headers['content-type']).toMatch(PROBLEM_JSON);
       expect(res.body.type).toBe('/problems/board-archived');
+      await unarchiveBoard(boardId);
       expect(await read(a.id)).toEqual(before);
     },
   );
