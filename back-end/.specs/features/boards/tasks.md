@@ -101,10 +101,10 @@ T5 → T6 → T7 → T8 → T9 → T10
 
 **Done when**:
 
-- [ ] Integration test: table `boards` has columns `id`, `owner_id`, `title`, `description`, `archived_at`, `created_at`, `updated_at` with the designed types and nullability; `id`, `created_at`, `updated_at` get defaults
-- [ ] Integration test: inserting a board with an unknown `owner_id` fails on `FK_boards_owner_id`; deleting the owner deletes their boards (BRD-23)
-- [ ] Integration test: index `IDX_boards_owner_id_created_at` exists; reverting the migration drops the table
-- [ ] Full gate passes; ≥ 4 new integration tests
+- [x] Integration test: table `boards` has columns `id`, `owner_id`, `title`, `description`, `archived_at`, `created_at`, `updated_at` with the designed types and nullability; `id`, `created_at`, `updated_at` get defaults
+- [x] Integration test: inserting a board with an unknown `owner_id` fails on `FK_boards_owner_id`; deleting the owner deletes their boards (BRD-23)
+- [x] Integration test: index `IDX_boards_owner_id_created_at` exists; reverting the migration drops the table
+- [x] Full gate passes; ≥ 4 new integration tests
 
 **Tests**: integration
 **Gate**: full
