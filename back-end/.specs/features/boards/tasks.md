@@ -128,11 +128,11 @@ T5 → T6 → T7 → T8 → T9 → T10
 
 **Done when**:
 
-- [ ] Integration tests: `create` returns the stored board with generated `id`, `createdAt`, `updatedAt` and `archivedAt` `null`
-- [ ] `findOwned` returns the board for its owner and `null` for another owner and for an unknown id
-- [ ] `listOwned(owner, false)` returns only that owner's active boards, newest first; `listOwned(owner, true)` returns only archived ones
-- [ ] `save` persists a changed `title` and `archivedAt`; `deleteOwned` removes the owner's board and leaves another owner's board with the same call untouched
-- [ ] Full gate passes; ≥ 7 new integration tests
+- [x] Integration tests: `create` returns the stored board with generated `id`, `createdAt`, `updatedAt` and `archivedAt` `null`
+- [x] `findOwned` returns the board for its owner and `null` for another owner and for an unknown id
+- [x] `listOwned(owner, false)` returns only that owner's active boards, newest first; `listOwned(owner, true)` returns only archived ones
+- [x] `save` persists a changed `title` and `archivedAt`; `deleteOwned` removes the owner's board and leaves another owner's board with the same call untouched
+- [x] Full gate passes; ≥ 7 new integration tests
 
 **Tests**: integration
 **Gate**: full
