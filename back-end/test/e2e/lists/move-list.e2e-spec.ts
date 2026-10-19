@@ -300,4 +300,50 @@ describe('POST /api/v1/lists/:id/move (e2e)', () => {
     );
     expect(rows.map((row) => row.position)).toEqual([0, 1, 2, 3, 4]);
   });
+
+  // Every position write shares the board lock (LST-19). Each request
+  // targets a different list, so every outcome is order-independent.
+  it('keeps contiguous positions under concurrent mixed writes on one board', async () => {
+    const [a, b, c, d, e, f] = await createLists('A', 'B', 'C', 'D', 'E', 'F');
+    await archiveList(e.id);
+    await archiveList(f.id);
+    const post = (path: string, body?: object) =>
+      request(app.getHttpServer())
+        .post(`/api/v1${path}`)
+        .set('Authorization', `Bearer ${anaToken}`)
+        .send(body);
+
+    const responses = await Promise.all([
+      post(`/boards/${boardId}/lists`, { title: 'G' }),
+      post(`/boards/${boardId}/lists`, { title: 'H' }),
+      post(`/lists/${a.id}/move`, { position: 3 }),
+      post(`/lists/${b.id}/move`, { position: 0 }),
+      post(`/lists/${c.id}/archive`),
+      post(`/lists/${d.id}/archive`),
+      post(`/lists/${e.id}/unarchive`),
+      post(`/lists/${f.id}/unarchive`),
+    ]);
+
+    expect(responses.map((res) => res.status)).toEqual([
+      201, 201, 200, 200, 200, 200, 200, 200,
+    ]);
+    const rows: { title: string; position: number | null }[] =
+      await dataSource.query(
+        'SELECT "title", "position" FROM "lists" WHERE "board_id" = $1 ORDER BY "position", "title"',
+        [boardId],
+      );
+    expect(rows.map((row) => row.position)).toEqual([
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      null,
+      null,
+    ]);
+    expect(
+      rows.filter((row) => row.position === null).map((row) => row.title),
+    ).toEqual(['C', 'D']);
+  });
 });

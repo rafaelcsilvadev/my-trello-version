@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -14,6 +15,7 @@ import {
   ApiBearerAuth,
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiTags,
@@ -138,5 +140,19 @@ export class ListsController {
     @Param('id') id: string,
   ): Promise<ListResponseDto> {
     return toListResponse(await this.listsService.unarchive(user.id, id));
+  }
+
+  @Delete('lists/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiNoContentResponse({ description: 'The list was deleted.' })
+  @ApiNotFoundResponse({ description: 'Missing, foreign or malformed id.' })
+  @ApiConflictResponse({
+    description: 'The list is not archived, or its board is archived.',
+  })
+  async remove(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+  ): Promise<void> {
+    await this.listsService.remove(user.id, id);
   }
 }

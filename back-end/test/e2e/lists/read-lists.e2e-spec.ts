@@ -178,17 +178,20 @@ describe('GET /api/v1/boards/:boardId/lists and /api/v1/lists/:id (e2e)', () => 
       ]);
     });
 
-    it('returns 400 with an archived field error for archived=yes', async () => {
-      const res = await get(`/boards/${boardId}/lists?archived=yes`);
+    it.each(['yes', '1', 'TRUE', ''])(
+      'returns 400 with an archived field error for archived=%s',
+      async (value) => {
+        const res = await get(`/boards/${boardId}/lists?archived=${value}`);
 
-      expect(res.status).toBe(400);
-      expect(res.headers['content-type']).toMatch(PROBLEM_JSON);
-      expect(res.body.errors).toEqual(
-        expect.arrayContaining([
-          { field: 'archived', message: expect.any(String) },
-        ]),
-      );
-    });
+        expect(res.status).toBe(400);
+        expect(res.headers['content-type']).toMatch(PROBLEM_JSON);
+        expect(res.body.errors).toEqual(
+          expect.arrayContaining([
+            { field: 'archived', message: expect.any(String) },
+          ]),
+        );
+      },
+    );
 
     it("answers another user's, an unknown and a malformed board id with the same 404", async () => {
       const bobsBoardId = await createBoard(bobToken, 'Bob board');
