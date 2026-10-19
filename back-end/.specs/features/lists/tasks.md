@@ -335,12 +335,12 @@ T4 → T5 → T6 → T7 → T8 → T9 → T10
 
 **Done when**:
 
-- [ ] e2e: active list → `409` `/problems/list-not-archived`, list still readable
-- [ ] e2e: archived list → `204` with empty body; `GET /lists/:id` then `404`; remaining active positions unchanged
-- [ ] e2e: archived list of an archived board → `409` `/problems/board-archived`, list still exists
-- [ ] e2e: user B calls every `/lists/:id` route and both collection routes on user A's data → `404`; user A's lists unchanged; no token → `401` on every list route
-- [ ] e2e: lifecycle create → move → archive → delete passes in one test with positions `0..n-1` after each step
-- [ ] Full gate passes; ≥ 6 new e2e tests
+- [x] e2e: active list → `409` `/problems/list-not-archived`, list still readable
+- [x] e2e: archived list → `204` with empty body; `GET /lists/:id` then `404`; remaining active positions unchanged
+- [x] e2e: archived list of an archived board → `409` `/problems/board-archived`, list still exists
+- [x] e2e: user B calls every `/lists/:id` route and both collection routes on user A's data → `404`; user A's lists unchanged; no token → `401` on every list route
+- [x] e2e: lifecycle create → move → archive → delete passes in one test with positions `0..n-1` after each step
+- [x] Full gate passes; ≥ 6 new e2e tests
 
 **Tests**: e2e
 **Gate**: build
