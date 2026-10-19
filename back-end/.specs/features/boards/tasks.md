@@ -237,10 +237,10 @@ T5 → T6 → T7 → T8 → T9 → T10
 
 **Done when**:
 
-- [ ] e2e: no boards → `[]`; two users' boards → each list holds only the caller's active boards, newest first; `archived=false` same as default
-- [ ] e2e: `archived=true` → only the caller's archived boards; `archived=yes` → `400` field `archived`
-- [ ] e2e: `GET /boards/:id` → `200` for own active and own archived board; another user's id, unknown UUID and `not-a-uuid` → identical `404` `/problems/board-not-found` bodies (except `instance`/`requestId`)
-- [ ] Full gate passes; ≥ 8 new e2e tests
+- [x] e2e: no boards → `[]`; two users' boards → each list holds only the caller's active boards, newest first; `archived=false` same as default
+- [x] e2e: `archived=true` → only the caller's archived boards; `archived=yes` → `400` field `archived`
+- [x] e2e: `GET /boards/:id` → `200` for own active and own archived board; another user's id, unknown UUID and `not-a-uuid` → identical `404` `/problems/board-not-found` bodies (except `instance`/`requestId`)
+- [x] Full gate passes; ≥ 8 new e2e tests
 
 **Tests**: e2e
 **Gate**: full
