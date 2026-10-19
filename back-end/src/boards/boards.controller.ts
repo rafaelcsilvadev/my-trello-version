@@ -1,8 +1,10 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -11,6 +13,7 @@ import type { User } from '../users/user.entity';
 import { BoardsService } from './boards.service';
 import { BoardResponseDto, toBoardResponse } from './dto/board-response.dto';
 import { CreateBoardDto } from './dto/create-board.dto';
+import { ListBoardsQueryDto } from './dto/list-boards-query.dto';
 
 @ApiTags('boards')
 @ApiBearerAuth()
@@ -31,5 +34,29 @@ export class BoardsController {
       description: body.description ?? null,
     });
     return toBoardResponse(board);
+  }
+
+  @Get()
+  @ApiOkResponse({ type: [BoardResponseDto] })
+  @ApiBadRequestResponse({ description: 'Invalid `archived` query value.' })
+  async list(
+    @CurrentUser() user: User,
+    @Query() query: ListBoardsQueryDto,
+  ): Promise<BoardResponseDto[]> {
+    const boards = await this.boardsService.list(
+      user.id,
+      query.archived === 'true',
+    );
+    return boards.map(toBoardResponse);
+  }
+
+  @Get(':id')
+  @ApiOkResponse({ type: BoardResponseDto })
+  @ApiNotFoundResponse({ description: 'Missing, foreign or malformed id.' })
+  async findOne(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+  ): Promise<BoardResponseDto> {
+    return toBoardResponse(await this.boardsService.findOwned(user.id, id));
   }
 }
