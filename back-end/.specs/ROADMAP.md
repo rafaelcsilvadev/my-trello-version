@@ -7,8 +7,8 @@ Personal, single-owner Trello: each user registers and manages only their own bo
 | # | Feature | Scope | Depends on | Status |
 |---|---------|-------|------------|--------|
 | 0 | `foundation` | NestJS + pnpm setup, Docker (API + PostgreSQL via root compose), request id + structured logs, health check, config, TypeORM + migrations, standard error format, Swagger/OpenAPI, test infrastructure (Testcontainers + supertest) | — | Done |
-| 1 | `auth` | Register, login (JWT), `GET /me` | 0 | Pending |
-| 2 | `boards` | CRUD of the user's boards, archive | 1 | Pending |
+| 1 | `auth` | Register, login (JWT), `GET /me` | 0 | Done |
+| 2 | `boards` | CRUD of the user's boards, archive | 1 | In progress |
 | 3 | `lists` | CRUD of lists inside a board, reorder | 2 | Pending |
 | 4 | `cards` | Title, description, due date, done flag, archive, move between lists and reorder | 3 | Pending |
 | 5 | `labels` | Board-level labels, apply to cards | 4 | Pending |
