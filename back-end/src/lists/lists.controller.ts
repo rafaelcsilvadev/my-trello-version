@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -22,6 +24,7 @@ import type { User } from '../users/user.entity';
 import { CreateListDto } from './dto/create-list.dto';
 import { ListListsQueryDto } from './dto/list-lists-query.dto';
 import { ListResponseDto, toListResponse } from './dto/list-response.dto';
+import { MoveListDto } from './dto/move-list.dto';
 import { UpdateListDto } from './dto/update-list.dto';
 import { ListsService } from './lists.service';
 
@@ -93,6 +96,23 @@ export class ListsController {
     const list = await this.listsService.update(user.id, id, {
       title: body.title,
     });
+    return toListResponse(list);
+  }
+
+  @Post('lists/:id/move')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ type: ListResponseDto })
+  @ApiBadRequestResponse({ description: 'Invalid body: `errors[]` per field.' })
+  @ApiNotFoundResponse({ description: 'Missing, foreign or malformed id.' })
+  @ApiConflictResponse({
+    description: 'The list or its board is archived.',
+  })
+  async move(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+    @Body() body: MoveListDto,
+  ): Promise<ListResponseDto> {
+    const list = await this.listsService.move(user.id, id, body.position);
     return toListResponse(list);
   }
 }

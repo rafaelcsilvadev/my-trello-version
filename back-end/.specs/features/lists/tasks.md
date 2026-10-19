@@ -276,13 +276,13 @@ T4 → T5 → T6 → T7 → T8 → T9 → T10
 
 **Done when**:
 
-- [ ] e2e: A, B, C, D; move C to `0` → `200` with `position` `0`, collection `[C, A, B, D]`; move A to `3` → `[B, C, D, A]` (both directions); shifted lists keep `updatedAt`
-- [ ] e2e: `position` `99` → moved to the end; same position → `200` with identical body including `updatedAt`; only list moved to `5` → `position` `0`
-- [ ] e2e: `position` missing, `-1`, `1.5`, `"2"` → `400` field `position`, order unchanged
-- [ ] e2e: archived list → `409` `/problems/list-archived`; list of an archived board → `409` `/problems/board-archived`; order unchanged
-- [ ] e2e: unknown / foreign / malformed id → `404` `/problems/list-not-found`
-- [ ] e2e: 10 concurrent moves on one board of 5 lists all return `200` and the board's active lists hold positions `0..4` exactly once
-- [ ] Full gate passes; ≥ 10 new e2e tests
+- [x] e2e: A, B, C, D; move C to `0` → `200` with `position` `0`, collection `[C, A, B, D]`; move A to `3` → `[B, C, D, A]` (both directions); shifted lists keep `updatedAt`
+- [x] e2e: `position` `99` → moved to the end; same position → `200` with identical body including `updatedAt`; only list moved to `5` → `position` `0`
+- [x] e2e: `position` missing, `-1`, `1.5`, `"2"` → `400` field `position`, order unchanged
+- [x] e2e: archived list → `409` `/problems/list-archived`; list of an archived board → `409` `/problems/board-archived`; order unchanged
+- [x] e2e: unknown / foreign / malformed id → `404` `/problems/list-not-found`
+- [x] e2e: 10 concurrent moves on one board of 5 lists all return `200` and the board's active lists hold positions `0..4` exactly once
+- [x] Full gate passes; ≥ 10 new e2e tests
 
 **Tests**: e2e
 **Gate**: full
