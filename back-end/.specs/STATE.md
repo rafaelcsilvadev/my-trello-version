@@ -60,6 +60,14 @@ App decisions for the NestJS API. Must conform to the global decisions in `../..
 - **Date**: 2026-10-15
 - **Status**: active
 
+### BE-AD-008
+- **Decision**: Ownership is enforced in the repository: every query on a user-owned resource filters by the owner id (`findOwned(ownerId, id)`, `listOwned(ownerId, ...)`), with no unscoped finder; a resource that is missing, belongs to another user, or has a malformed id answers the same `404` with the resource's `/problems/<resource>-not-found` type. Nested resources (lists, cards) check access through the parent board's owner-scoped lookup.
+- **Reason**: Single-owner product (ROADMAP); one query per lookup, and a foreign id never reveals that it exists.
+- **Trade-off**: Every repository method on owned data carries an `ownerId` parameter; no shared guard does the check for free.
+- **Scope**: boards, lists, cards, labels, checklists
+- **Date**: 2026-10-19
+- **Status**: active
+
 ## Open Items
 
 ### P1
