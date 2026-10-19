@@ -172,11 +172,14 @@ CREATE TABLE "lists" (
   CONSTRAINT "UQ_lists_board_id_position" UNIQUE ("board_id", "position")
     DEFERRABLE INITIALLY DEFERRED,
   CONSTRAINT "CHK_lists_position_archived"
-    CHECK (("archived_at" IS NULL) = ("position" IS NOT NULL AND "position" >= 0))
+    CHECK (
+      ("archived_at" IS NULL AND "position" IS NOT NULL AND "position" >= 0)
+      OR ("archived_at" IS NOT NULL AND "position" IS NULL)
+    )
 );
 ```
 
-**Relationships**: many lists → one board. The unique constraint's index serves the active list query (`board_id`, ordered by `position`) and the shifts. `NULL` positions never collide, so archived lists are free. The check constraint ties `position` to the archive state: active ⇔ non-negative position.
+**Relationships**: many lists → one board. The unique constraint's index serves the active list query (`board_id`, ordered by `position`) and the shifts. `NULL` positions never collide, so archived lists are free. The check constraint ties `position` to the archive state: active ⇔ non-negative position, archived ⇔ `NULL` (one branch per state, so an archived list cannot keep a negative position).
 
 ---
 

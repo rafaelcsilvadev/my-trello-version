@@ -75,12 +75,12 @@ T4 → T5 → T6 → T7 → T8 → T9 → T10
 
 **Done when**:
 
-- [ ] Integration test: table `lists` has columns `id`, `board_id`, `title`, `position`, `archived_at`, `created_at`, `updated_at` with the design types and nullability
-- [ ] Integration test: inserting a list with an unknown `board_id` fails on `FK_lists_board_id`; deleting the board deletes its lists (LST-29)
-- [ ] Integration test: two active lists with the same `board_id` and `position` fail at `COMMIT`; inside one transaction a temporary duplicate that is fixed before `COMMIT` succeeds; several archived lists with `position` `NULL` are allowed
-- [ ] Integration test: `CHK_lists_position_archived` rejects an active list with `position` `NULL`, an archived list with a position, and a negative position
-- [ ] Integration test: reverting the migration drops `lists`
-- [ ] Full gate passes; ≥ 6 new integration tests
+- [x] Integration test: table `lists` has columns `id`, `board_id`, `title`, `position`, `archived_at`, `created_at`, `updated_at` with the design types and nullability
+- [x] Integration test: inserting a list with an unknown `board_id` fails on `FK_lists_board_id`; deleting the board deletes its lists (LST-29)
+- [x] Integration test: two active lists with the same `board_id` and `position` fail at `COMMIT`; inside one transaction a temporary duplicate that is fixed before `COMMIT` succeeds; several archived lists with `position` `NULL` are allowed
+- [x] Integration test: `CHK_lists_position_archived` rejects an active list with `position` `NULL`, an archived list with a position, and a negative position (active or archived)
+- [x] Integration test: reverting the migration drops `lists`
+- [x] Full gate passes; ≥ 6 new integration tests
 
 **Tests**: integration
 **Gate**: full

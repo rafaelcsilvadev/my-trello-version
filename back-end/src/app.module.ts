@@ -5,6 +5,7 @@ import { BoardsModule } from './boards/boards.module';
 import { validateEnv } from './config/env.schema';
 import { DatabaseModule } from './database/database.module';
 import { HealthModule } from './health/health.module';
+import { ListsModule } from './lists/lists.module';
 import { LoggingModule } from './logging/logging.module';
 import { UsersModule } from './users/users.module';
 
@@ -17,6 +18,7 @@ import { UsersModule } from './users/users.module';
     UsersModule,
     AuthModule,
     BoardsModule,
+    ListsModule,
   ],
 })
 export class AppModule {}
