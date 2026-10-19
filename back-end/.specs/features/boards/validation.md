@@ -2,7 +2,7 @@
 
 **Date**: 2026-10-19
 **Spec**: `.specs/features/boards/spec.md`
-**Diff range**: `d0a23b2^..HEAD` (branch `feat/boards-delete-endpoint`, HEAD `6894385`; code commits `afe4aa6`..`7759fef`)
+**Diff range**: `d0a23b2^..HEAD` (branch `feat/boards-delete-endpoint`, HEAD `6894385`; code commits `afe4aa6`..`7759fef`). Fix commits after the report: `0738a5d` (traceability), `8dc4e7d`, `edc5f04`
 **Verifier**: independent sub-agent (author ≠ verifier)
 
 **Verdict: PASS ✅.** All 23 requirements (BRD-01..BRD-23) and the 3 listed edge cases trace to a test assertion that targets the spec-defined outcome. The build gate is green (unit 109, integration 32, e2e 130). The sensor killed 19 of 19 behavior-level mutants. Three minor observations remain (see Fix Plans); none blocks the feature.
@@ -46,13 +46,13 @@ Paths are relative to `back-end/`.
 | BRD-12 invalid PATCH | `400`, error item per invalid field, board unchanged | `update-board.e2e-spec.ts:120-143` (7 cases incl. `title: null`) - `toBe(400)`, `arrayContaining([{ field }])`, `read toEqual(created)`; both fields `:153-155` | ✅ PASS |
 | BRD-13 PATCH `{}` | `200`, board unchanged incl. `updatedAt` | `update-board.e2e-spec.ts:174-175` - `toBe(200)`, `toEqual(created)`; unit `boards.service.spec.ts:158-159` `save not.toHaveBeenCalled()` | ✅ PASS |
 | BRD-14 PATCH archived board | `409`, `type` `/problems/board-archived`, unchanged | `update-board.e2e-spec.ts:185-188` - `toBe(409)`, `type toBe('/problems/board-archived')`, `read toEqual(before)` | ✅ PASS |
-| BRD-15 archive active | `200`, `archivedAt` = current time | `test/e2e/boards/archive-board.e2e-spec.ts:77-82` - `toBe(200)`, `toEqual({ ...created, archivedAt: ISO, updatedAt })`; moves lists `:83-84`; current time `boards.service.spec.ts:190-192` (`before ≤ archivedAt ≤ now`) | ✅ PASS |
+| BRD-15 archive active | `200`, `archivedAt` = current time | `test/e2e/boards/archive-board.e2e-spec.ts:77-82` - `toBe(200)`, `toEqual({ ...created, archivedAt: ISO, updatedAt })`; moves lists `:83-84`; current time e2e `archive-board.e2e-spec.ts:85-87` (`before ≤ Date.parse(archivedAt) ≤ after`) and unit `boards.service.spec.ts:190-192` | ✅ PASS |
 | BRD-16 archive twice | `200`, original `archivedAt` unchanged | `archive-board.e2e-spec.ts:93-94` - `toBe(200)`, `toEqual(first.body)`; unit `boards.service.spec.ts:205-206` | ✅ PASS |
 | BRD-17 unarchive archived | `200`, `archivedAt` `null` | `archive-board.e2e-spec.ts:103-106` - `toBe(200)`, `archivedAt toBeNull()`, back in active list, gone from archived list | ✅ PASS |
 | BRD-18 unarchive active | `200`, board unchanged | `archive-board.e2e-spec.ts:114-115` - `toBe(200)`, `toEqual(created)`; unit `boards.service.spec.ts:229-230` | ✅ PASS |
 | BRD-19 delete archived | `204`, no body, board gone | `test/e2e/boards/delete-board.e2e-spec.ts:94-98` - `toBe(204)`, `res.text toBe('')`, follow-up GET `toBe(404)` + `board-not-found` | ✅ PASS |
 | BRD-20 delete active | `409`, `type` `/problems/board-not-archived`, not deleted | `delete-board.e2e-spec.ts:81-85` - `toBe(409)`, `type toBe('/problems/board-not-archived')`, `read toEqual(created)` | ✅ PASS |
-| BRD-21 foreign / unknown / malformed id | `404`, `/problems/board-not-found`, identical, nothing changed | GET `read-boards.e2e-spec.ts:178-189` (bodies minus `instance`/`requestId` `toEqual`); PATCH `update-board.e2e-spec.ts:200-205`; archive/unarchive `archive-board.e2e-spec.ts:133-138`; DELETE `delete-board.e2e-spec.ts:111-117` - each `toBe(404)` + `type toBe('/problems/board-not-found')` + foreign board `toEqual(before)`; mapping `test/unit/boards/boards.errors.spec.ts:37` | ✅ PASS (minor: full-body identity asserted only on GET, see Fix 1) |
+| BRD-21 foreign / unknown / malformed id | `404`, `/problems/board-not-found`, identical, nothing changed | bodies minus `instance`/`requestId` compared with `toEqual` across the three cases, plus `type toBe('/problems/board-not-found')`: GET `read-boards.e2e-spec.ts:178-189`; PATCH `update-board.e2e-spec.ts:200-208`; archive/unarchive `archive-board.e2e-spec.ts:138-150`; DELETE `delete-board.e2e-spec.ts:111-119`; foreign board `toEqual(before)` in each; mapping `test/unit/boards/boards.errors.spec.ts:37` | ✅ PASS |
 | BRD-22 token required on every route | `401` without token | create `create-board.e2e-spec.ts:174`; list `read-boards.e2e-spec.ts:142`; read `:199`; PATCH `update-board.e2e-spec.ts:215-216`; archive/unarchive `archive-board.e2e-spec.ts:151-152`; DELETE `delete-board.e2e-spec.ts:128-130` - `toBe(401)` (+ board unchanged on writes) | ✅ PASS |
 | BRD-23 owner deletion cascades | user's boards deleted, others kept | `test/integration/boards/boards-table.int-spec.ts:167` - `toEqual([{ owner_id: otherId }])` | ✅ PASS |
 
@@ -129,25 +129,28 @@ Note: M7, M8 and M10 are killed only at the unit level. M8 and M10 are not obser
 
 ---
 
-## Fix Plans (minor, non-blocking)
+## Fix Plans (minor, non-blocking) - all resolved
 
 ### Fix 1: BRD-21 identity asserted on full body only for GET
 
 - **Root cause**: PATCH, archive, unarchive and DELETE 404 tests assert `status` and `type` per case but do not compare the three bodies with each other (`update-board.e2e-spec.ts:200-204`, `archive-board.e2e-spec.ts:133-137`, `delete-board.e2e-spec.ts:111-116`). The implementation shares one error class, so the risk is low.
 - **Fix task**: reuse the GET pattern (`read-boards.e2e-spec.ts:177-189`, strip `instance`/`requestId`, `toEqual` across the three cases) in the other `/:id` suites.
 - **Priority**: Minor
+- **Resolved**: `8dc4e7d` - PATCH, archive/unarchive and DELETE now compare the three 404 bodies like GET.
 
 ### Fix 2: BRD-15 "current time" asserted only in unit
 
 - **Root cause**: `archive-board.e2e-spec.ts:80` asserts `archivedAt` matches ISO format only; `new Date(0)` survives e2e (killed by unit `boards.service.spec.ts:191`).
 - **Fix task**: in the e2e archive test, assert `archivedAt` falls between timestamps taken before and after the request.
 - **Priority**: Minor
+- **Resolved**: `edc5f04` - e2e asserts `before ≤ archivedAt ≤ after`; the `new Date(0)` mutant now fails `archive-board.e2e-spec.ts:86`.
 
 ### Fix 3: Requirement Traceability still shows "In Tasks"
 
 - **Root cause**: `spec.md` traceability table was not advanced after implementation; the Verifier does not edit `spec.md`.
 - **Fix task**: set BRD-01..BRD-23 to `✅ Verified` in a docs commit.
 - **Priority**: Cosmetic
+- **Resolved**: `0738a5d`.
 
 ---
 
@@ -169,6 +172,6 @@ Note: M7, M8 and M10 are killed only at the unit level. M8 and M10 are not obser
 
 **What works**: create with trim/null rules and field-level `400`s; owner-scoped list with `archived` filter and newest-first order; read of own boards; PATCH with partial update, no-op `{}`, and `409` on archived boards; idempotent archive/unarchive; delete only from the archive; identical `404` for foreign/unknown/malformed ids; `401` on every route; owner cascade.
 
-**Issues found**: three minor items above; none affects behavior.
+**Issues found**: three minor items above, all resolved in follow-up commits; none affected behavior.
 
-**Next steps**: optionally apply Fix 1-3, then merge.
+**Next steps**: merge.
