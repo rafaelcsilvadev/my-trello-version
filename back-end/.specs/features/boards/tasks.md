@@ -156,8 +156,8 @@ T5 → T6 → T7 → T8 → T9 → T10
 
 **Done when**:
 
-- [ ] Unit tests: `findDomainErrorMapping` returns `404` `/problems/board-not-found`, `409` `/problems/board-archived`, `409` `/problems/board-not-archived` for the three errors; each error carries the design `detail` message
-- [ ] Quick gate passes; ≥ 3 new unit tests
+- [x] Unit tests: `findDomainErrorMapping` returns `404` `/problems/board-not-found`, `409` `/problems/board-archived`, `409` `/problems/board-not-archived` for the three errors; each error carries the design `detail` message
+- [x] Quick gate passes; ≥ 3 new unit tests
 
 **Tests**: unit
 **Gate**: quick
