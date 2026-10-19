@@ -306,12 +306,12 @@ T4 → T5 → T6 → T7 → T8 → T9 → T10
 
 **Done when**:
 
-- [ ] e2e: archive the first of three lists → `200`, `position` `null`, `archivedAt` between request start and end; the others move to `0` and `1`; it appears in `?archived=true`
-- [ ] e2e: archive again → `200` with the original `archivedAt`
-- [ ] e2e: unarchive → `200`, `archivedAt` `null`, `position` `2` (end); unarchive an active list → `200` with identical body including `updatedAt`
-- [ ] e2e: both actions on a list of an archived board → `409` `/problems/board-archived`, list unchanged
-- [ ] e2e: unknown / foreign / malformed id → `404` `/problems/list-not-found` on both routes
-- [ ] Full gate passes; ≥ 8 new e2e tests
+- [x] e2e: archive the first of three lists → `200`, `position` `null`, `archivedAt` between request start and end; the others move to `0` and `1`; it appears in `?archived=true`
+- [x] e2e: archive again → `200` with the original `archivedAt`
+- [x] e2e: unarchive → `200`, `archivedAt` `null`, `position` `2` (end); unarchive an active list → `200` with identical body including `updatedAt`
+- [x] e2e: both actions on a list of an archived board → `409` `/problems/board-archived`, list unchanged
+- [x] e2e: unknown / foreign / malformed id → `404` `/problems/list-not-found` on both routes
+- [x] Full gate passes; ≥ 8 new e2e tests
 
 **Tests**: e2e
 **Gate**: full
