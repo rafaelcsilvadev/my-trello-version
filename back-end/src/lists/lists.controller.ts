@@ -1,16 +1,18 @@
-import { Body, Controller, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiNotFoundResponse,
+  ApiOkResponse,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { CurrentUser } from '../auth/current-user.decorator';
 import type { User } from '../users/user.entity';
 import { CreateListDto } from './dto/create-list.dto';
+import { ListListsQueryDto } from './dto/list-lists-query.dto';
 import { ListResponseDto, toListResponse } from './dto/list-response.dto';
 import { ListsService } from './lists.service';
 
@@ -36,5 +38,34 @@ export class ListsController {
   ): Promise<ListResponseDto> {
     const list = await this.listsService.create(user.id, boardId, body.title);
     return toListResponse(list);
+  }
+
+  @Get('boards/:boardId/lists')
+  @ApiOkResponse({ type: [ListResponseDto] })
+  @ApiBadRequestResponse({ description: 'Invalid `archived` query value.' })
+  @ApiNotFoundResponse({
+    description: 'Missing, foreign or malformed board id.',
+  })
+  async list(
+    @CurrentUser() user: User,
+    @Param('boardId') boardId: string,
+    @Query() query: ListListsQueryDto,
+  ): Promise<ListResponseDto[]> {
+    const lists = await this.listsService.listInBoard(
+      user.id,
+      boardId,
+      query.archived === 'true',
+    );
+    return lists.map(toListResponse);
+  }
+
+  @Get('lists/:id')
+  @ApiOkResponse({ type: ListResponseDto })
+  @ApiNotFoundResponse({ description: 'Missing, foreign or malformed id.' })
+  async findOne(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+  ): Promise<ListResponseDto> {
+    return toListResponse(await this.listsService.findOwned(user.id, id));
   }
 }
