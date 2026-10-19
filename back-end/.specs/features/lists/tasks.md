@@ -248,11 +248,11 @@ T4 → T5 → T6 → T7 → T8 → T9 → T10
 
 **Done when**:
 
-- [ ] e2e: new title → `200`, trimmed title, later `updatedAt`; `{}` → `200` with identical body including `updatedAt`
-- [ ] e2e: `title` `null`, `""`, 101 chars → `400` field `title`, list unchanged; unknown property (`position`) → `400`
-- [ ] e2e: archived list → `409` `/problems/list-archived`; list of an archived board → `409` `/problems/board-archived`; both unchanged
-- [ ] e2e: unknown / foreign / malformed id → `404` `/problems/list-not-found` with identical bodies; foreign list unchanged
-- [ ] Full gate passes; ≥ 8 new e2e tests
+- [x] e2e: new title → `200`, trimmed title, later `updatedAt`; `{}` → `200` with identical body including `updatedAt`
+- [x] e2e: `title` `null`, `""`, 101 chars → `400` field `title`, list unchanged; unknown property (`position`) → `400`
+- [x] e2e: archived list → `409` `/problems/list-archived`; list of an archived board → `409` `/problems/board-archived`; both unchanged
+- [x] e2e: unknown / foreign / malformed id → `404` `/problems/list-not-found` with identical bodies; foreign list unchanged
+- [x] Full gate passes; ≥ 8 new e2e tests
 
 **Tests**: e2e
 **Gate**: full
