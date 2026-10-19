@@ -203,6 +203,6 @@ Boards are the top-level container of the product: lists and cards live inside a
 
 ## Success Criteria
 
-- [ ] Create → list → archive → delete works end to end in one e2e test with no manual step.
-- [ ] Every `/:id` route called by a second user returns `404` and leaves the board unchanged.
-- [ ] `pnpm test`, `pnpm test:integration`, `pnpm test:e2e` and `pnpm lint` all exit `0`.
+- [x] Create → list → archive → delete works end to end in one e2e test with no manual step.
+- [x] Every `/:id` route called by a second user returns `404` and leaves the board unchanged.
+- [x] `pnpm test`, `pnpm test:integration`, `pnpm test:e2e` and `pnpm lint` all exit `0`.

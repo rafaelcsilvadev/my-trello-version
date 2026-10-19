@@ -320,11 +320,11 @@ T5 → T6 → T7 → T8 → T9 → T10
 
 **Done when**:
 
-- [ ] e2e: active board → `409` `/problems/board-not-archived`, board still readable
-- [ ] e2e: archived board → `204` with empty body; `GET /boards/:id` then `404`
-- [ ] e2e: foreign / unknown / malformed id → `404` `/problems/board-not-found`, foreign board still exists
-- [ ] e2e: lifecycle create → list → archive → delete passes in one test
-- [ ] Full gate passes; ≥ 5 new e2e tests
+- [x] e2e: active board → `409` `/problems/board-not-archived`, board still readable
+- [x] e2e: archived board → `204` with empty body; `GET /boards/:id` then `404`
+- [x] e2e: foreign / unknown / malformed id → `404` `/problems/board-not-found`, foreign board still exists
+- [x] e2e: lifecycle create → list → archive → delete passes in one test
+- [x] Full gate passes; ≥ 5 new e2e tests
 
 **Tests**: e2e
 **Gate**: build
