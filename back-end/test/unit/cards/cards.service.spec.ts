@@ -15,6 +15,8 @@ import {
   CardsService,
   type CardWithLabels,
 } from '../../../src/cards/cards.service';
+import type { Label } from '../../../src/labels/label.entity';
+import { LabelNotFoundError } from '../../../src/labels/labels.errors';
 import type { List } from '../../../src/lists/list.entity';
 import {
   ListArchivedError,
@@ -39,11 +41,14 @@ type CardsRepositoryMock = jest.Mocked<
     | 'findOwned'
     | 'findOwnedList'
     | 'findListInBoard'
+    | 'findLabelInBoard'
     | 'listInList'
     | 'listInBoard'
     | 'countActive'
     | 'create'
     | 'shift'
+    | 'linkLabel'
+    | 'unlinkLabel'
     | 'labelIdsByCard'
     | 'save'
     | 'delete'
@@ -103,6 +108,18 @@ function buildArchivedCard(): Card {
   return buildCard({ position: null, archivedAt: ARCHIVED_AT });
 }
 
+function buildLabel(overrides: Partial<Label> = {}): Label {
+  return {
+    id: BUG_LABEL_ID,
+    boardId: BOARD_ID,
+    name: 'Bug',
+    color: 'red',
+    createdAt: new Date('2026-10-15T12:00:00Z'),
+    updatedAt: new Date('2026-10-15T12:00:00Z'),
+    ...overrides,
+  };
+}
+
 function withLabels(card: Card, labelIds: string[] = []): CardWithLabels {
   return { ...card, labelIds };
 }
@@ -148,11 +165,14 @@ describe('CardsService', () => {
       findOwned: jest.fn(),
       findOwnedList: jest.fn(),
       findListInBoard: jest.fn(),
+      findLabelInBoard: jest.fn(),
       listInList: jest.fn(),
       listInBoard: jest.fn(),
       countActive: jest.fn(),
       create: jest.fn(),
       shift: jest.fn(),
+      linkLabel: jest.fn(),
+      unlinkLabel: jest.fn(),
       labelIdsByCard: jest.fn(),
       save: jest.fn((card: Card) => Promise.resolve(card)),
       delete: jest.fn(),
@@ -967,6 +987,120 @@ describe('CardsService', () => {
 
       await expect(act(service)).rejects.toBeInstanceOf(ListArchivedError);
       expectNoWrites();
+    });
+  });
+
+  // Apply and remove share one flow: the label is looked up under the board
+  // lock, after the card re-read and before the archive guards (LBL-25).
+  describe.each([
+    [
+      'addLabel',
+      'linkLabel' as const,
+      (s: CardsService, labelId: string) =>
+        s.addLabel(OWNER_ID, CARD_ID, labelId),
+    ],
+    [
+      'removeLabel',
+      'unlinkLabel' as const,
+      (s: CardsService, labelId: string) =>
+        s.removeLabel(OWNER_ID, CARD_ID, labelId),
+    ],
+  ])('%s', (_action, write, act) => {
+    function expectNoLabelWrites(): void {
+      expect(cards.linkLabel).not.toHaveBeenCalled();
+      expect(cards.unlinkLabel).not.toHaveBeenCalled();
+      expectNoWrites();
+    }
+
+    it('writes the link of the card and the label of its locked board', async () => {
+      givenCard(buildCard());
+      cards.findLabelInBoard.mockResolvedValue(buildLabel());
+
+      await expect(act(service, BUG_LABEL_ID)).resolves.toBeUndefined();
+      expect(cards.findLabelInBoard).toHaveBeenCalledWith(
+        BOARD_ID,
+        BUG_LABEL_ID,
+      );
+      expect(cards[write]).toHaveBeenCalledTimes(1);
+      expect(cards[write]).toHaveBeenCalledWith(CARD_ID, BUG_LABEL_ID);
+      // The card row is never saved, so its updatedAt stays (LBL-21).
+      expect(cards.save).not.toHaveBeenCalled();
+    });
+
+    it('throws LabelNotFoundError for a non-UUID labelId without querying it', async () => {
+      givenCard(buildCard());
+
+      await expect(act(service, 'not-a-uuid')).rejects.toBeInstanceOf(
+        LabelNotFoundError,
+      );
+      expect(cards.findLabelInBoard).not.toHaveBeenCalled();
+      expectNoLabelWrites();
+    });
+
+    it('throws LabelNotFoundError when the locked board has no such label', async () => {
+      givenCard(buildCard());
+      cards.findLabelInBoard.mockResolvedValue(null);
+
+      await expect(act(service, IDEA_LABEL_ID)).rejects.toBeInstanceOf(
+        LabelNotFoundError,
+      );
+      expectNoLabelWrites();
+    });
+
+    it('throws CardNotFoundError before LabelNotFoundError', async () => {
+      cards.findOwned.mockResolvedValue(null);
+
+      await expect(act(service, 'not-a-uuid')).rejects.toBeInstanceOf(
+        CardNotFoundError,
+      );
+      expect(cards.findLabelInBoard).not.toHaveBeenCalled();
+      expectNoLabelWrites();
+    });
+
+    it('throws LabelNotFoundError before BoardArchivedError', async () => {
+      givenCard(buildArchivedCard(), {
+        list: buildArchivedList(),
+        board: buildBoard({ archivedAt: ARCHIVED_AT }),
+      });
+      cards.findLabelInBoard.mockResolvedValue(null);
+
+      await expect(act(service, IDEA_LABEL_ID)).rejects.toBeInstanceOf(
+        LabelNotFoundError,
+      );
+      expectNoLabelWrites();
+    });
+
+    it('throws BoardArchivedError before ListArchivedError and CardArchivedError', async () => {
+      givenCard(buildArchivedCard(), {
+        list: buildArchivedList(),
+        board: buildBoard({ archivedAt: ARCHIVED_AT }),
+      });
+      cards.findLabelInBoard.mockResolvedValue(buildLabel());
+
+      await expect(act(service, BUG_LABEL_ID)).rejects.toBeInstanceOf(
+        BoardArchivedError,
+      );
+      expectNoLabelWrites();
+    });
+
+    it('throws ListArchivedError before CardArchivedError', async () => {
+      givenCard(buildArchivedCard(), { list: buildArchivedList() });
+      cards.findLabelInBoard.mockResolvedValue(buildLabel());
+
+      await expect(act(service, BUG_LABEL_ID)).rejects.toBeInstanceOf(
+        ListArchivedError,
+      );
+      expectNoLabelWrites();
+    });
+
+    it('throws CardArchivedError on an archived card', async () => {
+      givenCard(buildArchivedCard());
+      cards.findLabelInBoard.mockResolvedValue(buildLabel());
+
+      await expect(act(service, BUG_LABEL_ID)).rejects.toBeInstanceOf(
+        CardArchivedError,
+      );
+      expectNoLabelWrites();
     });
   });
 });

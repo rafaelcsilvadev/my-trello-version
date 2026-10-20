@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { isUUID } from 'class-validator';
+import type { Board } from '../boards/board.entity';
 import { BoardArchivedError } from '../boards/boards.errors';
 import { BoardsService } from '../boards/boards.service';
+import { LabelNotFoundError } from '../labels/labels.errors';
 import type { List } from '../lists/list.entity';
 import { ListArchivedError, ListNotFoundError } from '../lists/lists.errors';
 import { ListsService } from '../lists/lists.service';
@@ -251,14 +253,61 @@ export class CardsService {
     });
   }
 
+  addLabel(ownerId: string, id: string, labelId: string): Promise<void> {
+    return this.writeLabel(ownerId, id, labelId, (cards, cardId) =>
+      cards.linkLabel(cardId, labelId),
+    );
+  }
+
+  removeLabel(ownerId: string, id: string, labelId: string): Promise<void> {
+    return this.writeLabel(ownerId, id, labelId, (cards, cardId) =>
+      cards.unlinkLabel(cardId, labelId),
+    );
+  }
+
+  // The label is looked up on the locked board, so a card only ever links a
+  // label of its own board (LBL-22).
+  private writeLabel(
+    ownerId: string,
+    id: string,
+    labelId: string,
+    write: (cards: CardsRepository, cardId: string) => Promise<void>,
+  ): Promise<void> {
+    return this.writeLocked(
+      ownerId,
+      id,
+      (card, _list, cards) => {
+        if (card.archivedAt) {
+          throw new CardArchivedError();
+        }
+
+        return write(cards, card.id);
+      },
+      async (board, _card, cards) => {
+        const label = isUUID(labelId)
+          ? await cards.findLabelInBoard(board.id, labelId)
+          : null;
+
+        if (!label) {
+          throw new LabelNotFoundError();
+        }
+      },
+    );
+  }
+
   // Item write flow: find the card's board through its list, lock it,
   // re-read the card and its list under the lock, then guard in precedence
-  // order: card not found, board archived, list archived, then the card
-  // state checks inside work.
+  // order: card not found, the before hook's own checks, board archived,
+  // list archived, then the card state checks inside work.
   private async writeLocked<T>(
     ownerId: string,
     id: string,
     work: (card: Card, list: List, cards: CardsRepository) => Promise<T>,
+    before?: (
+      board: Board,
+      card: Card,
+      cards: CardsRepository,
+    ) => Promise<void>,
   ): Promise<T> {
     const found = await this.findOwnedCard(ownerId, id);
     const owningList = await this.cardsRepository.findOwnedList(
@@ -289,6 +338,8 @@ export class CardsService {
       if (!card || !list) {
         throw new CardNotFoundError();
       }
+
+      await before?.(board, card, cards);
 
       if (board.archivedAt) {
         throw new BoardArchivedError();
