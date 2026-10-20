@@ -142,24 +142,28 @@ None blocking. Five minor observations, optional test-only or lint-only follow-u
 - **Root cause**: e2e checks `labelIds` on PATCH, move, archive and unarchive only as `[]` (`e2e/c/card-label-ids.e2e-spec.ts:90-94`). Mutant M8 (PATCH returns `[]`) survived e2e and was killed by `unit/cards/cards.service.spec.ts:943`.
 - **Fix task**: in `test/e2e/cards/card-label-ids.e2e-spec.ts` "with labels linked" block, call PATCH, move, archive and unarchive and assert `labelIds toEqual([bugId, ideaId])`.
 - **Priority**: Minor
+- **Status**: ✅ Fixed in `b30754a`. Breaking `labelIds` on each of the 4 routes fails the new test.
 
 ### Observation 2: LBL-14 e2e checks the response but not the stored value
 
 - **Root cause**: `e2e/l/update-label.e2e-spec.ts:179-180` asserts the body only; persistence is covered at `int/labels/labels.repository.int-spec.ts:227`.
 - **Fix task**: add `expect(await read(created)).toEqual(res.body)` after `:180`.
 - **Priority**: Minor
+- **Status**: ✅ Fixed in `0443e33`. A mutant that skips the save on a case-only rename is killed.
 
 ### Observation 3: no "50 characters after trim" boundary with surrounding spaces
 
 - **Root cause**: LBL-03/LBL-11 bound the length "after trim"; tests use 50/51 characters with no whitespace, so trim-then-length order is not pinned.
 - **Fix task**: add a create case `'  ' + 'a'.repeat(50) + '  '` → `201` with `name` of length 50.
 - **Priority**: Minor
+- **Status**: ✅ Fixed in `4afc13e`, on create and edit: 50 characters with surrounding spaces → accepted and stored trimmed; 51 with spaces → `400`. Removing `@Transform(trim)` fails them.
 
 ### Observation 4: 6 new oxlint warnings
 
 - **Root cause**: `typescript(no-misused-spread)` at `src/cards/cards.service.ts:84`, `:362` and `test/unit/cards/cards.service.spec.ts:124` (spreading a `Card` instance); `typescript(require-array-sort-compare)` at `test/e2e/labels/create-label.e2e-spec.ts:250`, `delete-label.e2e-spec.ts:179`, `update-label.e2e-spec.ts:264` (`statuses.sort()` without comparator; works today because all statuses are 3-digit).
 - **Fix task**: use `.sort((a, b) => a - b)`; for the spread, build `CardWithLabels` with `Object.assign(card, { labelIds })` or silence with a justified rule comment.
 - **Priority**: Cosmetic
+- **Status**: ✅ Fixed in `c36c208` (`Object.assign(new Card(), card, { labelIds })`: a copy that stays a `Card`; mutating the entity in place was rejected because `save()` callers still hold it) and `40374f1` (numeric comparator). Lint now has 0 warnings.
 
 ### Observation 5: owner filter in `LabelsRepository.findOwned` is shielded at the HTTP layer
 
@@ -179,6 +183,8 @@ Update spec.md requirement statuses (not edited by the Verifier):
 
 Also update the spec's `**Coverage:**` line (currently "33 total, 0 mapped to tasks, 33 unmapped").
 
+**Status**: ✅ Applied in `8ec7b88`.
+
 ---
 
 ## Summary
@@ -193,4 +199,4 @@ Also update the spec's `**Coverage:**` line (currently "33 total, 0 mapped to ta
 
 **Issues found**: none blocking; Observations 1-4 are optional test/lint hardening.
 
-**Next steps**: update spec.md traceability (above); optionally add the Observation 1-3 tests and fix the Observation 4 warnings in a test/lint-only commit.
+**Next steps**: none. Traceability and Observations 1-4 are resolved (see each Status line). After the fixes, the Build gate passes with 892 tests (296 unit + 154 integration + 442 e2e) and 0 lint warnings.
