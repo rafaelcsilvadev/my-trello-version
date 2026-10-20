@@ -9,6 +9,11 @@ import {
   BoardNotFoundError,
 } from '../boards/boards.errors';
 import {
+  CardArchivedError,
+  CardNotArchivedError,
+  CardNotFoundError,
+} from '../cards/cards.errors';
+import {
   ListArchivedError,
   ListNotArchivedError,
   ListNotFoundError,
@@ -62,6 +67,21 @@ export const DOMAIN_ERROR_MAPPINGS: ReadonlyArray<DomainErrorMapping> = [
     error: ListNotArchivedError,
     status: HttpStatus.CONFLICT,
     type: '/problems/list-not-archived',
+  },
+  {
+    error: CardNotFoundError,
+    status: HttpStatus.NOT_FOUND,
+    type: '/problems/card-not-found',
+  },
+  {
+    error: CardArchivedError,
+    status: HttpStatus.CONFLICT,
+    type: '/problems/card-archived',
+  },
+  {
+    error: CardNotArchivedError,
+    status: HttpStatus.CONFLICT,
+    type: '/problems/card-not-archived',
   },
 ];
 
