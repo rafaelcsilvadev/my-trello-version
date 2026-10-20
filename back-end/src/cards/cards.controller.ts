@@ -148,4 +148,28 @@ export class CardsController {
     });
     return toCardResponse(card);
   }
+
+  @Post('cards/:id/archive')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ type: CardResponseDto })
+  @ApiNotFoundResponse({ description: 'Missing, foreign or malformed id.' })
+  @ApiConflictResponse({ description: 'The list or its board is archived.' })
+  async archive(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+  ): Promise<CardResponseDto> {
+    return toCardResponse(await this.cardsService.archive(user.id, id));
+  }
+
+  @Post('cards/:id/unarchive')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ type: CardResponseDto })
+  @ApiNotFoundResponse({ description: 'Missing, foreign or malformed id.' })
+  @ApiConflictResponse({ description: 'The list or its board is archived.' })
+  async unarchive(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+  ): Promise<CardResponseDto> {
+    return toCardResponse(await this.cardsService.unarchive(user.id, id));
+  }
 }
