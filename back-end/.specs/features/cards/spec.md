@@ -247,9 +247,9 @@ Lists are empty columns until they hold cards: a card is one piece of work with 
 | CRD-12 | P1: List and read cards | Execute | Implementing |
 | CRD-13 | P1: List and read cards | Execute | Implementing |
 | CRD-14 | P1: Edit a card | Execute | Implementing |
-| CRD-15 | P1: Edit a card | Tasks | In Tasks |
+| CRD-15 | P1: Edit a card | Execute | Implementing |
 | CRD-16 | P1: Edit a card | Execute | Implementing |
-| CRD-17 | P1: Edit a card | Tasks | In Tasks |
+| CRD-17 | P1: Edit a card | Execute | Implementing |
 | CRD-18 | P1: Edit a card | Execute | Implementing |
 | CRD-19 | P1: Edit a card | Execute | Implementing |
 | CRD-20 | P1: Reorder and move cards | Execute | Implementing |
