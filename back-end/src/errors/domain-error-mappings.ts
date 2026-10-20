@@ -14,6 +14,10 @@ import {
   CardNotFoundError,
 } from '../cards/cards.errors';
 import {
+  LabelNameTakenError,
+  LabelNotFoundError,
+} from '../labels/labels.errors';
+import {
   ListArchivedError,
   ListNotArchivedError,
   ListNotFoundError,
@@ -82,6 +86,16 @@ export const DOMAIN_ERROR_MAPPINGS: ReadonlyArray<DomainErrorMapping> = [
     error: CardNotArchivedError,
     status: HttpStatus.CONFLICT,
     type: '/problems/card-not-archived',
+  },
+  {
+    error: LabelNotFoundError,
+    status: HttpStatus.NOT_FOUND,
+    type: '/problems/label-not-found',
+  },
+  {
+    error: LabelNameTakenError,
+    status: HttpStatus.CONFLICT,
+    type: '/problems/label-name-taken',
   },
 ];
 
