@@ -6,11 +6,17 @@ import type { List } from '../lists/list.entity';
 import { ListArchivedError, ListNotFoundError } from '../lists/lists.errors';
 import { ListsService } from '../lists/lists.service';
 import type { Card } from './card.entity';
-import { CardArchivedError, CardNotFoundError } from './cards.errors';
+import {
+  CardArchivedError,
+  CardNotArchivedError,
+  CardNotFoundError,
+} from './cards.errors';
 import { CardsRepository } from './cards.repository';
 
 export type NewCard = Pick<Card, 'title'> &
   Partial<Pick<Card, 'description' | 'dueDate'>>;
+
+export type CardMoveTarget = { listId?: string; position: number };
 
 export type UpdateCardChanges = Partial<
   Pick<Card, 'title' | 'description' | 'dueDate' | 'done'>
@@ -119,6 +125,107 @@ export class CardsService {
 
       Object.assign(card, Object.fromEntries(given));
       return cards.save(card);
+    });
+  }
+
+  move(ownerId: string, id: string, target: CardMoveTarget): Promise<Card> {
+    return this.writeLocked(ownerId, id, async (card, list, cards) => {
+      if (card.archivedAt || card.position === null) {
+        throw new CardArchivedError();
+      }
+
+      const from = card.position;
+      const n = await cards.countActive(card.listId);
+
+      if (target.listId === undefined || target.listId === card.listId) {
+        const to = Math.min(target.position, n - 1);
+
+        // A same-place move leaves the row alone (CRD-23).
+        if (to === from) {
+          return card;
+        }
+
+        // Shifts first: the deferred unique constraint only checks the final
+        // state at commit, so the temporary duplicate is fine.
+        if (to < from) {
+          await cards.shift(card.listId, to, from - 1, 1);
+        } else {
+          await cards.shift(card.listId, from + 1, to, -1);
+        }
+
+        card.position = to;
+        return cards.save(card);
+      }
+
+      // Unknown, foreign and other-board lists all read as null (CRD-25).
+      const destination = await cards.findListInBoard(
+        list.boardId,
+        target.listId,
+      );
+
+      if (!destination) {
+        throw new ListNotFoundError();
+      }
+
+      if (destination.archivedAt) {
+        throw new ListArchivedError();
+      }
+
+      if (from < n - 1) {
+        await cards.shift(card.listId, from + 1, n - 1, -1);
+      }
+
+      const m = await cards.countActive(destination.id);
+      const to = Math.min(target.position, m);
+
+      if (to < m) {
+        await cards.shift(destination.id, to, m - 1, 1);
+      }
+
+      card.listId = destination.id;
+      card.position = to;
+      return cards.save(card);
+    });
+  }
+
+  archive(ownerId: string, id: string): Promise<Card> {
+    return this.writeLocked(ownerId, id, async (card, _list, cards) => {
+      if (card.archivedAt || card.position === null) {
+        return card;
+      }
+
+      const last = (await cards.countActive(card.listId)) - 1;
+
+      if (card.position < last) {
+        await cards.shift(card.listId, card.position + 1, last, -1);
+      }
+
+      card.position = null;
+      card.archivedAt = new Date();
+      return cards.save(card);
+    });
+  }
+
+  unarchive(ownerId: string, id: string): Promise<Card> {
+    return this.writeLocked(ownerId, id, async (card, _list, cards) => {
+      if (!card.archivedAt) {
+        return card;
+      }
+
+      card.position = await cards.countActive(card.listId);
+      card.archivedAt = null;
+      return cards.save(card);
+    });
+  }
+
+  async remove(ownerId: string, id: string): Promise<void> {
+    // An archived card holds no position, so deleting it shifts nothing.
+    await this.writeLocked(ownerId, id, async (card, _list, cards) => {
+      if (!card.archivedAt) {
+        throw new CardNotArchivedError();
+      }
+
+      await cards.delete(card.id);
     });
   }
 
