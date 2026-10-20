@@ -256,7 +256,7 @@ Lists are empty columns until they hold cards: a card is one piece of work with 
 | CRD-21 | P1: Reorder and move cards | Execute | Implementing |
 | CRD-22 | P1: Reorder and move cards | Execute | Implementing |
 | CRD-23 | P1: Reorder and move cards | Execute | Implementing |
-| CRD-24 | P1: Reorder and move cards | Tasks | In Tasks |
+| CRD-24 | P1: Reorder and move cards | Execute | Implementing |
 | CRD-25 | P1: Reorder and move cards | Execute | Implementing |
 | CRD-26 | P1: Reorder and move cards | Execute | Implementing |
 | CRD-27 | P1: Reorder and move cards | Execute | Implementing |

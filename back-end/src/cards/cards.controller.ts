@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -22,6 +24,7 @@ import type { User } from '../users/user.entity';
 import { CardResponseDto, toCardResponse } from './dto/card-response.dto';
 import { CreateCardDto } from './dto/create-card.dto';
 import { ListCardsQueryDto } from './dto/list-cards-query.dto';
+import { MoveCardDto } from './dto/move-card.dto';
 import { UpdateCardDto } from './dto/update-card.dto';
 import { CardsService } from './cards.service';
 
@@ -119,6 +122,29 @@ export class CardsController {
       description: body.description,
       dueDate: body.dueDate,
       done: body.done,
+    });
+    return toCardResponse(card);
+  }
+
+  @Post('cards/:id/move')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ type: CardResponseDto })
+  @ApiBadRequestResponse({ description: 'Invalid body: `errors[]` per field.' })
+  @ApiNotFoundResponse({
+    description: 'Missing, foreign or malformed card or target list id.',
+  })
+  @ApiConflictResponse({
+    description:
+      'The card, its list, the target list or the board is archived.',
+  })
+  async move(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+    @Body() body: MoveCardDto,
+  ): Promise<CardResponseDto> {
+    const card = await this.cardsService.move(user.id, id, {
+      listId: body.listId,
+      position: body.position,
     });
     return toCardResponse(card);
   }
