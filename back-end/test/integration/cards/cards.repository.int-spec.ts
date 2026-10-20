@@ -105,6 +105,41 @@ describe('CardsRepository', () => {
     return row.id;
   }
 
+  async function insertLabel(
+    boardId: string,
+    name: string,
+    createdAt = '2026-01-01T00:00:00Z',
+  ): Promise<string> {
+    const [row] = await dataSource.query<{ id: string }[]>(
+      `INSERT INTO "labels" ("board_id", "name", "color", "created_at")
+       VALUES ($1, $2, 'green', $3) RETURNING "id"`,
+      [boardId, name, createdAt],
+    );
+    return row.id;
+  }
+
+  async function insertLink(cardId: string, labelId: string): Promise<void> {
+    await dataSource.query(
+      `INSERT INTO "card_labels" ("card_id", "label_id") VALUES ($1, $2)`,
+      [cardId, labelId],
+    );
+  }
+
+  async function linkedLabelIds(cardId: string): Promise<string[]> {
+    const rows = await dataSource.query<{ label_id: string }[]>(
+      `SELECT "label_id" FROM "card_labels" WHERE "card_id" = $1`,
+      [cardId],
+    );
+    return rows.map((row) => row.label_id);
+  }
+
+  async function setUpdatedAt(cardId: string, updatedAt: Date): Promise<void> {
+    await dataSource.query(
+      `UPDATE "cards" SET "updated_at" = $2 WHERE "id" = $1`,
+      [cardId, updatedAt],
+    );
+  }
+
   async function positionsByTitle(
     listId: string,
   ): Promise<Record<string, number | null>> {
@@ -431,6 +466,157 @@ describe('CardsRepository', () => {
 
       expect(await cardsRepository.findOwned(ana, id)).toBeNull();
       expect(await cardsRepository.findOwned(ana, kept)).not.toBeNull();
+    });
+  });
+
+  describe('findLabelInBoard', () => {
+    it('returns the label of the given board', async () => {
+      const label = await insertLabel(board, 'Bug');
+
+      expect(
+        await cardsRepository.findLabelInBoard(board, label),
+      ).toMatchObject({ id: label, boardId: board, name: 'Bug' });
+    });
+
+    it('returns null for a label of another board of the same owner', async () => {
+      const label = await insertLabel(otherBoard, 'Bug');
+
+      expect(await cardsRepository.findLabelInBoard(board, label)).toBeNull();
+    });
+
+    it('returns null for a label of another owner', async () => {
+      const brunoBoard = await insertBoard(bruno, 'Personal');
+      const label = await insertLabel(brunoBoard, 'Bug');
+
+      expect(await cardsRepository.findLabelInBoard(board, label)).toBeNull();
+    });
+
+    it('returns null for an unknown id', async () => {
+      expect(
+        await cardsRepository.findLabelInBoard(board, UNKNOWN_ID),
+      ).toBeNull();
+    });
+  });
+
+  describe('linkLabel', () => {
+    it('stores the link once when called twice', async () => {
+      const card = await insertCard(list, 'A', { position: 0 });
+      const label = await insertLabel(board, 'Bug');
+
+      await cardsRepository.linkLabel(card, label);
+      await cardsRepository.linkLabel(card, label);
+
+      expect(await linkedLabelIds(card)).toEqual([label]);
+    });
+
+    it('leaves the card updated_at unchanged', async () => {
+      const card = await insertCard(list, 'A', { position: 0 });
+      const label = await insertLabel(board, 'Bug');
+      const updatedAt = new Date('2026-01-01T00:00:00Z');
+      await setUpdatedAt(card, updatedAt);
+
+      await cardsRepository.linkLabel(card, label);
+
+      expect(await cardsRepository.findOwned(ana, card)).toMatchObject({
+        updatedAt,
+      });
+    });
+  });
+
+  describe('unlinkLabel', () => {
+    it('removes only the given link', async () => {
+      const card = await insertCard(list, 'A', { position: 0 });
+      const bug = await insertLabel(board, 'Bug');
+      const idea = await insertLabel(board, 'Idea');
+      await insertLink(card, bug);
+      await insertLink(card, idea);
+
+      await cardsRepository.unlinkLabel(card, bug);
+
+      expect(await linkedLabelIds(card)).toEqual([idea]);
+    });
+
+    it('is a no-op when the link does not exist', async () => {
+      const card = await insertCard(list, 'A', { position: 0 });
+      const label = await insertLabel(board, 'Bug');
+
+      await expect(
+        cardsRepository.unlinkLabel(card, label),
+      ).resolves.toBeUndefined();
+      expect(await linkedLabelIds(card)).toEqual([]);
+    });
+
+    it('leaves the card updated_at unchanged', async () => {
+      const card = await insertCard(list, 'A', { position: 0 });
+      const label = await insertLabel(board, 'Bug');
+      await insertLink(card, label);
+      const updatedAt = new Date('2026-01-01T00:00:00Z');
+      await setUpdatedAt(card, updatedAt);
+
+      await cardsRepository.unlinkLabel(card, label);
+
+      expect(await cardsRepository.findOwned(ana, card)).toMatchObject({
+        updatedAt,
+      });
+    });
+  });
+
+  describe('labelIdsByCard', () => {
+    it('returns each card label ids ordered by label creation, whatever the link order', async () => {
+      const a = await insertCard(list, 'A', { position: 0 });
+      const b = await insertCard(list, 'B', { position: 1 });
+      // Rows, links and creation times all in different orders.
+      const chore = await insertLabel(board, 'Chore', '2026-01-03T00:00:00Z');
+      const bug = await insertLabel(board, 'Bug', '2026-01-01T00:00:00Z');
+      const idea = await insertLabel(board, 'Idea', '2026-01-02T00:00:00Z');
+      await insertLink(a, idea);
+      await insertLink(a, chore);
+      await insertLink(a, bug);
+      await insertLink(b, idea);
+
+      const labelIds = await cardsRepository.labelIdsByCard([a, b]);
+
+      expect(labelIds).toEqual(
+        new Map([
+          [a, [bug, idea, chore]],
+          [b, [idea]],
+        ]),
+      );
+    });
+
+    it('breaks a creation time tie by label id', async () => {
+      const card = await insertCard(list, 'A', { position: 0 });
+      const first = await insertLabel(board, 'Bug');
+      const second = await insertLabel(board, 'Idea');
+      const [low, high] = [first, second].sort();
+      await insertLink(card, high);
+      await insertLink(card, low);
+
+      const labelIds = await cardsRepository.labelIdsByCard([card]);
+
+      expect(labelIds.get(card)).toEqual([low, high]);
+    });
+
+    it('maps a card without links to an empty array', async () => {
+      const card = await insertCard(list, 'A', { position: 0 });
+      const other = await insertCard(list, 'B', { position: 1 });
+      const label = await insertLabel(board, 'Bug');
+      await insertLink(other, label);
+
+      const labelIds = await cardsRepository.labelIdsByCard([card]);
+
+      expect(labelIds).toEqual(new Map([[card, []]]));
+    });
+
+    it('returns an empty map without querying for no cards', async () => {
+      const query = jest.spyOn(dataSource.manager, 'query');
+
+      try {
+        expect(await cardsRepository.labelIdsByCard([])).toEqual(new Map());
+        expect(query).not.toHaveBeenCalled();
+      } finally {
+        query.mockRestore();
+      }
     });
   });
 

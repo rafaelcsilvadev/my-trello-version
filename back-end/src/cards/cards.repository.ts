@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Not, Repository } from 'typeorm';
 import { Board } from '../boards/board.entity';
 import { lockOwnedBoard } from '../boards/board-lock';
+import { Label } from '../labels/label.entity';
 import { List } from '../lists/list.entity';
 import { Card } from './card.entity';
 
@@ -59,6 +60,11 @@ export class CardsRepository {
     return this.cards.manager.findOneBy(List, { id: listId, boardId });
   }
 
+  // A label of another board is null, so a card only takes its board's labels.
+  findLabelInBoard(boardId: string, labelId: string): Promise<Label | null> {
+    return this.cards.manager.findOneBy(Label, { id: labelId, boardId });
+  }
+
   listInList(listId: string, archived: boolean): Promise<Card[]> {
     return this.cards.find({
       where: { listId, archivedAt: archived ? Not(IsNull()) : IsNull() },
@@ -112,6 +118,46 @@ export class CardsRepository {
        WHERE "list_id" = $1 AND "position" BETWEEN $2 AND $3`,
       [listId, from, to, delta],
     );
+  }
+
+  // card_labels is written with raw SQL, never through a Card save, so
+  // applying or removing a label leaves the card's updated_at unchanged.
+  async linkLabel(cardId: string, labelId: string): Promise<void> {
+    await this.cards.query(
+      `INSERT INTO "card_labels" ("card_id", "label_id") VALUES ($1, $2)
+       ON CONFLICT DO NOTHING`,
+      [cardId, labelId],
+    );
+  }
+
+  async unlinkLabel(cardId: string, labelId: string): Promise<void> {
+    await this.cards.query(
+      `DELETE FROM "card_labels" WHERE "card_id" = $1 AND "label_id" = $2`,
+      [cardId, labelId],
+    );
+  }
+
+  // One query for all cards; each card's ids follow label creation order.
+  async labelIdsByCard(cardIds: string[]): Promise<Map<string, string[]>> {
+    const labelIds = new Map(cardIds.map((id) => [id, [] as string[]]));
+    if (cardIds.length === 0) {
+      return labelIds;
+    }
+
+    const rows = await this.cards.query<
+      { card_id: string; label_id: string }[]
+    >(
+      `SELECT "card_labels"."card_id", "card_labels"."label_id"
+       FROM "card_labels"
+       INNER JOIN "labels" ON "labels"."id" = "card_labels"."label_id"
+       WHERE "card_labels"."card_id" = ANY($1)
+       ORDER BY "labels"."created_at", "labels"."id"`,
+      [cardIds],
+    );
+    for (const row of rows) {
+      labelIds.get(row.card_id)!.push(row.label_id);
+    }
+    return labelIds;
   }
 
   save(card: Card): Promise<Card> {
