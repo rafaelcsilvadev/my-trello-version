@@ -6,6 +6,7 @@ import { Label } from '../labels/label.entity';
 import { List } from '../lists/list.entity';
 import { ListsModule } from '../lists/lists.module';
 import { Card } from './card.entity';
+import { CardLabelsController } from './card-labels.controller';
 import { CardsController } from './cards.controller';
 import { CardsRepository } from './cards.repository';
 import { CardsService } from './cards.service';
@@ -19,7 +20,7 @@ import { CardsService } from './cards.service';
     ListsModule,
     BoardsModule,
   ],
-  controllers: [CardsController],
+  controllers: [CardsController, CardLabelsController],
   providers: [CardsRepository, CardsService],
 })
 export class CardsModule {}

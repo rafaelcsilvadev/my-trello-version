@@ -385,15 +385,15 @@ T8 → T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] e2e: `PUT` → `204` with no body and `GET /cards/:id` shows the id; `PUT` again → `204`, `labelIds` holds it once; card `updatedAt` unchanged
-- [ ] e2e: `DELETE` → `204` and `labelIds` `[]`; `DELETE` again → `204`; card `updatedAt` unchanged
-- [ ] e2e: labels `"Bug"` then `"Idea"` applied as `"Idea"` then `"Bug"` → `labelIds` `["<bug-id>", "<idea-id>"]` on `GET /cards/:id`, `GET /lists/:listId/cards` and `GET /boards/:boardId/cards`
-- [ ] e2e: `labelId` unknown, of another user's board, of another board of the same user, malformed → `404` `/problems/label-not-found` with identical bodies; card unchanged
-- [ ] e2e: card id unknown, foreign, malformed → `404` `/problems/card-not-found` with identical bodies; user B's own label on user A's card → `404` `/problems/card-not-found`
-- [ ] e2e: archived card → `409` `/problems/card-archived`; archived list → `409` `/problems/list-archived` (also with the card archived); archived board → `409` `/problems/board-archived` (also with list and card archived); bad label on an archived board → `404` `/problems/label-not-found`; `labelIds` unchanged after unarchiving
-- [ ] e2e: deleting a label applied to an active and an archived card → both return `labelIds` `[]` with `updatedAt` unchanged (LBL-17)
-- [ ] e2e: 10 concurrent `PUT` of one label on one card → all `204` and `labelIds` has length 1; no token → `401` on both routes
-- [ ] Full gate passes; ≥ 18 new e2e tests
+- [x] e2e: `PUT` → `204` with no body and `GET /cards/:id` shows the id; `PUT` again → `204`, `labelIds` holds it once; card `updatedAt` unchanged
+- [x] e2e: `DELETE` → `204` and `labelIds` `[]`; `DELETE` again → `204`; card `updatedAt` unchanged
+- [x] e2e: labels `"Bug"` then `"Idea"` applied as `"Idea"` then `"Bug"` → `labelIds` `["<bug-id>", "<idea-id>"]` on `GET /cards/:id`, `GET /lists/:listId/cards` and `GET /boards/:boardId/cards`
+- [x] e2e: `labelId` unknown, of another user's board, of another board of the same user, malformed → `404` `/problems/label-not-found` with identical bodies; card unchanged
+- [x] e2e: card id unknown, foreign, malformed → `404` `/problems/card-not-found` with identical bodies; user B's own label on user A's card → `404` `/problems/card-not-found`
+- [x] e2e: archived card → `409` `/problems/card-archived`; archived list → `409` `/problems/list-archived` (also with the card archived); archived board → `409` `/problems/board-archived` (also with list and card archived); bad label on an archived board → `404` `/problems/label-not-found`; `labelIds` unchanged after unarchiving
+- [x] e2e: deleting a label applied to an active and an archived card → both return `labelIds` `[]` with `updatedAt` unchanged (LBL-17)
+- [x] e2e: 10 concurrent `PUT` of one label on one card → all `204` and `labelIds` has length 1; no token → `401` on both routes
+- [x] Full gate passes; ≥ 18 new e2e tests
 
 **Tests**: e2e
 **Gate**: full
