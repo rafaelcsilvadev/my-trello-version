@@ -162,12 +162,12 @@ T5 → T6 → T7 → T8 → T9 → T10 → T11
 
 **Done when**:
 
-- [ ] Unit tests: `findOwned` throws `CardNotFoundError` for a non-UUID id without calling the repository, and for a `null` result
-- [ ] `create` throws `ListNotFoundError` for a non-UUID or unknown list, and when the board lock or the re-read list returns `null`; throws `BoardArchivedError` before `ListArchivedError`; never creates on an error; otherwise creates at `position = countActive(listId)` with the given `description` and `dueDate` (`null` when absent)
-- [ ] `listInList` calls `ListsService.findOwned` before reading; `listInBoard` calls `BoardsService.findOwned` before reading; both pass `archived` through
-- [ ] `writeLocked` (exercised through `update`): `CardNotFoundError` when the lock or a re-read returns `null`; `BoardArchivedError` before `ListArchivedError` before any card-state check; nothing saved on an error
-- [ ] `update` saves only the given fields (`title`, `description`, `dueDate`, `done`), including `null` for `description` and `dueDate`; returns the card without saving for `{}`; throws `CardArchivedError` on an archived card
-- [ ] Quick gate passes; ≥ 18 new unit tests
+- [x] Unit tests: `findOwned` throws `CardNotFoundError` for a non-UUID id without calling the repository, and for a `null` result
+- [x] `create` throws `ListNotFoundError` for a non-UUID or unknown list, and when the board lock or the re-read list returns `null`; throws `BoardArchivedError` before `ListArchivedError`; never creates on an error; otherwise creates at `position = countActive(listId)` with the given `description` and `dueDate` (`null` when absent)
+- [x] `listInList` calls `ListsService.findOwned` before reading; `listInBoard` calls `BoardsService.findOwned` before reading; both pass `archived` through
+- [x] `writeLocked` (exercised through `update`): `CardNotFoundError` when the lock or a re-read returns `null`; `BoardArchivedError` before `ListArchivedError` before any card-state check; nothing saved on an error
+- [x] `update` saves only the given fields (`title`, `description`, `dueDate`, `done`), including `null` for `description` and `dueDate`; returns the card without saving for `{}`; throws `CardArchivedError` on an archived card
+- [x] Quick gate passes; ≥ 18 new unit tests
 
 **Tests**: unit
 **Gate**: quick
