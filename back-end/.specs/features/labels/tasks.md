@@ -213,15 +213,15 @@ T8 → T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] e2e: valid body → `201` with exactly `{ id, boardId, name, color, createdAt, updatedAt }`; `"  Bug  "` stored and returned as `"Bug"`
-- [ ] e2e: `name` missing, non-string, `null`, `"   "`, 51 chars → `400` field `name` and no row; 50 chars → `201`
-- [ ] e2e: each of the 10 palette colors → `201`; `color` missing, `"Green"`, `"white"`, `"#ff0000"`, a number → `400` field `color` and no row
-- [ ] e2e: `"bug"` after `"Bug"` on the same board → `409` `/problems/label-name-taken`; `"Bug"` on another board → `201`
-- [ ] e2e: unknown properties (`boardId`, `id`) → `400`; no token → `401` on both routes
-- [ ] e2e: unknown, foreign and malformed `boardId` → `404` `/problems/board-not-found` with identical bodies on `POST` and `GET`; archived board → `POST` `409` `/problems/board-archived` and no row
-- [ ] e2e: `GET` returns labels created as `"Bug"`, `"Idea"`, `"Chore"` in that order; same array after the board is archived; `[]` for a new board
-- [ ] e2e: 10 concurrent creates of `"Bug"`, `"BUG"`, `"bug"`, … on one board → exactly one `201`, nine `409` `/problems/label-name-taken`, and `GET` returns one label
-- [ ] Full gate passes; ≥ 18 new e2e tests
+- [x] e2e: valid body → `201` with exactly `{ id, boardId, name, color, createdAt, updatedAt }`; `"  Bug  "` stored and returned as `"Bug"`
+- [x] e2e: `name` missing, non-string, `null`, `"   "`, 51 chars → `400` field `name` and no row; 50 chars → `201`
+- [x] e2e: each of the 10 palette colors → `201`; `color` missing, `"Green"`, `"white"`, `"#ff0000"`, a number → `400` field `color` and no row
+- [x] e2e: `"bug"` after `"Bug"` on the same board → `409` `/problems/label-name-taken`; `"Bug"` on another board → `201`
+- [x] e2e: unknown properties (`boardId`, `id`) → `400`; no token → `401` on both routes
+- [x] e2e: unknown, foreign and malformed `boardId` → `404` `/problems/board-not-found` with identical bodies on `POST` and `GET`; archived board → `POST` `409` `/problems/board-archived` and no row
+- [x] e2e: `GET` returns labels created as `"Bug"`, `"Idea"`, `"Chore"` in that order; same array after the board is archived; `[]` for a new board
+- [x] e2e: 10 concurrent creates of `"Bug"`, `"BUG"`, `"bug"`, … on one board → exactly one `201`, nine `409` `/problems/label-name-taken`, and `GET` returns one label
+- [x] Full gate passes; ≥ 18 new e2e tests
 
 **Tests**: e2e
 **Gate**: full
