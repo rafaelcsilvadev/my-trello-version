@@ -189,6 +189,19 @@ describe('PATCH /api/v1/cards/:id (e2e)', () => {
     expect(await read(created.id)).toEqual(res.body);
   });
 
+  it('clears the description with null', async () => {
+    const created = await createCard({
+      title: 'Write spec',
+      description: 'Draft',
+    });
+
+    const res = await patch(created.id, { description: null });
+
+    expect(res.status).toBe(200);
+    expect(res.body.description).toBeNull();
+    expect(await read(created.id)).toEqual(res.body);
+  });
+
   it('marks a card without a due date as done', async () => {
     const created = await createCard();
 
@@ -212,10 +225,16 @@ describe('PATCH /api/v1/cards/:id (e2e)', () => {
   it.each([
     ['title is null', { title: null }, 'title'],
     ['title is empty', { title: '' }, 'title'],
+    ['title is a number', { title: 42 }, 'title'],
+    ['title is whitespace-only', { title: '   ' }, 'title'],
     ['title has 101 chars', { title: 'a'.repeat(101) }, 'title'],
     ['done is null', { done: null }, 'done'],
     ['done is a string', { done: 'true' }, 'done'],
     ['dueDate is not on the calendar', { dueDate: '2026-02-30' }, 'dueDate'],
+    ['dueDate is not zero-padded', { dueDate: '2026-2-1' }, 'dueDate'],
+    ['dueDate is a date-time', { dueDate: '2026-11-01T10:00:00Z' }, 'dueDate'],
+    ['dueDate is a number', { dueDate: 20261101 }, 'dueDate'],
+    ['description is a number', { description: 42 }, 'description'],
     [
       'description has 5001 chars',
       { description: 'a'.repeat(5001) },
