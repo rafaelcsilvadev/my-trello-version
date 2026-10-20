@@ -221,14 +221,14 @@ T5 → T6 → T7 → T8 → T9 → T10 → T11
 
 **Done when**:
 
-- [ ] e2e: valid body → `201` with exactly `{ id, listId, title, description, dueDate, done: false, position, archivedAt: null, createdAt, updatedAt }`; `"  Write spec  "` stored as `"Write spec"`; second card gets `position` `1`
-- [ ] e2e: `description` `"  notes  "` → `"notes"`; `"   "`, missing or `null` → `null`; 5000 chars → `201`; 5001 chars or a number → `400` field `description`
-- [ ] e2e: `dueDate` `"2026-11-01"` → `"2026-11-01"`; `"2028-02-29"` → `201`; `"2026-02-30"`, `"2026-2-1"`, `"2026-11-01T10:00:00Z"`, `20261101` → `400` field `dueDate`; missing or `null` → `null`
-- [ ] e2e: `title` missing, non-string, `null`, `"   "`, 101 chars → `400` field `title` and no row; 100 chars → `201`
-- [ ] e2e: unknown properties (`done`, `position`) → `400`; no token → `401`
-- [ ] e2e: unknown, foreign and malformed `listId` → `404` `/problems/list-not-found` with identical bodies; archived list → `409` `/problems/list-archived`; list of an archived board → `409` `/problems/board-archived` (also when the list is archived); no row in any case
-- [ ] e2e: 10 concurrent creates on one list all return `201` and the list's active cards hold positions `0..9` exactly once
-- [ ] Full gate passes; ≥ 16 new e2e tests
+- [x] e2e: valid body → `201` with exactly `{ id, listId, title, description, dueDate, done: false, position, archivedAt: null, createdAt, updatedAt }`; `"  Write spec  "` stored as `"Write spec"`; second card gets `position` `1`
+- [x] e2e: `description` `"  notes  "` → `"notes"`; `"   "`, missing or `null` → `null`; 5000 chars → `201`; 5001 chars or a number → `400` field `description`
+- [x] e2e: `dueDate` `"2026-11-01"` → `"2026-11-01"`; `"2028-02-29"` → `201`; `"2026-02-30"`, `"2026-2-1"`, `"2026-11-01T10:00:00Z"`, `20261101` → `400` field `dueDate`; missing or `null` → `null`
+- [x] e2e: `title` missing, non-string, `null`, `"   "`, 101 chars → `400` field `title` and no row; 100 chars → `201`
+- [x] e2e: unknown properties (`done`, `position`) → `400`; no token → `401`
+- [x] e2e: unknown, foreign and malformed `listId` → `404` `/problems/list-not-found` with identical bodies; archived list → `409` `/problems/list-archived`; list of an archived board → `409` `/problems/board-archived` (also when the list is archived); no row in any case
+- [x] e2e: 10 concurrent creates on one list all return `201` and the list's active cards hold positions `0..9` exactly once
+- [x] Full gate passes; ≥ 16 new e2e tests
 
 **Tests**: e2e
 **Gate**: full
