@@ -1,9 +1,20 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiTags,
@@ -75,5 +86,19 @@ export class LabelsController {
       color: body.color,
     });
     return toLabelResponse(label);
+  }
+
+  @Delete('labels/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiNoContentResponse({
+    description: 'The label and its card links were deleted.',
+  })
+  @ApiNotFoundResponse({ description: 'Missing, foreign or malformed id.' })
+  @ApiConflictResponse({ description: 'The board is archived.' })
+  async remove(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+  ): Promise<void> {
+    await this.labelsService.remove(user.id, id);
   }
 }
