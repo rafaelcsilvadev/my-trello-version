@@ -75,9 +75,9 @@ T8 → T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] Integration tests for `lockOwnedBoard`: returns the board for its owner, `null` for another owner and for an unknown id; while one transaction holds the lock, a second one on the same board waits until the first commits
-- [ ] Existing list and card lock and concurrency tests pass unchanged (no test edited or removed)
-- [ ] Build gate passes; ≥ 3 new integration tests
+- [x] Integration tests for `lockOwnedBoard`: returns the board for its owner, `null` for another owner and for an unknown id; while one transaction holds the lock, a second one on the same board waits until the first commits
+- [x] Existing list and card lock and concurrency tests pass unchanged (no test edited or removed)
+- [x] Build gate passes; ≥ 3 new integration tests
 
 **Tests**: integration
 **Gate**: build

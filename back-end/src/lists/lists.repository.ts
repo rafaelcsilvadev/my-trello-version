@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Not, Repository } from 'typeorm';
 import { Board } from '../boards/board.entity';
+import { lockOwnedBoard } from '../boards/board-lock';
 import { List } from './list.entity';
 
 export type CreateListInput = Pick<List, 'boardId' | 'title'> & {
@@ -26,13 +27,9 @@ export class ListsRepository {
     );
   }
 
-  // SELECT ... FOR UPDATE: serializes position writes on one board until the
-  // transaction ends. Only valid inside transaction().
+  // Only valid inside transaction().
   lockOwnedBoard(ownerId: string, boardId: string): Promise<Board | null> {
-    return this.lists.manager.findOne(Board, {
-      where: { id: boardId, ownerId },
-      lock: { mode: 'pessimistic_write' },
-    });
+    return lockOwnedBoard(this.lists.manager, ownerId, boardId);
   }
 
   findOwned(ownerId: string, id: string): Promise<List | null> {
