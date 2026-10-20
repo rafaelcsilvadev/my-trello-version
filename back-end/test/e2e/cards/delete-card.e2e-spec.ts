@@ -205,6 +205,37 @@ describe('DELETE /api/v1/cards/:id (e2e)', () => {
     },
   );
 
+  // Board-archived wins over list-archived on every card write (CRD-36).
+  it.each([['an active'], ['an archived']])(
+    'answers every write on %s card of an archived list of an archived board with 409 board-archived',
+    async (state) => {
+      const [one] = await createCards(listId, '1');
+      const before = state === 'an archived' ? await archive(one.id) : one;
+      await post(`lists/${listId}/archive`).expect(200);
+      await post(`boards/${boardId}/archive`).expect(200);
+
+      for (const [method, path, body] of cardRoutes(
+        boardId,
+        listId,
+        one.id,
+      ).filter(([method]) => method !== 'get')) {
+        const res = await request(app.getHttpServer())
+          [method](path)
+          .set('Authorization', `Bearer ${anaToken}`)
+          .send(body);
+
+        expect([method, path, res.status, res.body.type]).toEqual([
+          method,
+          path,
+          409,
+          '/problems/board-archived',
+        ]);
+      }
+
+      expect((await read(one.id).expect(200)).body).toEqual(before);
+    },
+  );
+
   it("leaves the cards' position, archivedAt and updatedAt unchanged when their list is archived and unarchived", async () => {
     const [, two] = await createCards(listId, '1', '2', '3');
     await archive(two.id);
