@@ -252,14 +252,14 @@ T5 → T6 → T7 → T8 → T9 → T10 → T11
 
 **Done when**:
 
-- [ ] e2e: list without cards → `[]`; active cards by `position` ascending; `archived=false` same as default; works on an archived list and on a list of an archived board
-- [ ] e2e: list `archived=true` → only archived cards, `position` `null`, newest `archivedAt` first
-- [ ] e2e: board route with lists A (pos 0) and B (pos 1) → A's active cards then B's; cards of an archived list absent; works on an archived board
-- [ ] e2e: board `archived=true` → archived cards of every list (incl. an archived list), newest `archivedAt` first
-- [ ] e2e: `archived=yes` → `400` field `archived` on both collection routes
-- [ ] e2e: unknown / foreign / malformed `listId` → `404` `/problems/list-not-found`; unknown / foreign / malformed `boardId` → `404` `/problems/board-not-found`
-- [ ] e2e: `GET /cards/:id` → `200` for an active card, an archived card, a card of an archived list and of an archived board; unknown / foreign / malformed id → `404` `/problems/card-not-found` with identical bodies
-- [ ] Full gate passes; ≥ 14 new e2e tests
+- [x] e2e: list without cards → `[]`; active cards by `position` ascending; `archived=false` same as default; works on an archived list and on a list of an archived board
+- [x] e2e: list `archived=true` → only archived cards, `position` `null`, newest `archivedAt` first
+- [x] e2e: board route with lists A (pos 0) and B (pos 1) → A's active cards then B's; cards of an archived list absent; works on an archived board
+- [x] e2e: board `archived=true` → archived cards of every list (incl. an archived list), newest `archivedAt` first
+- [x] e2e: `archived=yes` → `400` field `archived` on both collection routes
+- [x] e2e: unknown / foreign / malformed `listId` → `404` `/problems/list-not-found`; unknown / foreign / malformed `boardId` → `404` `/problems/board-not-found`
+- [x] e2e: `GET /cards/:id` → `200` for an active card, an archived card, a card of an archived list and of an archived board; unknown / foreign / malformed id → `404` `/problems/card-not-found` with identical bodies
+- [x] Full gate passes; ≥ 14 new e2e tests
 
 **Tests**: e2e
 **Gate**: full
