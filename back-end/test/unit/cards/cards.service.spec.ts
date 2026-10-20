@@ -7,6 +7,7 @@ import type { BoardsService } from '../../../src/boards/boards.service';
 import type { Card } from '../../../src/cards/card.entity';
 import {
   CardArchivedError,
+  CardNotArchivedError,
   CardNotFoundError,
 } from '../../../src/cards/cards.errors';
 import type { CardsRepository } from '../../../src/cards/cards.repository';
@@ -22,6 +23,7 @@ const OWNER_ID = '7f3c2a8e-1b4d-4c6e-9a0f-2d5b8c1e7a90';
 const BOARD_ID = '3b1e9d4a-6c2f-4e8b-a7d0-5f9c1b2e8a64';
 const LIST_ID = 'c4a7e2d1-9b3f-4a6e-8d0c-1f5b7e9a2c38';
 const CARD_ID = 'e8d2b6a4-3c1f-4b9e-a5d7-0f6c2e8b4a17';
+const TARGET_LIST_ID = 'a9c1e5d3-7b2f-4d8a-9e6c-3b0f1d7a5e92';
 const ARCHIVED_AT = new Date('2026-10-16T09:00:00Z');
 
 type CardsRepositoryMock = jest.Mocked<
@@ -524,5 +526,318 @@ describe('CardsService', () => {
         expectNoWrites();
       },
     );
+  });
+  describe('move within the list', () => {
+    // The card sits at position 1 of a list with 4 active cards.
+    beforeEach(() => {
+      givenCard(buildCard({ position: 1 }));
+      cards.countActive.mockResolvedValue(4);
+    });
+
+    it('shifts [k, i-1] by +1 when moving up', async () => {
+      const result = await service.move(OWNER_ID, CARD_ID, { position: 0 });
+
+      expect(cards.countActive).toHaveBeenCalledWith(LIST_ID);
+      expect(cards.shift).toHaveBeenCalledTimes(1);
+      expect(cards.shift).toHaveBeenCalledWith(LIST_ID, 0, 0, 1);
+      expect(cards.save).toHaveBeenCalledWith(buildCard({ position: 0 }));
+      expect(result).toEqual(buildCard({ position: 0 }));
+    });
+
+    it('shifts [i+1, k] by -1 when moving down', async () => {
+      const result = await service.move(OWNER_ID, CARD_ID, { position: 3 });
+
+      expect(cards.shift).toHaveBeenCalledTimes(1);
+      expect(cards.shift).toHaveBeenCalledWith(LIST_ID, 2, 3, -1);
+      expect(result).toEqual(buildCard({ position: 3 }));
+    });
+
+    it('clamps a position past the end to n-1', async () => {
+      const result = await service.move(OWNER_ID, CARD_ID, { position: 99 });
+
+      expect(cards.shift).toHaveBeenCalledWith(LIST_ID, 2, 3, -1);
+      expect(result).toEqual(buildCard({ position: 3 }));
+    });
+
+    it.each([
+      ['without listId', { position: 1 }],
+      ['with listId equal to the card list', { listId: LIST_ID, position: 1 }],
+    ])(
+      'returns the card unchanged without shift or save for the same place %s',
+      async (_case, target) => {
+        const result = await service.move(OWNER_ID, CARD_ID, target);
+
+        expect(result).toEqual(buildCard({ position: 1 }));
+        expect(cards.findListInBoard).toHaveBeenCalledTimes(1);
+        expectNoWrites();
+      },
+    );
+
+    it('treats a clamped position equal to the current one as the same place', async () => {
+      givenCard(buildCard({ position: 3 }));
+
+      const result = await service.move(OWNER_ID, CARD_ID, { position: 99 });
+
+      expect(result).toEqual(buildCard({ position: 3 }));
+      expectNoWrites();
+    });
+  });
+
+  describe('move across lists', () => {
+    const target = buildList({ id: TARGET_LIST_ID, position: 1 });
+
+    // Source list (LIST_ID) holds n active cards, target holds m.
+    function givenLists({ n, m }: { n: number; m: number }): void {
+      cards.findListInBoard.mockImplementation((_boardId, listId) =>
+        Promise.resolve(
+          listId === LIST_ID
+            ? buildList()
+            : listId === TARGET_LIST_ID
+              ? target
+              : null,
+        ),
+      );
+      cards.countActive.mockImplementation((listId) =>
+        Promise.resolve(listId === LIST_ID ? n : m),
+      );
+    }
+
+    beforeEach(() => {
+      givenCard(buildCard({ position: 1 }));
+    });
+
+    it('closes the gap in the source, opens one in the target and saves the new list and position', async () => {
+      givenLists({ n: 4, m: 3 });
+
+      const result = await service.move(OWNER_ID, CARD_ID, {
+        listId: TARGET_LIST_ID,
+        position: 1,
+      });
+
+      expect(cards.findListInBoard).toHaveBeenCalledWith(
+        BOARD_ID,
+        TARGET_LIST_ID,
+      );
+      expect(cards.shift).toHaveBeenCalledTimes(2);
+      expect(cards.shift).toHaveBeenNthCalledWith(1, LIST_ID, 2, 3, -1);
+      expect(cards.shift).toHaveBeenNthCalledWith(2, TARGET_LIST_ID, 1, 2, 1);
+      const moved = buildCard({ listId: TARGET_LIST_ID, position: 1 });
+      expect(cards.save).toHaveBeenCalledWith(moved);
+      expect(result).toEqual(moved);
+    });
+
+    it('clamps a position past the end of the target to m without a target shift', async () => {
+      givenLists({ n: 4, m: 3 });
+
+      const result = await service.move(OWNER_ID, CARD_ID, {
+        listId: TARGET_LIST_ID,
+        position: 99,
+      });
+
+      expect(cards.shift).toHaveBeenCalledTimes(1);
+      expect(cards.shift).toHaveBeenCalledWith(LIST_ID, 2, 3, -1);
+      expect(result).toEqual(
+        buildCard({ listId: TARGET_LIST_ID, position: 3 }),
+      );
+    });
+
+    it('moves into an empty target at position 0 without a target shift', async () => {
+      givenLists({ n: 4, m: 0 });
+
+      const result = await service.move(OWNER_ID, CARD_ID, {
+        listId: TARGET_LIST_ID,
+        position: 5,
+      });
+
+      expect(cards.shift).toHaveBeenCalledTimes(1);
+      expect(cards.shift).toHaveBeenCalledWith(LIST_ID, 2, 3, -1);
+      expect(result).toEqual(
+        buildCard({ listId: TARGET_LIST_ID, position: 0 }),
+      );
+    });
+
+    it('skips the source shift when the card is the last of its list', async () => {
+      givenLists({ n: 2, m: 3 });
+
+      await service.move(OWNER_ID, CARD_ID, {
+        listId: TARGET_LIST_ID,
+        position: 0,
+      });
+
+      expect(cards.shift).toHaveBeenCalledTimes(1);
+      expect(cards.shift).toHaveBeenCalledWith(TARGET_LIST_ID, 0, 2, 1);
+    });
+
+    it('throws CardArchivedError on an archived card before looking up the target', async () => {
+      givenCard(buildArchivedCard());
+      givenLists({ n: 4, m: 3 });
+
+      await expect(
+        service.move(OWNER_ID, CARD_ID, {
+          listId: TARGET_LIST_ID,
+          position: 0,
+        }),
+      ).rejects.toBeInstanceOf(CardArchivedError);
+      expect(cards.findListInBoard).not.toHaveBeenCalledWith(
+        BOARD_ID,
+        TARGET_LIST_ID,
+      );
+      expectNoWrites();
+    });
+
+    it('throws ListNotFoundError when the target is not a list of the board', async () => {
+      givenLists({ n: 4, m: 3 });
+      const elsewhere = 'b2d4f6a8-1c3e-4a5b-9d7f-0e2c4a6b8d10';
+
+      await expect(
+        service.move(OWNER_ID, CARD_ID, { listId: elsewhere, position: 0 }),
+      ).rejects.toBeInstanceOf(ListNotFoundError);
+      expect(cards.findListInBoard).toHaveBeenCalledWith(BOARD_ID, elsewhere);
+      expectNoWrites();
+    });
+
+    it('throws ListArchivedError when the target is archived', async () => {
+      givenLists({ n: 4, m: 3 });
+      cards.findListInBoard.mockImplementation((_boardId, listId) =>
+        Promise.resolve(
+          listId === LIST_ID
+            ? buildList()
+            : buildList({
+                id: TARGET_LIST_ID,
+                position: null,
+                archivedAt: ARCHIVED_AT,
+              }),
+        ),
+      );
+
+      await expect(
+        service.move(OWNER_ID, CARD_ID, {
+          listId: TARGET_LIST_ID,
+          position: 0,
+        }),
+      ).rejects.toBeInstanceOf(ListArchivedError);
+      expectNoWrites();
+    });
+  });
+
+  it('throws CardArchivedError when moving an archived card within its list', async () => {
+    givenCard(buildArchivedCard());
+
+    await expect(
+      service.move(OWNER_ID, CARD_ID, { position: 0 }),
+    ).rejects.toBeInstanceOf(CardArchivedError);
+    expectNoWrites();
+  });
+
+  describe('archive', () => {
+    it('closes the gap after the card and clears its position', async () => {
+      givenCard(buildCard({ position: 1 }));
+      cards.countActive.mockResolvedValue(4);
+
+      const result = await service.archive(OWNER_ID, CARD_ID);
+
+      expect(cards.countActive).toHaveBeenCalledWith(LIST_ID);
+      expect(cards.shift).toHaveBeenCalledWith(LIST_ID, 2, 3, -1);
+      expect(result.position).toBeNull();
+      expect(result.archivedAt).toBeInstanceOf(Date);
+      expect(cards.save).toHaveBeenCalledWith(result);
+    });
+
+    it('archives the last card without a shift', async () => {
+      givenCard(buildCard({ position: 3 }));
+      cards.countActive.mockResolvedValue(4);
+
+      const result = await service.archive(OWNER_ID, CARD_ID);
+
+      expect(cards.shift).not.toHaveBeenCalled();
+      expect(result.position).toBeNull();
+      expect(cards.save).toHaveBeenCalledWith(result);
+    });
+
+    it('returns an already archived card without saving', async () => {
+      givenCard(buildArchivedCard());
+
+      const result = await service.archive(OWNER_ID, CARD_ID);
+
+      expect(result).toEqual(buildArchivedCard());
+      expectNoWrites();
+    });
+  });
+
+  describe('unarchive', () => {
+    it('puts the card at the end of the active cards', async () => {
+      givenCard(buildArchivedCard());
+      cards.countActive.mockResolvedValue(3);
+
+      const result = await service.unarchive(OWNER_ID, CARD_ID);
+
+      expect(cards.countActive).toHaveBeenCalledWith(LIST_ID);
+      expect(cards.shift).not.toHaveBeenCalled();
+      const restored = buildCard({ position: 3, archivedAt: null });
+      expect(cards.save).toHaveBeenCalledWith(restored);
+      expect(result).toEqual(restored);
+    });
+
+    it('returns an active card without saving', async () => {
+      givenCard(buildCard());
+
+      const result = await service.unarchive(OWNER_ID, CARD_ID);
+
+      expect(result).toEqual(buildCard());
+      expectNoWrites();
+    });
+  });
+
+  describe('remove', () => {
+    it('deletes an archived card', async () => {
+      givenCard(buildArchivedCard());
+
+      await expect(service.remove(OWNER_ID, CARD_ID)).resolves.toBeUndefined();
+      expect(cards.delete).toHaveBeenCalledWith(CARD_ID);
+      expect(cards.shift).not.toHaveBeenCalled();
+    });
+
+    it('throws CardNotArchivedError on an active card without deleting', async () => {
+      givenCard(buildCard());
+
+      await expect(service.remove(OWNER_ID, CARD_ID)).rejects.toBeInstanceOf(
+        CardNotArchivedError,
+      );
+      expectNoWrites();
+    });
+  });
+
+  // Each action inherits the writeLocked guards: the board and list states
+  // win over the card-state check the action would otherwise hit.
+  describe.each([
+    [
+      'move',
+      buildArchivedCard,
+      (s: CardsService) => s.move(OWNER_ID, CARD_ID, { position: 0 }),
+    ],
+    ['archive', buildCard, (s: CardsService) => s.archive(OWNER_ID, CARD_ID)],
+    [
+      'unarchive',
+      buildArchivedCard,
+      (s: CardsService) => s.unarchive(OWNER_ID, CARD_ID),
+    ],
+    ['remove', buildCard, (s: CardsService) => s.remove(OWNER_ID, CARD_ID)],
+  ])('%s guards', (_action, buildTargetCard, act) => {
+    it('throws BoardArchivedError before ListArchivedError and the card-state check', async () => {
+      givenCard(buildTargetCard(), {
+        list: buildArchivedList(),
+        board: buildBoard({ archivedAt: ARCHIVED_AT }),
+      });
+
+      await expect(act(service)).rejects.toBeInstanceOf(BoardArchivedError);
+      expectNoWrites();
+    });
+
+    it('throws ListArchivedError before the card-state check', async () => {
+      givenCard(buildTargetCard(), { list: buildArchivedList() });
+
+      await expect(act(service)).rejects.toBeInstanceOf(ListArchivedError);
+      expectNoWrites();
+    });
   });
 });
