@@ -269,7 +269,7 @@ Lists are empty columns until they hold cards: a card is one piece of work with 
 | CRD-34 | P1: Delete a card | Execute | Implementing |
 | CRD-35 | P1: Archived list and archived board protect their cards | Execute | Implementing |
 | CRD-36 | P1: Archived list and archived board protect their cards | Execute | Implementing |
-| CRD-37 | P1: Archived list and archived board protect their cards | Tasks | In Tasks |
+| CRD-37 | P1: Archived list and archived board protect their cards | Execute | Implementing |
 | CRD-38 | P1: Ownership boundary | Execute | Implementing |
 | CRD-39 | P1: Ownership boundary | Execute | Implementing |
 | CRD-40 | Edge case: list and board deletion cascade | Execute | Implementing |
