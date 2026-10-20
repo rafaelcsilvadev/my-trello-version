@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -14,6 +22,7 @@ import type { User } from '../users/user.entity';
 import { CardResponseDto, toCardResponse } from './dto/card-response.dto';
 import { CreateCardDto } from './dto/create-card.dto';
 import { ListCardsQueryDto } from './dto/list-cards-query.dto';
+import { UpdateCardDto } from './dto/update-card.dto';
 import { CardsService } from './cards.service';
 
 // No prefix: routes live under lists/:listId/cards, boards/:boardId/cards and
@@ -91,5 +100,26 @@ export class CardsController {
     @Param('id') id: string,
   ): Promise<CardResponseDto> {
     return toCardResponse(await this.cardsService.findOwned(user.id, id));
+  }
+
+  @Patch('cards/:id')
+  @ApiOkResponse({ type: CardResponseDto })
+  @ApiBadRequestResponse({ description: 'Invalid body: `errors[]` per field.' })
+  @ApiNotFoundResponse({ description: 'Missing, foreign or malformed id.' })
+  @ApiConflictResponse({
+    description: 'The card, its list or its board is archived.',
+  })
+  async update(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+    @Body() body: UpdateCardDto,
+  ): Promise<CardResponseDto> {
+    const card = await this.cardsService.update(user.id, id, {
+      title: body.title,
+      description: body.description,
+      dueDate: body.dueDate,
+      done: body.done,
+    });
+    return toCardResponse(card);
   }
 }
