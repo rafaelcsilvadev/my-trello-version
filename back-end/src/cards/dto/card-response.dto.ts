@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import type { Card } from '../card.entity';
+import type { CardWithLabels } from '../cards.service';
 
 export class CardResponseDto {
   @ApiProperty({ format: 'uuid' })
@@ -31,10 +31,13 @@ export class CardResponseDto {
 
   @ApiProperty({ format: 'date-time' })
   updatedAt!: string;
+
+  @ApiProperty({ type: [String], format: 'uuid' })
+  labelIds!: string[];
 }
 
 // The only way a Card leaves the API.
-export function toCardResponse(card: Card): CardResponseDto {
+export function toCardResponse(card: CardWithLabels): CardResponseDto {
   return {
     id: card.id,
     listId: card.listId,
@@ -46,5 +49,6 @@ export function toCardResponse(card: Card): CardResponseDto {
     archivedAt: card.archivedAt?.toISOString() ?? null,
     createdAt: card.createdAt.toISOString(),
     updatedAt: card.updatedAt.toISOString(),
+    labelIds: card.labelIds,
   };
 }

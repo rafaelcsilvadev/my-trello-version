@@ -330,10 +330,10 @@ T8 → T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] Unit: `findOwned`, `listInList`, `listInBoard`, `update`, `move`, `archive`, `unarchive` return each card with the `labelIds` from `labelIdsByCard` (one call per method with all card ids); `create` returns `labelIds` `[]` and never calls `labelIdsByCard`
-- [ ] e2e: card bodies from all eight card routes include `labelIds` `[]`; existing full-body assertions updated to include it, none removed or loosened
-- [ ] e2e: with labels inserted directly through the repository, `GET /cards/:id`, `GET /lists/:listId/cards` and `GET /boards/:boardId/cards` return `labelIds` in label creation order
-- [ ] Full gate passes; ≥ 8 new unit tests, ≥ 3 new e2e tests; existing test count unchanged or higher
+- [x] Unit: `findOwned`, `listInList`, `listInBoard`, `update`, `move`, `archive`, `unarchive` return each card with the `labelIds` from `labelIdsByCard` (one call per method with all card ids); `create` returns `labelIds` `[]` and never calls `labelIdsByCard`
+- [x] e2e: card bodies from all eight card routes include `labelIds` `[]`; existing full-body assertions updated to include it, none removed or loosened
+- [x] e2e: with labels inserted directly through the repository, `GET /cards/:id`, `GET /lists/:listId/cards` and `GET /boards/:boardId/cards` return `labelIds` in label creation order
+- [x] Full gate passes; ≥ 8 new unit tests, ≥ 3 new e2e tests; existing test count unchanged or higher
 
 **Tests**: e2e
 **Gate**: full
