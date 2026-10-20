@@ -75,13 +75,13 @@ T5 → T6 → T7 → T8 → T9 → T10 → T11
 
 **Done when**:
 
-- [ ] Integration test: table `cards` has columns `id`, `list_id`, `title`, `description`, `due_date`, `done`, `position`, `archived_at`, `created_at`, `updated_at` with the design types, nullability and `done` default `false`
-- [ ] Integration test: inserting a card with an unknown `list_id` fails on `FK_cards_list_id`; deleting the list deletes its active and archived cards; deleting the board deletes the cards of all its lists (CRD-40)
-- [ ] Integration test: two active cards with the same `list_id` and `position` fail at `COMMIT`; inside one transaction a temporary duplicate fixed before `COMMIT` succeeds; several archived cards with `position` `NULL` are allowed
-- [ ] Integration test: `CHK_cards_position_archived` rejects an active card with `position` `NULL`, an archived card with a position, and a negative position
-- [ ] Integration test: a card saved through the entity with `dueDate` `"2026-11-01"` reads back exactly `"2026-11-01"` (string)
-- [ ] Integration test: reverting the migration drops `cards`
-- [ ] Full gate passes; ≥ 8 new integration tests
+- [x] Integration test: table `cards` has columns `id`, `list_id`, `title`, `description`, `due_date`, `done`, `position`, `archived_at`, `created_at`, `updated_at` with the design types, nullability and `done` default `false`
+- [x] Integration test: inserting a card with an unknown `list_id` fails on `FK_cards_list_id`; deleting the list deletes its active and archived cards; deleting the board deletes the cards of all its lists (CRD-40)
+- [x] Integration test: two active cards with the same `list_id` and `position` fail at `COMMIT`; inside one transaction a temporary duplicate fixed before `COMMIT` succeeds; several archived cards with `position` `NULL` are allowed
+- [x] Integration test: `CHK_cards_position_archived` rejects an active card with `position` `NULL`, an archived card with a position, and a negative position
+- [x] Integration test: a card saved through the entity with `dueDate` `"2026-11-01"` reads back exactly `"2026-11-01"` (string)
+- [x] Integration test: reverting the migration drops `cards`
+- [x] Full gate passes; ≥ 8 new integration tests
 
 **Tests**: integration
 **Gate**: full
