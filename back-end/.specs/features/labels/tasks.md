@@ -130,12 +130,12 @@ T8 → T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] Integration: `findOwned` returns the label for its board's owner and `null` for another owner and for an unknown id
-- [ ] Integration: `listInBoard` returns only that board's labels ordered by `createdAt` ascending, then `id`; `[]` for a board with none
-- [ ] Integration: `create` and `save` throw `LabelNameTakenError` on a case-insensitive clash in the same board, and rethrow any other database error unchanged
-- [ ] Integration: `save` with the label's own name in another case succeeds
-- [ ] Integration: `lockOwnedBoard` delegates (owner → board, other owner → `null`); `transaction` rolls back every write when `work` throws
-- [ ] Build gate passes; ≥ 9 new integration tests
+- [x] Integration: `findOwned` returns the label for its board's owner and `null` for another owner and for an unknown id
+- [x] Integration: `listInBoard` returns only that board's labels ordered by `createdAt` ascending, then `id`; `[]` for a board with none
+- [x] Integration: `create` and `save` throw `LabelNameTakenError` on a case-insensitive clash in the same board, and rethrow any other database error unchanged
+- [x] Integration: `save` with the label's own name in another case succeeds
+- [x] Integration: `lockOwnedBoard` delegates (owner → board, other owner → `null`); `transaction` rolls back every write when `work` throws
+- [x] Build gate passes; ≥ 9 new integration tests
 
 **Tests**: integration
 **Gate**: build
