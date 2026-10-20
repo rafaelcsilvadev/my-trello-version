@@ -74,6 +74,14 @@ App decisions for the NestJS API. Must conform to the global decisions in `../..
 - **Trade-off**: Writes on one parent queue behind each other, and a move rewrites up to `n` sibling rows; fine at personal scale, not for very large or highly concurrent collections.
 - **Scope**: lists, cards
 - **Date**: 2026-10-19
+- **Status**: superseded by BE-AD-010
+
+### BE-AD-010
+- **Decision**: Ordered children (lists in a board, cards in a list) store a contiguous 0-based `position` (`NULL` while archived), backed by `UNIQUE (parent_id, position) DEFERRABLE INITIALLY DEFERRED`; every write on a list or a card runs in one transaction that first locks the owning **board** row with `SELECT ... FOR UPDATE`, then shifts siblings with raw SQL so their `updated_at` stays unchanged.
+- **Reason**: Supersedes BE-AD-009, which locked the direct parent: for cards that would be the list, so a cross-list move would need two ordered locks and the board-archived check would run unlocked. Locking the board gives one lock per write, and serializes card writes with list archive/delete and board archive/delete, which take the same row lock.
+- **Trade-off**: Every list and card write on one board queues behind the others, and a move rewrites up to `n` sibling rows; fine at personal scale, not for very large or highly concurrent boards.
+- **Scope**: lists, cards
+- **Date**: 2026-10-20
 - **Status**: active
 
 ## Open Items
