@@ -178,6 +178,7 @@ describe('PATCH /api/v1/labels/:id (e2e)', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.name).toBe('DEFECT');
+    expect(await read(created)).toEqual(res.body);
   });
 
   it('returns 200 with the identical label for an empty body', async () => {
