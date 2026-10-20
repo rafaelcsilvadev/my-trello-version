@@ -118,6 +118,16 @@ describe('PATCH /api/v1/labels/:id (e2e)', () => {
     expect(await read(created)).toEqual(res.body);
   });
 
+  it('checks the 50-character limit after trimming', async () => {
+    const created = await createLabel();
+    const name = 'a'.repeat(50);
+
+    const res = await patch(created.id, { name: `  ${name}  ` });
+
+    expect(res.status).toBe(200);
+    expect(res.body.name).toBe(name);
+  });
+
   it('changes only the name when the color is absent', async () => {
     const created = await createLabel();
 
@@ -143,6 +153,7 @@ describe('PATCH /api/v1/labels/:id (e2e)', () => {
     ['name is a number', { name: 42 }, 'name'],
     ['name is whitespace-only', { name: '   ' }, 'name'],
     ['name has 51 chars', { name: 'a'.repeat(51) }, 'name'],
+    ['name has 51 chars after trim', { name: `  ${'a'.repeat(51)}  ` }, 'name'],
     ['color is null', { color: null }, 'color'],
     ['color is capitalized', { color: 'Green' }, 'color'],
     ['color is outside the palette', { color: 'white' }, 'color'],
