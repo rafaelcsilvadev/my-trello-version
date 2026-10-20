@@ -7,7 +7,7 @@ import { LabelNotFoundError } from '../labels/labels.errors';
 import type { List } from '../lists/list.entity';
 import { ListArchivedError, ListNotFoundError } from '../lists/lists.errors';
 import { ListsService } from '../lists/lists.service';
-import type { Card } from './card.entity';
+import { Card } from './card.entity';
 import {
   CardArchivedError,
   CardNotArchivedError,
@@ -81,7 +81,7 @@ export class CardsService {
     });
 
     // A new card has no labels yet, so there is nothing to read.
-    return { ...created, labelIds: [] };
+    return Object.assign(new Card(), created, { labelIds: [] });
   }
 
   // Reads skip the lock: cards of an archived list or board stay readable.
@@ -359,7 +359,9 @@ export class CardsService {
     const labelIds = await this.cardsRepository.labelIdsByCard(
       cards.map((card) => card.id),
     );
-    return cards.map((card) => ({ ...card, labelIds: labelIds.get(card.id)! }));
+    return cards.map((card) =>
+      Object.assign(new Card(), card, { labelIds: labelIds.get(card.id)! }),
+    );
   }
 
   private async withLabelIdsOf(card: Card): Promise<CardWithLabels> {
