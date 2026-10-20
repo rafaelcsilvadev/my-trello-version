@@ -245,13 +245,13 @@ T8 → T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] e2e: `{ name: "  Defect  ", color: "orange" }` → `200` with `name` `"Defect"`, `color` `"orange"` and a later `updatedAt`; `name` alone leaves `color` unchanged and vice versa
-- [ ] e2e: `name` `null`, non-string, `"   "`, 51 chars → `400` field `name`; `color` `null`, `"Green"`, `"white"` → `400` field `color`; label unchanged in every case
-- [ ] e2e: renaming to another label's name in any case → `409` `/problems/label-name-taken`, label unchanged; `"Defect"` → `"DEFECT"` → `200` with `"DEFECT"`
-- [ ] e2e: `{}` → `200` with the unchanged body and the same `updatedAt`; unknown property → `400`
-- [ ] e2e: unknown, foreign and malformed id → `404` `/problems/label-not-found` with identical bodies; archived board → `409` `/problems/board-archived`, label unchanged after unarchive; no token → `401`
-- [ ] e2e: 10 concurrent renames of 10 different labels to `"Same"` → exactly one `200`, nine `409`
-- [ ] Full gate passes; ≥ 12 new e2e tests
+- [x] e2e: `{ name: "  Defect  ", color: "orange" }` → `200` with `name` `"Defect"`, `color` `"orange"` and a later `updatedAt`; `name` alone leaves `color` unchanged and vice versa
+- [x] e2e: `name` `null`, non-string, `"   "`, 51 chars → `400` field `name`; `color` `null`, `"Green"`, `"white"` → `400` field `color`; label unchanged in every case
+- [x] e2e: renaming to another label's name in any case → `409` `/problems/label-name-taken`, label unchanged; `"Defect"` → `"DEFECT"` → `200` with `"DEFECT"`
+- [x] e2e: `{}` → `200` with the unchanged body and the same `updatedAt`; unknown property → `400`
+- [x] e2e: unknown, foreign and malformed id → `404` `/problems/label-not-found` with identical bodies; archived board → `409` `/problems/board-archived`, label unchanged after unarchive; no token → `401`
+- [x] e2e: 10 concurrent renames of 10 different labels to `"Same"` → exactly one `200`, nine `409`
+- [x] Full gate passes; ≥ 12 new e2e tests
 
 **Tests**: e2e
 **Gate**: full
