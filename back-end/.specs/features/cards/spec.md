@@ -233,46 +233,46 @@ Lists are empty columns until they hold cards: a card is one piece of work with 
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| CRD-01 | P1: Create a card | Execute | Implementing |
-| CRD-02 | P1: Create a card | Execute | Implementing |
-| CRD-03 | P1: Create a card | Execute | Implementing |
-| CRD-04 | P1: Create a card | Execute | Implementing |
-| CRD-05 | P1: Create a card | Execute | Implementing |
-| CRD-06 | P1: Create a card | Execute | Implementing |
-| CRD-07 | P1: List and read cards | Execute | Implementing |
-| CRD-08 | P1: List and read cards | Execute | Implementing |
-| CRD-09 | P1: List and read cards | Execute | Implementing |
-| CRD-10 | P1: List and read cards | Execute | Implementing |
-| CRD-11 | P1: List and read cards | Execute | Implementing |
-| CRD-12 | P1: List and read cards | Execute | Implementing |
-| CRD-13 | P1: List and read cards | Execute | Implementing |
-| CRD-14 | P1: Edit a card | Execute | Implementing |
-| CRD-15 | P1: Edit a card | Execute | Implementing |
-| CRD-16 | P1: Edit a card | Execute | Implementing |
-| CRD-17 | P1: Edit a card | Execute | Implementing |
-| CRD-18 | P1: Edit a card | Execute | Implementing |
-| CRD-19 | P1: Edit a card | Execute | Implementing |
-| CRD-20 | P1: Reorder and move cards | Execute | Implementing |
-| CRD-21 | P1: Reorder and move cards | Execute | Implementing |
-| CRD-22 | P1: Reorder and move cards | Execute | Implementing |
-| CRD-23 | P1: Reorder and move cards | Execute | Implementing |
-| CRD-24 | P1: Reorder and move cards | Execute | Implementing |
-| CRD-25 | P1: Reorder and move cards | Execute | Implementing |
-| CRD-26 | P1: Reorder and move cards | Execute | Implementing |
-| CRD-27 | P1: Reorder and move cards | Execute | Implementing |
-| CRD-28 | P1: Reorder and move cards | Execute | Implementing |
-| CRD-29 | P1: Archive and unarchive a card | Execute | Implementing |
-| CRD-30 | P1: Archive and unarchive a card | Execute | Implementing |
-| CRD-31 | P1: Archive and unarchive a card | Execute | Implementing |
-| CRD-32 | P1: Archive and unarchive a card | Execute | Implementing |
-| CRD-33 | P1: Delete a card | Execute | Implementing |
-| CRD-34 | P1: Delete a card | Execute | Implementing |
-| CRD-35 | P1: Archived list and archived board protect their cards | Execute | Implementing |
-| CRD-36 | P1: Archived list and archived board protect their cards | Execute | Implementing |
-| CRD-37 | P1: Archived list and archived board protect their cards | Execute | Implementing |
-| CRD-38 | P1: Ownership boundary | Execute | Implementing |
-| CRD-39 | P1: Ownership boundary | Execute | Implementing |
-| CRD-40 | Edge case: list and board deletion cascade | Execute | Implementing |
+| CRD-01 | P1: Create a card | Validate | ✅ Verified |
+| CRD-02 | P1: Create a card | Validate | ✅ Verified |
+| CRD-03 | P1: Create a card | Validate | ✅ Verified |
+| CRD-04 | P1: Create a card | Validate | ✅ Verified |
+| CRD-05 | P1: Create a card | Validate | ✅ Verified |
+| CRD-06 | P1: Create a card | Validate | ✅ Verified |
+| CRD-07 | P1: List and read cards | Validate | ✅ Verified |
+| CRD-08 | P1: List and read cards | Validate | ✅ Verified |
+| CRD-09 | P1: List and read cards | Validate | ✅ Verified |
+| CRD-10 | P1: List and read cards | Validate | ✅ Verified |
+| CRD-11 | P1: List and read cards | Validate | ✅ Verified |
+| CRD-12 | P1: List and read cards | Validate | ✅ Verified |
+| CRD-13 | P1: List and read cards | Validate | ✅ Verified |
+| CRD-14 | P1: Edit a card | Validate | ✅ Verified |
+| CRD-15 | P1: Edit a card | Validate | ✅ Verified |
+| CRD-16 | P1: Edit a card | Validate | ✅ Verified |
+| CRD-17 | P1: Edit a card | Validate | ✅ Verified |
+| CRD-18 | P1: Edit a card | Validate | ✅ Verified |
+| CRD-19 | P1: Edit a card | Validate | ✅ Verified |
+| CRD-20 | P1: Reorder and move cards | Validate | ✅ Verified |
+| CRD-21 | P1: Reorder and move cards | Validate | ✅ Verified |
+| CRD-22 | P1: Reorder and move cards | Validate | ✅ Verified |
+| CRD-23 | P1: Reorder and move cards | Validate | ✅ Verified |
+| CRD-24 | P1: Reorder and move cards | Validate | ✅ Verified |
+| CRD-25 | P1: Reorder and move cards | Validate | ✅ Verified |
+| CRD-26 | P1: Reorder and move cards | Validate | ✅ Verified |
+| CRD-27 | P1: Reorder and move cards | Validate | ✅ Verified |
+| CRD-28 | P1: Reorder and move cards | Validate | ✅ Verified |
+| CRD-29 | P1: Archive and unarchive a card | Validate | ✅ Verified |
+| CRD-30 | P1: Archive and unarchive a card | Validate | ✅ Verified |
+| CRD-31 | P1: Archive and unarchive a card | Validate | ✅ Verified |
+| CRD-32 | P1: Archive and unarchive a card | Validate | ✅ Verified |
+| CRD-33 | P1: Delete a card | Validate | ✅ Verified |
+| CRD-34 | P1: Delete a card | Validate | ✅ Verified |
+| CRD-35 | P1: Archived list and archived board protect their cards | Validate | ✅ Verified |
+| CRD-36 | P1: Archived list and archived board protect their cards | Validate | ✅ Verified |
+| CRD-37 | P1: Archived list and archived board protect their cards | Validate | ✅ Verified |
+| CRD-38 | P1: Ownership boundary | Validate | ✅ Verified |
+| CRD-39 | P1: Ownership boundary | Validate | ✅ Verified |
+| CRD-40 | Edge case: list and board deletion cascade | Validate | ✅ Verified |
 
 **Coverage:** 40 total, 40 mapped to tasks, 0 unmapped
 
