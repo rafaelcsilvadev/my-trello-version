@@ -1,5 +1,6 @@
-// The label palette: the single source for the request validation, the entity
-// type and the CHK_labels_color database check.
+// The label palette, used by the request validation and the entity type.
+// CHK_labels_color holds a copy written into the migration; the labels table
+// integration test fails if the two drift apart.
 export const LABEL_COLORS = [
   'green',
   'yellow',

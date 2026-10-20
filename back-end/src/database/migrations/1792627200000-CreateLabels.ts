@@ -1,12 +1,11 @@
 import type { MigrationInterface, QueryRunner } from 'typeorm';
-import { LABEL_COLORS } from '../../labels/label-colors';
-
-const COLOR_LIST = LABEL_COLORS.map((color) => `'${color}'`).join(', ');
 
 export class CreateLabels1792627200000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     // Names are stored trimmed, so the expression index on lower(name) makes
-    // them unique per board ignoring case.
+    // them unique per board ignoring case. The palette is written out rather
+    // than read from LABEL_COLORS so this migration never changes; a palette
+    // change needs a new migration that replaces CHK_labels_color.
     await queryRunner.query(`
       CREATE TABLE "labels" (
         "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -14,7 +13,10 @@ export class CreateLabels1792627200000 implements MigrationInterface {
           CONSTRAINT "FK_labels_board_id" REFERENCES "boards" ("id") ON DELETE CASCADE,
         "name" varchar(50) NOT NULL,
         "color" varchar(10) NOT NULL
-          CONSTRAINT "CHK_labels_color" CHECK ("color" IN (${COLOR_LIST})),
+          CONSTRAINT "CHK_labels_color" CHECK ("color" IN (
+            'green', 'yellow', 'orange', 'red', 'purple',
+            'blue', 'sky', 'lime', 'pink', 'black'
+          )),
         "created_at" timestamptz NOT NULL DEFAULT now(),
         "updated_at" timestamptz NOT NULL DEFAULT now()
       )
