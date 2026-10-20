@@ -184,12 +184,12 @@ T8 → T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] Unit `create`: malformed `boardId` → `BoardNotFoundError` without touching the repository; lock returns `null` → `BoardNotFoundError`; archived board → `BoardArchivedError` and no `create`; otherwise `create({ boardId, name, color })` called with those exact arguments and its result returned
-- [ ] Unit `listInBoard`: calls `BoardsService.findOwned(ownerId, boardId)` then `listInBoard(boardId)`; works on an archived board; propagates `BoardNotFoundError`
-- [ ] Unit `update`: malformed or unknown id → `LabelNotFoundError`; label deleted before the lock re-read → `LabelNotFoundError`; archived board → `BoardArchivedError` and no `save`; `{}` returns the label without `save`; given fields assigned and `save` called with them
-- [ ] Unit `remove`: same not-found and archived guards; otherwise `delete(id)` called once
-- [ ] Unit: `LabelNameTakenError` from the repository propagates from `create` and `update`
-- [ ] Quick gate passes; ≥ 16 new unit tests
+- [x] Unit `create`: malformed `boardId` → `BoardNotFoundError` without touching the repository; lock returns `null` → `BoardNotFoundError`; archived board → `BoardArchivedError` and no `create`; otherwise `create({ boardId, name, color })` called with those exact arguments and its result returned
+- [x] Unit `listInBoard`: calls `BoardsService.findOwned(ownerId, boardId)` then `listInBoard(boardId)`; works on an archived board; propagates `BoardNotFoundError`
+- [x] Unit `update`: malformed or unknown id → `LabelNotFoundError`; label deleted before the lock re-read → `LabelNotFoundError`; archived board → `BoardArchivedError` and no `save`; `{}` returns the label without `save`; given fields assigned and `save` called with them
+- [x] Unit `remove`: same not-found and archived guards; otherwise `delete(id)` called once
+- [x] Unit: `LabelNameTakenError` from the repository propagates from `create` and `update`
+- [x] Quick gate passes; ≥ 16 new unit tests
 
 **Tests**: unit
 **Gate**: quick
