@@ -11,7 +11,10 @@ import {
   CardNotFoundError,
 } from '../../../src/cards/cards.errors';
 import type { CardsRepository } from '../../../src/cards/cards.repository';
-import { CardsService } from '../../../src/cards/cards.service';
+import {
+  CardsService,
+  type CardWithLabels,
+} from '../../../src/cards/cards.service';
 import type { List } from '../../../src/lists/list.entity';
 import {
   ListArchivedError,
@@ -25,6 +28,8 @@ const LIST_ID = 'c4a7e2d1-9b3f-4a6e-8d0c-1f5b7e9a2c38';
 const CARD_ID = 'e8d2b6a4-3c1f-4b9e-a5d7-0f6c2e8b4a17';
 const TARGET_LIST_ID = 'a9c1e5d3-7b2f-4d8a-9e6c-3b0f1d7a5e92';
 const ARCHIVED_AT = new Date('2026-10-16T09:00:00Z');
+const BUG_LABEL_ID = 'f1b3d5a7-2c4e-4f6a-8b0d-9e1c3a5b7d24';
+const IDEA_LABEL_ID = 'd6e8a0c2-4b6d-4e8f-9a1c-3e5b7d9f1a36';
 
 type CardsRepositoryMock = jest.Mocked<
   Pick<
@@ -39,6 +44,7 @@ type CardsRepositoryMock = jest.Mocked<
     | 'countActive'
     | 'create'
     | 'shift'
+    | 'labelIdsByCard'
     | 'save'
     | 'delete'
   >
@@ -97,6 +103,10 @@ function buildArchivedCard(): Card {
   return buildCard({ position: null, archivedAt: ARCHIVED_AT });
 }
 
+function withLabels(card: Card, labelIds: string[] = []): CardWithLabels {
+  return { ...card, labelIds };
+}
+
 describe('CardsService', () => {
   let cards: CardsRepositoryMock;
   let lists: ListsServiceMock;
@@ -124,6 +134,13 @@ describe('CardsService', () => {
     cards.findListInBoard.mockResolvedValue(list);
   }
 
+  // labelIdsByCard maps every requested card id, [] when it has no labels.
+  function givenLabelIds(byCard: Record<string, string[]>): void {
+    cards.labelIdsByCard.mockImplementation((cardIds) =>
+      Promise.resolve(new Map(cardIds.map((id) => [id, byCard[id] ?? []]))),
+    );
+  }
+
   beforeEach(() => {
     cards = {
       transaction: jest.fn(),
@@ -136,12 +153,14 @@ describe('CardsService', () => {
       countActive: jest.fn(),
       create: jest.fn(),
       shift: jest.fn(),
+      labelIdsByCard: jest.fn(),
       save: jest.fn((card: Card) => Promise.resolve(card)),
       delete: jest.fn(),
     };
     cards.transaction.mockImplementation((work) =>
       work(cards as unknown as CardsRepository),
     );
+    givenLabelIds({});
     lists = { findOwned: jest.fn() };
     boards = { findOwned: jest.fn() };
     service = new CardsService(
@@ -156,8 +175,21 @@ describe('CardsService', () => {
       const card = buildCard();
       cards.findOwned.mockResolvedValue(card);
 
-      await expect(service.findOwned(OWNER_ID, CARD_ID)).resolves.toBe(card);
+      await expect(service.findOwned(OWNER_ID, CARD_ID)).resolves.toEqual(
+        withLabels(card),
+      );
       expect(cards.findOwned).toHaveBeenCalledWith(OWNER_ID, CARD_ID);
+    });
+
+    it('returns the card with its labelIds from one labelIdsByCard call', async () => {
+      cards.findOwned.mockResolvedValue(buildCard());
+      givenLabelIds({ [CARD_ID]: [BUG_LABEL_ID, IDEA_LABEL_ID] });
+
+      await expect(service.findOwned(OWNER_ID, CARD_ID)).resolves.toEqual(
+        withLabels(buildCard(), [BUG_LABEL_ID, IDEA_LABEL_ID]),
+      );
+      expect(cards.labelIdsByCard).toHaveBeenCalledTimes(1);
+      expect(cards.labelIdsByCard).toHaveBeenCalledWith([CARD_ID]);
     });
 
     it('throws CardNotFoundError when no owned card matches', async () => {
@@ -166,6 +198,7 @@ describe('CardsService', () => {
       await expect(service.findOwned(OWNER_ID, CARD_ID)).rejects.toBeInstanceOf(
         CardNotFoundError,
       );
+      expect(cards.labelIdsByCard).not.toHaveBeenCalled();
     });
 
     it('throws CardNotFoundError for a non-UUID id without querying', async () => {
@@ -206,7 +239,20 @@ describe('CardsService', () => {
         dueDate: '2026-11-01',
         position: 3,
       });
-      expect(result).toBe(created);
+      expect(result).toEqual(withLabels(created));
+    });
+
+    it('returns the new card with labelIds [] without reading labels', async () => {
+      givenList(buildList());
+      cards.countActive.mockResolvedValue(0);
+      cards.create.mockResolvedValue(buildCard({ position: 0 }));
+
+      const result = await service.create(OWNER_ID, LIST_ID, {
+        title: 'Write spec',
+      });
+
+      expect(result.labelIds).toEqual([]);
+      expect(cards.labelIdsByCard).not.toHaveBeenCalled();
     });
 
     it('creates the first card of a list at position 0 with null description and dueDate when absent', async () => {
@@ -299,9 +345,25 @@ describe('CardsService', () => {
 
         expect(lists.findOwned).toHaveBeenCalledWith(OWNER_ID, LIST_ID);
         expect(cards.listInList).toHaveBeenCalledWith(LIST_ID, archived);
-        expect(result).toBe(inList);
+        expect(result).toEqual([withLabels(buildCard())]);
       },
     );
+
+    it('returns each card with its labelIds from one labelIdsByCard call', async () => {
+      const other = buildCard({ id: TARGET_LIST_ID, position: 2 });
+      lists.findOwned.mockResolvedValue(buildList());
+      cards.listInList.mockResolvedValue([buildCard(), other]);
+      givenLabelIds({ [CARD_ID]: [BUG_LABEL_ID], [other.id]: [IDEA_LABEL_ID] });
+
+      const result = await service.listInList(OWNER_ID, LIST_ID, false);
+
+      expect(result).toEqual([
+        withLabels(buildCard(), [BUG_LABEL_ID]),
+        withLabels(other, [IDEA_LABEL_ID]),
+      ]);
+      expect(cards.labelIdsByCard).toHaveBeenCalledTimes(1);
+      expect(cards.labelIdsByCard).toHaveBeenCalledWith([CARD_ID, other.id]);
+    });
 
     it('propagates ListNotFoundError without listing', async () => {
       lists.findOwned.mockRejectedValue(new ListNotFoundError());
@@ -325,9 +387,25 @@ describe('CardsService', () => {
 
         expect(boards.findOwned).toHaveBeenCalledWith(OWNER_ID, BOARD_ID);
         expect(cards.listInBoard).toHaveBeenCalledWith(BOARD_ID, archived);
-        expect(result).toBe(inBoard);
+        expect(result).toEqual([withLabels(buildCard())]);
       },
     );
+
+    it('returns each card with its labelIds from one labelIdsByCard call', async () => {
+      const other = buildCard({ id: TARGET_LIST_ID, listId: TARGET_LIST_ID });
+      boards.findOwned.mockResolvedValue(buildBoard());
+      cards.listInBoard.mockResolvedValue([buildCard(), other]);
+      givenLabelIds({ [other.id]: [BUG_LABEL_ID, IDEA_LABEL_ID] });
+
+      const result = await service.listInBoard(OWNER_ID, BOARD_ID, true);
+
+      expect(result).toEqual([
+        withLabels(buildCard()),
+        withLabels(other, [BUG_LABEL_ID, IDEA_LABEL_ID]),
+      ]);
+      expect(cards.labelIdsByCard).toHaveBeenCalledTimes(1);
+      expect(cards.labelIdsByCard).toHaveBeenCalledWith([CARD_ID, other.id]);
+    });
 
     it('propagates BoardNotFoundError without listing', async () => {
       boards.findOwned.mockRejectedValue(new BoardNotFoundError());
@@ -453,7 +531,7 @@ describe('CardsService', () => {
       const result = await service.update(OWNER_ID, CARD_ID, { done: true });
 
       expect(cards.transaction).toHaveBeenCalled();
-      expect(result).toEqual(buildCard({ done: true }));
+      expect(result).toEqual(withLabels(buildCard({ done: true })));
       expect(cards.save).toHaveBeenCalledWith(buildCard({ done: true }));
     });
 
@@ -473,7 +551,7 @@ describe('CardsService', () => {
         dueDate: '2026-12-24',
         done: true,
       });
-      expect(result).toEqual(expected);
+      expect(result).toEqual(withLabels(expected));
       expect(cards.save).toHaveBeenCalledWith(expected);
     });
 
@@ -485,7 +563,9 @@ describe('CardsService', () => {
         dueDate: null,
       });
 
-      expect(result).toEqual(buildCard({ description: null, dueDate: null }));
+      expect(result).toEqual(
+        withLabels(buildCard({ description: null, dueDate: null })),
+      );
       expect(cards.save).toHaveBeenCalledWith(
         buildCard({ description: null, dueDate: null }),
       );
@@ -496,7 +576,7 @@ describe('CardsService', () => {
 
       const result = await service.update(OWNER_ID, CARD_ID, {});
 
-      expect(result).toEqual(buildCard());
+      expect(result).toEqual(withLabels(buildCard()));
       expectNoWrites();
     });
 
@@ -508,7 +588,7 @@ describe('CardsService', () => {
         done: undefined,
       });
 
-      expect(result).toEqual(buildCard());
+      expect(result).toEqual(withLabels(buildCard()));
       expectNoWrites();
     });
 
@@ -541,7 +621,7 @@ describe('CardsService', () => {
       expect(cards.shift).toHaveBeenCalledTimes(1);
       expect(cards.shift).toHaveBeenCalledWith(LIST_ID, 0, 0, 1);
       expect(cards.save).toHaveBeenCalledWith(buildCard({ position: 0 }));
-      expect(result).toEqual(buildCard({ position: 0 }));
+      expect(result).toEqual(withLabels(buildCard({ position: 0 })));
     });
 
     it('shifts [i+1, k] by -1 when moving down', async () => {
@@ -549,14 +629,14 @@ describe('CardsService', () => {
 
       expect(cards.shift).toHaveBeenCalledTimes(1);
       expect(cards.shift).toHaveBeenCalledWith(LIST_ID, 2, 3, -1);
-      expect(result).toEqual(buildCard({ position: 3 }));
+      expect(result).toEqual(withLabels(buildCard({ position: 3 })));
     });
 
     it('clamps a position past the end to n-1', async () => {
       const result = await service.move(OWNER_ID, CARD_ID, { position: 99 });
 
       expect(cards.shift).toHaveBeenCalledWith(LIST_ID, 2, 3, -1);
-      expect(result).toEqual(buildCard({ position: 3 }));
+      expect(result).toEqual(withLabels(buildCard({ position: 3 })));
     });
 
     it.each([
@@ -567,7 +647,7 @@ describe('CardsService', () => {
       async (_case, target) => {
         const result = await service.move(OWNER_ID, CARD_ID, target);
 
-        expect(result).toEqual(buildCard({ position: 1 }));
+        expect(result).toEqual(withLabels(buildCard({ position: 1 })));
         expect(cards.findListInBoard).toHaveBeenCalledTimes(1);
         expectNoWrites();
       },
@@ -578,7 +658,7 @@ describe('CardsService', () => {
 
       const result = await service.move(OWNER_ID, CARD_ID, { position: 99 });
 
-      expect(result).toEqual(buildCard({ position: 3 }));
+      expect(result).toEqual(withLabels(buildCard({ position: 3 })));
       expectNoWrites();
     });
   });
@@ -623,7 +703,7 @@ describe('CardsService', () => {
       expect(cards.shift).toHaveBeenNthCalledWith(2, TARGET_LIST_ID, 1, 2, 1);
       const moved = buildCard({ listId: TARGET_LIST_ID, position: 1 });
       expect(cards.save).toHaveBeenCalledWith(moved);
-      expect(result).toEqual(moved);
+      expect(result).toEqual(withLabels(moved));
     });
 
     it('clamps a position past the end of the target to m without a target shift', async () => {
@@ -637,7 +717,7 @@ describe('CardsService', () => {
       expect(cards.shift).toHaveBeenCalledTimes(1);
       expect(cards.shift).toHaveBeenCalledWith(LIST_ID, 2, 3, -1);
       expect(result).toEqual(
-        buildCard({ listId: TARGET_LIST_ID, position: 3 }),
+        withLabels(buildCard({ listId: TARGET_LIST_ID, position: 3 })),
       );
     });
 
@@ -652,7 +732,7 @@ describe('CardsService', () => {
       expect(cards.shift).toHaveBeenCalledTimes(1);
       expect(cards.shift).toHaveBeenCalledWith(LIST_ID, 2, 3, -1);
       expect(result).toEqual(
-        buildCard({ listId: TARGET_LIST_ID, position: 0 }),
+        withLabels(buildCard({ listId: TARGET_LIST_ID, position: 0 })),
       );
     });
 
@@ -740,7 +820,9 @@ describe('CardsService', () => {
       expect(cards.shift).toHaveBeenCalledWith(LIST_ID, 2, 3, -1);
       expect(result.position).toBeNull();
       expect(result.archivedAt).toBeInstanceOf(Date);
-      expect(cards.save).toHaveBeenCalledWith(result);
+      const { labelIds, ...saved } = result;
+      expect(labelIds).toEqual([]);
+      expect(cards.save).toHaveBeenCalledWith(saved);
     });
 
     it('archives the last card without a shift', async () => {
@@ -751,7 +833,9 @@ describe('CardsService', () => {
 
       expect(cards.shift).not.toHaveBeenCalled();
       expect(result.position).toBeNull();
-      expect(cards.save).toHaveBeenCalledWith(result);
+      const { labelIds, ...saved } = result;
+      expect(labelIds).toEqual([]);
+      expect(cards.save).toHaveBeenCalledWith(saved);
     });
 
     it('returns an already archived card without saving', async () => {
@@ -759,7 +843,7 @@ describe('CardsService', () => {
 
       const result = await service.archive(OWNER_ID, CARD_ID);
 
-      expect(result).toEqual(buildArchivedCard());
+      expect(result).toEqual(withLabels(buildArchivedCard()));
       expectNoWrites();
     });
   });
@@ -775,7 +859,7 @@ describe('CardsService', () => {
       expect(cards.shift).not.toHaveBeenCalled();
       const restored = buildCard({ position: 3, archivedAt: null });
       expect(cards.save).toHaveBeenCalledWith(restored);
-      expect(result).toEqual(restored);
+      expect(result).toEqual(withLabels(restored));
     });
 
     it('returns an active card without saving', async () => {
@@ -783,7 +867,7 @@ describe('CardsService', () => {
 
       const result = await service.unarchive(OWNER_ID, CARD_ID);
 
-      expect(result).toEqual(buildCard());
+      expect(result).toEqual(withLabels(buildCard()));
       expectNoWrites();
     });
   });
@@ -804,6 +888,51 @@ describe('CardsService', () => {
         CardNotArchivedError,
       );
       expectNoWrites();
+    });
+  });
+
+  // Labels are read once, after the write, for the card it returns.
+  describe('labelIds on write results', () => {
+    it.each([
+      [
+        'update',
+        buildCard,
+        (s: CardsService) => s.update(OWNER_ID, CARD_ID, { done: true }),
+      ],
+      [
+        'move',
+        buildCard,
+        (s: CardsService) => s.move(OWNER_ID, CARD_ID, { position: 0 }),
+      ],
+      ['archive', buildCard, (s: CardsService) => s.archive(OWNER_ID, CARD_ID)],
+      [
+        'unarchive',
+        buildArchivedCard,
+        (s: CardsService) => s.unarchive(OWNER_ID, CARD_ID),
+      ],
+    ])(
+      '%s returns the card with its labelIds from one labelIdsByCard call',
+      async (_action, buildTargetCard, act) => {
+        givenCard(buildTargetCard());
+        cards.countActive.mockResolvedValue(4);
+        givenLabelIds({ [CARD_ID]: [BUG_LABEL_ID, IDEA_LABEL_ID] });
+
+        const result = await act(service);
+
+        expect(result.id).toBe(CARD_ID);
+        expect(result.labelIds).toEqual([BUG_LABEL_ID, IDEA_LABEL_ID]);
+        expect(cards.labelIdsByCard).toHaveBeenCalledTimes(1);
+        expect(cards.labelIdsByCard).toHaveBeenCalledWith([CARD_ID]);
+      },
+    );
+
+    it('reads no labels when the write is rejected', async () => {
+      givenCard(buildArchivedCard());
+
+      await expect(
+        service.update(OWNER_ID, CARD_ID, { done: true }),
+      ).rejects.toBeInstanceOf(CardArchivedError);
+      expect(cards.labelIdsByCard).not.toHaveBeenCalled();
     });
   });
 

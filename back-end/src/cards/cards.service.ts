@@ -22,6 +22,9 @@ export type UpdateCardChanges = Partial<
   Pick<Card, 'title' | 'description' | 'dueDate' | 'done'>
 >;
 
+// The ids follow label creation order (LBL-26).
+export type CardWithLabels = Card & { labelIds: string[] };
+
 // Active cards of a list hold positions 0..n-1. Every write runs under the
 // board row lock shared with lists (BE-AD-010), so it reads and leaves a
 // contiguous set, and the archive guards see the committed board and list.
@@ -33,7 +36,11 @@ export class CardsService {
     private readonly boardsService: BoardsService,
   ) {}
 
-  async create(ownerId: string, listId: string, input: NewCard): Promise<Card> {
+  async create(
+    ownerId: string,
+    listId: string,
+    input: NewCard,
+  ): Promise<CardWithLabels> {
     // A malformed id never reaches PostgreSQL, which would reject it as an
     // invalid uuid (CRD-06).
     const found = isUUID(listId)
@@ -44,7 +51,7 @@ export class CardsService {
       throw new ListNotFoundError();
     }
 
-    return this.cardsRepository.transaction(async (cards) => {
+    const created = await this.cardsRepository.transaction(async (cards) => {
       const board = await cards.lockOwnedBoard(ownerId, found.boardId);
       const list = board ? await cards.findListInBoard(board.id, listId) : null;
 
@@ -70,6 +77,9 @@ export class CardsService {
         position,
       });
     });
+
+    // A new card has no labels yet, so there is nothing to read.
+    return { ...created, labelIds: [] };
   }
 
   // Reads skip the lock: cards of an archived list or board stay readable.
@@ -77,21 +87,29 @@ export class CardsService {
     ownerId: string,
     listId: string,
     archived: boolean,
-  ): Promise<Card[]> {
+  ): Promise<CardWithLabels[]> {
     await this.listsService.findOwned(ownerId, listId);
-    return this.cardsRepository.listInList(listId, archived);
+    return this.withLabelIds(
+      await this.cardsRepository.listInList(listId, archived),
+    );
   }
 
   async listInBoard(
     ownerId: string,
     boardId: string,
     archived: boolean,
-  ): Promise<Card[]> {
+  ): Promise<CardWithLabels[]> {
     await this.boardsService.findOwned(ownerId, boardId);
-    return this.cardsRepository.listInBoard(boardId, archived);
+    return this.withLabelIds(
+      await this.cardsRepository.listInBoard(boardId, archived),
+    );
   }
 
-  async findOwned(ownerId: string, id: string): Promise<Card> {
+  async findOwned(ownerId: string, id: string): Promise<CardWithLabels> {
+    return this.withLabelIdsOf(await this.findOwnedCard(ownerId, id));
+  }
+
+  private async findOwnedCard(ownerId: string, id: string): Promise<Card> {
     const card = isUUID(id)
       ? await this.cardsRepository.findOwned(ownerId, id)
       : null;
@@ -107,7 +125,7 @@ export class CardsService {
     ownerId: string,
     id: string,
     changes: UpdateCardChanges,
-  ): Promise<Card> {
+  ): Promise<CardWithLabels> {
     return this.writeLocked(ownerId, id, (card, _list, cards) => {
       if (card.archivedAt) {
         throw new CardArchivedError();
@@ -125,10 +143,14 @@ export class CardsService {
 
       Object.assign(card, Object.fromEntries(given));
       return cards.save(card);
-    });
+    }).then((card) => this.withLabelIdsOf(card));
   }
 
-  move(ownerId: string, id: string, target: CardMoveTarget): Promise<Card> {
+  move(
+    ownerId: string,
+    id: string,
+    target: CardMoveTarget,
+  ): Promise<CardWithLabels> {
     return this.writeLocked(ownerId, id, async (card, list, cards) => {
       if (card.archivedAt || card.position === null) {
         throw new CardArchivedError();
@@ -185,10 +207,10 @@ export class CardsService {
       card.listId = destination.id;
       card.position = to;
       return cards.save(card);
-    });
+    }).then((card) => this.withLabelIdsOf(card));
   }
 
-  archive(ownerId: string, id: string): Promise<Card> {
+  archive(ownerId: string, id: string): Promise<CardWithLabels> {
     return this.writeLocked(ownerId, id, async (card, _list, cards) => {
       if (card.archivedAt || card.position === null) {
         return card;
@@ -203,10 +225,10 @@ export class CardsService {
       card.position = null;
       card.archivedAt = new Date();
       return cards.save(card);
-    });
+    }).then((card) => this.withLabelIdsOf(card));
   }
 
-  unarchive(ownerId: string, id: string): Promise<Card> {
+  unarchive(ownerId: string, id: string): Promise<CardWithLabels> {
     return this.writeLocked(ownerId, id, async (card, _list, cards) => {
       if (!card.archivedAt) {
         return card;
@@ -215,7 +237,7 @@ export class CardsService {
       card.position = await cards.countActive(card.listId);
       card.archivedAt = null;
       return cards.save(card);
-    });
+    }).then((card) => this.withLabelIdsOf(card));
   }
 
   async remove(ownerId: string, id: string): Promise<void> {
@@ -238,7 +260,7 @@ export class CardsService {
     id: string,
     work: (card: Card, list: List, cards: CardsRepository) => Promise<T>,
   ): Promise<T> {
-    const found = await this.findOwned(ownerId, id);
+    const found = await this.findOwnedCard(ownerId, id);
     const owningList = await this.cardsRepository.findOwnedList(
       ownerId,
       found.listId,
@@ -278,5 +300,19 @@ export class CardsService {
 
       return work(card, list, cards);
     });
+  }
+
+  // Read after the write commits, outside the lock: a concurrent apply may or
+  // may not show, the same as reading a moment later.
+  private async withLabelIds(cards: Card[]): Promise<CardWithLabels[]> {
+    const labelIds = await this.cardsRepository.labelIdsByCard(
+      cards.map((card) => card.id),
+    );
+    return cards.map((card) => ({ ...card, labelIds: labelIds.get(card.id)! }));
+  }
+
+  private async withLabelIdsOf(card: Card): Promise<CardWithLabels> {
+    const [withLabels] = await this.withLabelIds([card]);
+    return withLabels;
   }
 }
