@@ -137,8 +137,8 @@ T5 → T6 → T7 → T8 → T9 → T10 → T11
 
 **Done when**:
 
-- [ ] Unit tests: `findDomainErrorMapping` returns `404` `/problems/card-not-found`, `409` `/problems/card-archived`, `409` `/problems/card-not-archived` for the three errors; each error carries the design `detail` message
-- [ ] Quick gate passes; ≥ 3 new unit tests
+- [x] Unit tests: `findDomainErrorMapping` returns `404` `/problems/card-not-found`, `409` `/problems/card-archived`, `409` `/problems/card-not-archived` for the three errors; each error carries the design `detail` message
+- [x] Quick gate passes; ≥ 3 new unit tests
 
 **Tests**: unit
 **Gate**: quick
