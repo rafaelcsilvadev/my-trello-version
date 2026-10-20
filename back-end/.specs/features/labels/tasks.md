@@ -159,8 +159,8 @@ T8 → T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] Unit: each error extends `DomainError` with its message; `findDomainErrorMapping` returns `404` `/problems/label-not-found` and `409` `/problems/label-name-taken`
-- [ ] Quick gate passes; ≥ 4 new unit tests
+- [x] Unit: each error extends `DomainError` with its message; `findDomainErrorMapping` returns `404` `/problems/label-not-found` and `409` `/problems/label-name-taken`
+- [x] Quick gate passes; ≥ 4 new unit tests
 
 **Tests**: unit
 **Gate**: quick
