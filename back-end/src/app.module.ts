@@ -6,6 +6,7 @@ import { CardsModule } from './cards/cards.module';
 import { validateEnv } from './config/env.schema';
 import { DatabaseModule } from './database/database.module';
 import { HealthModule } from './health/health.module';
+import { LabelsModule } from './labels/labels.module';
 import { ListsModule } from './lists/lists.module';
 import { LoggingModule } from './logging/logging.module';
 import { UsersModule } from './users/users.module';
@@ -21,6 +22,7 @@ import { UsersModule } from './users/users.module';
     BoardsModule,
     ListsModule,
     CardsModule,
+    LabelsModule,
   ],
 })
 export class AppModule {}
