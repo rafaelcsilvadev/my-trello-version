@@ -101,12 +101,12 @@ T8 → T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] Integration: a label row round-trips `name`, `color`, `createdAt`, `updatedAt`; a `color` outside the palette (incl. `"Green"`) is rejected by `CHK_labels_color`
-- [ ] Integration: `"Bug"` then `"bug"` on the same board fails with `23505` and `constraint` `UQ_labels_board_id_name`; `"Bug"` on two boards succeeds
-- [ ] Integration: inserting the same `(card_id, label_id)` twice fails on `PK_card_labels`
-- [ ] Integration: deleting a label deletes its links; deleting a card deletes its links; deleting a list deletes its cards' links; deleting a board deletes its labels and every link
-- [ ] Integration: `down` drops both tables and `up` re-applies cleanly
-- [ ] Build gate passes; ≥ 9 new integration tests
+- [x] Integration: a label row round-trips `name`, `color`, `createdAt`, `updatedAt`; a `color` outside the palette (incl. `"Green"`) is rejected by `CHK_labels_color`
+- [x] Integration: `"Bug"` then `"bug"` on the same board fails with `23505` and `constraint` `UQ_labels_board_id_name`; `"Bug"` on two boards succeeds
+- [x] Integration: inserting the same `(card_id, label_id)` twice fails on `PK_card_labels`
+- [x] Integration: deleting a label deletes its links; deleting a card deletes its links; deleting a list deletes its cards' links; deleting a board deletes its labels and every link
+- [x] Integration: `down` drops both tables and `up` re-applies cleanly
+- [x] Build gate passes; ≥ 9 new integration tests
 
 **Tests**: integration
 **Gate**: build
