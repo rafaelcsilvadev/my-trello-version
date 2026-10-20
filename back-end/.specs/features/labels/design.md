@@ -97,7 +97,7 @@ graph TD
 
 ### `LABEL_COLORS`
 
-- **Purpose**: The palette, single source for the DTO, the entity type and the migration check.
+- **Purpose**: The palette, single source for the DTO and the entity type. The `CreateLabels` migration writes its own copy into `CHK_labels_color` so the migration never changes with the code; the labels table integration test fails if the two drift apart.
 - **Location**: `src/labels/label-colors.ts`
 - **Interfaces**: `LABEL_COLORS = ['green', 'yellow', 'orange', 'red', 'purple', 'blue', 'sky', 'lime', 'pink', 'black'] as const`; `type LabelColor = (typeof LABEL_COLORS)[number]`
 - **Reuses**: none
