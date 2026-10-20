@@ -312,14 +312,14 @@ T5 → T6 → T7 → T8 → T9 → T10 → T11
 
 **Done when**:
 
-- [ ] e2e, same list: cards 1, 2, 3; move 3 to `0` → `[3, 1, 2]`; move 3 to `2` → `[1, 2, 3]`; shifted cards keep `updatedAt`; `listId` equal to the card's list behaves the same
-- [ ] e2e, cross list: A `[1, 2, 3]`, B `[4]`; move 1 to `{ listId: B, position: 0 }` → `200`, `listId` B, A `[2, 3]` at `0..1`, B `[1, 4]` at `0..1`; `position` `99` → end of the target; into an empty list → `position` `0`
-- [ ] e2e: same place → `200` with identical body including `updatedAt`
-- [ ] e2e: `position` missing, `-1`, `1.5`, `"2"` → `400` field `position`; `listId` `"abc"` → `400` field `listId`; order unchanged
-- [ ] e2e: `listId` unknown, of another user's board, of another board of the same user → `404` `/problems/list-not-found` with identical bodies; archived target → `409` `/problems/list-archived`; nothing moved
-- [ ] e2e: archived card → `409` `/problems/card-archived`; card of an archived list → `409` `/problems/list-archived`; card of an archived board → `409` `/problems/board-archived`; unknown / foreign / malformed id → `404` `/problems/card-not-found`
-- [ ] e2e: 10 concurrent moves (same-list and cross-list) on two lists of one board all return `200` and both lists hold positions `0..n-1` exactly once
-- [ ] Full gate passes; ≥ 14 new e2e tests
+- [x] e2e, same list: cards 1, 2, 3; move 3 to `0` → `[3, 1, 2]`; move 3 to `2` → `[1, 2, 3]`; shifted cards keep `updatedAt`; `listId` equal to the card's list behaves the same
+- [x] e2e, cross list: A `[1, 2, 3]`, B `[4]`; move 1 to `{ listId: B, position: 0 }` → `200`, `listId` B, A `[2, 3]` at `0..1`, B `[1, 4]` at `0..1`; `position` `99` → end of the target; into an empty list → `position` `0`
+- [x] e2e: same place → `200` with identical body including `updatedAt`
+- [x] e2e: `position` missing, `-1`, `1.5`, `"2"` → `400` field `position`; `listId` `"abc"` → `400` field `listId`; order unchanged
+- [x] e2e: `listId` unknown, of another user's board, of another board of the same user → `404` `/problems/list-not-found` with identical bodies; archived target → `409` `/problems/list-archived`; nothing moved
+- [x] e2e: archived card → `409` `/problems/card-archived`; card of an archived list → `409` `/problems/list-archived`; card of an archived board → `409` `/problems/board-archived`; unknown / foreign / malformed id → `404` `/problems/card-not-found`
+- [x] e2e: 10 concurrent moves (same-list and cross-list) on two lists of one board all return `200` and both lists hold positions `0..n-1` exactly once
+- [x] Full gate passes; ≥ 14 new e2e tests
 
 **Tests**: e2e
 **Gate**: full
