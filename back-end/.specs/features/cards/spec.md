@@ -233,46 +233,46 @@ Lists are empty columns until they hold cards: a card is one piece of work with 
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| CRD-01 | P1: Create a card | Tasks | In Tasks |
-| CRD-02 | P1: Create a card | Tasks | In Tasks |
-| CRD-03 | P1: Create a card | Tasks | In Tasks |
-| CRD-04 | P1: Create a card | Tasks | In Tasks |
-| CRD-05 | P1: Create a card | Tasks | In Tasks |
-| CRD-06 | P1: Create a card | Tasks | In Tasks |
-| CRD-07 | P1: List and read cards | Tasks | In Tasks |
-| CRD-08 | P1: List and read cards | Tasks | In Tasks |
-| CRD-09 | P1: List and read cards | Tasks | In Tasks |
-| CRD-10 | P1: List and read cards | Tasks | In Tasks |
-| CRD-11 | P1: List and read cards | Tasks | In Tasks |
-| CRD-12 | P1: List and read cards | Tasks | In Tasks |
-| CRD-13 | P1: List and read cards | Tasks | In Tasks |
-| CRD-14 | P1: Edit a card | Tasks | In Tasks |
+| CRD-01 | P1: Create a card | Execute | Implementing |
+| CRD-02 | P1: Create a card | Execute | Implementing |
+| CRD-03 | P1: Create a card | Execute | Implementing |
+| CRD-04 | P1: Create a card | Execute | Implementing |
+| CRD-05 | P1: Create a card | Execute | Implementing |
+| CRD-06 | P1: Create a card | Execute | Implementing |
+| CRD-07 | P1: List and read cards | Execute | Implementing |
+| CRD-08 | P1: List and read cards | Execute | Implementing |
+| CRD-09 | P1: List and read cards | Execute | Implementing |
+| CRD-10 | P1: List and read cards | Execute | Implementing |
+| CRD-11 | P1: List and read cards | Execute | Implementing |
+| CRD-12 | P1: List and read cards | Execute | Implementing |
+| CRD-13 | P1: List and read cards | Execute | Implementing |
+| CRD-14 | P1: Edit a card | Execute | Implementing |
 | CRD-15 | P1: Edit a card | Tasks | In Tasks |
-| CRD-16 | P1: Edit a card | Tasks | In Tasks |
+| CRD-16 | P1: Edit a card | Execute | Implementing |
 | CRD-17 | P1: Edit a card | Tasks | In Tasks |
-| CRD-18 | P1: Edit a card | Tasks | In Tasks |
-| CRD-19 | P1: Edit a card | Tasks | In Tasks |
-| CRD-20 | P1: Reorder and move cards | Tasks | In Tasks |
-| CRD-21 | P1: Reorder and move cards | Tasks | In Tasks |
-| CRD-22 | P1: Reorder and move cards | Tasks | In Tasks |
-| CRD-23 | P1: Reorder and move cards | Tasks | In Tasks |
+| CRD-18 | P1: Edit a card | Execute | Implementing |
+| CRD-19 | P1: Edit a card | Execute | Implementing |
+| CRD-20 | P1: Reorder and move cards | Execute | Implementing |
+| CRD-21 | P1: Reorder and move cards | Execute | Implementing |
+| CRD-22 | P1: Reorder and move cards | Execute | Implementing |
+| CRD-23 | P1: Reorder and move cards | Execute | Implementing |
 | CRD-24 | P1: Reorder and move cards | Tasks | In Tasks |
-| CRD-25 | P1: Reorder and move cards | Tasks | In Tasks |
-| CRD-26 | P1: Reorder and move cards | Tasks | In Tasks |
-| CRD-27 | P1: Reorder and move cards | Tasks | In Tasks |
-| CRD-28 | P1: Reorder and move cards | Tasks | In Tasks |
-| CRD-29 | P1: Archive and unarchive a card | Tasks | In Tasks |
-| CRD-30 | P1: Archive and unarchive a card | Tasks | In Tasks |
-| CRD-31 | P1: Archive and unarchive a card | Tasks | In Tasks |
-| CRD-32 | P1: Archive and unarchive a card | Tasks | In Tasks |
-| CRD-33 | P1: Delete a card | Tasks | In Tasks |
-| CRD-34 | P1: Delete a card | Tasks | In Tasks |
-| CRD-35 | P1: Archived list and archived board protect their cards | Tasks | In Tasks |
-| CRD-36 | P1: Archived list and archived board protect their cards | Tasks | In Tasks |
+| CRD-25 | P1: Reorder and move cards | Execute | Implementing |
+| CRD-26 | P1: Reorder and move cards | Execute | Implementing |
+| CRD-27 | P1: Reorder and move cards | Execute | Implementing |
+| CRD-28 | P1: Reorder and move cards | Execute | Implementing |
+| CRD-29 | P1: Archive and unarchive a card | Execute | Implementing |
+| CRD-30 | P1: Archive and unarchive a card | Execute | Implementing |
+| CRD-31 | P1: Archive and unarchive a card | Execute | Implementing |
+| CRD-32 | P1: Archive and unarchive a card | Execute | Implementing |
+| CRD-33 | P1: Delete a card | Execute | Implementing |
+| CRD-34 | P1: Delete a card | Execute | Implementing |
+| CRD-35 | P1: Archived list and archived board protect their cards | Execute | Implementing |
+| CRD-36 | P1: Archived list and archived board protect their cards | Execute | Implementing |
 | CRD-37 | P1: Archived list and archived board protect their cards | Tasks | In Tasks |
-| CRD-38 | P1: Ownership boundary | Tasks | In Tasks |
-| CRD-39 | P1: Ownership boundary | Tasks | In Tasks |
-| CRD-40 | Edge case: list and board deletion cascade | Tasks | In Tasks |
+| CRD-38 | P1: Ownership boundary | Execute | Implementing |
+| CRD-39 | P1: Ownership boundary | Execute | Implementing |
+| CRD-40 | Edge case: list and board deletion cascade | Execute | Implementing |
 
 **Coverage:** 40 total, 40 mapped to tasks, 0 unmapped
 
