@@ -2,10 +2,10 @@
 
 **Date**: 2026-10-20
 **Spec**: `.specs/features/cards/spec.md`
-**Diff range**: `0cafa87^..HEAD` (branch `feat/cards-delete-endpoint`, HEAD `cc23765`; code commits T1..T11, last `4b80705`)
+**Diff range**: `0cafa87^..HEAD` (branch `feat/cards-delete-endpoint`, HEAD `cc23765`; code commits T1..T11, last `4b80705`). Fix commits after the report: `6291a57` (traceability), `6717661`, `58b321f`, `2f93372`
 **Verifier**: independent sub-agent (author ≠ verifier)
 
-**Verdict: PASS ✅.** All 40 requirements (CRD-01..CRD-40) and the 4 listed edge cases trace to a test assertion that targets the spec-defined outcome. The build gate is green (unit 241, integration 101, e2e 337). The sensor killed 36 of 36 behavior-level mutants, covering guard precedence (board > list > card), owner scoping, position arithmetic for create / move / archive / unarchive, the board row lock, the archived filters and the DTO rules. Three minor test-depth observations remain (see Fix Plans); none blocks the feature.
+**Verdict: PASS ✅.** All 40 requirements (CRD-01..CRD-40) and the 4 listed edge cases trace to a test assertion that targets the spec-defined outcome. The build gate is green (unit 241, integration 101, e2e 337). The sensor killed 36 of 36 behavior-level mutants, covering guard precedence (board > list > card), owner scoping, position arithmetic for create / move / archive / unarchive, the board row lock, the archived filters and the DTO rules. Three minor test-depth observations were found (see Fix Plans) and all are resolved with test-only commits.
 
 ---
 
@@ -46,33 +46,33 @@ Paths are relative to `back-end/`. `e2e/` = `test/e2e/cards/`, `int/` = `test/in
 | CRD-11 bad `archived` | `400` + `errors` item `field: 'archived'` on both routes | `e2e/read-cards.e2e-spec.ts:344-361` - `describe.each` over both routes × `it.each(['yes','1','TRUE',''])`, `toBe(400)`, `arrayContaining([{ field: 'archived', ... }])` | ✅ PASS |
 | CRD-12 board foreign / unknown / malformed | `404` `/problems/board-not-found`, identical | `e2e/read-cards.e2e-spec.ts:317-332` via `expectSameNotFound(..., '/problems/board-not-found')`; unit propagation `unit/cards.service.spec.ts:332-339` | ✅ PASS |
 | CRD-13 read one card | `200`, card / list / board archived or not | `e2e/read-cards.e2e-spec.ts:365-372` `toEqual(card)`; archived card `:374-386` `toEqual({ ...card, position: null, archivedAt })`; archived list `:388-396`; archived board `:398-406` | ✅ PASS |
-| CRD-14 PATCH subset | `200`, only given fields change, later `updatedAt` | `e2e/update-card.e2e-spec.ts:131-156` - `toBe(200)`, `toEqual({ ...created, done: true, dueDate: '2026-12-24', updatedAt })`, `updatedAt toBeGreaterThan(created)`, persisted; title + description `:158-177`; `done` without `dueDate` `:192-200`; unit `unit/cards.service.spec.ts:450-478` `save toHaveBeenCalledWith(buildCard({ done: true }))` | ✅ PASS |
-| CRD-15 invalid PATCH title | `400` `field: 'title'` (incl. `null`), unchanged | `e2e/update-card.e2e-spec.ts:212-235` (null, empty, 101) - `toBe(400)`, `arrayContaining([{ field: 'title' }])`, `read toEqual(created)` | ✅ PASS |
-| CRD-16 clear / invalid description and dueDate | `null` (or blank description) → stored `null`; invalid → `400` per field, unchanged | `dueDate: null` `e2e/update-card.e2e-spec.ts:150-155` `dueDate toBeNull()`, `done toBe(true)`, persisted; blank description `:179-190` `toBeNull()`; `description: null` unit `unit/cards.service.spec.ts:480-491` `save toHaveBeenCalledWith(buildCard({ description: null, dueDate: null }))`; invalid `dueDate` `:218`, `description` 5001 `:219-223` in the `it.each` `:212-235` | ✅ PASS |
-| CRD-17 invalid `done` | `400` `field: 'done'` (incl. `null`), unchanged | `e2e/update-card.e2e-spec.ts:216-217` (`null`, `'true'`) in `:212-235` - `toBe(400)`, `field: 'done'`, `read toEqual(created)` | ✅ PASS |
-| CRD-18 PATCH `{}` | `200`, unchanged incl. `updatedAt` | `e2e/update-card.e2e-spec.ts:202-210` - `toBe(200)`, `toEqual(created)`, `read toEqual(created)`; unit `unit/cards.service.spec.ts:494-501` `expectNoWrites()` | ✅ PASS |
-| CRD-19 PATCH archived card | `409` `/problems/card-archived`, unchanged | `e2e/update-card.e2e-spec.ts:248-257` - `toBe(409)`, `type toBe('/problems/card-archived')`, `read toEqual(before)`; unit `unit/cards.service.spec.ts:515-528` (also for `{}`) | ✅ PASS |
+| CRD-14 PATCH subset | `200`, only given fields change, later `updatedAt` | `e2e/update-card.e2e-spec.ts:131-156` - `toBe(200)`, `toEqual({ ...created, done: true, dueDate: '2026-12-24', updatedAt })`, `updatedAt toBeGreaterThan(created)`, persisted; title + description `:158-177`; `done` without `dueDate` `:205-213`; unit `unit/cards.service.spec.ts:450-478` `save toHaveBeenCalledWith(buildCard({ done: true }))` | ✅ PASS |
+| CRD-15 invalid PATCH title | `400` `field: 'title'` (incl. `null`), unchanged | `e2e/update-card.e2e-spec.ts:225-254` (null, empty, number, blank, 101) - `toBe(400)`, `arrayContaining([{ field: 'title' }])`, `read toEqual(created)` | ✅ PASS |
+| CRD-16 clear / invalid description and dueDate | `null` (or blank description) → stored `null`; invalid → `400` per field, unchanged | `dueDate: null` `e2e/update-card.e2e-spec.ts:150-155` `dueDate toBeNull()`, `done toBe(true)`, persisted; blank description `:179-190` `toBeNull()`; `description: null` `e2e/update-card.e2e-spec.ts:192-203` `toBeNull()`, persisted; unit `unit/cards.service.spec.ts:480-491` `save toHaveBeenCalledWith(buildCard({ description: null, dueDate: null }))`; invalid `dueDate` (off-calendar, not zero-padded, date-time, number) `:233-236`, `description` number `:237`, `description` 5001 `:219-223` in the `it.each` `:212-235` | ✅ PASS |
+| CRD-17 invalid `done` | `400` `field: 'done'` (incl. `null`), unchanged | `e2e/update-card.e2e-spec.ts:231-232` (`null`, `'true'`) in `:225-254` - `toBe(400)`, `field: 'done'`, `read toEqual(created)` | ✅ PASS |
+| CRD-18 PATCH `{}` | `200`, unchanged incl. `updatedAt` | `e2e/update-card.e2e-spec.ts:215-223` - `toBe(200)`, `toEqual(created)`, `read toEqual(created)`; unit `unit/cards.service.spec.ts:494-501` `expectNoWrites()` | ✅ PASS |
+| CRD-19 PATCH archived card | `409` `/problems/card-archived`, unchanged | `e2e/update-card.e2e-spec.ts:267-276` - `toBe(409)`, `type toBe('/problems/card-archived')`, `read toEqual(before)`; unit `unit/cards.service.spec.ts:515-528` (also for `{}`) | ✅ PASS |
 | CRD-20 same-list move | `200`, moved card at `k`, others shifted keeping order | `e2e/move-card.e2e-spec.ts:156-176` - `toEqual({ ...three, position: 0 })`, order `['3','1','2']`, positions `[0,1,2]`, shifted cards keep `updatedAt` `:174-175`; down `:178-188`; `listId` = own list `:190-199`; unit ranges `unit/cards.service.spec.ts:542` `shift(LIST_ID, 0, 0, 1)`, `:551` `shift(LIST_ID, 2, 3, -1)` | ✅ PASS |
 | CRD-21 cross-list move | `200`, `listId` target, `position` `k`; source gap closed, target opened | `e2e/move-card.e2e-spec.ts:212-231` - `toEqual({ ...one, listId: b, position: 0 })`, A `['2','3']` at `[0,1]`, B `['1','4']` at `[0,1]`, persisted; unit `unit/cards.service.spec.ts:621-626` `shift` nth 1 `(LIST_ID, 2, 3, -1)`, nth 2 `(TARGET_LIST_ID, 1, 2, 1)`, `save(moved)` | ✅ PASS |
 | CRD-22 clamp | same list → `n-1`; other list → `m` | same list `e2e/move-card.e2e-spec.ts:201-210` `position toBe(2)`, order `['2','3','1']`; other list `:233-244` `position toBe(2)`, B `['3','4','1']`; empty target `:246-258` `position toBe(0)`; unit `unit/cards.service.spec.ts:555-560`, `:629-657` | ✅ PASS |
 | CRD-23 same place | `200`, unchanged incl. `updatedAt` | `e2e/move-card.e2e-spec.ts:260-268` - `toEqual(two)`, `read toEqual(two)`; unit `unit/cards.service.spec.ts:562-583` `expectNoWrites()` (with/without own `listId`, clamped to current) | ✅ PASS |
 | CRD-24 invalid move body | `400` `field: 'position'` / `'listId'`, nothing changes | `e2e/move-card.e2e-spec.ts:270-288` (missing, `-1`, `1.5`, `'2'`, `listId: 'abc'`) - `toBe(400)`, `arrayContaining([{ field }])`, order `['1','2','3']`, `read toEqual(three)` | ✅ PASS |
-| CRD-25 target unknown / foreign / other board | `404` `/problems/list-not-found`, identical, nothing changes | `e2e/move-card.e2e-spec.ts:290-316` - `toBe(404)`, `type toBe('/problems/list-not-found')`, bodies `toEqual`, source order and card unchanged, Bob's list and other-board list `toEqual([])`; repo `int/cards.repository.int-spec.ts:200-210` | ✅ PASS |
-| CRD-26 target archived | `409` `/problems/list-archived`, nothing changes | `e2e/move-card.e2e-spec.ts:318-329` - `toBe(409)`, `type`, order, card and target `toEqual([])`; unit `unit/cards.service.spec.ts:699-720` | ✅ PASS |
-| CRD-27 move archived card | `409` `/problems/card-archived`, nothing changes | `e2e/move-card.e2e-spec.ts:331-341` - `toBe(409)`, `type toBe('/problems/card-archived')`, `read toEqual(before)`; precedence before target lookup `unit/cards.service.spec.ts:671-686`, same list `:723-730` | ✅ PASS |
-| CRD-28 positions `0..n-1` always, also concurrent | contiguous, unique positions after every write | 10 concurrent creates `e2e/create-card.e2e-spec.ts:319-332` `toEqual([0..9])`; 10 concurrent same/cross-list moves `e2e/move-card.e2e-spec.ts:397-429` (all `200`, both lists `0..n-1`, total 8); mixed concurrent create/move/archive/unarchive/delete `e2e/delete-card.e2e-spec.ts:238-278` (statuses `[201,201,200×8,204]`, both lists `0..n-1`, total 9); lifecycle `:343-379`; archive/unarchive `e2e/archive-card.e2e-spec.ts:152-157`, `:185-191`; lock serializes `int/cards.repository.int-spec.ts:454-480`; deferred unique rejects at COMMIT `int/cards-table.int-spec.ts:303-310`; rollback `int/cards.repository.int-spec.ts:484-503` | ✅ PASS |
+| CRD-25 target unknown / foreign / other board | `404` `/problems/list-not-found`, identical, nothing changes | `e2e/move-card.e2e-spec.ts:307-333` - `toBe(404)`, `type toBe('/problems/list-not-found')`, bodies `toEqual`, source order and card unchanged, Bob's list and other-board list `toEqual([])`; repo `int/cards.repository.int-spec.ts:200-210` | ✅ PASS |
+| CRD-26 target archived | `409` `/problems/list-archived`, nothing changes | `e2e/move-card.e2e-spec.ts:335-346` - `toBe(409)`, `type`, order, card and target `toEqual([])`; unit `unit/cards.service.spec.ts:699-720` | ✅ PASS |
+| CRD-27 move archived card | `409` `/problems/card-archived`, nothing changes | `e2e/move-card.e2e-spec.ts:348-358` - `toBe(409)`, `type toBe('/problems/card-archived')`, `read toEqual(before)`; precedence before target lookup `unit/cards.service.spec.ts:671-686`, same list `:723-730` | ✅ PASS |
+| CRD-28 positions `0..n-1` always, also concurrent | contiguous, unique positions after every write | 10 concurrent creates `e2e/create-card.e2e-spec.ts:319-332` `toEqual([0..9])`; 10 concurrent same/cross-list moves `e2e/move-card.e2e-spec.ts:414-446` (all `200`, both lists `0..n-1`, total 8); mixed concurrent create/move/archive/unarchive/delete `e2e/delete-card.e2e-spec.ts:269-309` (statuses `[201,201,200×8,204]`, both lists `0..n-1`, total 9); lifecycle `:374-410`; archive/unarchive `e2e/archive-card.e2e-spec.ts:152-157`, `:185-191`; lock serializes `int/cards.repository.int-spec.ts:454-480`; deferred unique rejects at COMMIT `int/cards-table.int-spec.ts:303-310`; rollback `int/cards.repository.int-spec.ts:484-503` | ✅ PASS |
 | CRD-29 archive | `200`, `archivedAt` = now, `position` null, gap closed | `e2e/archive-card.e2e-spec.ts:135-159` - `toEqual({ ...one, position: null, archivedAt: ISO })`, `start ≤ archivedAt ≤ end`, remaining `[['2',0],['3',1]]`, `?archived=true toEqual([res.body])`; unit `unit/cards.service.spec.ts:733-755` | ✅ PASS |
 | CRD-30 archive twice | `200`, original `archivedAt` | `e2e/archive-card.e2e-spec.ts:161-170` - `toEqual(archived)`, `read toEqual(archived)`; unit `unit/cards.service.spec.ts:757-764` no writes | ✅ PASS |
 | CRD-31 unarchive | `200`, `archivedAt` null, `position` = active count before | `e2e/archive-card.e2e-spec.ts:172-193` - `toEqual({ ...archived, position: 2, archivedAt: null })`, order `[['2',0],['3',1],['1',2]]`, archive empty; unit `unit/cards.service.spec.ts:768-779` | ✅ PASS |
 | CRD-32 unarchive active | `200`, unchanged | `e2e/archive-card.e2e-spec.ts:195-203` - `toEqual(two)`, `read toEqual(two)`; unit `unit/cards.service.spec.ts:781-788` | ✅ PASS |
 | CRD-33 delete archived | `204`, no body, card gone | `e2e/delete-card.e2e-spec.ts:169-185` - `toBe(204)`, `text toBe('')`, follow-up GET `404` `card-not-found`, active `[['1',0],['3',1]]`, archive empty | ✅ PASS |
 | CRD-34 delete active | `409` `/problems/card-not-archived`, not deleted | `e2e/delete-card.e2e-spec.ts:158-167` - `toBe(409)`, `type`, `read toEqual(one)`; unit `unit/cards.service.spec.ts:800-807` | ✅ PASS |
-| CRD-35 archived list freezes cards | every card write → `409` `/problems/list-archived`, card archived or not, nothing changes | create `e2e/create-card.e2e-spec.ts:286-295`; PATCH `e2e/update-card.e2e-spec.ts:259-267`; move `e2e/move-card.e2e-spec.ts:343-351`; archive/unarchive × {active, archived card} `e2e/archive-card.e2e-spec.ts:207-233` (rows 208-211); DELETE `e2e/delete-card.e2e-spec.ts:187-206` - each `toBe(409)`, `type toBe('/problems/list-archived')`, card unchanged; unit before card state `unit/cards.service.spec.ts:435-446`, `:836-841` per action | ✅ PASS |
-| CRD-36 archived board freezes cards | every card write → `409` `/problems/board-archived`, list/card archived or not | create (active and archived list) `e2e/create-card.e2e-spec.ts:297-317`; PATCH `e2e/update-card.e2e-spec.ts:269-277`; move `e2e/move-card.e2e-spec.ts:353-361`; archive/unarchive × {active, archived card} `e2e/archive-card.e2e-spec.ts:207-233` (rows 212-215); DELETE `e2e/delete-card.e2e-spec.ts:187-206`; board > list > card precedence per action `unit/cards.service.spec.ts:265-278`, `:413-433`, `:826-834` - `rejects.toBeInstanceOf(BoardArchivedError)` + `expectNoWrites()` | ✅ PASS |
-| CRD-37 list archive leaves cards alone | cards' `position`, `archivedAt`, `updatedAt` unchanged | `e2e/delete-card.e2e-spec.ts:208-219` - after list archive + unarchive, active and archived card lists `toEqual` the full bodies captured before | ✅ PASS |
-| CRD-38 card foreign / unknown / malformed | `404` `/problems/card-not-found`, identical, nothing changes | GET `e2e/read-cards.e2e-spec.ts:408-426`; PATCH `e2e/update-card.e2e-spec.ts:279-304`; move `e2e/move-card.e2e-spec.ts:363-384`; archive/unarchive `e2e/archive-card.e2e-spec.ts:235-261`; DELETE `e2e/delete-card.e2e-spec.ts:280-302` - each `toBe(404)`, `type toBe('/problems/card-not-found')`, bodies `toEqual` across the three, foreign card unchanged; every route as Bob `e2e/delete-card.e2e-spec.ts:304-329`; repo `int/cards.repository.int-spec.ts:163-170`; mapping `unit/cards.errors.spec.ts:37` | ✅ PASS |
-| CRD-39 token required | `401` on every card route | all 9 routes `e2e/delete-card.e2e-spec.ts:331-341` - `[method, path, status] toEqual([..., 401])`, cards unchanged; per-route with `problem+json` `e2e/create-card.e2e-spec.ts:254-262`, `e2e/read-cards.e2e-spec.ts:225-232`, `:334-341`, `:428-437` | ✅ PASS |
-| CRD-40 list / board delete cascades | cards of the deleted list / board removed | `int/cards-table.int-spec.ts:278-286` (list: active + archived), `:289-300` (board) - `cardListIds toEqual([otherListId])`; over HTTP `e2e/delete-card.e2e-spec.ts:221-236` both cards `404` after list delete | ✅ PASS |
+| CRD-35 archived list freezes cards | every card write → `409` `/problems/list-archived`, card archived or not, nothing changes | create `e2e/create-card.e2e-spec.ts:286-295`; PATCH `e2e/update-card.e2e-spec.ts:278-286`; move `e2e/move-card.e2e-spec.ts:360-368`; archive/unarchive × {active, archived card} `e2e/archive-card.e2e-spec.ts:207-233` (rows 208-211); DELETE `e2e/delete-card.e2e-spec.ts:187-206` - each `toBe(409)`, `type toBe('/problems/list-archived')`, card unchanged; unit before card state `unit/cards.service.spec.ts:435-446`, `:836-841` per action | ✅ PASS |
+| CRD-36 archived board freezes cards | every card write → `409` `/problems/board-archived`, list/card archived or not | create (active and archived list) `e2e/create-card.e2e-spec.ts:297-317`; PATCH `e2e/update-card.e2e-spec.ts:288-296`; move `e2e/move-card.e2e-spec.ts:370-378`; archive/unarchive × {active, archived card} `e2e/archive-card.e2e-spec.ts:207-233` (rows 212-215); DELETE `e2e/delete-card.e2e-spec.ts:187-206`; list and board both archived × {active, archived card} on create, PATCH, move, archive, unarchive and DELETE `e2e/delete-card.e2e-spec.ts:208-237` - `[method, path, 409, '/problems/board-archived']`, card unchanged; board > list > card precedence per action `unit/cards.service.spec.ts:265-278`, `:413-433`, `:826-834` - `rejects.toBeInstanceOf(BoardArchivedError)` + `expectNoWrites()` | ✅ PASS |
+| CRD-37 list archive leaves cards alone | cards' `position`, `archivedAt`, `updatedAt` unchanged | `e2e/delete-card.e2e-spec.ts:239-250` - after list archive + unarchive, active and archived card lists `toEqual` the full bodies captured before | ✅ PASS |
+| CRD-38 card foreign / unknown / malformed | `404` `/problems/card-not-found`, identical, nothing changes | GET `e2e/read-cards.e2e-spec.ts:408-426`; PATCH `e2e/update-card.e2e-spec.ts:298-323`; move `e2e/move-card.e2e-spec.ts:380-401`; archive/unarchive `e2e/archive-card.e2e-spec.ts:235-261`; DELETE `e2e/delete-card.e2e-spec.ts:311-333` - each `toBe(404)`, `type toBe('/problems/card-not-found')`, bodies `toEqual` across the three, foreign card unchanged; every route as Bob `e2e/delete-card.e2e-spec.ts:335-360`; repo `int/cards.repository.int-spec.ts:163-170`; mapping `unit/cards.errors.spec.ts:37` | ✅ PASS |
+| CRD-39 token required | `401` on every card route | all 9 routes `e2e/delete-card.e2e-spec.ts:362-372` - `[method, path, status] toEqual([..., 401])`, cards unchanged; per-route with `problem+json` `e2e/create-card.e2e-spec.ts:254-262`, `e2e/read-cards.e2e-spec.ts:225-232`, `:334-341`, `:428-437` | ✅ PASS |
+| CRD-40 list / board delete cascades | cards of the deleted list / board removed | `int/cards-table.int-spec.ts:278-286` (list: active + archived), `:289-300` (board) - `cardListIds toEqual([otherListId])`; over HTTP `e2e/delete-card.e2e-spec.ts:252-267` both cards `404` after list delete | ✅ PASS |
 
 **Status**: ✅ All 40 requirements covered with spec-anchored assertions. No spec-precision gaps: the spec fixes every status code, problem `type`, field name, ordering, position value and boundary. Payload rule applied: response bodies are asserted on exact values (`toEqual` on the full card object or on the field), and unit write calls are asserted with their arguments (`shift(LIST_ID, 2, 3, -1)`, `create({ listId, title, description, dueDate, position })`, `save(buildCard({ ... }))`), not only that a call occurred.
 
@@ -100,7 +100,7 @@ Run in a temporary detached `git worktree` at HEAD (`/tmp/claude-1000/cards-sens
 | M14 | `src/cards/cards.service.ts:215` | Unarchive puts the card at `n + 1` | ✅ unit 1, e2e 2 |
 | M15 | `src/cards/cards.service.ts:211` | Unarchive of an active card moves it to the end | ✅ unit 1, e2e 1 |
 | M16 | `src/cards/cards.service.ts:224` | Delete guard flipped (deletes active, rejects archived) | ✅ unit 2, e2e 4 |
-| M17 | `src/cards/cards.service.ts:271-277` | Item-write precedence swapped: list-archived checked before board-archived | ✅ unit 5 (e2e 0, see Fix 2) |
+| M17 | `src/cards/cards.service.ts:271-277` | Item-write precedence swapped: list-archived checked before board-archived | ✅ unit 5, e2e 2 (after Fix 2) |
 | M18 | `src/cards/cards.service.ts:271` | Item writes skip the board-archived guard | ✅ unit 6, e2e 7 |
 | M19 | `src/cards/cards.service.ts:112` | PATCH allowed on an archived card | ✅ unit 2, e2e 1 |
 | M20 | `src/cards/cards.service.ts:122` | PATCH `{}` saves the card | ✅ unit 2 |
@@ -124,7 +124,7 @@ Run in a temporary detached `git worktree` at HEAD (`/tmp/claude-1000/cards-sens
 **Sensor depth**: expanded (≥5; position integrity under concurrency, guard precedence and owner scoping are data-integrity paths)
 **Result**: 36/36 killed - PASS ✅
 
-Note: M3 and M20 are killed only at the unit level. Over HTTP they are not observable: the shift range is empty or no column changed, so TypeORM skips the `UPDATE` and `updatedAt` stays; the unit tests (`unit/cards.service.spec.ts:562-583`, `:494-501` `expectNoWrites()`) guard the intent. Same pattern as lists M3. M17 is killed only at the unit level because no e2e test archives both the list and the board before an item write (Fix 2).
+Note: M3 and M20 are killed only at the unit level. Over HTTP they are not observable: the shift range is empty or no column changed, so TypeORM skips the `UPDATE` and `updatedAt` stays; the unit tests (`unit/cards.service.spec.ts:562-583`, `:494-501` `expectNoWrites()`) guard the intent. Same pattern as lists M3. M17 was killed only at the unit level in the first run; after Fix 2 it also fails `e2e/delete-card.e2e-spec.ts:208-237` (2 cases).
 
 ---
 
@@ -147,45 +147,48 @@ No `// SPEC_DEVIATION` markers in `src/cards` or `test/*/cards`.
 
 ## Edge Cases
 
-- [x] Undeclared property → `400`: create `done`, `position` `e2e/create-card.e2e-spec.ts:243-252` (no row); PATCH `listId` `e2e/update-card.e2e-spec.ts:237-246` (unchanged). Move body not exercised (Fix 1); the global `forbidNonWhitelisted` pipe (FND-09) applies to `MoveCardDto` like every other DTO.
+- [x] Undeclared property → `400`: create `done`, `position` `e2e/create-card.e2e-spec.ts:243-252` (no row); PATCH `listId` `e2e/update-card.e2e-spec.ts:256-265` (unchanged); move `title`, `archivedAt` `e2e/move-card.e2e-spec.ts:290-305` (order unchanged).
 - [x] List without cards → `200 []`: `e2e/read-cards.e2e-spec.ts:127-132`
 - [x] Move into an empty list with any `position` → `200`, `position` `0`: `e2e/move-card.e2e-spec.ts:246-258`; unit `unit/cards.service.spec.ts:644-657`
-- [x] List / board delete cascades (CRD-40): `int/cards-table.int-spec.ts:278-300`, `e2e/delete-card.e2e-spec.ts:221-236`
+- [x] List / board delete cascades (CRD-40): `int/cards-table.int-spec.ts:278-300`, `e2e/delete-card.e2e-spec.ts:252-267`
 
 ---
 
 ## Gate Check
 
 - **Gate command**: `pnpm build && pnpm lint && pnpm test && pnpm test:integration && pnpm test:e2e` (in `back-end/`)
-- **Result**: every step exit 0. Build ok; lint ok (oxlint clean, Prettier "All matched files use Prettier code style!"); unit 241 passed (17 suites); integration 101 passed (10 suites); e2e 337 passed (26 suites). 0 failed, 0 skipped. (The integration log's `password authentication failed for user "test"` line comes from an existing negative database-connection test, not a failure.)
+- **Result**: every step exit 0. Build ok; lint ok (oxlint clean, Prettier "All matched files use Prettier code style!"); unit 241 passed (17 suites); integration 101 passed (10 suites); e2e 337 passed (26 suites); after the fix commits e2e 348 passed. 0 failed, 0 skipped. (The integration log's `password authentication failed for user "test"` line comes from an existing negative database-connection test, not a failure.)
 - **Cards tests added**: unit 68 (`test/unit/cards`), integration 40 (`test/integration/cards`), e2e 126 (`test/e2e/cards`) - counted by running each folder alone in the sensor worktree
 - **Test count before feature**: unit 173, integration 61, e2e 211 (gate totals minus the cards suites; unit and integration match the lists validation totals, e2e is higher than lists' 204 because of the lists fix commits merged after that report)
-- **Test count after feature**: unit 241, integration 101, e2e 337
+- **Test count after feature**: unit 241, integration 101, e2e 337 (348 after the fix commits)
 - **Delta**: +234 tests; no test deleted or weakened (the diff range touches no test file outside `test/*/cards/`)
 - **Skipped tests**: none
 - **Failures**: none
 
 ---
 
-## Fix Plans (minor, non-blocking)
+## Fix Plans (minor, non-blocking) - all resolved
 
 ### Fix 1: Undeclared property on the move body not exercised
 
 - **Root cause**: the spec edge case names create, `PATCH` and `move` bodies. Create (`done`, `position`) and `PATCH` (`listId`) have e2e tests; `POST /cards/:id/move` with an extra property (e.g. `title` or `archivedAt`) has none. Behavior is right through the global `ValidationPipe` (FND-09).
 - **Fix task**: add one e2e case in `move-card.e2e-spec.ts` sending `{ position: 0, title: 'x' }` and asserting `400` and order unchanged.
 - **Priority**: Minor
+- **Resolved**: `6717661` - e2e sends `title` and `archivedAt` with a valid `position` and asserts `400` and the order unchanged; a `forbidNonWhitelisted: false` mutant now fails both cases.
 
 ### Fix 2: CRD-36 precedence with both list and board archived proven over HTTP only for create
 
 - **Root cause**: e2e covers board-archived with an active list on every item route, and board + list archived only on create (`create-card.e2e-spec.ts:308-317`). The item-route precedence (board > list when both are archived) is proven by `unit/cards.service.spec.ts:413-433` and `:826-834`. The shared `writeLocked` guard makes the risk low, and the precedence-swap mutant was killed by the unit layer.
 - **Fix task**: optional e2e `it.each` that archives the list and then the board and calls PATCH, move, archive, unarchive and DELETE, asserting `409` `/problems/board-archived`.
 - **Priority**: Minor
+- **Resolved**: `58b321f` - e2e archives the list and then the board and calls every card write on an active and an archived card, asserting `409` `/problems/board-archived`; the M17 precedence-swap mutant now fails both cases.
 
 ### Fix 3: PATCH validation variants thinner than create
 
 - **Root cause**: `UpdateCardDto` repeats the create rules but its e2e only checks `title` null / empty / 101, `dueDate` `2026-02-30` and `description` 5001. `description: null` clearing (CRD-16) is proven only in unit (`unit/cards.service.spec.ts:480-491`); non-string `title`/`description` and `dueDate` format variants (`2026-2-1`, date-time) are not sent to `PATCH`.
 - **Fix task**: extend the `update-card.e2e-spec.ts:212` `it.each` with `title: 42`, `title: '   '`, `description: 42`, `dueDate: '2026-2-1'`, and add a `{ description: null }` → `200`, `description` `null` case.
 - **Priority**: Minor
+- **Resolved**: `2f93372` - PATCH `it.each` adds `title` number and blank, `description` number, `dueDate` not zero-padded, date-time and number, plus a `{ description: null }` → `200` case; dropping `@Matches` on `dueDate` fails 1 case, dropping `@IsOptional` on `description` fails 9.
 
 ---
 
@@ -205,10 +208,10 @@ No `// SPEC_DEVIATION` markers in `src/cards` or `test/*/cards`.
 
 **Spec-anchored check**: 40/40 requirements matched spec outcome; 0 spec-precision gaps
 **Sensor**: 36/36 mutations killed
-**Gate**: 679 passed (241 unit + 101 integration + 337 e2e), 0 failed
+**Gate**: 690 passed (241 unit + 101 integration + 348 e2e) after the fix commits, 0 failed
 
 **What works**: create at the end with trimmed title and description, blank description and missing date as `null`, calendar-checked `dueDate`; active cards by position and archived cards newest first, per list and per board (active lists only for active cards, every list for archived); read of own cards in any state; PATCH of any subset with `{}` no-op and `null` clearing; same-list and cross-list move with clamp, same-place no-op and shifted cards keeping `updatedAt`; archive closing the gap and idempotent; unarchive to the end; delete only from the archive; board > list > card guard precedence; identical `404` for foreign/unknown/malformed board, list, card and move target; `401` on every route; contiguous positions under concurrent mixed writes; cascade on list and board delete.
 
-**Issues found**: three minor test-depth items above; none affects behavior.
+**Issues found**: three minor test-depth items, resolved in `6717661`, `58b321f`, `2f93372`.
 
-**Next steps**: optionally apply Fix 1-3 as test-only commits, set CRD-01..CRD-40 to `✅ Verified` in a docs commit, then merge.
+**Next steps**: merge.
