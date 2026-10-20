@@ -191,13 +191,13 @@ T5 → T6 → T7 → T8 → T9 → T10 → T11
 
 **Done when**:
 
-- [ ] Unit tests, same-list move: `k < i` shifts `[k, i-1]` by `+1`; `k > i` shifts `[i+1, k]` by `-1`; `k > n-1` clamps to `n-1`; `k === i` (with or without `listId` equal to the card's list) returns without shift or save
-- [ ] Unit tests, cross-list move: shifts the source `[i+1, n-1]` by `-1` and the target `[k, m-1]` by `+1`, saves `listId = target`, `position = k`; `k > m` clamps to `m`; empty target → `position` `0` with no target shift
-- [ ] Move precedence: archived card → `CardArchivedError` before the target lookup; target not in the board → `ListNotFoundError`; archived target → `ListArchivedError`; nothing shifted or saved on any error
-- [ ] `archive` shifts `[i+1, n-1]` by `-1`, sets `position` `null` and `archivedAt`; already archived → returned without save; `unarchive` sets `position = countActive` and `archivedAt` `null`; already active → returned without save
-- [ ] `remove` throws `CardNotArchivedError` on an active card without deleting; deletes an archived card
-- [ ] Every action of this task inherits the `writeLocked` guards: `BoardArchivedError` and `ListArchivedError` before card-state checks (one test per action)
-- [ ] Quick gate passes; ≥ 20 new unit tests
+- [x] Unit tests, same-list move: `k < i` shifts `[k, i-1]` by `+1`; `k > i` shifts `[i+1, k]` by `-1`; `k > n-1` clamps to `n-1`; `k === i` (with or without `listId` equal to the card's list) returns without shift or save
+- [x] Unit tests, cross-list move: shifts the source `[i+1, n-1]` by `-1` and the target `[k, m-1]` by `+1`, saves `listId = target`, `position = k`; `k > m` clamps to `m`; empty target → `position` `0` with no target shift
+- [x] Move precedence: archived card → `CardArchivedError` before the target lookup; target not in the board → `ListNotFoundError`; archived target → `ListArchivedError`; nothing shifted or saved on any error
+- [x] `archive` shifts `[i+1, n-1]` by `-1`, sets `position` `null` and `archivedAt`; already archived → returned without save; `unarchive` sets `position = countActive` and `archivedAt` `null`; already active → returned without save
+- [x] `remove` throws `CardNotArchivedError` on an active card without deleting; deletes an archived card
+- [x] Every action of this task inherits the `writeLocked` guards: `BoardArchivedError` and `ListArchivedError` before card-state checks (one test per action)
+- [x] Quick gate passes; ≥ 20 new unit tests
 
 **Tests**: unit
 **Gate**: build
