@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Not, Repository } from 'typeorm';
 import { Board } from '../boards/board.entity';
+import { lockOwnedBoard } from '../boards/board-lock';
 import { List } from '../lists/list.entity';
 import { Card } from './card.entity';
 
@@ -28,14 +29,10 @@ export class CardsRepository {
     );
   }
 
-  // SELECT ... FOR UPDATE: serializes position writes on one board until the
-  // transaction ends; lists and cards share this lock (BE-AD-010). Only valid
-  // inside transaction().
+  // Lists and cards share this lock (BE-AD-010). Only valid inside
+  // transaction().
   lockOwnedBoard(ownerId: string, boardId: string): Promise<Board | null> {
-    return this.cards.manager.findOne(Board, {
-      where: { id: boardId, ownerId },
-      lock: { mode: 'pessimistic_write' },
-    });
+    return lockOwnedBoard(this.cards.manager, ownerId, boardId);
   }
 
   findOwned(ownerId: string, id: string): Promise<Card | null> {
