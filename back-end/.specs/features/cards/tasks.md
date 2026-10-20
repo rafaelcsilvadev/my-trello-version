@@ -105,15 +105,15 @@ T5 → T6 → T7 → T8 → T9 → T10 → T11
 
 **Done when**:
 
-- [ ] Integration tests: `findOwned` returns the card for its board's owner and `null` for another owner and for an unknown id; `findOwnedList` same for lists
-- [ ] `findListInBoard(boardId, listId)` returns the list of that board and `null` for a list of another board (same owner or not)
-- [ ] `listInList(listId, false)` returns only active cards by `position` ascending; `listInList(listId, true)` returns only archived cards by `archivedAt` descending
-- [ ] `listInBoard(boardId, false)` returns active cards of active lists only, ordered by list position then card position; `listInBoard(boardId, true)` returns archived cards of active and archived lists by `archivedAt` descending; cards of another board never appear
-- [ ] `countActive` counts only active cards of that list
-- [ ] `shift(listId, from, to, ±1)` moves exactly the positions in `[from, to]` of that list, leaves other lists untouched, and keeps `updatedAt` of the shifted rows
-- [ ] `lockOwnedBoard` returns the board for its owner and `null` for another owner; while one transaction holds the lock, a second one on the same board waits until the first commits
-- [ ] `transaction` rolls back every write when `work` throws
-- [ ] Full gate passes; ≥ 14 new integration tests
+- [x] Integration tests: `findOwned` returns the card for its board's owner and `null` for another owner and for an unknown id; `findOwnedList` same for lists
+- [x] `findListInBoard(boardId, listId)` returns the list of that board and `null` for a list of another board (same owner or not)
+- [x] `listInList(listId, false)` returns only active cards by `position` ascending; `listInList(listId, true)` returns only archived cards by `archivedAt` descending
+- [x] `listInBoard(boardId, false)` returns active cards of active lists only, ordered by list position then card position; `listInBoard(boardId, true)` returns archived cards of active and archived lists by `archivedAt` descending; cards of another board never appear
+- [x] `countActive` counts only active cards of that list
+- [x] `shift(listId, from, to, ±1)` moves exactly the positions in `[from, to]` of that list, leaves other lists untouched, and keeps `updatedAt` of the shifted rows
+- [x] `lockOwnedBoard` returns the board for its owner and `null` for another owner; while one transaction holds the lock, a second one on the same board waits until the first commits
+- [x] `transaction` rolls back every write when `work` throws
+- [x] Full gate passes; ≥ 14 new integration tests
 
 **Tests**: integration
 **Gate**: build
