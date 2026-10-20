@@ -275,10 +275,10 @@ T8 → T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] e2e: `DELETE` → `204` with no body; `GET /boards/:boardId/labels` no longer lists it; a second `DELETE` → `404` `/problems/label-not-found`
-- [ ] e2e: unknown, foreign and malformed id → `404` `/problems/label-not-found` with identical bodies; the foreign label still exists for its owner
-- [ ] e2e: archived board → `409` `/problems/board-archived`, label still listed after unarchive; no token → `401`
-- [ ] Full gate passes; ≥ 6 new e2e tests
+- [x] e2e: `DELETE` → `204` with no body; `GET /boards/:boardId/labels` no longer lists it; a second `DELETE` → `404` `/problems/label-not-found`
+- [x] e2e: unknown, foreign and malformed id → `404` `/problems/label-not-found` with identical bodies; the foreign label still exists for its owner
+- [x] e2e: archived board → `409` `/problems/board-archived`, label still listed after unarchive; no token → `401`
+- [x] Full gate passes; ≥ 6 new e2e tests
 
 **Tests**: e2e
 **Gate**: full
