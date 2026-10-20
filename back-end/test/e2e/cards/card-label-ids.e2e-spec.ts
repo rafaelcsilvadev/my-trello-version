@@ -158,5 +158,28 @@ describe('labelIds in card responses (e2e)', () => {
         [other, []],
       ]);
     });
+
+    it('PATCH, move, archive and unarchive return labelIds in label creation order', async () => {
+      await createCard('Design');
+
+      const updated = await send('patch', `/cards/${cardId}`, { done: true });
+      const moved = await send('post', `/cards/${cardId}/move`, {
+        position: 1,
+      });
+      const archived = await send('post', `/cards/${cardId}/archive`);
+      const unarchived = await send('post', `/cards/${cardId}/unarchive`);
+
+      for (const res of [updated, moved, archived, unarchived]) {
+        expect(res.status).toBe(200);
+      }
+      expect(
+        [updated, moved, archived, unarchived].map((res) => res.body.labelIds),
+      ).toEqual([
+        [bugId, ideaId],
+        [bugId, ideaId],
+        [bugId, ideaId],
+        [bugId, ideaId],
+      ]);
+    });
   });
 });

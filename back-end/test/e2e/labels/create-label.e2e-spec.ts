@@ -122,6 +122,10 @@ describe('POST /api/v1/boards/:boardId/labels (e2e)', () => {
     ['null', { name: null, color: 'red' }],
     ['whitespace-only', { name: '   ', color: 'red' }],
     ['51 characters', { name: 'a'.repeat(51), color: 'red' }],
+    [
+      '51 characters after trim',
+      { name: `  ${'a'.repeat(51)}  `, color: 'red' },
+    ],
   ])('returns 400 for a name that is %s', async (_case, body) => {
     await expectFieldError(await createLabel(body), 'name');
   });
@@ -130,6 +134,15 @@ describe('POST /api/v1/boards/:boardId/labels (e2e)', () => {
     const name = 'a'.repeat(50);
 
     const res = await createLabel({ name, color: 'red' });
+
+    expect(res.status).toBe(201);
+    expect(res.body.name).toBe(name);
+  });
+
+  it('checks the 50-character limit after trimming', async () => {
+    const name = 'a'.repeat(50);
+
+    const res = await createLabel({ name: `  ${name}  `, color: 'red' });
 
     expect(res.status).toBe(201);
     expect(res.body.name).toBe(name);
@@ -247,7 +260,7 @@ describe('POST /api/v1/boards/:boardId/labels (e2e)', () => {
       names.map((name) => createLabel({ name, color: 'red' })),
     );
 
-    const statuses = responses.map((res) => res.status).sort();
+    const statuses = responses.map((res) => res.status).sort((a, b) => a - b);
     expect(statuses).toEqual([201, ...Array(9).fill(409)]);
     responses
       .filter((res) => res.status === 409)

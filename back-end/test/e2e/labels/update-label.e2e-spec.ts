@@ -118,6 +118,16 @@ describe('PATCH /api/v1/labels/:id (e2e)', () => {
     expect(await read(created)).toEqual(res.body);
   });
 
+  it('checks the 50-character limit after trimming', async () => {
+    const created = await createLabel();
+    const name = 'a'.repeat(50);
+
+    const res = await patch(created.id, { name: `  ${name}  ` });
+
+    expect(res.status).toBe(200);
+    expect(res.body.name).toBe(name);
+  });
+
   it('changes only the name when the color is absent', async () => {
     const created = await createLabel();
 
@@ -143,6 +153,7 @@ describe('PATCH /api/v1/labels/:id (e2e)', () => {
     ['name is a number', { name: 42 }, 'name'],
     ['name is whitespace-only', { name: '   ' }, 'name'],
     ['name has 51 chars', { name: 'a'.repeat(51) }, 'name'],
+    ['name has 51 chars after trim', { name: `  ${'a'.repeat(51)}  ` }, 'name'],
     ['color is null', { color: null }, 'color'],
     ['color is capitalized', { color: 'Green' }, 'color'],
     ['color is outside the palette', { color: 'white' }, 'color'],
@@ -178,6 +189,7 @@ describe('PATCH /api/v1/labels/:id (e2e)', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.name).toBe('DEFECT');
+    expect(await read(created)).toEqual(res.body);
   });
 
   it('returns 200 with the identical label for an empty body', async () => {
@@ -261,7 +273,7 @@ describe('PATCH /api/v1/labels/:id (e2e)', () => {
       labels.map((label) => patch(label.id, { name: 'Same' })),
     );
 
-    const statuses = responses.map((res) => res.status).sort();
+    const statuses = responses.map((res) => res.status).sort((a, b) => a - b);
     expect(statuses).toEqual([200, ...Array(9).fill(409)]);
     responses
       .filter((res) => res.status === 409)

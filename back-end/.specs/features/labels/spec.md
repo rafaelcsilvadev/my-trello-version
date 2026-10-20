@@ -219,41 +219,41 @@ Cards of one board mix bugs, ideas and chores, and a title alone does not tell t
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| LBL-01 | P1: Create a label | - | Pending |
-| LBL-02 | P1: Create a label | - | Pending |
-| LBL-03 | P1: Create a label | - | Pending |
-| LBL-04 | P1: Create a label | - | Pending |
-| LBL-05 | P1: Create a label | - | Pending |
-| LBL-06 | P1: Create a label | - | Pending |
-| LBL-07 | P1: Create a label | - | Pending |
-| LBL-08 | P1: Create a label | - | Pending |
-| LBL-09 | P1: List a board's labels | - | Pending |
-| LBL-10 | P1: Edit a label | - | Pending |
-| LBL-11 | P1: Edit a label | - | Pending |
-| LBL-12 | P1: Edit a label | - | Pending |
-| LBL-13 | P1: Edit a label | - | Pending |
-| LBL-14 | P1: Edit a label | - | Pending |
-| LBL-15 | P1: Edit a label | - | Pending |
-| LBL-16 | P1: Delete a label | - | Pending |
-| LBL-17 | P1: Delete a label | - | Pending |
-| LBL-18 | P1: Apply and remove labels on a card | - | Pending |
-| LBL-19 | P1: Apply and remove labels on a card | - | Pending |
-| LBL-20 | P1: Apply and remove labels on a card | - | Pending |
-| LBL-21 | P1: Apply and remove labels on a card | - | Pending |
-| LBL-22 | P1: Apply and remove labels on a card | - | Pending |
-| LBL-23 | P1: Apply and remove labels on a card | - | Pending |
-| LBL-24 | P1: Apply and remove labels on a card | - | Pending |
-| LBL-25 | P1: Apply and remove labels on a card | - | Pending |
-| LBL-26 | P1: Card responses show their labels | - | Pending |
-| LBL-27 | P1: Archived board freezes its labels | - | Pending |
-| LBL-28 | P1: Ownership boundary | - | Pending |
-| LBL-29 | P1: Ownership boundary | - | Pending |
-| LBL-30 | P1: Ownership boundary | - | Pending |
-| LBL-31 | Edge case: concurrent duplicate names | - | Pending |
-| LBL-32 | Edge case: concurrent double apply | - | Pending |
-| LBL-33 | Edge case: delete cascade | - | Pending |
+| LBL-01 | P1: Create a label | Validate | ✅ Verified |
+| LBL-02 | P1: Create a label | Validate | ✅ Verified |
+| LBL-03 | P1: Create a label | Validate | ✅ Verified |
+| LBL-04 | P1: Create a label | Validate | ✅ Verified |
+| LBL-05 | P1: Create a label | Validate | ✅ Verified |
+| LBL-06 | P1: Create a label | Validate | ✅ Verified |
+| LBL-07 | P1: Create a label | Validate | ✅ Verified |
+| LBL-08 | P1: Create a label | Validate | ✅ Verified |
+| LBL-09 | P1: List a board's labels | Validate | ✅ Verified |
+| LBL-10 | P1: Edit a label | Validate | ✅ Verified |
+| LBL-11 | P1: Edit a label | Validate | ✅ Verified |
+| LBL-12 | P1: Edit a label | Validate | ✅ Verified |
+| LBL-13 | P1: Edit a label | Validate | ✅ Verified |
+| LBL-14 | P1: Edit a label | Validate | ✅ Verified |
+| LBL-15 | P1: Edit a label | Validate | ✅ Verified |
+| LBL-16 | P1: Delete a label | Validate | ✅ Verified |
+| LBL-17 | P1: Delete a label | Validate | ✅ Verified |
+| LBL-18 | P1: Apply and remove labels on a card | Validate | ✅ Verified |
+| LBL-19 | P1: Apply and remove labels on a card | Validate | ✅ Verified |
+| LBL-20 | P1: Apply and remove labels on a card | Validate | ✅ Verified |
+| LBL-21 | P1: Apply and remove labels on a card | Validate | ✅ Verified |
+| LBL-22 | P1: Apply and remove labels on a card | Validate | ✅ Verified |
+| LBL-23 | P1: Apply and remove labels on a card | Validate | ✅ Verified |
+| LBL-24 | P1: Apply and remove labels on a card | Validate | ✅ Verified |
+| LBL-25 | P1: Apply and remove labels on a card | Validate | ✅ Verified |
+| LBL-26 | P1: Card responses show their labels | Validate | ✅ Verified |
+| LBL-27 | P1: Archived board freezes its labels | Validate | ✅ Verified |
+| LBL-28 | P1: Ownership boundary | Validate | ✅ Verified |
+| LBL-29 | P1: Ownership boundary | Validate | ✅ Verified |
+| LBL-30 | P1: Ownership boundary | Validate | ✅ Verified |
+| LBL-31 | Edge case: concurrent duplicate names | Validate | ✅ Verified |
+| LBL-32 | Edge case: concurrent double apply | Validate | ✅ Verified |
+| LBL-33 | Edge case: delete cascade | Validate | ✅ Verified |
 
-**Coverage:** 33 total, 0 mapped to tasks, 33 unmapped ⚠️
+**Coverage:** 33 total, 33 mapped to tasks, 0 unmapped
 
 ---
 

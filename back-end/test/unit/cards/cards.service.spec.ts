@@ -121,7 +121,7 @@ function buildLabel(overrides: Partial<Label> = {}): Label {
 }
 
 function withLabels(card: Card, labelIds: string[] = []): CardWithLabels {
-  return { ...card, labelIds };
+  return Object.assign({}, card, { labelIds });
 }
 
 describe('CardsService', () => {
