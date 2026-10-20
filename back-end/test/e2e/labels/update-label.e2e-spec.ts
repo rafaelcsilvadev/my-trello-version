@@ -273,7 +273,7 @@ describe('PATCH /api/v1/labels/:id (e2e)', () => {
       labels.map((label) => patch(label.id, { name: 'Same' })),
     );
 
-    const statuses = responses.map((res) => res.status).sort();
+    const statuses = responses.map((res) => res.status).sort((a, b) => a - b);
     expect(statuses).toEqual([200, ...Array(9).fill(409)]);
     responses
       .filter((res) => res.status === 409)

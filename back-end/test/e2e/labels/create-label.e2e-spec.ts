@@ -260,7 +260,7 @@ describe('POST /api/v1/boards/:boardId/labels (e2e)', () => {
       names.map((name) => createLabel({ name, color: 'red' })),
     );
 
-    const statuses = responses.map((res) => res.status).sort();
+    const statuses = responses.map((res) => res.status).sort((a, b) => a - b);
     expect(statuses).toEqual([201, ...Array(9).fill(409)]);
     responses
       .filter((res) => res.status === 409)

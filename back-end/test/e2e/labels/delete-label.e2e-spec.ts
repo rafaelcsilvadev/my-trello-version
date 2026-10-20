@@ -176,7 +176,7 @@ describe('DELETE /api/v1/labels/:id (e2e)', () => {
       Array.from({ length: 10 }, () => remove(created.id)),
     );
 
-    const statuses = responses.map((res) => res.status).sort();
+    const statuses = responses.map((res) => res.status).sort((a, b) => a - b);
     expect(statuses).toEqual([204, ...Array(9).fill(404)]);
     expect(await read(created)).toBeUndefined();
   });
