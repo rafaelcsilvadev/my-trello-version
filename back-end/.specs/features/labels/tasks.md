@@ -357,11 +357,11 @@ T8 → T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] Unit: active card, list and board with a label of the board → `linkLabel(cardId, labelId)` / `unlinkLabel(cardId, labelId)` called with those exact ids
-- [ ] Unit: malformed `labelId` → `LabelNotFoundError` without calling `findLabelInBoard`; `findLabelInBoard` `null` → `LabelNotFoundError`
-- [ ] Unit precedence: unknown card with a bad label → `CardNotFoundError`; bad label on an archived board → `LabelNotFoundError`; archived board with archived list and card → `BoardArchivedError`; archived list with archived card → `ListArchivedError`; archived card → `CardArchivedError`; no link call in any failing case
-- [ ] Unit: existing `update` / `move` / `archive` / `unarchive` / `remove` tests pass unchanged (no hook)
-- [ ] Quick gate passes; ≥ 12 new unit tests
+- [x] Unit: active card, list and board with a label of the board → `linkLabel(cardId, labelId)` / `unlinkLabel(cardId, labelId)` called with those exact ids
+- [x] Unit: malformed `labelId` → `LabelNotFoundError` without calling `findLabelInBoard`; `findLabelInBoard` `null` → `LabelNotFoundError`
+- [x] Unit precedence: unknown card with a bad label → `CardNotFoundError`; bad label on an archived board → `LabelNotFoundError`; archived board with archived list and card → `BoardArchivedError`; archived list with archived card → `ListArchivedError`; archived card → `CardArchivedError`; no link call in any failing case
+- [x] Unit: existing `update` / `move` / `archive` / `unarchive` / `remove` tests pass unchanged (no hook)
+- [x] Quick gate passes; ≥ 12 new unit tests
 
 **Tests**: unit
 **Gate**: quick
