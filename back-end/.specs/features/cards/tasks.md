@@ -283,12 +283,12 @@ T5 → T6 → T7 → T8 → T9 → T10 → T11
 
 **Done when**:
 
-- [ ] e2e: `{ done: true, dueDate: "2026-12-24" }` → `200`, both set, later `updatedAt`; then `{ dueDate: null }` → `dueDate` `null`, `done` still `true`; `{ description: "  " }` → `null`; `done` can be `true` without `dueDate`
-- [ ] e2e: `{}` → `200` with identical body including `updatedAt`
-- [ ] e2e: `title` `null` / `""` / 101 chars → `400` field `title`; `done` `null` / `"true"` → `400` field `done`; `dueDate` `"2026-02-30"` → `400` field `dueDate`; `description` 5001 chars → `400` field `description`; unknown property (`listId`) → `400`; card unchanged in every case
-- [ ] e2e: archived card → `409` `/problems/card-archived`; card of an archived list → `409` `/problems/list-archived`; card of an archived board → `409` `/problems/board-archived`; all unchanged
-- [ ] e2e: unknown / foreign / malformed id → `404` `/problems/card-not-found` with identical bodies; foreign card unchanged
-- [ ] Full gate passes; ≥ 12 new e2e tests
+- [x] e2e: `{ done: true, dueDate: "2026-12-24" }` → `200`, both set, later `updatedAt`; then `{ dueDate: null }` → `dueDate` `null`, `done` still `true`; `{ description: "  " }` → `null`; `done` can be `true` without `dueDate`
+- [x] e2e: `{}` → `200` with identical body including `updatedAt`
+- [x] e2e: `title` `null` / `""` / 101 chars → `400` field `title`; `done` `null` / `"true"` → `400` field `done`; `dueDate` `"2026-02-30"` → `400` field `dueDate`; `description` 5001 chars → `400` field `description`; unknown property (`listId`) → `400`; card unchanged in every case
+- [x] e2e: archived card → `409` `/problems/card-archived`; card of an archived list → `409` `/problems/list-archived`; card of an archived board → `409` `/problems/board-archived`; all unchanged
+- [x] e2e: unknown / foreign / malformed id → `404` `/problems/card-not-found` with identical bodies; foreign card unchanged
+- [x] Full gate passes; ≥ 12 new e2e tests
 
 **Tests**: e2e
 **Gate**: full
