@@ -302,11 +302,11 @@ T8 → T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] Integration: `findLabelInBoard` returns the label of that board and `null` for a label of another board (same owner or not) and for an unknown id
-- [ ] Integration: `linkLabel` twice leaves one row and does not throw; `unlinkLabel` removes the row and is a no-op when absent
-- [ ] Integration: `linkLabel` and `unlinkLabel` leave the card's `updated_at` unchanged
-- [ ] Integration: `labelIdsByCard([a, b])` returns, per card, label ids ordered by label `created_at` then `id` regardless of link order; a card with no links maps to `[]`; `[]` input returns an empty map without a query
-- [ ] Build gate passes; ≥ 8 new integration tests
+- [x] Integration: `findLabelInBoard` returns the label of that board and `null` for a label of another board (same owner or not) and for an unknown id
+- [x] Integration: `linkLabel` twice leaves one row and does not throw; `unlinkLabel` removes the row and is a no-op when absent
+- [x] Integration: `linkLabel` and `unlinkLabel` leave the card's `updated_at` unchanged
+- [x] Integration: `labelIdsByCard([a, b])` returns, per card, label ids ordered by label `created_at` then `id` regardless of link order; a card with no links maps to `[]`; `[]` input returns an empty map without a query
+- [x] Build gate passes; ≥ 8 new integration tests
 
 **Tests**: integration
 **Gate**: build
