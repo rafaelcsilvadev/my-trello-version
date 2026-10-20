@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -14,6 +15,7 @@ import {
   ApiBearerAuth,
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiTags,
@@ -171,5 +173,19 @@ export class CardsController {
     @Param('id') id: string,
   ): Promise<CardResponseDto> {
     return toCardResponse(await this.cardsService.unarchive(user.id, id));
+  }
+
+  @Delete('cards/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiNoContentResponse({ description: 'The archived card was deleted.' })
+  @ApiNotFoundResponse({ description: 'Missing, foreign or malformed id.' })
+  @ApiConflictResponse({
+    description: 'The card is active, or its list or board is archived.',
+  })
+  async remove(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+  ): Promise<void> {
+    await this.cardsService.remove(user.id, id);
   }
 }

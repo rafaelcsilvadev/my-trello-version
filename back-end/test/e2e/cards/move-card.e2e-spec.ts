@@ -287,6 +287,23 @@ describe('POST /api/v1/cards/:id/move (e2e)', () => {
     expect(await read(three.id)).toEqual(three);
   });
 
+  it.each([
+    ['title', { title: 'Renamed' }],
+    ['archivedAt', { archivedAt: '2026-11-01T10:00:00.000Z' }],
+  ])(
+    'returns 400 for the unknown property %s and keeps the order',
+    async (_case, extra) => {
+      const [, , three] = await createCards(listId, '1', '2', '3');
+
+      const res = await move(three.id, { position: 0, ...extra });
+
+      expect(res.status).toBe(400);
+      expect(res.headers['content-type']).toMatch(PROBLEM_JSON);
+      expect(await titlesIn(listId)).toEqual(['1', '2', '3']);
+      expect(await read(three.id)).toEqual(three);
+    },
+  );
+
   it("answers an unknown target, another user's list and another board's list with the same 404 and moves nothing", async () => {
     const [one] = await createCards(listId, '1', '2');
     const otherBoardId = await createBoard(anaToken, 'Other');

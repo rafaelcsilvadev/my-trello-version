@@ -372,14 +372,14 @@ T5 → T6 → T7 → T8 → T9 → T10 → T11
 
 **Done when**:
 
-- [ ] e2e: active card → `409` `/problems/card-not-archived`, card still readable
-- [ ] e2e: archived card → `204` with empty body; `GET /cards/:id` then `404`; remaining active positions unchanged
-- [ ] e2e: archived card of an archived list → `409` `/problems/list-archived`; of an archived board → `409` `/problems/board-archived`; card still exists
-- [ ] e2e: archiving then unarchiving a list leaves its cards' `position`, `archivedAt` and `updatedAt` unchanged (CRD-37); deleting an archived list makes its cards `404` (CRD-40)
-- [ ] e2e: concurrent create, same-list move, cross-list move, archive and unarchive on one board in one `Promise.all` → every list holds positions `0..n-1` exactly once
-- [ ] e2e: user B calls every `/cards/:id` route and the three collection routes on user A's data → `404`; user A's cards unchanged; no token → `401` on every card route
-- [ ] e2e: lifecycle create → move across lists → mark done → archive → delete passes in one test with positions `0..n-1` after each step
-- [ ] Full gate passes; ≥ 9 new e2e tests
+- [x] e2e: active card → `409` `/problems/card-not-archived`, card still readable
+- [x] e2e: archived card → `204` with empty body; `GET /cards/:id` then `404`; remaining active positions unchanged
+- [x] e2e: archived card of an archived list → `409` `/problems/list-archived`; of an archived board → `409` `/problems/board-archived`; card still exists
+- [x] e2e: archiving then unarchiving a list leaves its cards' `position`, `archivedAt` and `updatedAt` unchanged (CRD-37); deleting an archived list makes its cards `404` (CRD-40)
+- [x] e2e: concurrent create, same-list move, cross-list move, archive and unarchive on one board in one `Promise.all` → every list holds positions `0..n-1` exactly once
+- [x] e2e: user B calls every `/cards/:id` route and the three collection routes on user A's data → `404`; user A's cards unchanged; no token → `401` on every card route
+- [x] e2e: lifecycle create → move across lists → mark done → archive → delete passes in one test with positions `0..n-1` after each step
+- [x] Full gate passes; ≥ 9 new e2e tests
 
 **Tests**: e2e
 **Gate**: build
