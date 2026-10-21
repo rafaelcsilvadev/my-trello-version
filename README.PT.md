@@ -139,6 +139,14 @@ docker compose up --build
 - Health check: http://localhost:3000/api/v1/health
 - Swagger: http://localhost:3000/api/docs
 
+Para carregar os dados de demonstração (um usuário com boards, listas, cards, labels e checklists), rode em outro terminal:
+
+```bash
+docker compose exec api node dist/seed/seed.js
+```
+
+Depois entre com `demo@example.com` / `demo1234`. Cada execução volta a conta demo para os mesmos dados; outros usuários não são afetados.
+
 ### Localmente
 
 Requisitos: Node.js 24.17.0, pnpm 11, um PostgreSQL acessível e Docker (para os testes com Testcontainers).
@@ -148,6 +156,12 @@ pnpm install
 cd back-end
 cp .env.example .env    # ajuste DATABASE_URL e JWT_SECRET
 pnpm start:dev          # as migrations rodam sozinhas no boot
+```
+
+Dados de demonstração (o seed lê as variáveis de ambiente, não o `.env`):
+
+```bash
+set -a && . ./.env && set +a && pnpm seed
 ```
 
 ### Testes
