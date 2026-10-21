@@ -210,12 +210,12 @@ T8 → T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] Integration: `findOwned` returns the item for its owner and `null` for another owner and an unknown id
-- [ ] Integration: `findInCard` returns `null` for an item of another card
-- [ ] Integration: `listInCard` orders by `position`; `countInCard` counts only that card
-- [ ] Integration: `shift` moves the range by `±1` and leaves `updated_at` of shifted rows unchanged
-- [ ] Integration: `bound(manager)` writes roll back with the transaction
-- [ ] Full gate passes; ≥ 8 new integration tests
+- [x] Integration: `findOwned` returns the item for its owner and `null` for another owner and an unknown id
+- [x] Integration: `findInCard` returns `null` for an item of another card
+- [x] Integration: `listInCard` orders by `position`; `countInCard` counts only that card
+- [x] Integration: `shift` moves the range by `±1` and leaves `updated_at` of shifted rows unchanged
+- [x] Integration: `bound(manager)` writes roll back with the transaction
+- [x] Full gate passes; ≥ 8 new integration tests
 
 **Tests**: integration
 **Gate**: full
