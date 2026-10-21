@@ -1,0 +1,20 @@
+{
+  "name": "@my-trello/api-contract",
+  "version": "0.0.1",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "generate": "pnpm --filter back-end run openapi:export ../packages/api-contract/openapi.json && openapi-typescript openapi.json --output src/schema.d.ts",
+    "test": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "openapi-typescript": "7.13.0",
+    "typescript": "~6.0.3"
+  }
+}
