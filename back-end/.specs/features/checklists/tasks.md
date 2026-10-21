@@ -182,11 +182,11 @@ T8 → T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] Unit: malformed, unknown or vanished card → `CardNotFoundError` and `work` not called
-- [ ] Unit: `before` runs under the lock and its throw wins over archived board, list and card
-- [ ] Unit: archived board → `BoardArchivedError`; archived list → `ListArchivedError`; archived card → `CardArchivedError`; precedence board > list > card; `work` not called in any of them
-- [ ] Unit: active card → `work(card, manager)` called with the transaction's manager and its result returned
-- [ ] Quick gate passes; ≥ 8 new unit tests
+- [x] Unit: malformed, unknown or vanished card → `CardNotFoundError` and `work` not called
+- [x] Unit: `before` runs under the lock and its throw wins over archived board, list and card
+- [x] Unit: archived board → `BoardArchivedError`; archived list → `ListArchivedError`; archived card → `CardArchivedError`; precedence board > list > card; `work` not called in any of them
+- [x] Unit: active card → `work(card, manager)` called with the transaction's manager and its result returned
+- [x] Quick gate passes; ≥ 8 new unit tests
 
 **Tests**: unit
 **Gate**: quick
