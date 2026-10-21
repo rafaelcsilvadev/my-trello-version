@@ -1,0 +1,42 @@
+name: ci
+
+on:
+  # Any base branch, so stacked PRs are checked too.
+  pull_request:
+  push:
+    branches: [main]
+
+# A new push to the same ref cancels the run that is still in progress.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  back-end:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      # One failing script must not hide the result of the others.
+      fail-fast: false
+      matrix:
+        script: [lint, build, test, test:integration, test:e2e]
+    name: back-end (${{ matrix.script }})
+    steps:
+      - uses: actions/checkout@v7
+
+      # Reads the pnpm version from packageManager in the root package.json.
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Integration and e2e suites start PostgreSQL with Testcontainers, using
+      # the Docker daemon that ubuntu-latest runners already provide.
+      - run: pnpm --filter back-end run ${{ matrix.script }}
