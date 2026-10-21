@@ -11,5 +11,5 @@ Personal, single-owner Trello: each user registers and manages only their own bo
 | 2 | `boards` | CRUD of the user's boards, archive | 1 | Done |
 | 3 | `lists` | CRUD of lists inside a board, reorder | 2 | Done |
 | 4 | `cards` | Title, description, due date, done flag, archive, move between lists and reorder | 3 | Done |
-| 5 | `labels` | Board-level labels, apply to cards | 4 | In progress |
-| 6 | `checklists` | Checklist items on a card | 4 | Pending |
+| 5 | `labels` | Board-level labels, apply to cards | 4 | Done |
+| 6 | `checklists` | Checklist items on a card | 4 | In progress |

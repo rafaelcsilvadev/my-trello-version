@@ -84,6 +84,14 @@ App decisions for the NestJS API. Must conform to the global decisions in `../..
 - **Date**: 2026-10-20
 - **Status**: active
 
+### BE-AD-011
+- **Decision**: Rows owned by a card in another module (checklist items) are written only through `CardsService.writeActiveCard(ownerId, cardId, work, before?)`, which runs `writeLocked` (board row lock, card and list re-read, board > list > card guards) and hands `work` the transaction's `EntityManager`; the owning module binds its repository to that manager. `cards` reads such tables only with raw SQL and never imports the owning module. Ordered card children follow BE-AD-010 with `position NOT NULL` when they have no archive.
+- **Reason**: One copy of the card write rules and lock, while the child's CRUD lives in its own module instead of growing `CardsService`.
+- **Trade-off**: `writeActiveCard` exposes a raw `EntityManager`, so callers are trusted to write only their own tables.
+- **Scope**: checklists (and any future card-owned child)
+- **Date**: 2026-10-21
+- **Status**: active
+
 ## Open Items
 
 ### P1
