@@ -1,5 +1,7 @@
 # my-trello-version
 
+[![ci](https://github.com/rafaelcsilvadev/my-trello-version/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/rafaelcsilvadev/my-trello-version/actions/workflows/ci.yml)
+
 **English** | [Português](README.PT.md)
 
 > 🚧 **Work in progress.** The back-end API is feature-complete (features 0 to 6). The web front-end and mobile app have not started yet.
