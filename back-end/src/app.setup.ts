@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  HttpException,
   NotFoundException,
   PayloadTooLargeException,
   ValidationPipe,
@@ -81,8 +82,8 @@ function translateBodyParserError(
   _res: Response,
   next: NextFunction,
 ): void {
-  const type =
-    error instanceof Error ? (error as Error & { type?: string }).type : null;
+  if (!(error instanceof Error)) return next(error);
+  const { type, status, message } = error as BodyParserError;
   if (type === 'entity.parse.failed') {
     return next(new BadRequestException('Request body is not valid JSON.'));
   }
@@ -91,8 +92,15 @@ function translateBodyParserError(
       new PayloadTooLargeException(`Request body exceeds ${JSON_BODY_LIMIT}.`),
     );
   }
+  // Other client errors (unsupported charset or encoding, aborted body) keep
+  // body-parser's status; their messages are safe to expose.
+  if (type && status && status >= 400 && status < 500) {
+    return next(new HttpException(message, status));
+  }
   next(error);
 }
+
+type BodyParserError = Error & { type?: string; status?: number };
 
 function rejectOutsidePrefix(
   req: Request,
