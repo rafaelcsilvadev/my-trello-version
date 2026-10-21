@@ -75,9 +75,9 @@ T8 → T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] No reference to `CardWithLabels`, `withLabelIds` or `withLabelIdsOf` left in `src/` or `test/`
-- [ ] Existing unit, integration and e2e tests pass with no assertion changed or removed; same test count before and after
-- [ ] Build gate passes
+- [x] No reference to `CardWithLabels`, `withLabelIds` or `withLabelIdsOf` left in `src/` or `test/`
+- [x] Existing unit, integration and e2e tests pass with no assertion changed or removed; same test count before and after
+- [x] Build gate passes
 
 **Tests**: unit
 **Gate**: build
