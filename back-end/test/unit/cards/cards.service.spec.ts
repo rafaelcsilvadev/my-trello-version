@@ -10,7 +10,10 @@ import {
   CardNotArchivedError,
   CardNotFoundError,
 } from '../../../src/cards/cards.errors';
-import type { CardsRepository } from '../../../src/cards/cards.repository';
+import type {
+  CardsRepository,
+  ChecklistProgress,
+} from '../../../src/cards/cards.repository';
 import { CardsService, type CardView } from '../../../src/cards/cards.service';
 import type { Label } from '../../../src/labels/label.entity';
 import { LabelNotFoundError } from '../../../src/labels/labels.errors';
@@ -29,6 +32,7 @@ const TARGET_LIST_ID = 'a9c1e5d3-7b2f-4d8a-9e6c-3b0f1d7a5e92';
 const ARCHIVED_AT = new Date('2026-10-16T09:00:00Z');
 const BUG_LABEL_ID = 'f1b3d5a7-2c4e-4f6a-8b0d-9e1c3a5b7d24';
 const IDEA_LABEL_ID = 'd6e8a0c2-4b6d-4e8f-9a1c-3e5b7d9f1a36';
+const NO_ITEMS: ChecklistProgress = { total: 0, done: 0 };
 
 type CardsRepositoryMock = jest.Mocked<
   Pick<
@@ -47,6 +51,7 @@ type CardsRepositoryMock = jest.Mocked<
     | 'linkLabel'
     | 'unlinkLabel'
     | 'labelIdsByCard'
+    | 'checklistCountsByCard'
     | 'save'
     | 'delete'
   >
@@ -117,8 +122,12 @@ function buildLabel(overrides: Partial<Label> = {}): Label {
   };
 }
 
-function withLabels(card: Card, labelIds: string[] = []): CardView {
-  return Object.assign({}, card, { labelIds });
+function withLabels(
+  card: Card,
+  labelIds: string[] = [],
+  checklist: ChecklistProgress = NO_ITEMS,
+): CardView {
+  return Object.assign({}, card, { labelIds, checklist });
 }
 
 describe('CardsService', () => {
@@ -155,6 +164,16 @@ describe('CardsService', () => {
     );
   }
 
+  // checklistCountsByCard maps every requested card id, NO_ITEMS when it has
+  // no items.
+  function givenChecklists(byCard: Record<string, ChecklistProgress>): void {
+    cards.checklistCountsByCard.mockImplementation((cardIds) =>
+      Promise.resolve(
+        new Map(cardIds.map((id) => [id, byCard[id] ?? NO_ITEMS])),
+      ),
+    );
+  }
+
   beforeEach(() => {
     cards = {
       transaction: jest.fn(),
@@ -171,6 +190,7 @@ describe('CardsService', () => {
       linkLabel: jest.fn(),
       unlinkLabel: jest.fn(),
       labelIdsByCard: jest.fn(),
+      checklistCountsByCard: jest.fn(),
       save: jest.fn((card: Card) => Promise.resolve(card)),
       delete: jest.fn(),
     };
@@ -178,6 +198,7 @@ describe('CardsService', () => {
       work(cards as unknown as CardsRepository),
     );
     givenLabelIds({});
+    givenChecklists({});
     lists = { findOwned: jest.fn() };
     boards = { findOwned: jest.fn() };
     service = new CardsService(
@@ -209,6 +230,27 @@ describe('CardsService', () => {
       expect(cards.labelIdsByCard).toHaveBeenCalledWith([CARD_ID]);
     });
 
+    it('returns the card with its checklist from one checklistCountsByCard call', async () => {
+      cards.findOwned.mockResolvedValue(buildCard());
+      givenChecklists({ [CARD_ID]: { total: 3, done: 1 } });
+
+      await expect(service.findOwned(OWNER_ID, CARD_ID)).resolves.toEqual(
+        withLabels(buildCard(), [], { total: 3, done: 1 }),
+      );
+      expect(cards.checklistCountsByCard).toHaveBeenCalledTimes(1);
+      expect(cards.checklistCountsByCard).toHaveBeenCalledWith([CARD_ID]);
+    });
+
+    it('returns the card with both its labelIds and its checklist', async () => {
+      cards.findOwned.mockResolvedValue(buildCard());
+      givenLabelIds({ [CARD_ID]: [BUG_LABEL_ID] });
+      givenChecklists({ [CARD_ID]: { total: 2, done: 2 } });
+
+      await expect(service.findOwned(OWNER_ID, CARD_ID)).resolves.toEqual(
+        withLabels(buildCard(), [BUG_LABEL_ID], { total: 2, done: 2 }),
+      );
+    });
+
     it('throws CardNotFoundError when no owned card matches', async () => {
       cards.findOwned.mockResolvedValue(null);
 
@@ -216,6 +258,7 @@ describe('CardsService', () => {
         CardNotFoundError,
       );
       expect(cards.labelIdsByCard).not.toHaveBeenCalled();
+      expect(cards.checklistCountsByCard).not.toHaveBeenCalled();
     });
 
     it('throws CardNotFoundError for a non-UUID id without querying', async () => {
@@ -270,6 +313,20 @@ describe('CardsService', () => {
 
       expect(result.labelIds).toEqual([]);
       expect(cards.labelIdsByCard).not.toHaveBeenCalled();
+    });
+
+    it('returns the new card with checklist { total: 0, done: 0 } without counting items', async () => {
+      givenList(buildList());
+      cards.countActive.mockResolvedValue(0);
+      cards.create.mockResolvedValue(buildCard({ position: 0 }));
+      givenChecklists({ [CARD_ID]: { total: 3, done: 1 } });
+
+      const result = await service.create(OWNER_ID, LIST_ID, {
+        title: 'Write spec',
+      });
+
+      expect(result.checklist).toEqual({ total: 0, done: 0 });
+      expect(cards.checklistCountsByCard).not.toHaveBeenCalled();
     });
 
     it('creates the first card of a list at position 0 with null description and dueDate when absent', async () => {
@@ -382,6 +439,28 @@ describe('CardsService', () => {
       expect(cards.labelIdsByCard).toHaveBeenCalledWith([CARD_ID, other.id]);
     });
 
+    it('returns each card with its checklist from one checklistCountsByCard call', async () => {
+      const other = buildCard({ id: TARGET_LIST_ID, position: 2 });
+      lists.findOwned.mockResolvedValue(buildList());
+      cards.listInList.mockResolvedValue([buildCard(), other]);
+      givenChecklists({
+        [CARD_ID]: { total: 3, done: 1 },
+        [other.id]: { total: 2, done: 2 },
+      });
+
+      const result = await service.listInList(OWNER_ID, LIST_ID, false);
+
+      expect(result).toEqual([
+        withLabels(buildCard(), [], { total: 3, done: 1 }),
+        withLabels(other, [], { total: 2, done: 2 }),
+      ]);
+      expect(cards.checklistCountsByCard).toHaveBeenCalledTimes(1);
+      expect(cards.checklistCountsByCard).toHaveBeenCalledWith([
+        CARD_ID,
+        other.id,
+      ]);
+    });
+
     it('propagates ListNotFoundError without listing', async () => {
       lists.findOwned.mockRejectedValue(new ListNotFoundError());
 
@@ -422,6 +501,25 @@ describe('CardsService', () => {
       ]);
       expect(cards.labelIdsByCard).toHaveBeenCalledTimes(1);
       expect(cards.labelIdsByCard).toHaveBeenCalledWith([CARD_ID, other.id]);
+    });
+
+    it('returns each card with its checklist from one checklistCountsByCard call', async () => {
+      const other = buildCard({ id: TARGET_LIST_ID, listId: TARGET_LIST_ID });
+      boards.findOwned.mockResolvedValue(buildBoard());
+      cards.listInBoard.mockResolvedValue([buildCard(), other]);
+      givenChecklists({ [other.id]: { total: 4, done: 3 } });
+
+      const result = await service.listInBoard(OWNER_ID, BOARD_ID, true);
+
+      expect(result).toEqual([
+        withLabels(buildCard()),
+        withLabels(other, [], { total: 4, done: 3 }),
+      ]);
+      expect(cards.checklistCountsByCard).toHaveBeenCalledTimes(1);
+      expect(cards.checklistCountsByCard).toHaveBeenCalledWith([
+        CARD_ID,
+        other.id,
+      ]);
     });
 
     it('propagates BoardNotFoundError without listing', async () => {
@@ -837,8 +935,9 @@ describe('CardsService', () => {
       expect(cards.shift).toHaveBeenCalledWith(LIST_ID, 2, 3, -1);
       expect(result.position).toBeNull();
       expect(result.archivedAt).toBeInstanceOf(Date);
-      const { labelIds, ...saved } = result;
+      const { labelIds, checklist, ...saved } = result;
       expect(labelIds).toEqual([]);
+      expect(checklist).toEqual(NO_ITEMS);
       expect(cards.save).toHaveBeenCalledWith(saved);
     });
 
@@ -850,8 +949,9 @@ describe('CardsService', () => {
 
       expect(cards.shift).not.toHaveBeenCalled();
       expect(result.position).toBeNull();
-      const { labelIds, ...saved } = result;
+      const { labelIds, checklist, ...saved } = result;
       expect(labelIds).toEqual([]);
+      expect(checklist).toEqual(NO_ITEMS);
       expect(cards.save).toHaveBeenCalledWith(saved);
     });
 
@@ -908,8 +1008,9 @@ describe('CardsService', () => {
     });
   });
 
-  // Labels are read once, after the write, for the card it returns.
-  describe('labelIds on write results', () => {
+  // Labels and checklist counts are read once, after the write, for the card
+  // it returns.
+  describe('details on write results', () => {
     it.each([
       [
         'update',
@@ -943,13 +1044,47 @@ describe('CardsService', () => {
       },
     );
 
-    it('reads no labels when the write is rejected', async () => {
+    it.each([
+      [
+        'update',
+        buildCard,
+        (s: CardsService) => s.update(OWNER_ID, CARD_ID, { done: true }),
+      ],
+      [
+        'move',
+        buildCard,
+        (s: CardsService) => s.move(OWNER_ID, CARD_ID, { position: 0 }),
+      ],
+      ['archive', buildCard, (s: CardsService) => s.archive(OWNER_ID, CARD_ID)],
+      [
+        'unarchive',
+        buildArchivedCard,
+        (s: CardsService) => s.unarchive(OWNER_ID, CARD_ID),
+      ],
+    ])(
+      '%s returns the card with its checklist from one checklistCountsByCard call',
+      async (_action, buildTargetCard, act) => {
+        givenCard(buildTargetCard());
+        cards.countActive.mockResolvedValue(4);
+        givenChecklists({ [CARD_ID]: { total: 3, done: 1 } });
+
+        const result = await act(service);
+
+        expect(result.id).toBe(CARD_ID);
+        expect(result.checklist).toEqual({ total: 3, done: 1 });
+        expect(cards.checklistCountsByCard).toHaveBeenCalledTimes(1);
+        expect(cards.checklistCountsByCard).toHaveBeenCalledWith([CARD_ID]);
+      },
+    );
+
+    it('reads no labels and no checklist when the write is rejected', async () => {
       givenCard(buildArchivedCard());
 
       await expect(
         service.update(OWNER_ID, CARD_ID, { done: true }),
       ).rejects.toBeInstanceOf(CardArchivedError);
       expect(cards.labelIdsByCard).not.toHaveBeenCalled();
+      expect(cards.checklistCountsByCard).not.toHaveBeenCalled();
     });
   });
 

@@ -114,6 +114,7 @@ describe('POST /api/v1/lists/:listId/cards (e2e)', () => {
       createdAt: expect.stringMatching(ISO_DATE),
       updatedAt: expect.stringMatching(ISO_DATE),
       labelIds: [],
+      checklist: { total: 0, done: 0 },
     });
   });
 
