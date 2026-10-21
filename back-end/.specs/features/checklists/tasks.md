@@ -264,13 +264,13 @@ T8 → T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] Unit `create`: goes through `writeActiveCard(ownerId, cardId)`; `create({ cardId, text, position: countInCard })`; errors from `writeActiveCard` propagate
-- [ ] Unit `listInCard`: calls `findOwnedCard` then `listInCard(cardId)`; propagates `CardNotFoundError`
-- [ ] Unit item writes: malformed or unknown id → `ChecklistItemNotFoundError` without calling `writeActiveCard`; item gone at the `before` re-read → `ChecklistItemNotFoundError`; `CardNotFoundError` from `writeActiveCard` → `ChecklistItemNotFoundError`; archived errors propagate unchanged
-- [ ] Unit `update`: `{}` returns the item without `save`; given fields assigned and `save` called
-- [ ] Unit `move`: up and down shift the right range then save at `k`; `position > n-1` clamps to `n-1`; same place returns the item without `shift` or `save`
-- [ ] Unit `remove`: deletes and shifts `position+1..n-1` by `-1`; last item shifts nothing
-- [ ] Quick gate passes; ≥ 18 new unit tests
+- [x] Unit `create`: goes through `writeActiveCard(ownerId, cardId)`; `create({ cardId, text, position: countInCard })`; errors from `writeActiveCard` propagate
+- [x] Unit `listInCard`: calls `findOwnedCard` then `listInCard(cardId)`; propagates `CardNotFoundError`
+- [x] Unit item writes: malformed or unknown id → `ChecklistItemNotFoundError` without calling `writeActiveCard`; item gone at the `before` re-read → `ChecklistItemNotFoundError`; `CardNotFoundError` from `writeActiveCard` → `ChecklistItemNotFoundError`; archived errors propagate unchanged
+- [x] Unit `update`: `{}` returns the item without `save`; given fields assigned and `save` called
+- [x] Unit `move`: up and down shift the right range then save at `k`; `position > n-1` clamps to `n-1`; same place returns the item without `shift` or `save`
+- [x] Unit `remove`: deletes and shifts `position+1..n-1` by `-1`; last item shifts nothing
+- [x] Quick gate passes; ≥ 18 new unit tests
 
 **Tests**: unit
 **Gate**: quick
