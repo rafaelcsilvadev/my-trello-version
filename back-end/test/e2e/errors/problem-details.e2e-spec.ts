@@ -84,6 +84,27 @@ describe('Problem Details error format (e2e)', () => {
     expect(res.body.detail).toBe('Request body is not valid JSON.');
   });
 
+  it('returns 413 "Request body exceeds 100kb." for a JSON body over the limit', async () => {
+    const res = await http()
+      .post('/api/v1/test-only/validation')
+      .set('Content-Type', 'application/json')
+      .send(JSON.stringify({ name: 'x'.repeat(101 * 1024) }));
+
+    expect(res.status).toBe(413);
+    expect(res.headers['content-type']).toMatch(PROBLEM_JSON);
+    expectProblemShape(res.body, 413, '/api/v1/test-only/validation');
+    expect(res.body.detail).toBe('Request body exceeds 100kb.');
+  });
+
+  it('accepts a JSON body just under the limit', async () => {
+    const res = await http()
+      .post('/api/v1/test-only/validation')
+      .set('Content-Type', 'application/json')
+      .send(JSON.stringify({ name: 'x'.repeat(99 * 1024) }));
+
+    expect(res.status).not.toBe(413);
+  });
+
   it('returns 500 with a generic detail and no stack or message for an unhandled exception', async () => {
     const res = await http().get('/api/v1/test-only/throw');
 
