@@ -4,12 +4,14 @@ import {
   PayloadTooLargeException,
   ValidationPipe,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import type { NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
 import type { HttpLogger } from 'pino-http';
+import type { Env } from './config/env.schema';
 import { ProblemDetailsFilter } from './errors/problem-details.filter';
 import { validationExceptionFactory } from './errors/validation.exception';
 import { HTTP_LOGGER } from './logging/logging.module';
@@ -28,6 +30,7 @@ export function configureApp(app: NestExpressApplication): void {
   app.use(app.get<HttpLogger>(HTTP_LOGGER));
   // Before any middleware that can fail, so error responses carry them too.
   app.use(helmet());
+  enableCors(app);
   // Registered here so the next middleware sees the raw body-parser error;
   // Nest skips its own JSON parser when one is already applied.
   app.useBodyParser('json', { limit: JSON_BODY_LIMIT });
@@ -46,6 +49,17 @@ export function configureApp(app: NestExpressApplication): void {
   app.useGlobalFilters(new ProblemDetailsFilter());
   setupSwagger(app);
   app.enableShutdownHooks();
+}
+
+// Bearer tokens travel in the Authorization header, never in cookies, so
+// credentials stay off.
+function enableCors(app: NestExpressApplication): void {
+  const origins = app
+    .get(ConfigService<Env, true>)
+    .get('CORS_ORIGINS', { infer: true });
+  if (origins.length > 0) {
+    app.enableCors({ origin: origins, credentials: false });
+  }
 }
 
 function setupSwagger(app: NestExpressApplication): void {
