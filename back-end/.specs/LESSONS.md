@@ -8,7 +8,29 @@
 
 Corroborated across multiple features. Safe to apply as guidance.
 
-_none_
+### L-005 - Give each required DTO field its own wrong-type e2e test, not only the first field.
+- signal: `ac_gap` · recurrence: 2 feature(s) · scope: `test/e2e` · harmful: 0
+- features: auth, cards
+- evidence: AUTH-10 test/e2e/auth/login.e2e-spec.ts:137 (test/e2e) (+1 more)
+- last seen: 2026-10-21T18:37:00Z
+
+### L-006 - Cover each guard rejection path once over HTTP, not only in guard unit tests.
+- signal: `ac_gap` · recurrence: 3 feature(s) · scope: `test/e2e` · harmful: 0
+- features: auth, lists, cards
+- evidence: AUTH-14 test/unit/auth/jwt-auth.guard.spec.ts:92 (test/e2e) (+2 more)
+- last seen: 2026-10-21T18:37:00Z
+
+### L-007 - When a length limit applies after trim, test the boundary with surrounding spaces: max accepted and stored trimmed, max+1 rejected.
+- signal: `ac_gap` · recurrence: 2 feature(s) · scope: `test/e2e` · harmful: 0
+- features: labels, checklists
+- evidence: LBL-03/LBL-11 Observation 3 (4afc13e) (test/e2e) (+1 more)
+- last seen: 2026-10-21T18:37:00Z
+
+### L-008 - On a write e2e test, assert the stored value through a later read, not only the response body.
+- signal: `ac_gap` · recurrence: 2 feature(s) · scope: `test/e2e` · harmful: 0
+- features: labels, checklists
+- evidence: LBL-14 Observation 2 e2e/l/update-label.e2e-spec.ts:179-180 (test/e2e) (+1 more)
+- last seen: 2026-10-21T18:37:00Z
 
 ## Candidates (under observation - do NOT load as guidance yet)
 
@@ -36,18 +58,6 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - signal: `ac_gap` · recurrence: 1 feature(s) · scope: `test/e2e` · harmful: 0
 - features: auth
 - evidence: AUTH-04 test/e2e/auth/register.e2e-spec.ts:141 (test/e2e)
-- last seen: 2026-10-15T18:54:00Z
-
-### L-005 - Give each required DTO field its own wrong-type e2e test, not only the first field.
-- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `test/e2e` · harmful: 0
-- features: auth
-- evidence: AUTH-10 test/e2e/auth/login.e2e-spec.ts:137 (test/e2e)
-- last seen: 2026-10-15T18:54:00Z
-
-### L-006 - Cover each guard rejection path once over HTTP, not only in guard unit tests.
-- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `test/e2e` · harmful: 0
-- features: auth
-- evidence: AUTH-14 test/unit/auth/jwt-auth.guard.spec.ts:92 (test/e2e)
 - last seen: 2026-10-15T18:54:00Z
 
 ## Quarantined (failed when applied - ignore)
