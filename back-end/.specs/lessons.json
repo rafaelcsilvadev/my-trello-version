@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 7,
+  "next_id": 9,
   "lessons": [
     {
       "id": "L-001",
@@ -83,17 +83,19 @@
       "text": "Give each required DTO field its own wrong-type e2e test, not only the first field.",
       "signal": "ac_gap",
       "scope": "test/e2e",
-      "status": "candidate",
+      "status": "confirmed",
       "features": [
-        "auth"
+        "auth",
+        "cards"
       ],
-      "recurrence": 1,
+      "recurrence": 2,
       "harmful": 0,
       "evidence": [
-        "AUTH-10 test/e2e/auth/login.e2e-spec.ts:137 (test/e2e)"
+        "AUTH-10 test/e2e/auth/login.e2e-spec.ts:137 (test/e2e)",
+        "Fix 3 UpdateCardDto e2e (2f93372) (test/e2e)"
       ],
       "created": "2026-10-15T18:54:00Z",
-      "last_seen": "2026-10-15T18:54:00Z"
+      "last_seen": "2026-10-21T18:37:00Z"
     },
     {
       "id": "L-006",
@@ -101,17 +103,61 @@
       "text": "Cover each guard rejection path once over HTTP, not only in guard unit tests.",
       "signal": "ac_gap",
       "scope": "test/e2e",
-      "status": "candidate",
+      "status": "confirmed",
       "features": [
-        "auth"
+        "auth",
+        "lists",
+        "cards"
       ],
-      "recurrence": 1,
+      "recurrence": 3,
       "harmful": 0,
       "evidence": [
-        "AUTH-14 test/unit/auth/jwt-auth.guard.spec.ts:92 (test/e2e)"
+        "AUTH-14 test/unit/auth/jwt-auth.guard.spec.ts:92 (test/e2e)",
+        "LST-26 Fix 1 unit/lists.service.spec.ts:282-298 (test/e2e)",
+        "CRD-36 Fix 2 unit/cards.service.spec.ts:413-433 (test/e2e)"
       ],
       "created": "2026-10-15T18:54:00Z",
-      "last_seen": "2026-10-15T18:54:00Z"
+      "last_seen": "2026-10-21T18:37:00Z"
+    },
+    {
+      "id": "L-007",
+      "key": "ac_gap::when a length limit applies after trim test the boundary with surrounding spaces max accepted and stored trimmed max 1 rejected",
+      "text": "When a length limit applies after trim, test the boundary with surrounding spaces: max accepted and stored trimmed, max+1 rejected.",
+      "signal": "ac_gap",
+      "scope": "test/e2e",
+      "status": "confirmed",
+      "features": [
+        "labels",
+        "checklists"
+      ],
+      "recurrence": 2,
+      "harmful": 0,
+      "evidence": [
+        "LBL-03/LBL-11 Observation 3 (4afc13e) (test/e2e)",
+        "CHK-03/CHK-07 Observation 1 e2e/k/create:148 (19fb924) (test/e2e)"
+      ],
+      "created": "2026-10-21T18:37:00Z",
+      "last_seen": "2026-10-21T18:37:00Z"
+    },
+    {
+      "id": "L-008",
+      "key": "ac_gap::on a write e2e test assert the stored value through a later read not only the response body",
+      "text": "On a write e2e test, assert the stored value through a later read, not only the response body.",
+      "signal": "ac_gap",
+      "scope": "test/e2e",
+      "status": "confirmed",
+      "features": [
+        "labels",
+        "checklists"
+      ],
+      "recurrence": 2,
+      "harmful": 0,
+      "evidence": [
+        "LBL-14 Observation 2 e2e/l/update-label.e2e-spec.ts:179-180 (test/e2e)",
+        "CHK-06 Observation 2 e2e/k/update:154-160 (test/e2e)"
+      ],
+      "created": "2026-10-21T18:37:00Z",
+      "last_seen": "2026-10-21T18:37:00Z"
     }
   ]
 }
