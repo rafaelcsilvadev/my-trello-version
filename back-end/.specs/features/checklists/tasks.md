@@ -239,8 +239,8 @@ T8 → T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] Unit: the error is a `DomainError` and maps to `404` `/problems/checklist-item-not-found`
-- [ ] Quick gate passes; ≥ 2 new unit tests
+- [x] Unit: the error is a `DomainError` and maps to `404` `/problems/checklist-item-not-found`
+- [x] Quick gate passes; ≥ 2 new unit tests
 
 **Tests**: unit
 **Gate**: quick
