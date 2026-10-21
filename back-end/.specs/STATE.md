@@ -100,6 +100,14 @@ App decisions for the NestJS API. Must conform to the global decisions in `../..
 - **Date**: 2026-10-21
 - **Status**: active
 
+### BE-AD-013
+- **Decision**: Demo data comes from a seed CLI (`pnpm seed`, or `node dist/seed/seed.js` in the API container), never from the API boot. It uses the TypeORM CLI `DataSource`, runs pending migrations, then in one transaction deletes the demo user (`demo@example.com`, cascading to its boards) and recreates it with the fixed data in `src/seed/demo-data.ts`, written straight through the entities. The password `demo1234` is public by design; due dates are relative to the seed day.
+- **Reason**: Anyone trying the project gets a populated account with one command, the front-end starts against realistic data, and production boot never writes demo rows. Resetting keeps every run identical.
+- **Trade-off**: The seed skips the services, so a new domain rule is not enforced on demo data until the integration test catches it; edits made in the demo account are lost on the next run; like the migration scripts, the CLI needs `DATABASE_URL` and `JWT_SECRET` in the environment and does not read `.env`.
+- **Scope**: seed (users, boards, lists, cards, labels, checklists)
+- **Date**: 2026-10-21
+- **Status**: active
+
 ## Open Items
 
 ### P1
