@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -13,6 +14,7 @@ import {
   ApiBearerAuth,
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiTags,
@@ -104,5 +106,21 @@ export class ChecklistItemsController {
   ): Promise<ChecklistItemResponseDto> {
     const item = await this.itemsService.move(user.id, id, body.position);
     return toChecklistItemResponse(item);
+  }
+
+  @Delete('checklist-items/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiNoContentResponse({ description: 'The checklist item was deleted.' })
+  @ApiNotFoundResponse({
+    description: 'Missing, foreign or malformed checklist item id.',
+  })
+  @ApiConflictResponse({
+    description: 'The card, its list or its board is archived.',
+  })
+  async remove(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+  ): Promise<void> {
+    await this.itemsService.remove(user.id, id);
   }
 }

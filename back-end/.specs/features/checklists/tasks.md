@@ -385,12 +385,12 @@ T8 → T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] e2e: items 1, 2, 3; delete 2 → `204` with no body; `GET` reads `[1, 3]` at `0..1`; deleting the same id again → `404`
-- [ ] e2e: card `checklist.total` drops by one and card `updatedAt` is unchanged
-- [ ] e2e: unknown, foreign, malformed id → `404` `/problems/checklist-item-not-found` with identical bodies
-- [ ] e2e: archived card / list / board → `409` with board > list > card precedence and the item kept
-- [ ] e2e: deleting an archived card removes its items (CHK-25 through the API); no token → `401`
-- [ ] Full gate passes; ≥ 9 new e2e tests
+- [x] e2e: items 1, 2, 3; delete 2 → `204` with no body; `GET` reads `[1, 3]` at `0..1`; deleting the same id again → `404`
+- [x] e2e: card `checklist.total` drops by one and card `updatedAt` is unchanged
+- [x] e2e: unknown, foreign, malformed id → `404` `/problems/checklist-item-not-found` with identical bodies
+- [x] e2e: archived card / list / board → `409` with board > list > card precedence and the item kept
+- [x] e2e: deleting an archived card removes its items (CHK-25 through the API); no token → `401`
+- [x] Full gate passes; ≥ 9 new e2e tests
 
 **Tests**: e2e
 **Gate**: full
