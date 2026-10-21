@@ -47,7 +47,7 @@ MVP = features 0 a 4. Roadmap completo em [`back-end/.specs/ROADMAP.md`](back-en
 
 - **Arquitetura modular.** Um módulo NestJS por feature (`auth`, `users`, ...), com camadas entity → repository → service → controller.
 - **Erros padronizados.** Todo erro sai por um único filtro global no formato [RFC 9457 Problem Details](https://www.rfc-editor.org/rfc/rfc9457), com `requestId`. Erros de domínio são mapeados para status HTTP em um só lugar.
-- **Seguro por padrão.** Todas as rotas exigem token. Rotas públicas precisam de `@Public()` explícito. Login e cadastro têm rate limit por IP. A aplicação não sobe sem `JWT_SECRET` válido.
+- **Seguro por padrão.** Todas as rotas exigem token. Rotas públicas precisam de `@Public()` explícito. Login e cadastro têm rate limit por IP. A aplicação não sobe sem `JWT_SECRET` válido. Headers de segurança com `helmet`, CORS restrito às origens de `CORS_ORIGINS` e corpo JSON limitado a 100kb (`413` Problem Details).
 - **Três níveis de teste.** Unitário (sem I/O), integração (repositórios contra PostgreSQL real) e e2e (HTTP contra a aplicação inteira). Mais de 1.000 testes até agora.
 - **Roda com um comando.** `docker compose up` sobe API e banco, sem instalar Node nem PostgreSQL.
 

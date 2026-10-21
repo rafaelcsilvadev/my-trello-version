@@ -92,6 +92,14 @@ App decisions for the NestJS API. Must conform to the global decisions in `../..
 - **Date**: 2026-10-21
 - **Status**: active
 
+### BE-AD-012
+- **Decision**: `configureApp` hardens every response: `helmet()` with its default headers (including the default CSP) runs right after the HTTP logger; CORS is enabled only when `CORS_ORIGINS` (comma-separated, each entry an exact `http(s)` origin, validated by Zod, empty by default) lists origins, with `credentials: false`; the JSON body limit is an explicit `100kb` and body-parser's `entity.too.large` error is translated to a `413` Problem Details, and any other `4xx` body-parser error (unsupported charset or encoding) keeps its status.
+- **Reason**: Safe defaults for a public API: no cross-origin access unless configured, standard security headers on every response including errors, and an oversized body no longer answers `500`. The Swagger UI loads only same-origin scripts, so the default CSP needs no exception.
+- **Trade-off**: The body limit is a constant, so raising it needs a code change; `'*'` is rejected, so every front-end origin must be listed; HSTS is sent even over plain HTTP in local runs (browsers ignore it there).
+- **Scope**: all HTTP routes
+- **Date**: 2026-10-21
+- **Status**: active
+
 ## Open Items
 
 ### P1
@@ -101,6 +109,14 @@ App decisions for the NestJS API. Must conform to the global decisions in `../..
 - **Source**: auth T4 (`src/auth/password-hasher.ts`)
 - **Date**: 2026-10-15
 - **Status**: accepted
+
+### P2
+- **Item**: body-parser errors other than `entity.parse.failed` and `entity.too.large` are not HttpExceptions, so they still answer `500`: an unsupported charset (`Content-Type: application/json; charset=latin1`) or `Content-Encoding` should be `415`, an aborted or mis-sized body `400`.
+- **Likelihood**: low; only malformed clients send them, and the response leaks nothing beyond a generic `500`.
+- **Decision**: translate any body-parser error that carries a `4xx` `status` to an `HttpException` with that status and body-parser's message.
+- **Source**: hardening (`src/app.setup.ts`, `translateBodyParserError`)
+- **Date**: 2026-10-21
+- **Status**: resolved in the hardening PR
 
 ## Handoff
 

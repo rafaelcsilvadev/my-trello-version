@@ -12,6 +12,7 @@ describe('validateEnv', () => {
       DATABASE_URL,
       JWT_SECRET,
       JWT_EXPIRES_IN: '15m',
+      CORS_ORIGINS: 'https://app.example.com',
     });
 
     expect(env).toEqual({
@@ -21,6 +22,7 @@ describe('validateEnv', () => {
       DATABASE_URL,
       JWT_SECRET,
       JWT_EXPIRES_IN: '15m',
+      CORS_ORIGINS: ['https://app.example.com'],
     });
   });
 
@@ -34,6 +36,7 @@ describe('validateEnv', () => {
       DATABASE_URL,
       JWT_SECRET,
       JWT_EXPIRES_IN: '1h',
+      CORS_ORIGINS: [],
     });
   });
 
@@ -105,4 +108,37 @@ describe('validateEnv', () => {
       ).toThrow(/JWT_EXPIRES_IN/);
     },
   );
+
+  it('splits CORS_ORIGINS on commas, trimming spaces and empty entries', () => {
+    expect(
+      validateEnv({
+        DATABASE_URL,
+        JWT_SECRET,
+        CORS_ORIGINS: ' http://localhost:5173 ,https://app.example.com:8443,',
+      }).CORS_ORIGINS,
+    ).toEqual(['http://localhost:5173', 'https://app.example.com:8443']);
+  });
+
+  it('treats an empty CORS_ORIGINS as no allowed origins', () => {
+    expect(
+      validateEnv({ DATABASE_URL, JWT_SECRET, CORS_ORIGINS: '' }).CORS_ORIGINS,
+    ).toEqual([]);
+  });
+
+  it.each([
+    '*',
+    'localhost:5173',
+    'ftp://files.example.com',
+    'http://localhost:5173/',
+    'https://app.example.com/path',
+    'https://app.example.com?x=1',
+  ])('throws naming CORS_ORIGINS when an entry is %p', (origin) => {
+    expect(() =>
+      validateEnv({
+        DATABASE_URL,
+        JWT_SECRET,
+        CORS_ORIGINS: `http://localhost:5173,${origin}`,
+      }),
+    ).toThrow(/CORS_ORIGINS/);
+  });
 });

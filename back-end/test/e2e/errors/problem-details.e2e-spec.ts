@@ -84,6 +84,52 @@ describe('Problem Details error format (e2e)', () => {
     expect(res.body.detail).toBe('Request body is not valid JSON.');
   });
 
+  it('returns 413 "Request body exceeds 100kb." for a JSON body over the limit', async () => {
+    const res = await http()
+      .post('/api/v1/test-only/validation')
+      .set('Content-Type', 'application/json')
+      .send(JSON.stringify({ name: 'x'.repeat(101 * 1024) }));
+
+    expect(res.status).toBe(413);
+    expect(res.headers['content-type']).toMatch(PROBLEM_JSON);
+    expectProblemShape(res.body, 413, '/api/v1/test-only/validation');
+    expect(res.body.detail).toBe('Request body exceeds 100kb.');
+  });
+
+  it('returns 415 for a JSON body in an unsupported charset', async () => {
+    const res = await http()
+      .post('/api/v1/test-only/validation')
+      .set('Content-Type', 'application/json; charset=latin1')
+      .send('{"name": "x"}');
+
+    expect(res.status).toBe(415);
+    expect(res.headers['content-type']).toMatch(PROBLEM_JSON);
+    expectProblemShape(res.body, 415, '/api/v1/test-only/validation');
+    expect(res.body.detail).toBe('unsupported charset "LATIN1"');
+  });
+
+  it('returns 415 for a JSON body with an unsupported Content-Encoding', async () => {
+    const res = await http()
+      .post('/api/v1/test-only/validation')
+      .set('Content-Type', 'application/json')
+      .set('Content-Encoding', 'unknown')
+      .send('{"name": "x"}');
+
+    expect(res.status).toBe(415);
+    expect(res.headers['content-type']).toMatch(PROBLEM_JSON);
+    expectProblemShape(res.body, 415, '/api/v1/test-only/validation');
+    expect(res.body.detail).toBe('unsupported content encoding "unknown"');
+  });
+
+  it('accepts a JSON body just under the limit', async () => {
+    const res = await http()
+      .post('/api/v1/test-only/validation')
+      .set('Content-Type', 'application/json')
+      .send(JSON.stringify({ name: 'x'.repeat(99 * 1024) }));
+
+    expect(res.status).not.toBe(413);
+  });
+
   it('returns 500 with a generic detail and no stack or message for an unhandled exception', async () => {
     const res = await http().get('/api/v1/test-only/throw');
 
