@@ -355,13 +355,13 @@ T8 → T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] e2e: items 1, 2, 3; move 3 to `0` → `200` and order `[3, 1, 2]` at `0..2`; move 1 to `99` → `[3, 2, 1]`
-- [ ] e2e: moved item `updatedAt` changes; shifted items keep theirs; same-place move → `200` with `updatedAt` unchanged; single item moved to `5` → `position` `0`, unchanged
-- [ ] e2e: `position` missing, `-1`, `1.5`, `"0"` → `400` field `position`; unknown properties → `400`
-- [ ] e2e: unknown, foreign, malformed id → `404` `/problems/checklist-item-not-found` with identical bodies
-- [ ] e2e: archived card / list / board → `409` with board > list > card precedence and order unchanged
-- [ ] e2e: 10 concurrent moves on one card's items → all `200`, positions exactly `0..n-1`; card `updatedAt` unchanged; no token → `401`
-- [ ] Full gate passes; ≥ 14 new e2e tests
+- [x] e2e: items 1, 2, 3; move 3 to `0` → `200` and order `[3, 1, 2]` at `0..2`; move 1 to `99` → `[3, 2, 1]`
+- [x] e2e: moved item `updatedAt` changes; shifted items keep theirs; same-place move → `200` with `updatedAt` unchanged; single item moved to `5` → `position` `0`, unchanged
+- [x] e2e: `position` missing, `-1`, `1.5`, `"0"` → `400` field `position`; unknown properties → `400`
+- [x] e2e: unknown, foreign, malformed id → `404` `/problems/checklist-item-not-found` with identical bodies
+- [x] e2e: archived card / list / board → `409` with board > list > card precedence and order unchanged
+- [x] e2e: 10 concurrent moves on one card's items → all `200`, positions exactly `0..n-1`; card `updatedAt` unchanged; no token → `401`
+- [x] Full gate passes; ≥ 14 new e2e tests
 
 **Tests**: e2e
 **Gate**: full
