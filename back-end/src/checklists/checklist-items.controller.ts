@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -17,6 +17,7 @@ import {
   toChecklistItemResponse,
 } from './dto/checklist-item-response.dto';
 import { CreateChecklistItemDto } from './dto/create-checklist-item.dto';
+import { UpdateChecklistItemDto } from './dto/update-checklist-item.dto';
 
 // No prefix: routes live under cards/:cardId/checklist-items and
 // checklist-items/:id.
@@ -56,5 +57,23 @@ export class ChecklistItemsController {
   ): Promise<ChecklistItemResponseDto[]> {
     const items = await this.itemsService.listInCard(user.id, cardId);
     return items.map(toChecklistItemResponse);
+  }
+
+  @Patch('checklist-items/:id')
+  @ApiOkResponse({ type: ChecklistItemResponseDto })
+  @ApiBadRequestResponse({ description: 'Invalid body: `errors[]` per field.' })
+  @ApiNotFoundResponse({
+    description: 'Missing, foreign or malformed checklist item id.',
+  })
+  @ApiConflictResponse({
+    description: 'The card, its list or its board is archived.',
+  })
+  async update(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+    @Body() body: UpdateChecklistItemDto,
+  ): Promise<ChecklistItemResponseDto> {
+    const item = await this.itemsService.update(user.id, id, body);
+    return toChecklistItemResponse(item);
   }
 }

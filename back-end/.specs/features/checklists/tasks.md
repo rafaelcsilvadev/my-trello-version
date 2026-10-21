@@ -325,13 +325,13 @@ T8 → T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] e2e: `done` `true` → `200` with `done` `true` and a later `updatedAt`; card `checklist.done` becomes `1`; `"  Ship it  "` → `"Ship it"`; both fields at once change both
-- [ ] e2e: `text` `null`, `"   "`, 201 chars, number → `400` field `text`; `done` `null`, `"yes"`, `1` → `400` field `done`; item unchanged
-- [ ] e2e: `{}` → `200` with `updatedAt` unchanged
-- [ ] e2e: unknown, foreign, malformed id → `404` `/problems/checklist-item-not-found` with identical bodies
-- [ ] e2e: archived card / list / board → `409` `card-archived` / `list-archived` / `board-archived` with board > list > card precedence; unknown id on an archived board → `404`
-- [ ] e2e: card `updatedAt` unchanged after the edits; no token → `401`
-- [ ] Full gate passes; ≥ 14 new e2e tests
+- [x] e2e: `done` `true` → `200` with `done` `true` and a later `updatedAt`; card `checklist.done` becomes `1`; `"  Ship it  "` → `"Ship it"`; both fields at once change both
+- [x] e2e: `text` `null`, `"   "`, 201 chars, number → `400` field `text`; `done` `null`, `"yes"`, `1` → `400` field `done`; item unchanged
+- [x] e2e: `{}` → `200` with `updatedAt` unchanged
+- [x] e2e: unknown, foreign, malformed id → `404` `/problems/checklist-item-not-found` with identical bodies
+- [x] e2e: archived card / list / board → `409` `card-archived` / `list-archived` / `board-archived` with board > list > card precedence; unknown id on an archived board → `404`
+- [x] e2e: card `updatedAt` unchanged after the edits; no token → `401`
+- [x] Full gate passes; ≥ 14 new e2e tests
 
 **Tests**: e2e
 **Gate**: full
