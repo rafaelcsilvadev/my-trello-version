@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import type { CardWithLabels } from '../cards.service';
+import type { CardView } from '../cards.service';
 
 export class CardResponseDto {
   @ApiProperty({ format: 'uuid' })
@@ -37,7 +37,7 @@ export class CardResponseDto {
 }
 
 // The only way a Card leaves the API.
-export function toCardResponse(card: CardWithLabels): CardResponseDto {
+export function toCardResponse(card: CardView): CardResponseDto {
   return {
     id: card.id,
     listId: card.listId,

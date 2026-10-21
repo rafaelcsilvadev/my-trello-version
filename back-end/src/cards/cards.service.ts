@@ -25,7 +25,7 @@ export type UpdateCardChanges = Partial<
 >;
 
 // The ids follow label creation order (LBL-26).
-export type CardWithLabels = Card & { labelIds: string[] };
+export type CardView = Card & { labelIds: string[] };
 
 // Active cards of a list hold positions 0..n-1. Every write runs under the
 // board row lock shared with lists (BE-AD-010), so it reads and leaves a
@@ -42,7 +42,7 @@ export class CardsService {
     ownerId: string,
     listId: string,
     input: NewCard,
-  ): Promise<CardWithLabels> {
+  ): Promise<CardView> {
     // A malformed id never reaches PostgreSQL, which would reject it as an
     // invalid uuid (CRD-06).
     const found = isUUID(listId)
@@ -89,9 +89,9 @@ export class CardsService {
     ownerId: string,
     listId: string,
     archived: boolean,
-  ): Promise<CardWithLabels[]> {
+  ): Promise<CardView[]> {
     await this.listsService.findOwned(ownerId, listId);
-    return this.withLabelIds(
+    return this.withDetails(
       await this.cardsRepository.listInList(listId, archived),
     );
   }
@@ -100,15 +100,15 @@ export class CardsService {
     ownerId: string,
     boardId: string,
     archived: boolean,
-  ): Promise<CardWithLabels[]> {
+  ): Promise<CardView[]> {
     await this.boardsService.findOwned(ownerId, boardId);
-    return this.withLabelIds(
+    return this.withDetails(
       await this.cardsRepository.listInBoard(boardId, archived),
     );
   }
 
-  async findOwned(ownerId: string, id: string): Promise<CardWithLabels> {
-    return this.withLabelIdsOf(await this.findOwnedCard(ownerId, id));
+  async findOwned(ownerId: string, id: string): Promise<CardView> {
+    return this.withDetailsOf(await this.findOwnedCard(ownerId, id));
   }
 
   private async findOwnedCard(ownerId: string, id: string): Promise<Card> {
@@ -127,7 +127,7 @@ export class CardsService {
     ownerId: string,
     id: string,
     changes: UpdateCardChanges,
-  ): Promise<CardWithLabels> {
+  ): Promise<CardView> {
     return this.writeLocked(ownerId, id, (card, _list, cards) => {
       if (card.archivedAt) {
         throw new CardArchivedError();
@@ -145,14 +145,10 @@ export class CardsService {
 
       Object.assign(card, Object.fromEntries(given));
       return cards.save(card);
-    }).then((card) => this.withLabelIdsOf(card));
+    }).then((card) => this.withDetailsOf(card));
   }
 
-  move(
-    ownerId: string,
-    id: string,
-    target: CardMoveTarget,
-  ): Promise<CardWithLabels> {
+  move(ownerId: string, id: string, target: CardMoveTarget): Promise<CardView> {
     return this.writeLocked(ownerId, id, async (card, list, cards) => {
       if (card.archivedAt || card.position === null) {
         throw new CardArchivedError();
@@ -209,10 +205,10 @@ export class CardsService {
       card.listId = destination.id;
       card.position = to;
       return cards.save(card);
-    }).then((card) => this.withLabelIdsOf(card));
+    }).then((card) => this.withDetailsOf(card));
   }
 
-  archive(ownerId: string, id: string): Promise<CardWithLabels> {
+  archive(ownerId: string, id: string): Promise<CardView> {
     return this.writeLocked(ownerId, id, async (card, _list, cards) => {
       if (card.archivedAt || card.position === null) {
         return card;
@@ -227,10 +223,10 @@ export class CardsService {
       card.position = null;
       card.archivedAt = new Date();
       return cards.save(card);
-    }).then((card) => this.withLabelIdsOf(card));
+    }).then((card) => this.withDetailsOf(card));
   }
 
-  unarchive(ownerId: string, id: string): Promise<CardWithLabels> {
+  unarchive(ownerId: string, id: string): Promise<CardView> {
     return this.writeLocked(ownerId, id, async (card, _list, cards) => {
       if (!card.archivedAt) {
         return card;
@@ -239,7 +235,7 @@ export class CardsService {
       card.position = await cards.countActive(card.listId);
       card.archivedAt = null;
       return cards.save(card);
-    }).then((card) => this.withLabelIdsOf(card));
+    }).then((card) => this.withDetailsOf(card));
   }
 
   async remove(ownerId: string, id: string): Promise<void> {
@@ -355,7 +351,7 @@ export class CardsService {
 
   // Read after the write commits, outside the lock: a concurrent apply may or
   // may not show, the same as reading a moment later.
-  private async withLabelIds(cards: Card[]): Promise<CardWithLabels[]> {
+  private async withDetails(cards: Card[]): Promise<CardView[]> {
     const labelIds = await this.cardsRepository.labelIdsByCard(
       cards.map((card) => card.id),
     );
@@ -364,8 +360,8 @@ export class CardsService {
     );
   }
 
-  private async withLabelIdsOf(card: Card): Promise<CardWithLabels> {
-    const [withLabels] = await this.withLabelIds([card]);
-    return withLabels;
+  private async withDetailsOf(card: Card): Promise<CardView> {
+    const [view] = await this.withDetails([card]);
+    return view;
   }
 }

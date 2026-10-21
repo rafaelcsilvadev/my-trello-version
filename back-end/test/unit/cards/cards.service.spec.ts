@@ -11,10 +11,7 @@ import {
   CardNotFoundError,
 } from '../../../src/cards/cards.errors';
 import type { CardsRepository } from '../../../src/cards/cards.repository';
-import {
-  CardsService,
-  type CardWithLabels,
-} from '../../../src/cards/cards.service';
+import { CardsService, type CardView } from '../../../src/cards/cards.service';
 import type { Label } from '../../../src/labels/label.entity';
 import { LabelNotFoundError } from '../../../src/labels/labels.errors';
 import type { List } from '../../../src/lists/list.entity';
@@ -120,7 +117,7 @@ function buildLabel(overrides: Partial<Label> = {}): Label {
   };
 }
 
-function withLabels(card: Card, labelIds: string[] = []): CardWithLabels {
+function withLabels(card: Card, labelIds: string[] = []): CardView {
   return Object.assign({}, card, { labelIds });
 }
 
