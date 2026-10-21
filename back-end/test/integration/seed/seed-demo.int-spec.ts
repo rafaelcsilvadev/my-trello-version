@@ -219,6 +219,59 @@ describe('seedDemo', () => {
     expect(expected.length).toBeGreaterThan(0);
     expect(items).toEqual(expected);
   });
+
+  describe('when the demo user already exists', () => {
+    async function counts(): Promise<Record<string, number>> {
+      const [row] = await dataSource.query<Record<string, number>[]>(
+        `SELECT (SELECT count(*)::int FROM "users") AS "users",
+                (SELECT count(*)::int FROM "boards") AS "boards",
+                (SELECT count(*)::int FROM "lists") AS "lists",
+                (SELECT count(*)::int FROM "cards") AS "cards",
+                (SELECT count(*)::int FROM "labels") AS "labels",
+                (SELECT count(*)::int FROM "card_labels") AS "cardLabels",
+                (SELECT count(*)::int FROM "checklist_items") AS "items"`,
+      );
+      return row;
+    }
+
+    it('replaces the demo data instead of duplicating it', async () => {
+      await seedDemo(dataSource, hasher, TODAY);
+      const firstRun = await counts();
+      const { id } = await demoUser();
+      await dataSource.query(
+        `INSERT INTO "boards" ("owner_id", "title") VALUES ($1, 'Edited in the demo')`,
+        [id],
+      );
+
+      await seedDemo(dataSource, hasher, TODAY);
+
+      expect(await counts()).toEqual(firstRun);
+      const user = await demoUser();
+      await expect(
+        hasher.verify(DEMO_USER.password, user.password_hash),
+      ).resolves.toBe(true);
+    });
+
+    it('keeps the boards of other users', async () => {
+      const [other] = await dataSource.query<{ id: string }[]>(
+        `INSERT INTO "users" ("name", "email", "password_hash")
+         VALUES ('Ana', 'ana@example.com', 'hash') RETURNING "id"`,
+      );
+      await dataSource.query(
+        `INSERT INTO "boards" ("owner_id", "title") VALUES ($1, 'Ana board')`,
+        [other.id],
+      );
+
+      await seedDemo(dataSource, hasher, TODAY);
+      await seedDemo(dataSource, hasher, TODAY);
+
+      const boards = await dataSource.query<{ title: string }[]>(
+        `SELECT "title" FROM "boards" WHERE "owner_id" = $1`,
+        [other.id],
+      );
+      expect(boards).toEqual([{ title: 'Ana board' }]);
+    });
+  });
 });
 
 function addDays(isoDate: string, days: number): string {

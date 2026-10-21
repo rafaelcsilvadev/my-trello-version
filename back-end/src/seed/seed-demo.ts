@@ -15,6 +15,8 @@ import {
 
 // Writes the demo account in one transaction, straight through the entities:
 // the data is trusted, so the services' locks and checks add nothing here.
+// An existing demo user is deleted first (its boards go with it through the
+// ON DELETE CASCADE chain), so every run leaves the same demo data.
 export async function seedDemo(
   dataSource: DataSource,
   hasher: PasswordHasher,
@@ -23,6 +25,7 @@ export async function seedDemo(
   const passwordHash = await hasher.hash(DEMO_USER.password);
 
   await dataSource.transaction(async (manager) => {
+    await manager.delete(User, { email: DEMO_USER.email });
     const user = await manager.save(
       manager.create(User, {
         name: DEMO_USER.name,
