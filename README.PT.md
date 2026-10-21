@@ -2,7 +2,7 @@
 
 [English](README.md) | **Português**
 
-> 🚧 **Projeto em andamento.** O back-end está em construção, feature por feature. Front-end (web) e mobile ainda não começaram.
+> 🚧 **Projeto em andamento.** A API do back-end está com todas as features prontas (0 a 6). Front-end (web) e mobile ainda não começaram.
 
 Uma versão pessoal do Trello: cada usuário se cadastra e gerencia só os próprios quadros, listas e cartões.
 
@@ -19,11 +19,11 @@ O projeto tem dois objetivos:
 |---|---------|---------------|--------|
 | 0 | `foundation` | Setup NestJS + pnpm, Docker, health check, config validada, TypeORM + migrations, erros RFC 9457, logs estruturados com request id, Swagger, infraestrutura de testes | ✅ Concluída |
 | 1 | `auth` | Cadastro, login com JWT, `GET /me`, guard global, rate limit por IP | ✅ Concluída |
-| 2 | `boards` | CRUD dos quadros do usuário, arquivar | ⏳ Próxima |
-| 3 | `lists` | CRUD de listas dentro do quadro, reordenar | ⏳ Planejada |
-| 4 | `cards` | Título, descrição, prazo, concluído, arquivar, mover e reordenar | ⏳ Planejada |
-| 5 | `labels` | Etiquetas do quadro aplicadas aos cartões | ⏳ Planejada |
-| 6 | `checklists` | Itens de checklist no cartão | ⏳ Planejada |
+| 2 | `boards` | CRUD dos quadros do usuário, arquivar | ✅ Concluída |
+| 3 | `lists` | CRUD de listas dentro do quadro, reordenar | ✅ Concluída |
+| 4 | `cards` | Título, descrição, prazo, concluído, arquivar, mover e reordenar | ✅ Concluída |
+| 5 | `labels` | Etiquetas do quadro aplicadas aos cartões | ✅ Concluída |
+| 6 | `checklists` | Itens de checklist no cartão | ✅ Concluída |
 
 MVP = features 0 a 4. Roadmap completo em [`back-end/.specs/ROADMAP.md`](back-end/.specs/ROADMAP.md).
 
@@ -46,7 +46,7 @@ MVP = features 0 a 4. Roadmap completo em [`back-end/.specs/ROADMAP.md`](back-en
 - **Arquitetura modular.** Um módulo NestJS por feature (`auth`, `users`, ...), com camadas entity → repository → service → controller.
 - **Erros padronizados.** Todo erro sai por um único filtro global no formato [RFC 9457 Problem Details](https://www.rfc-editor.org/rfc/rfc9457), com `requestId`. Erros de domínio são mapeados para status HTTP em um só lugar.
 - **Seguro por padrão.** Todas as rotas exigem token. Rotas públicas precisam de `@Public()` explícito. Login e cadastro têm rate limit por IP. A aplicação não sobe sem `JWT_SECRET` válido.
-- **Três níveis de teste.** Unitário (sem I/O), integração (repositórios contra PostgreSQL real) e e2e (HTTP contra a aplicação inteira). Mais de 160 testes até agora.
+- **Três níveis de teste.** Unitário (sem I/O), integração (repositórios contra PostgreSQL real) e e2e (HTTP contra a aplicação inteira). Mais de 1.000 testes até agora.
 - **Roda com um comando.** `docker compose up` sobe API e banco, sem instalar Node nem PostgreSQL.
 
 ---
