@@ -129,10 +129,10 @@ T8 → T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] Integration: a card with 3 items, 1 done → `{ total: 3, done: 1 }`; a card with no items → `{ total: 0, done: 0 }`; two cards in one call get their own counts
-- [ ] Integration: `[]` returns an empty map
-- [ ] Integration: `manager` inside `transaction()` is the transaction's manager (a write through it is rolled back with the transaction)
-- [ ] Full gate passes; ≥ 5 new integration tests
+- [x] Integration: a card with 3 items, 1 done → `{ total: 3, done: 1 }`; a card with no items → `{ total: 0, done: 0 }`; two cards in one call get their own counts
+- [x] Integration: `[]` returns an empty map
+- [x] Integration: `manager` inside `transaction()` is the transaction's manager (a write through it is rolled back with the transaction)
+- [x] Full gate passes; ≥ 5 new integration tests
 
 **Tests**: integration
 **Gate**: full
