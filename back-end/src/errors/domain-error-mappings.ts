@@ -13,6 +13,7 @@ import {
   CardNotArchivedError,
   CardNotFoundError,
 } from '../cards/cards.errors';
+import { ChecklistItemNotFoundError } from '../checklists/checklists.errors';
 import {
   LabelNameTakenError,
   LabelNotFoundError,
@@ -96,6 +97,11 @@ export const DOMAIN_ERROR_MAPPINGS: ReadonlyArray<DomainErrorMapping> = [
     error: LabelNameTakenError,
     status: HttpStatus.CONFLICT,
     type: '/problems/label-name-taken',
+  },
+  {
+    error: ChecklistItemNotFoundError,
+    status: HttpStatus.NOT_FOUND,
+    type: '/problems/checklist-item-not-found',
   },
 ];
 
