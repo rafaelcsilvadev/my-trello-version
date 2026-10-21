@@ -211,33 +211,33 @@ A card names one piece of work, but most work has steps, and a description canno
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| CHK-01 | P1: Add an item to a card | - | Pending |
-| CHK-02 | P1: Add an item to a card | - | Pending |
-| CHK-03 | P1: Add an item to a card | - | Pending |
-| CHK-04 | P1: Add an item to a card | - | Pending |
-| CHK-05 | P1: List a card's items | - | Pending |
-| CHK-06 | P1: Edit and tick an item | - | Pending |
-| CHK-07 | P1: Edit and tick an item | - | Pending |
-| CHK-08 | P1: Edit and tick an item | - | Pending |
-| CHK-09 | P1: Edit and tick an item | - | Pending |
-| CHK-10 | P1: Reorder items | - | Pending |
-| CHK-11 | P1: Reorder items | - | Pending |
-| CHK-12 | P1: Reorder items | - | Pending |
-| CHK-13 | P1: Reorder items | - | Pending |
-| CHK-14 | P1: Reorder items | - | Pending |
-| CHK-15 | P1: Reorder items | - | Pending |
-| CHK-16 | P1: Delete an item | - | Pending |
-| CHK-17 | P1: Card responses show checklist progress | - | Pending |
-| CHK-18 | P1: Card responses show checklist progress | - | Pending |
-| CHK-19 | P1: Archive freezes items | - | Pending |
-| CHK-20 | P1: Archive freezes items | - | Pending |
-| CHK-21 | P1: Archive freezes items | - | Pending |
-| CHK-22 | P1: Archive freezes items | - | Pending |
-| CHK-23 | P1: Ownership boundary | - | Pending |
-| CHK-24 | P1: Ownership boundary | - | Pending |
-| CHK-25 | Edge case: delete cascade | - | Pending |
+| CHK-01 | P1: Add an item to a card | Validate | ✅ Verified |
+| CHK-02 | P1: Add an item to a card | Validate | ✅ Verified |
+| CHK-03 | P1: Add an item to a card | Validate | ✅ Verified |
+| CHK-04 | P1: Add an item to a card | Validate | ✅ Verified |
+| CHK-05 | P1: List a card's items | Validate | ✅ Verified |
+| CHK-06 | P1: Edit and tick an item | Validate | ✅ Verified |
+| CHK-07 | P1: Edit and tick an item | Validate | ✅ Verified |
+| CHK-08 | P1: Edit and tick an item | Validate | ✅ Verified |
+| CHK-09 | P1: Edit and tick an item | Validate | ✅ Verified |
+| CHK-10 | P1: Reorder items | Validate | ✅ Verified |
+| CHK-11 | P1: Reorder items | Validate | ✅ Verified |
+| CHK-12 | P1: Reorder items | Validate | ✅ Verified |
+| CHK-13 | P1: Reorder items | Validate | ✅ Verified |
+| CHK-14 | P1: Reorder items | Validate | ✅ Verified |
+| CHK-15 | P1: Reorder items | Validate | ✅ Verified |
+| CHK-16 | P1: Delete an item | Validate | ✅ Verified |
+| CHK-17 | P1: Card responses show checklist progress | Validate | ✅ Verified |
+| CHK-18 | P1: Card responses show checklist progress | Validate | ✅ Verified |
+| CHK-19 | P1: Archive freezes items | Validate | ✅ Verified |
+| CHK-20 | P1: Archive freezes items | Validate | ✅ Verified |
+| CHK-21 | P1: Archive freezes items | Validate | ✅ Verified |
+| CHK-22 | P1: Archive freezes items | Validate | ✅ Verified |
+| CHK-23 | P1: Ownership boundary | Validate | ✅ Verified |
+| CHK-24 | P1: Ownership boundary | Validate | ✅ Verified |
+| CHK-25 | Edge case: delete cascade | Validate | ✅ Verified |
 
-**Coverage:** 25 total, 0 mapped to tasks, 25 unmapped ⚠️
+**Coverage:** 25 total, 25 mapped to tasks, 0 unmapped
 
 ---
 
