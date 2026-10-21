@@ -157,6 +157,16 @@ describe('PATCH /api/v1/checklist-items/:id (e2e)', () => {
     expect(res.status).toBe(200);
     expect(res.body.text).toBe('Ship it');
     expect(res.body.done).toBe(false);
+    expect(await read()).toEqual(res.body);
+  });
+
+  it('accepts a 200-character text after trim', async () => {
+    const text = 'a'.repeat(200);
+
+    const res = await patch({ text: `  ${text}  ` });
+
+    expect(res.status).toBe(200);
+    expect(res.body.text).toBe(text);
   });
 
   it('changes text and done at once', async () => {
@@ -179,6 +189,7 @@ describe('PATCH /api/v1/checklist-items/:id (e2e)', () => {
     ['null', { text: null }],
     ['whitespace-only', { text: '   ' }],
     ['201 characters', { text: 'a'.repeat(201) }],
+    ['201 characters after trim', { text: `  ${'a'.repeat(201)}  ` }],
     ['a number', { text: 42 }],
   ])('returns 400 for a text that is %s', async (_case, body) => {
     const res = await patch(body);
