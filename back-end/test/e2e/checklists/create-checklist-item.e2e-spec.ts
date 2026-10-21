@@ -5,6 +5,7 @@ import { createTestApp } from '../../support/create-test-app';
 
 const PROBLEM_JSON = /^application\/problem\+json/;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+const UNKNOWN_ID = '00000000-0000-4000-8000-000000000000';
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
 
 describe('POST /api/v1/cards/:cardId/checklist-items (e2e)', () => {
@@ -146,6 +147,7 @@ describe('POST /api/v1/cards/:cardId/checklist-items (e2e)', () => {
     ['null', { text: null }],
     ['whitespace-only', { text: '   ' }],
     ['201 characters', { text: 'a'.repeat(201) }],
+    ['201 characters after trim', { text: `  ${'a'.repeat(201)}  ` }],
   ])('returns 400 for a text that is %s', async (_case, body) => {
     const res = await createItem(body);
 
@@ -161,6 +163,15 @@ describe('POST /api/v1/cards/:cardId/checklist-items (e2e)', () => {
     const text = 'a'.repeat(200);
 
     const res = await createItem({ text });
+
+    expect(res.status).toBe(201);
+    expect(res.body.text).toBe(text);
+  });
+
+  it('accepts a 200-character text after trim', async () => {
+    const text = 'a'.repeat(200);
+
+    const res = await createItem({ text: `  ${text}  ` });
 
     expect(res.status).toBe(201);
     expect(res.body.text).toBe(text);
@@ -261,6 +272,16 @@ describe('POST /api/v1/cards/:cardId/checklist-items (e2e)', () => {
         );
       },
     );
+
+    it('returns 404 for an unknown card id on an archived board', async () => {
+      await archive(`/boards/${boardId}`);
+
+      await expectProblem(
+        await createItem({ text: 'Write tests' }, UNKNOWN_ID),
+        404,
+        '/problems/card-not-found',
+      );
+    });
   });
 
   it("counts the items in the card's checklist without touching the card", async () => {
