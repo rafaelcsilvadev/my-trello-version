@@ -7,6 +7,7 @@ import {
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import type { NextFunction, Request, Response } from 'express';
+import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
 import type { HttpLogger } from 'pino-http';
 import { ProblemDetailsFilter } from './errors/problem-details.filter';
@@ -25,6 +26,8 @@ export function configureApp(app: NestExpressApplication): void {
   // First middleware, so every response gets a request id and an access log
   // line, including body-parser and out-of-prefix errors raised below.
   app.use(app.get<HttpLogger>(HTTP_LOGGER));
+  // Before any middleware that can fail, so error responses carry them too.
+  app.use(helmet());
   // Registered here so the next middleware sees the raw body-parser error;
   // Nest skips its own JSON parser when one is already applied.
   app.useBodyParser('json', { limit: JSON_BODY_LIMIT });
