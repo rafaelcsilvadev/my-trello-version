@@ -125,6 +125,18 @@ describe('CardsRepository', () => {
     );
   }
 
+  async function insertItem(
+    cardId: string,
+    position: number,
+    done = false,
+  ): Promise<void> {
+    await dataSource.query(
+      `INSERT INTO "checklist_items" ("card_id", "text", "position", "done")
+       VALUES ($1, 'Item', $2, $3)`,
+      [cardId, position, done],
+    );
+  }
+
   async function linkedLabelIds(cardId: string): Promise<string[]> {
     const rows = await dataSource.query<{ label_id: string }[]>(
       `SELECT "label_id" FROM "card_labels" WHERE "card_id" = $1`,
@@ -620,6 +632,61 @@ describe('CardsRepository', () => {
     });
   });
 
+  describe('checklistCountsByCard', () => {
+    it('counts all items and the done ones of a card', async () => {
+      const card = await insertCard(list, 'A', { position: 0 });
+      await insertItem(card, 0);
+      await insertItem(card, 1, true);
+      await insertItem(card, 2);
+
+      const counts = await cardsRepository.checklistCountsByCard([card]);
+
+      expect(counts).toEqual(new Map([[card, { total: 3, done: 1 }]]));
+    });
+
+    it('maps a card without items to zero counts', async () => {
+      const card = await insertCard(list, 'A', { position: 0 });
+      const other = await insertCard(list, 'B', { position: 1 });
+      await insertItem(other, 0, true);
+
+      const counts = await cardsRepository.checklistCountsByCard([card]);
+
+      expect(counts).toEqual(new Map([[card, { total: 0, done: 0 }]]));
+    });
+
+    it('gives each card of one call its own counts', async () => {
+      const a = await insertCard(list, 'A', { position: 0 });
+      const b = await insertCard(list, 'B', { position: 1 });
+      await insertItem(a, 0, true);
+      await insertItem(a, 1, true);
+      await insertItem(b, 0);
+      await insertItem(b, 1, true);
+      await insertItem(b, 2);
+
+      const counts = await cardsRepository.checklistCountsByCard([a, b]);
+
+      expect(counts).toEqual(
+        new Map([
+          [a, { total: 2, done: 2 }],
+          [b, { total: 3, done: 1 }],
+        ]),
+      );
+    });
+
+    it('returns an empty map without querying for no cards', async () => {
+      const query = jest.spyOn(dataSource.manager, 'query');
+
+      try {
+        expect(await cardsRepository.checklistCountsByCard([])).toEqual(
+          new Map(),
+        );
+        expect(query).not.toHaveBeenCalled();
+      } finally {
+        query.mockRestore();
+      }
+    });
+  });
+
   describe('lockOwnedBoard', () => {
     it('returns the board for its owner', async () => {
       const locked = await cardsRepository.transaction((cards) =>
@@ -686,6 +753,23 @@ describe('CardsRepository', () => {
       ).rejects.toBe(failure);
 
       expect(await positionsByTitle(list)).toEqual({ A: 0 });
+    });
+
+    it("exposes the transaction's manager, so its writes roll back", async () => {
+      const failure = new Error('boom');
+
+      await expect(
+        cardsRepository.transaction(async (cards) => {
+          await cards.manager.query(
+            `INSERT INTO "cards" ("list_id", "title", "position")
+             VALUES ($1, 'B', 0)`,
+            [list],
+          );
+          throw failure;
+        }),
+      ).rejects.toBe(failure);
+
+      expect(await positionsByTitle(list)).toEqual({});
     });
   });
 });

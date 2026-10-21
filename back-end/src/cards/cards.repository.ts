@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Not, Repository } from 'typeorm';
+import { EntityManager, IsNull, Not, Repository } from 'typeorm';
 import { Board } from '../boards/board.entity';
 import { lockOwnedBoard } from '../boards/board-lock';
 import { Label } from '../labels/label.entity';
@@ -11,6 +11,8 @@ export type CreateCardInput = Pick<
   Card,
   'listId' | 'title' | 'description' | 'dueDate'
 > & { position: number };
+
+export type ChecklistProgress = { total: number; done: number };
 
 // Cards have no owner column: reads by id are scoped through the list's
 // board owner (BE-AD-008). Methods taking a boardId or listId expect it
@@ -28,6 +30,12 @@ export class CardsRepository {
     return this.cards.manager.transaction((manager) =>
       work(new CardsRepository(manager.getRepository(Card))),
     );
+  }
+
+  // Inside transaction() this is the transaction's manager, so rows owned by
+  // a card (checklist items) are written in the same transaction.
+  get manager(): EntityManager {
+    return this.cards.manager;
   }
 
   // Lists and cards share this lock (BE-AD-010). Only valid inside
@@ -158,6 +166,36 @@ export class CardsRepository {
       labelIds.get(row.card_id)!.push(row.label_id);
     }
     return labelIds;
+  }
+
+  // One query for all cards; a card without items counts zero of both.
+  async checklistCountsByCard(
+    cardIds: string[],
+  ): Promise<Map<string, ChecklistProgress>> {
+    const counts = new Map(
+      cardIds.map((id): [string, ChecklistProgress] => [
+        id,
+        { total: 0, done: 0 },
+      ]),
+    );
+    if (cardIds.length === 0) {
+      return counts;
+    }
+
+    const rows = await this.cards.query<
+      { card_id: string; total: number; done: number }[]
+    >(
+      `SELECT "card_id", count(*)::int AS "total",
+              (count(*) FILTER (WHERE "done"))::int AS "done"
+       FROM "checklist_items"
+       WHERE "card_id" = ANY($1)
+       GROUP BY "card_id"`,
+      [cardIds],
+    );
+    for (const row of rows) {
+      counts.set(row.card_id, { total: row.total, done: row.done });
+    }
+    return counts;
   }
 
   save(card: Card): Promise<Card> {
