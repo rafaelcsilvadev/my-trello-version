@@ -1,6 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import type { CardView } from '../cards.service';
 
+export class ChecklistProgressDto {
+  @ApiProperty({ minimum: 0 })
+  total!: number;
+
+  @ApiProperty({ minimum: 0 })
+  done!: number;
+}
+
 export class CardResponseDto {
   @ApiProperty({ format: 'uuid' })
   id!: string;
@@ -34,6 +42,9 @@ export class CardResponseDto {
 
   @ApiProperty({ type: [String], format: 'uuid' })
   labelIds!: string[];
+
+  @ApiProperty({ type: ChecklistProgressDto })
+  checklist!: ChecklistProgressDto;
 }
 
 // The only way a Card leaves the API.
@@ -50,5 +61,6 @@ export function toCardResponse(card: CardView): CardResponseDto {
     createdAt: card.createdAt.toISOString(),
     updatedAt: card.updatedAt.toISOString(),
     labelIds: card.labelIds,
+    checklist: card.checklist,
   };
 }

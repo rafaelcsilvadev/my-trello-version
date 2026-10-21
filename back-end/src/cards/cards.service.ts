@@ -13,7 +13,7 @@ import {
   CardNotArchivedError,
   CardNotFoundError,
 } from './cards.errors';
-import { CardsRepository } from './cards.repository';
+import { CardsRepository, type ChecklistProgress } from './cards.repository';
 
 export type NewCard = Pick<Card, 'title'> &
   Partial<Pick<Card, 'description' | 'dueDate'>>;
@@ -25,7 +25,10 @@ export type UpdateCardChanges = Partial<
 >;
 
 // The ids follow label creation order (LBL-26).
-export type CardView = Card & { labelIds: string[] };
+export type CardView = Card & {
+  labelIds: string[];
+  checklist: ChecklistProgress;
+};
 
 // Active cards of a list hold positions 0..n-1. Every write runs under the
 // board row lock shared with lists (BE-AD-010), so it reads and leaves a
@@ -80,8 +83,11 @@ export class CardsService {
       });
     });
 
-    // A new card has no labels yet, so there is nothing to read.
-    return Object.assign(new Card(), created, { labelIds: [] });
+    // A new card has no labels or items yet, so there is nothing to read.
+    return Object.assign(new Card(), created, {
+      labelIds: [],
+      checklist: { total: 0, done: 0 },
+    });
   }
 
   // Reads skip the lock: cards of an archived list or board stay readable.
@@ -352,11 +358,16 @@ export class CardsService {
   // Read after the write commits, outside the lock: a concurrent apply may or
   // may not show, the same as reading a moment later.
   private async withDetails(cards: Card[]): Promise<CardView[]> {
-    const labelIds = await this.cardsRepository.labelIdsByCard(
-      cards.map((card) => card.id),
-    );
+    const ids = cards.map((card) => card.id);
+    const [labelIds, checklists] = await Promise.all([
+      this.cardsRepository.labelIdsByCard(ids),
+      this.cardsRepository.checklistCountsByCard(ids),
+    ]);
     return cards.map((card) =>
-      Object.assign(new Card(), card, { labelIds: labelIds.get(card.id)! }),
+      Object.assign(new Card(), card, {
+        labelIds: labelIds.get(card.id)!,
+        checklist: checklists.get(card.id)!,
+      }),
     );
   }
 

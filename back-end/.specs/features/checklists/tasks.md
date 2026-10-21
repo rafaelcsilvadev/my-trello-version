@@ -156,9 +156,9 @@ T8 → T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] Unit: every card-returning method (`create`, `listInList`, `listInBoard`, `findOwned`, `update`, `move`, `archive`, `unarchive`) returns `checklist` from `checklistCountsByCard`; `create` does not call it and returns `{ total: 0, done: 0 }`
-- [ ] e2e: every card route of CHK-17 returns `checklist` `{ total: 0, done: 0 }`; existing full-body expectations updated to include it, no assertion weakened
-- [ ] Full gate passes; ≥ 9 new unit tests, ≥ 8 new e2e tests
+- [x] Unit: every card-returning method (`create`, `listInList`, `listInBoard`, `findOwned`, `update`, `move`, `archive`, `unarchive`) returns `checklist` from `checklistCountsByCard`; `create` does not call it and returns `{ total: 0, done: 0 }`
+- [x] e2e: every card route of CHK-17 returns `checklist` `{ total: 0, done: 0 }`; existing full-body expectations updated to include it, no assertion weakened
+- [x] Full gate passes; ≥ 9 new unit tests, ≥ 8 new e2e tests
 
 **Tests**: e2e
 **Gate**: full
