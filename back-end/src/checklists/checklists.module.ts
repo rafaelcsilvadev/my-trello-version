@@ -5,6 +5,7 @@ import { Card } from '../cards/card.entity';
 import { CardsModule } from '../cards/cards.module';
 import { List } from '../lists/list.entity';
 import { ChecklistItem } from './checklist-item.entity';
+import { ChecklistItemsController } from './checklist-items.controller';
 import { ChecklistItemsRepository } from './checklist-items.repository';
 import { ChecklistItemsService } from './checklist-items.service';
 
@@ -17,6 +18,7 @@ import { ChecklistItemsService } from './checklist-items.service';
     TypeOrmModule.forFeature([ChecklistItem, Card, List, Board]),
     CardsModule,
   ],
+  controllers: [ChecklistItemsController],
   providers: [ChecklistItemsRepository, ChecklistItemsService],
 })
 export class ChecklistsModule {}

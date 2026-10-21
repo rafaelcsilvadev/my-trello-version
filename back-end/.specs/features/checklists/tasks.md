@@ -294,14 +294,14 @@ T8 → T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] e2e: valid body → `201` with exactly `{ id, cardId, text, done, position, createdAt, updatedAt }`, `done` `false`; `"  Write tests  "` → `"Write tests"`; second item `position` `1`
-- [ ] e2e: `text` missing, non-string, `null`, `"   "`, 201 chars → `400` field `text` and no row; 200 chars → `201`; unknown properties (`done`, `position`, `cardId`) → `400`
-- [ ] e2e: unknown, foreign, malformed `cardId` → `404` `/problems/card-not-found` with identical bodies on `POST` and `GET`
-- [ ] e2e: `POST` on archived card → `409` `/problems/card-archived`; archived list → `/problems/list-archived` (also with the card archived); archived board → `/problems/board-archived` (also with list and card archived); no row in each case
-- [ ] e2e: `GET` returns items at positions `0..2` in creation order; same array after the card, the list and the board are archived; `[]` for a new card
-- [ ] e2e: after 3 creates the card's `checklist` is `{ total: 3, done: 0 }` and its `updatedAt` is unchanged
-- [ ] e2e: 10 concurrent creates on one card → all `201`, positions exactly `0..9`; no token → `401` on both routes
-- [ ] Full gate passes; ≥ 16 new e2e tests
+- [x] e2e: valid body → `201` with exactly `{ id, cardId, text, done, position, createdAt, updatedAt }`, `done` `false`; `"  Write tests  "` → `"Write tests"`; second item `position` `1`
+- [x] e2e: `text` missing, non-string, `null`, `"   "`, 201 chars → `400` field `text` and no row; 200 chars → `201`; unknown properties (`done`, `position`, `cardId`) → `400`
+- [x] e2e: unknown, foreign, malformed `cardId` → `404` `/problems/card-not-found` with identical bodies on `POST` and `GET`
+- [x] e2e: `POST` on archived card → `409` `/problems/card-archived`; archived list → `/problems/list-archived` (also with the card archived); archived board → `/problems/board-archived` (also with list and card archived); no row in each case
+- [x] e2e: `GET` returns items at positions `0..2` in creation order; same array after the card, the list and the board are archived; `[]` for a new card
+- [x] e2e: after 3 creates the card's `checklist` is `{ total: 3, done: 0 }` and its `updatedAt` is unchanged
+- [x] e2e: 10 concurrent creates on one card → all `201`, positions exactly `0..9`; no token → `401` on both routes
+- [x] Full gate passes; ≥ 16 new e2e tests
 
 **Tests**: e2e
 **Gate**: full
