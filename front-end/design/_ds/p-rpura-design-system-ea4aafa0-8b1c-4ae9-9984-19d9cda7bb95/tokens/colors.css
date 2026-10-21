@@ -1,0 +1,88 @@
+:root {
+  /* Brand — Púrpura (base #720981 = 700) */
+  --purple-50: #FBF3FC;
+  --purple-100: #F5E3F7;
+  --purple-200: #EAC6EF;
+  --purple-300: #D89EE1;
+  --purple-400: #BF6DCC;
+  --purple-500: #A13FB3;
+  --purple-600: #881E9B;
+  --purple-700: #720981;
+  --purple-800: #5C066A;
+  --purple-900: #440450;
+  --purple-950: #2B0233;
+
+  /* Neutrals — plum-tinted grays */
+  --neutral-0: #FFFFFF;
+  --neutral-25: #FCFBFD;
+  --neutral-50: #F7F6F9;
+  --neutral-100: #EFEDF2;
+  --neutral-200: #E4E1E9;
+  --neutral-300: #D0CBD7;
+  --neutral-400: #A9A2B3;
+  --neutral-500: #7F778A;
+  --neutral-600: #5F5869;
+  --neutral-700: #443E4D;
+  --neutral-800: #2D2834;
+  --neutral-900: #1C1821;
+
+  /* Support hues */
+  --green-50: #E8F6EE; --green-100: #CDEBD9; --green-500: #1F9D57; --green-600: #17834A; --green-700: #126A3B;
+  --amber-50: #FFF4DE; --amber-100: #FFE6B3; --amber-500: #EE8A00; --amber-600: #C97300; --amber-700: #9E5A00;
+  --red-50: #FDECEC;   --red-100: #FAD4D4;   --red-500: #DC3434;   --red-600: #C22A2A;   --red-700: #9E2020;
+  --blue-50: #EAF0FD;  --blue-100: #D5E1FB;  --blue-500: #2F6BE4;  --blue-600: #2457C2;  --blue-700: #1D469C;
+  --gold-300: #FBDD7E; --gold-400: #F6C63E; --gold-500: #E8B021; --gold-900: #4A3300;
+
+  /* Semantic — brand */
+  --brand: var(--purple-700);
+  --brand-hover: var(--purple-800);
+  --brand-press: var(--purple-900);
+  --brand-soft: var(--purple-50);
+  --brand-soft-hover: var(--purple-100);
+  --brand-muted: var(--purple-500);
+  --on-brand: #FFFFFF;
+
+  /* Semantic — text */
+  --text-primary: var(--neutral-900);
+  --text-secondary: var(--neutral-600);
+  --text-tertiary: var(--neutral-500);
+  --text-disabled: var(--neutral-400);
+  --text-link: var(--purple-700);
+  --text-on-dark: #FFFFFF;
+
+  /* Semantic — surfaces */
+  --surface-page: var(--neutral-50);
+  --surface-card: var(--neutral-0);
+  --surface-sunken: var(--neutral-100);
+  --surface-hover: var(--neutral-50);
+  --surface-selected: var(--purple-50);
+  --surface-overlay: rgba(28, 24, 33, 0.40);
+  --surface-inverse: var(--neutral-900);
+
+  /* Semantic — borders */
+  --border-subtle: var(--neutral-200);
+  --border-default: var(--neutral-300);
+  --border-strong: var(--neutral-400);
+  --border-focus: var(--purple-500);
+
+  /* Semantic — feedback */
+  --success: var(--green-500); --success-soft: var(--green-50); --success-strong: var(--green-700);
+  --warning: var(--amber-500); --warning-soft: var(--amber-50); --warning-strong: var(--amber-700);
+  --danger: var(--red-500);    --danger-soft: var(--red-50);    --danger-strong: var(--red-700);
+  --info: var(--blue-500);     --info-soft: var(--blue-50);     --info-strong: var(--blue-700);
+
+  /* Domain — task priority */
+  --priority-low: var(--green-500);
+  --priority-medium: var(--amber-500);
+  --priority-high: var(--red-500);
+
+  /* Domain — kanban status (column header fills) */
+  --status-todo-bg: var(--neutral-100);    --status-todo-fg: var(--neutral-700);
+  --status-overdue-bg: #FCDCDC;            --status-overdue-fg: var(--red-700);
+  --status-doing-bg: #E2EAFB;              --status-doing-fg: var(--blue-700);
+  --status-done-bg: #E1F3E8;               --status-done-fg: var(--green-700);
+
+  /* Backgrounds */
+  --gradient-auth: linear-gradient(180deg, #FDF1FB 0%, #F8F5FB 55%, #EFF8F9 100%); /* @kind color */
+  --gradient-desk: radial-gradient(60% 50% at 0% 70%, rgba(161,63,179,0.35) 0%, rgba(161,63,179,0) 100%), radial-gradient(60% 50% at 100% 70%, rgba(161,63,179,0.35) 0%, rgba(161,63,179,0) 100%), #E7E1EF; /* @kind color */
+}

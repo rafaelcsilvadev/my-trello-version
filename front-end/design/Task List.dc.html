@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <title>my-trello-version — protótipo</title>
+  <link rel="stylesheet" href="_ds/p-rpura-design-system-ea4aafa0-8b1c-4ae9-9984-19d9cda7bb95/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/p-rpura-design-system-ea4aafa0-8b1c-4ae9-9984-19d9cda7bb95/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/p-rpura-design-system-ea4aafa0-8b1c-4ae9-9984-19d9cda7bb95/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/p-rpura-design-system-ea4aafa0-8b1c-4ae9-9984-19d9cda7bb95/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/p-rpura-design-system-ea4aafa0-8b1c-4ae9-9984-19d9cda7bb95/tokens/effects.css">
+  <link rel="stylesheet" href="_ds/p-rpura-design-system-ea4aafa0-8b1c-4ae9-9984-19d9cda7bb95/css/components.css">
+  <link rel="stylesheet" href="_ds/p-rpura-design-system-ea4aafa0-8b1c-4ae9-9984-19d9cda7bb95/styles.css">
+  <style>
+    html{line-height:normal}
+    body{margin:0}
+    a{color:var(--text-link)}
+    a:hover{color:var(--brand-hover)}
+    :root{--label-purple:#8E24AA;--label-blue:#2563EB;--label-sky:#0891B2;--label-green:#16A34A;--label-lime:#65A30D;--label-yellow:#CA8A04;--label-orange:#EA580C;--label-red:#DC2626;--label-pink:#DB2777;--label-black:#374151;--bezel:#0E0C10}
+    [data-theme=dark]{--neutral-0:#1B1820;--neutral-25:#1F1C25;--neutral-50:#25212B;--neutral-100:#2C2833;--neutral-200:#36313E;--neutral-300:#474150;--neutral-400:#6A6275;--neutral-500:#938B9F;--neutral-600:#B7B0C1;--neutral-700:#D5D0DC;--neutral-800:#E9E6EE;--neutral-900:#F6F4F9;
+      --purple-50:#2D1733;--purple-100:#3C1F45;--purple-200:#57306A;--purple-300:#7D4790;--purple-600:#E0AEE8;--purple-700:#D89EE1;
+      --green-50:#142A1E;--green-100:#1B3A29;--green-700:#7BD9A2;--amber-50:#2F2412;--amber-100:#3F3016;--amber-700:#F5BE66;--red-50:#351A1B;--red-100:#4A2223;--red-600:#F07C7C;--red-700:#F49A9A;--blue-50:#172238;--blue-100:#1E2D4A;--blue-700:#9CB9F7;
+      --brand:#9B30AE;--brand-hover:#AD45BF;--brand-press:#B957CA;--brand-soft:#2D1733;--brand-soft-hover:#3C1F45;--on-brand:#FFFFFF;
+      --text-primary:#F6F4F9;--text-secondary:#B7B0C1;--text-tertiary:#938B9F;--text-disabled:#6A6275;--text-link:#D89EE1;
+      --surface-page:#141117;--surface-card:#1B1820;--surface-sunken:#25212B;--surface-hover:#221E28;--surface-selected:#2D1733;--surface-overlay:rgba(5,3,8,0.6);
+      --border-subtle:#2F2A36;--border-default:#433D4C;--border-strong:#6A6275;--border-focus:#BF6DCC;
+      --shadow-xs:0 1px 2px rgba(0,0,0,0.4);--shadow-input:0 1px 2px rgba(0,0,0,0.3);--shadow-sm:0 1px 3px rgba(0,0,0,0.4);--shadow-md:0 4px 14px rgba(0,0,0,0.45);--shadow-lg:0 16px 40px rgba(0,0,0,0.55);--shadow-window:0 30px 80px rgba(0,0,0,0.6);
+      --gradient-auth:linear-gradient(180deg,#22152A 0%,#17131B 55%,#111B1D 100%);
+      --gradient-desk:radial-gradient(60% 50% at 0% 70%, rgba(161,63,179,0.22) 0%, rgba(161,63,179,0) 100%), radial-gradient(60% 50% at 100% 70%, rgba(161,63,179,0.22) 0%, rgba(161,63,179,0) 100%), #0E0C11}
+    @keyframes tl-pulse{0%,100%{opacity:1}50%{opacity:.55}}
+    @keyframes tl-spin{to{transform:rotate(360deg)}}
+  </style>
+  <style type="text/tailwindcss">
+    @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+    @theme { --color-*: initial; --shadow-*: initial; --radius-*: initial; --text-*: initial; --animate-*: initial; }
+    @theme {
+      --spacing: var(--space-1);
+      --font-display: var(--font-display); --font-body: var(--font-body); --font-mono: var(--font-mono); --font-sans: var(--font-body);
+      --text-2xs: var(--text-2xs); --text-xs: var(--text-xs); --text-sm: var(--text-sm); --text-md: var(--text-md); --text-lg: var(--text-lg); --text-xl: var(--text-xl); --text-2xl: var(--text-2xl); --text-3xl: var(--text-3xl); --text-4xl: var(--text-4xl);
+      --leading-tight: var(--leading-tight); --leading-snug: var(--leading-snug); --leading-normal: var(--leading-normal);
+      --tracking-tight: var(--tracking-tight); --tracking-snug: var(--tracking-snug);
+      --radius-xs: var(--radius-xs); --radius-sm: var(--radius-sm); --radius-md: var(--radius-md); --radius-lg: var(--radius-lg); --radius-xl: var(--radius-xl); --radius-2xl: var(--radius-2xl); --radius-device: var(--space-12);
+      --shadow-xs: var(--shadow-xs); --shadow-input: var(--shadow-input); --shadow-sm: var(--shadow-sm); --shadow-md: var(--shadow-md); --shadow-lg: var(--shadow-lg); --shadow-window: var(--shadow-window); --shadow-focus: var(--focus-ring);
+      --ease-standard: var(--ease-standard); --ease-emphasized: var(--ease-emphasized);
+      --default-transition-duration: var(--dur-base); --default-transition-timing-function: var(--ease-standard);
+      --animate-skeleton: tl-pulse 1.4s ease-in-out infinite; --animate-spin: tl-spin 1s linear infinite;
+    }
+    @theme inline {
+      --color-brand: var(--brand); --color-brand-hover: var(--brand-hover); --color-brand-soft: var(--brand-soft); --color-on-brand: var(--on-brand);
+      --color-text-primary: var(--text-primary); --color-text-secondary: var(--text-secondary); --color-text-tertiary: var(--text-tertiary); --color-text-disabled: var(--text-disabled); --color-text-link: var(--text-link);
+      --color-surface-page: var(--surface-page); --color-surface-card: var(--surface-card); --color-surface-sunken: var(--surface-sunken); --color-surface-hover: var(--surface-hover); --color-surface-selected: var(--surface-selected); --color-surface-overlay: var(--surface-overlay);
+      --color-border-subtle: var(--border-subtle); --color-border-default: var(--border-default); --color-border-strong: var(--border-strong); --color-border-focus: var(--border-focus);
+      --color-danger: var(--danger); --color-success: var(--success);
+      --color-neutral-25: var(--neutral-25); --color-neutral-100: var(--neutral-100); --color-neutral-300: var(--neutral-300);
+      --color-purple-200: var(--purple-200); --color-purple-300: var(--purple-300); --color-purple-700: var(--purple-700);
+      --color-red-50: var(--red-50); --color-red-600: var(--red-600); --color-red-700: var(--red-700);
+      --color-green-500: var(--green-500); --color-green-700: var(--green-700); --color-blue-50: var(--blue-50); --color-blue-700: var(--blue-700);
+      --color-bezel: var(--bezel);
+      --color-label-purple: var(--label-purple); --color-label-blue: var(--label-blue); --color-label-sky: var(--label-sky); --color-label-green: var(--label-green); --color-label-lime: var(--label-lime);
+      --color-label-yellow: var(--label-yellow); --color-label-orange: var(--label-orange); --color-label-red: var(--label-red); --color-label-pink: var(--label-pink); --color-label-black: var(--label-black);
+    }
+    @utility bg-desk { background: var(--gradient-desk); }
+    @utility bg-auth { background: var(--gradient-auth); }
+    @utility grid-boards { grid-template-columns: repeat(auto-fill, minmax(calc(var(--spacing) * 60), 1fr)); }
+    @utility tl-field { @apply border border-border-subtle rounded-sm bg-surface-card shadow-input font-body text-md text-text-primary outline-0 placeholder:text-text-tertiary focus:border-border-focus focus:shadow-focus; }
+    @utility tl-chip { @apply inline-flex items-center gap-1.5 h-5.5 px-2 rounded-xs text-xs font-medium leading-none text-text-primary whitespace-nowrap; }
+    @utility tl-dot { @apply size-2 flex-none rounded-xs; }
+    @utility tl-card { @apply flex-none flex flex-col gap-2 py-2.5 pr-2.5 pl-3 border rounded-md cursor-pointer transition hover:border-border-default hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus; }
+    @utility tl-menu { @apply absolute z-16 w-47.5 p-1.5 bg-surface-card border border-border-subtle rounded-lg shadow-lg flex flex-col cursor-default; }
+    @utility tl-menu-item { @apply h-8.5 flex items-center gap-2.5 px-2.5 rounded-sm bg-transparent text-md text-left whitespace-nowrap cursor-pointer hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-border-focus; }
+    @utility tl-panel { @apply px-4.5 py-4 bg-surface-card border border-border-subtle rounded-lg; }
+    @utility tl-well { @apply size-13 rounded-lg flex items-center justify-center; }
+    @utility tl-err { @apply text-xs text-red-600; }
+    @utility tl-gap { @apply flex-none h-14 border-2 border-dashed border-border-focus rounded-md bg-brand-soft; }
+    @utility tl-spin { @apply inline-flex flex-none text-text-tertiary animate-spin; }
+    @utility tl-kbd { @apply min-w-14 h-6.5 px-2 inline-flex items-center justify-center border border-border-default border-b-2 rounded-sm bg-surface-sunken font-mono text-xs font-medium text-text-primary; }
+    @utility tl-ghost-btn { @apply flex items-center gap-1.5 rounded-sm bg-transparent text-text-secondary font-medium cursor-pointer text-left hover:bg-neutral-100 hover:text-text-primary focus-visible:outline-2 focus-visible:outline-border-focus; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11"></script>
+  <script src="_ds/p-rpura-design-system-ea4aafa0-8b1c-4ae9-9984-19d9cda7bb95/_ds_bundle.js"></script>
+  <script src="i18n.js"></script>
+</helmet>
+
+<div data-theme="{{ themeAttr }}" class="h-screen flex flex-col font-body text-text-primary bg-desk {{ schemeCls }}">
+
+  <div class="flex items-center gap-x-4 gap-y-2.5 flex-wrap px-5 py-2.5 bg-surface-card border-b border-border-subtle text-xs text-text-tertiary">
+    <span class="font-display font-semibold text-md leading-none text-text-primary whitespace-nowrap">Protótipo</span>
+    <div class="flex items-center gap-1.5"><span>Tela</span><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Select" options="{{ protoScreenOpts }}" value="{{ protoScreen }}" onChange="{{ setProtoScreen }}" size="sm" hint-size="190px,30px"></x-import></div>
+    <div class="flex items-center gap-1.5"><span>Dispositivo</span><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.SegmentedControl" options="{{ deviceOpts }}" value="{{ device }}" onChange="{{ setDevice }}" hint-size="200px,34px"></x-import></div>
+    <div class="flex items-center gap-1.5"><span>Tema</span><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.SegmentedControl" options="{{ themeOpts }}" value="{{ themePref }}" onChange="{{ setTheme }}" hint-size="230px,34px"></x-import></div>
+    <div class="flex items-center gap-1.5"><span>Idioma</span><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.SegmentedControl" options="{{ langOpts }}" value="{{ lang }}" onChange="{{ setLang }}" hint-size="120px,34px"></x-import></div>
+    <div class="flex items-center gap-1.5"><span>Dados</span><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Select" options="{{ dataOpts }}" value="{{ dataMode }}" onChange="{{ setData }}" size="sm" hint-size="130px,30px"></x-import></div>
+    <div class="flex items-center gap-3 flex-wrap"><span>Simular</span>
+      <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Switch" checked="{{ simMouse }}" onChange="{{ setSimMouse }}" label="Arraste (mouse)" hint-size="130px,20px"></x-import>
+      <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Switch" checked="{{ simKbd }}" onChange="{{ setSimKbd }}" label="Arraste (teclado)" hint-size="140px,20px"></x-import>
+      <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Switch" checked="{{ simFilters }}" onChange="{{ setSimFilters }}" label="Filtros ativos" hint-size="120px,20px"></x-import>
+      <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Switch" checked="{{ simFail }}" onChange="{{ setSimFail }}" label="Falhas ao salvar" hint-size="130px,20px"></x-import>
+      <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Switch" checked="{{ simConflict }}" onChange="{{ setSimConflict }}" label="Item arquivado (409)" hint-size="160px,20px"></x-import>
+      <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Switch" checked="{{ simBoardNF }}" onChange="{{ setSimBoardNF }}" label="Quadro não encontrado" hint-size="170px,20px"></x-import>
+      <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Switch" checked="{{ simTaskNF }}" onChange="{{ setSimTaskNF }}" label="Tarefa não encontrada" hint-size="170px,20px"></x-import>
+    </div>
+  </div>
+
+  <div class="flex-1 min-h-0 flex justify-center items-start p-6 overflow-auto">
+    <div class="{{ frameCls }}">
+      <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+        <div class="h-11 flex-none flex items-center justify-between pr-6.5 pl-8 bg-surface-card text-text-primary font-semibold text-md leading-none">
+          <span>9:41</span>
+          <div class="flex gap-1.5 items-center"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="signal" size="{{ 16 }}" hint-size="16px,16px"></x-import><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="wifi" size="{{ 16 }}" hint-size="16px,16px"></x-import><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="battery-full" size="{{ 20 }}" hint-size="20px,20px"></x-import></div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+        <div class="h-10 flex-none flex items-center gap-3.5 px-3.5 bg-surface-card border-b border-border-subtle">
+          <div class="flex gap-2"><span class="size-3 rounded-full bg-neutral-300"></span><span class="size-3 rounded-full bg-neutral-300"></span><span class="size-3 rounded-full bg-neutral-300"></span></div>
+          <div class="flex-1 flex justify-center">
+            <div class="w-full max-w-115 h-6.5 rounded-sm bg-surface-sunken flex items-center justify-center gap-1.5 text-xs text-text-secondary"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="lock" size="{{ 12 }}" hint-size="12px,12px"></x-import><span>{{ url }}</span></div>
+          </div>
+          <div class="w-12"></div>
+        </div>
+      </sc-if>
+
+      <div class="flex-1 min-h-0 relative flex flex-col overflow-hidden bg-surface-page">
+
+        <sc-if value="{{ isAuth }}" hint-placeholder-val="{{ false }}">
+          <div data-screen-label="Acesso" class="flex-1 overflow-auto bg-auth flex flex-col">
+            <div class="px-7 py-6 flex items-center gap-2">
+              <div class="size-7 rounded-md bg-brand flex items-center justify-center text-on-brand"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="list-checks" size="{{ 16 }}" hint-size="16px,16px"></x-import></div>
+              <span class="font-display font-semibold text-xl leading-none tracking-tight text-text-primary">task list</span>
+            </div>
+            <form onSubmit="{{ authSubmit }}" noValidate="{{ true }}" class="w-full max-w-105 m-auto px-5 pt-4 pb-16 flex flex-col gap-4">
+              <div class="text-center mb-2">
+                <h1 class="font-display font-semibold text-3xl leading-tight tracking-tight text-text-primary">{{ authTitle }}</h1>
+                <p class="mt-2.5 text-md text-text-secondary">{{ authSub }}</p>
+              </div>
+              <sc-if value="{{ isExpired }}" hint-placeholder-val="{{ false }}">
+                <div role="status" class="flex gap-2 items-center px-3 py-2.5 rounded-sm bg-blue-50 text-blue-700 text-sm font-medium"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="clock" size="{{ 16 }}" hint-size="16px,16px"></x-import><span>{{ tx.sessionExpired }}</span></div>
+              </sc-if>
+              <sc-if value="{{ hasAuthErr }}" hint-placeholder-val="{{ false }}">
+                <div role="alert" class="flex gap-2 items-center px-3 py-2.5 rounded-sm bg-red-50 text-red-700 text-sm font-medium"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="{{ authErrIcon }}" size="{{ 16 }}" hint-size="16px,16px"></x-import><span>{{ authErr }}</span></div>
+              </sc-if>
+              <sc-if value="{{ isSignup }}" hint-placeholder-val="{{ false }}">
+                <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Input" label="{{ tx.yourName }}" autoComplete="name" placeholder="{{ tx.namePh }}" value="{{ an }}" onChange="{{ onAn }}" error="{{ aErrName }}" hint-size="100%,74px"></x-import>
+              </sc-if>
+              <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Input" label="{{ tx.email }}" type="email" autoComplete="email" placeholder="{{ tx.emailPh }}" value="{{ ae }}" onChange="{{ onAe }}" error="{{ aErrEmail }}" hint-size="100%,74px"></x-import>
+              <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Input" label="{{ tx.password }}" type="password" placeholder="{{ pwPh }}" value="{{ ap }}" onChange="{{ onAp }}" error="{{ aErrPw }}" hint="{{ pwHint }}" hint-size="100%,74px"></x-import>
+              <div class="mt-1.5"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" type="submit" size="lg" full-width="{{ true }}" disabled="{{ aBusy }}" hint-size="100%,46px">{{ authCta }}</x-import></div>
+              <p class="mt-0.5 text-center text-md text-text-secondary">{{ authSwitchPrefix }} <a href="#" onClick="{{ authSwitch }}" class="font-medium">{{ authSwitchLink }}</a></p>
+              <p class="text-center text-xs text-text-tertiary">{{ protoHint }}</p>
+            </form>
+          </div>
+        </sc-if>
+
+
+        <sc-if value="{{ isApp }}" hint-placeholder-val="{{ true }}">
+          <header class="h-14 flex-none flex items-center gap-2 px-4 bg-surface-card border-b border-border-subtle">
+            <sc-if value="{{ showBack }}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.IconButton" icon="arrow-left" label="{{ tx.back }}" onClick="{{ goBack }}" hint-size="34px,34px"></x-import></sc-if>
+            <sc-if value="{{ showLogo }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ goBoards }}" aria-label="{{ tx.myBoards }}" class="flex items-center gap-2 bg-transparent p-1 rounded-sm cursor-pointer focus-visible:outline-2 focus-visible:outline-border-focus">
+                <span class="size-7 rounded-md bg-brand flex items-center justify-center text-on-brand"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="list-checks" size="{{ 16 }}" hint-size="16px,16px"></x-import></span>
+                <span class="font-display font-semibold text-xl leading-none tracking-tight text-text-primary whitespace-nowrap">task list</span>
+              </button>
+            </sc-if>
+            <sc-if value="{{ showCrumb }}" hint-placeholder-val="{{ false }}">
+              <nav aria-label="breadcrumb" class="flex items-center gap-1 min-w-0 ml-2">
+                <sc-for list="{{ crumbs }}" as="cr" hint-placeholder-count="1">
+                  <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="chevron-right" size="{{ 16 }}" color="var(--text-disabled)" hint-size="16px,16px"></x-import>
+                  <sc-if value="{{ cr.isLink }}" hint-placeholder-val="{{ true }}"><button onClick="{{ cr.onClick }}" class="bg-transparent px-2 py-1.5 rounded-sm font-medium text-md text-text-secondary cursor-pointer whitespace-nowrap hover:bg-neutral-100 hover:text-text-primary focus-visible:outline-2 focus-visible:outline-border-focus">{{ cr.label }}</button></sc-if>
+                  <sc-if value="{{ cr.isCurrent }}" hint-placeholder-val="{{ false }}"><span aria-current="page" class="px-1.5 font-semibold text-md text-text-primary overflow-hidden text-ellipsis whitespace-nowrap">{{ cr.label }}</span></sc-if>
+                </sc-for>
+              </nav>
+            </sc-if>
+            <sc-if value="{{ showBack }}" hint-placeholder-val="{{ false }}">
+              <span class="min-w-0 font-display font-semibold text-lg tracking-snug text-text-primary overflow-hidden text-ellipsis whitespace-nowrap">{{ mobileTitle }}</span>
+            </sc-if>
+            <div class="flex-1"></div>
+            <sc-if value="{{ showMobileHeadMenu }}" hint-placeholder-val="{{ false }}">
+              <div class="relative">
+                <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.IconButton" icon="ellipsis" label="{{ tx.boardMenu }}" active="{{ headMenu }}" onClick="{{ toggleHeadMenu }}" hint-size="34px,34px"></x-import>
+                <sc-if value="{{ headMenu }}" hint-placeholder-val="{{ false }}">
+                  <div onClick="{{ closeHeadMenu }}" class="fixed inset-0 z-15"></div>
+                  <div role="menu" class="tl-menu top-10 right-0">
+                    <sc-for list="{{ headMenuItems }}" as="m" hint-placeholder-count="1"><button role="menuitem" onClick="{{ m.onClick }}" class="tl-menu-item {{ m.cls }}"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="{{ m.icon }}" size="{{ 16 }}" hint-size="16px,16px"></x-import><span>{{ m.label }}</span></button></sc-for>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-if>
+            <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.IconButton" icon="keyboard" label="{{ tx.shortcutsHint }}" onClick="{{ openShortcuts }}" hint-size="34px,34px"></x-import></sc-if>
+            <sc-if value="{{ showSettingsBtn }}" hint-placeholder-val="{{ true }}"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.IconButton" icon="settings" label="{{ tx.settings }}" onClick="{{ goSettings }}" hint-size="34px,34px"></x-import></sc-if>
+          </header>
+
+          <div data-main-scroll="1" class="flex-1 min-h-0 overflow-auto">
+            <div class="{{ contentCls }}">
+
+              <sc-if value="{{ isBoards }}" hint-placeholder-val="{{ true }}">
+                <div data-screen-label="Meus quadros" class="flex flex-col gap-5">
+                  <div class="flex items-center gap-3 flex-wrap">
+                    <h1 class="flex-1 font-display font-semibold text-3xl leading-tight tracking-tight text-text-primary">{{ tx.myBoards }}</h1>
+                    <sc-if value="{{ showCreateBoard }}" hint-placeholder-val="{{ true }}"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" icon-left="plus" onClick="{{ openCreateBoard }}" hint-size="130px,36px">{{ tx.createBoard }}</x-import></sc-if>
+                  </div>
+                  <sc-if value="{{ boardsTabsShown }}" hint-placeholder-val="{{ true }}">
+                    <div><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.SegmentedControl" options="{{ boardsTabOpts }}" value="{{ boardsTab }}" onChange="{{ setBoardsTab }}" hint-size="220px,34px"></x-import></div>
+                  </sc-if>
+                  <sc-if value="{{ boardsLoading }}" hint-placeholder-val="{{ false }}">
+                    <div aria-busy="true" class="grid grid-boards gap-4">
+                      <sc-for list="{{ skeletons }}" as="k" hint-placeholder-count="6">
+                        <div class="h-26 p-4 flex flex-col justify-between bg-surface-card border border-border-subtle rounded-lg animate-skeleton">
+                          <div class="h-3.5 rounded-xs bg-surface-sunken {{ k.cls }}"></div>
+                          <div class="h-2.5 w-2/5 rounded-xs bg-surface-sunken"></div>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ boardsError }}" hint-placeholder-val="{{ false }}">
+                    <div role="alert" class="py-16 px-4 flex flex-col items-center text-center gap-2">
+                      <div class="tl-well bg-red-50 text-red-600"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="cloud-off" size="{{ 24 }}" hint-size="24px,24px"></x-import></div>
+                      <h2 class="mt-2 font-display font-semibold text-2xl tracking-tight text-text-primary">{{ tx.loadErrTitle }}</h2>
+                      <p class="text-md text-text-secondary">{{ tx.loadErrSub }}</p>
+                      <div class="mt-2"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" variant="secondary" icon-left="refresh-cw" onClick="{{ retryBoards }}" hint-size="160px,36px">{{ tx.retry }}</x-import></div>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ boardsEmpty }}" hint-placeholder-val="{{ false }}">
+                    <div class="py-18 px-4 flex flex-col items-center text-center gap-2.5">
+                      <div class="tl-well bg-brand-soft text-purple-700"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="layout-dashboard" size="{{ 24 }}" hint-size="24px,24px"></x-import></div>
+                      <h2 class="mt-2 font-display font-semibold text-2xl leading-snug tracking-tight text-text-primary">{{ tx.boardsEmptyTitle }}</h2>
+                      <p class="max-w-90 text-md text-text-secondary text-pretty">{{ tx.boardsEmptySub }}</p>
+                      <div class="mt-2"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" icon-left="plus" onClick="{{ openCreateBoard }}" hint-size="140px,36px">{{ tx.createBoard }}</x-import></div>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ archivedEmpty }}" hint-placeholder-val="{{ false }}">
+                    <div class="py-16 px-4 flex flex-col items-center text-center gap-2.5 border border-dashed border-border-default rounded-lg">
+                      <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="archive" size="{{ 28 }}" color="var(--text-tertiary)" hint-size="28px,28px"></x-import>
+                      <div class="font-medium text-lg text-text-primary">{{ tx.archivedBoardsEmpty }}</div>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ boardsReady }}" hint-placeholder-val="{{ true }}">
+                    <div class="grid grid-boards gap-4">
+                      <sc-for list="{{ boardCards }}" as="b" hint-placeholder-count="3">
+                        <div role="link" tabIndex="0" onClick="{{ b.onOpen }}" onKeyDown="{{ b.onKey }}" class="relative min-h-26 flex flex-col justify-between gap-3 pt-3.5 pr-3 pb-3.5 pl-4 bg-surface-card border border-border-subtle rounded-lg shadow-xs cursor-pointer transition hover:border-border-default hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus {{ b.cls }}">
+                          <div class="flex items-start gap-2">
+                            <div class="flex-1 min-w-0 pt-1 flex flex-col gap-1">
+                              <div class="font-display font-semibold text-xl leading-snug tracking-snug text-text-primary text-pretty wrap-anywhere">{{ b.name }}</div>
+                              <sc-if value="{{ b.hasDesc }}" hint-placeholder-val="{{ false }}"><div class="text-sm text-text-secondary line-clamp-2 wrap-anywhere">{{ b.description }}</div></sc-if>
+                            </div>
+                            <div onClick="{{ stop }}" class="relative">
+                              <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.IconButton" icon="ellipsis" size="sm" label="{{ tx.boardMenu }}" active="{{ b.menuOpen }}" onClick="{{ b.onMenu }}" hint-size="28px,28px"></x-import>
+                              <sc-if value="{{ b.menuOpen }}" hint-placeholder-val="{{ false }}">
+                                <div onClick="{{ closeBoardMenu }}" class="fixed inset-0 z-15 cursor-default"></div>
+                                <div role="menu" onClick="{{ stop }}" class="tl-menu top-8 right-0">
+                                  <sc-for list="{{ b.menuItems }}" as="m" hint-placeholder-count="2"><button role="menuitem" onClick="{{ m.onClick }}" class="tl-menu-item {{ m.cls }}"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="{{ m.icon }}" size="{{ 16 }}" hint-size="16px,16px"></x-import><span>{{ m.label }}</span></button></sc-for>
+                                </div>
+                              </sc-if>
+                            </div>
+                          </div>
+                          <div class="flex items-center gap-1.5 text-sm text-text-secondary"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="{{ b.dateIcon }}" size="{{ 14 }}" color="var(--text-tertiary)" hint-size="14px,14px"></x-import><span>{{ b.dateText }}</span><sc-if value="{{ b.pending }}" hint-placeholder-val="{{ false }}"><span title="{{ tx.pending }}" aria-label="{{ tx.pending }}" class="tl-spin"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="loader" size="{{ 14 }}" hint-size="14px,14px"></x-import></span></sc-if></div>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ boardLoading }}" hint-placeholder-val="{{ false }}">
+                <div aria-busy="true" data-screen-label="Quadro (carregando)" class="flex flex-col gap-3.5 animate-skeleton">
+                  <div class="h-7 w-65 max-w-2/3 bg-surface-sunken rounded-sm"></div>
+                  <div class="flex gap-2.5 flex-wrap"><div class="h-9 w-65 bg-surface-sunken rounded-sm"></div><div class="h-9 w-30 bg-surface-sunken rounded-sm"></div><div class="h-9 w-37.5 bg-surface-sunken rounded-sm"></div></div>
+                  <div class="flex overflow-hidden items-start {{ colGap }}">
+                    <sc-for list="{{ skelCols }}" as="sc" hint-placeholder-count="4">
+                      <div class="flex-none p-2 rounded-lg bg-surface-sunken flex flex-col gap-2 {{ colW }}">
+                        <div class="h-3.5 w-1/2 mx-1.5 my-2 rounded-xs bg-border-subtle"></div>
+                        <sc-for list="{{ sc.cards }}" as="k" hint-placeholder-count="2"><div class="rounded-md bg-surface-card border border-border-subtle {{ k.cls }}"></div></sc-for>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ boardError }}" hint-placeholder-val="{{ false }}">
+                <div role="alert" data-screen-label="Quadro (erro)" class="py-18 px-4 flex flex-col items-center text-center gap-2">
+                  <div class="tl-well bg-surface-sunken text-text-secondary"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="cloud-off" size="{{ 24 }}" hint-size="24px,24px"></x-import></div>
+                  <h2 class="mt-2 font-display font-semibold text-2xl tracking-tight text-text-primary">{{ tx.loadErrTitle }}</h2>
+                  <p class="text-md text-text-secondary">{{ tx.loadErrSub }}</p>
+                  <div class="mt-2"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" variant="secondary" icon-left="refresh-cw" onClick="{{ retryBoards }}" hint-size="160px,36px">{{ tx.retry }}</x-import></div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ boardNF }}" hint-placeholder-val="{{ false }}">
+                <div role="alert" data-screen-label="Quadro não encontrado" class="py-18 px-4 flex flex-col items-center text-center gap-2">
+                  <div class="tl-well bg-surface-sunken text-text-secondary"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="search-x" size="{{ 24 }}" hint-size="24px,24px"></x-import></div>
+                  <h2 class="mt-2 font-display font-semibold text-2xl tracking-tight text-text-primary">{{ tx.boardNF }}</h2>
+                  <p class="text-md text-text-secondary">{{ tx.boardNFSub }}</p>
+                  <div class="mt-2"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" icon-left="arrow-left" onClick="{{ goBoards }}" hint-size="210px,36px">{{ tx.backToBoards }}</x-import></div>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ isBoard }}" hint-placeholder-val="{{ false }}">
+                <div data-screen-label="Quadro" class="flex flex-col gap-3.5 min-w-0">
+                  <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+                    <div class="flex flex-col gap-1">
+                      <div class="flex items-center gap-2">
+                        <h1 class="min-w-0 font-display font-semibold text-3xl leading-tight tracking-tight text-text-primary wrap-anywhere">{{ boardName }}</h1>
+                        <div class="relative">
+                          <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.IconButton" icon="ellipsis" label="{{ tx.boardMenu }}" active="{{ headMenu }}" onClick="{{ toggleHeadMenu }}" hint-size="34px,34px"></x-import>
+                          <sc-if value="{{ headMenu }}" hint-placeholder-val="{{ false }}">
+                            <div onClick="{{ closeHeadMenu }}" class="fixed inset-0 z-15"></div>
+                            <div role="menu" class="tl-menu top-10 left-0">
+                              <sc-for list="{{ headMenuItems }}" as="m" hint-placeholder-count="1"><button role="menuitem" onClick="{{ m.onClick }}" class="tl-menu-item {{ m.cls }}"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="{{ m.icon }}" size="{{ 16 }}" hint-size="16px,16px"></x-import><span>{{ m.label }}</span></button></sc-for>
+                            </div>
+                          </sc-if>
+                        </div>
+                      </div>
+                      <sc-if value="{{ hasBoardDesc }}" hint-placeholder-val="{{ false }}"><p class="max-w-180 text-md text-text-secondary text-pretty wrap-anywhere">{{ boardDesc }}</p></sc-if>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ boardRO }}" hint-placeholder-val="{{ false }}">
+                    <div role="status" class="flex items-center gap-2 flex-wrap pl-3 pr-2 py-2 rounded-sm bg-surface-sunken text-sm font-medium text-text-secondary">
+                      <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="lock" size="{{ 14 }}" hint-size="14px,14px"></x-import><span class="flex-1">{{ tx.boardArchivedBanner }}</span>
+                      <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" variant="secondary" size="sm" icon-left="rotate-ccw" onClick="{{ restoreOpenBoard }}" hint-size="110px,30px">{{ tx.restore }}</x-import>
+                    </div>
+                  </sc-if>
+                  <div role="search" class="flex items-center gap-x-2.5 gap-y-2 flex-wrap">
+                    <div class="h-9 flex items-center gap-2 pr-1.5 pl-2.5 bg-surface-card border border-border-subtle rounded-sm shadow-input text-text-tertiary focus-within:border-border-focus focus-within:shadow-focus {{ searchW }}">
+                      <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="search" size="{{ 16 }}" hint-size="16px,16px"></x-import>
+                      <input ref="{{ searchRef }}" value="{{ q }}" onChange="{{ onQ }}" onKeyDown="{{ onSearchKey }}" placeholder="{{ tx.searchBoard }}" aria-label="{{ tx.searchBoard }}" class="flex-1 min-w-0 outline-0 bg-transparent text-md text-text-primary placeholder:text-text-tertiary"></input>
+                      <sc-if value="{{ hasQ }}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.IconButton" icon="x" size="sm" label="{{ tx.clearFilters }}" onClick="{{ clearQ }}" hint-size="28px,28px"></x-import></sc-if>
+                      <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}"><span aria-hidden="true" class="text-2xs px-1.5 py-px rounded-xs border border-border-subtle text-text-tertiary">/</span></sc-if>
+                    </div>
+                    <div class="relative">
+                      <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" variant="{{ labelFilterVariant }}" icon-left="tag" onClick="{{ toggleLabelFilter }}" aria-expanded="{{ labelFilterOpen }}" hint-size="120px,36px">{{ labelFilterText }}</x-import>
+                      <sc-if value="{{ labelFilterOpen }}" hint-placeholder-val="{{ false }}">
+                        <div onClick="{{ closeLabelFilter }}" class="fixed inset-0 z-15"></div>
+                        <div role="group" aria-label="{{ tx.labels }}" class="tl-menu top-10.5 left-0 w-60 max-h-75 overflow-auto gap-0.5">
+                          <sc-for list="{{ labelFilterItems }}" as="li" hint-placeholder-count="3">
+                            <button role="menuitemcheckbox" aria-checked="{{ li.checked }}" onClick="{{ li.onClick }}" class="min-h-9 flex items-center gap-2.5 px-2 rounded-sm bg-transparent cursor-pointer text-left hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-border-focus">
+                              <span class="flex pointer-events-none"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Checkbox" checked="{{ li.checked }}" hint-size="20px,20px"></x-import></span><span class="tl-chip {{ li.chipCls }}"><span class="tl-dot {{ li.dotCls }}"></span><span>{{ li.name }}</span></span>
+                            </button>
+                          </sc-for>
+                          <sc-if value="{{ noLabelsAtAll }}" hint-placeholder-val="{{ false }}"><div class="p-3 text-sm text-text-tertiary">{{ tx.noLabelsYet }}</div></sc-if>
+                        </div>
+                      </sc-if>
+                    </div>
+                    <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Select" options="{{ dueOpts }}" value="{{ fDue }}" onChange="{{ onFDue }}" hint-size="150px,36px"></x-import>
+                    <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Switch" checked="{{ showArch }}" onChange="{{ onShowArch }}" label="{{ tx.showArchived }}" hint-size="170px,20px"></x-import>
+                    <div class="flex-1"></div>
+                    <sc-if value="{{ filtersActive }}" hint-placeholder-val="{{ false }}">
+                      <span role="status" class="text-sm font-medium text-text-secondary whitespace-nowrap">{{ resultText }}</span>
+                      <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" variant="ghost" size="sm" icon-left="x" onClick="{{ clearFilters }}" hint-size="120px,30px">{{ tx.clearFilters }}</x-import>
+                    </sc-if>
+                  </div>
+                  <sc-if value="{{ showDragOff }}" hint-placeholder-val="{{ false }}">
+                    <div class="flex items-center gap-1.5 -mt-1 text-xs text-text-tertiary"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="info" size="{{ 14 }}" hint-size="14px,14px"></x-import><span>{{ tx.dragOff }}</span></div>
+                  </sc-if>
+                  <sc-if value="{{ kbdActive }}" hint-placeholder-val="{{ false }}">
+                    <div class="flex items-center gap-2 px-3 py-2 rounded-md bg-brand-soft text-purple-700 font-medium text-sm"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="move" size="{{ 16 }}" hint-size="16px,16px"></x-import><span>{{ kbdText }}</span></div>
+                  </sc-if>
+
+                  <sc-if value="{{ boardNoCols }}" hint-placeholder-val="{{ false }}">
+                    <div class="py-12 px-4 flex flex-col items-center text-center gap-2.5 border border-dashed border-border-default rounded-lg">
+                      <div class="tl-well bg-brand-soft text-purple-700"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="columns-3" size="{{ 24 }}" hint-size="24px,24px"></x-import></div>
+                      <h2 class="mt-1.5 font-display font-semibold text-2xl tracking-tight text-text-primary">{{ tx.emptyBoardTitle }}</h2>
+                      <p class="max-w-95 text-md text-text-secondary text-pretty">{{ tx.emptyBoardSub }}</p>
+                      <div class="w-75 max-w-full mt-2 text-left">
+                        <sc-if value="{{ notAddingCol }}" hint-placeholder-val="{{ true }}"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" icon-left="plus" full-width="{{ true }}" onClick="{{ openAddCol }}" hint-size="100%,36px">{{ tx.addColumn }}</x-import></sc-if>
+                        <sc-if value="{{ addingCol }}" hint-placeholder-val="{{ false }}"><div class="p-2 rounded-lg bg-surface-sunken flex flex-col gap-2">
+                          <input value="{{ newColName }}" onChange="{{ onNewColName }}" onKeyDown="{{ onNewColKey }}" autoFocus="{{ true }}" placeholder="{{ tx.colNamePh }}" aria-label="{{ tx.colNamePh }}" class="tl-field h-9 px-2.5"></input>
+                          <sc-if value="{{ hasNewColErr }}" hint-placeholder-val="{{ false }}"><div role="alert" class="tl-err">{{ newColErr }}</div></sc-if>
+                          <div class="flex items-center gap-1.5"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" size="sm" disabled="{{ busy }}" onClick="{{ addColumn }}" hint-size="110px,30px">{{ tx.addColumn }}</x-import><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.IconButton" icon="x" size="sm" label="{{ tx.cancel }}" onClick="{{ cancelAddCol }}" hint-size="28px,28px"></x-import></div>
+                        </div></sc-if>
+                      </div>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
+                    <div class="py-14 px-4 flex flex-col items-center text-center gap-2.5">
+                      <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="search-x" size="{{ 28 }}" color="var(--text-tertiary)" hint-size="28px,28px"></x-import>
+                      <div class="font-medium text-lg text-text-primary">{{ tx.noResults }}</div>
+                      <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" variant="secondary" size="sm" onClick="{{ clearFilters }}" hint-size="120px,30px">{{ tx.clearFilters }}</x-import>
+                    </div>
+                  </sc-if>
+
+                  <sc-if value="{{ showBoardCols }}" hint-placeholder-val="{{ true }}">
+                    <div ref="{{ boardRef }}" onScroll="{{ onBoardScroll }}" class="flex overflow-x-auto items-start p-0.5 pb-3 {{ colGap }} {{ snap }}">
+                      <sc-for list="{{ cols }}" as="c" hint-placeholder-count="3">
+                        <section aria-label="{{ c.name }}" onDragOver="{{ c.onDragOver }}" onDrop="{{ c.onDrop }}" class="flex-none snap-start flex flex-col gap-2 p-2 rounded-lg transition {{ colW }} {{ c.cls }}">
+                          <div data-col-id="{{ c.id }}" tabIndex="0" aria-label="{{ c.headAria }}" onKeyDown="{{ c.onHeadKey }}" draggable="{{ c.headDrag }}" onDragStart="{{ c.onHeadDragStart }}" onDragEnd="{{ endDrag }}" class="relative flex items-center gap-1.5 min-h-8 pl-1 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-border-focus {{ c.headCls }}">
+                            <sc-if value="{{ c.editing }}" hint-placeholder-val="{{ false }}">
+                              <input value="{{ editColName }}" onChange="{{ onEditColName }}" onKeyDown="{{ onEditColKey }}" onBlur="{{ onEditColBlur }}" autoFocus="{{ true }}" aria-label="{{ tx.colNamePh }}" class="tl-field flex-1 min-w-0 h-7.5 px-2"></input>
+                            </sc-if>
+                            <sc-if value="{{ c.showNameBtn }}" hint-placeholder-val="{{ true }}">
+                              <button onClick="{{ c.onStartEdit }}" title="{{ tx.rename }}" class="flex-1 min-w-0 text-left bg-transparent px-1 py-1.25 rounded-sm font-semibold text-md text-text-primary cursor-text overflow-hidden text-ellipsis whitespace-nowrap hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-border-focus">{{ c.name }}</button>
+                            </sc-if>
+                            <sc-if value="{{ c.showNameText }}" hint-placeholder-val="{{ false }}">
+                              <span class="flex-1 min-w-0 px-1 py-1.25 font-semibold text-md text-text-primary overflow-hidden text-ellipsis whitespace-nowrap">{{ c.name }}</span>
+                            </sc-if>
+                            <span class="min-w-5.5 h-5 px-1.5 rounded-xs bg-surface-card text-xs font-medium text-text-secondary inline-flex items-center justify-center">{{ c.count }}</span>
+                            <sc-if value="{{ c.pending }}" hint-placeholder-val="{{ false }}"><span title="{{ tx.pending }}" aria-label="{{ tx.pending }}" class="tl-spin"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="loader" size="{{ 14 }}" hint-size="14px,14px"></x-import></span></sc-if>
+                            <sc-if value="{{ c.editable }}" hint-placeholder-val="{{ true }}">
+                              <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.IconButton" icon="ellipsis" size="sm" label="{{ tx.colMenu }}" active="{{ c.menuOpen }}" onClick="{{ c.onMenu }}" hint-size="28px,28px"></x-import>
+                            </sc-if>
+                            <sc-if value="{{ c.menuOpen }}" hint-placeholder-val="{{ false }}">
+                              <div onClick="{{ closeColMenu }}" class="fixed inset-0 z-15 cursor-default"></div>
+                              <div role="menu" onClick="{{ stop }}" class="tl-menu top-8.5 right-0">
+                                <sc-for list="{{ c.menuItems }}" as="m" hint-placeholder-count="2"><button role="menuitem" onClick="{{ m.onClick }}" class="tl-menu-item {{ m.cls }}"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="{{ m.icon }}" size="{{ 16 }}" hint-size="16px,16px"></x-import><span>{{ m.label }}</span></button></sc-for>
+                              </div>
+                            </sc-if>
+                          </div>
+                          <sc-if value="{{ c.hasEditErr }}" hint-placeholder-val="{{ false }}"><div role="alert" class="tl-err">{{ editColErr }}</div></sc-if>
+                          <div class="flex flex-col gap-2 p-0.5 -m-0.5">
+                            <sc-for list="{{ c.tasks }}" as="t" hint-placeholder-count="2">
+                              <sc-if value="{{ t.gapBefore }}" hint-placeholder-val="{{ false }}"><div class="tl-gap"></div></sc-if>
+                              <div data-task-id="{{ t.id }}" role="button" tabIndex="0" aria-label="{{ t.aria }}" draggable="{{ t.drag }}" onDragStart="{{ t.onDragStart }}" onDragEnd="{{ t.onDragEnd }}" onDragOver="{{ t.onDragOver }}" onDrop="{{ t.onDrop }}" onClick="{{ t.onOpen }}" onKeyDown="{{ t.onKey }}" class="tl-card {{ t.cls }}">
+                                <sc-if value="{{ t.hasLabels }}" hint-placeholder-val="{{ false }}"><div class="flex flex-wrap gap-1"><sc-for list="{{ t.labels }}" as="l" hint-placeholder-count="1"><span class="tl-chip {{ l.chipCls }}"><span class="tl-dot {{ l.dotCls }}"></span><span>{{ l.name }}</span></span></sc-for></div></sc-if>
+                                <div class="flex items-start gap-2">
+                                  <span onClick="{{ stop }}" onKeyDown="{{ stop }}" class="flex pt-0.5"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Checkbox" checked="{{ t.done }}" disabled="{{ t.doneDisabled }}" onChange="{{ t.onDone }}" label="{{ doneSr }}" hint-size="20px,20px"></x-import></span>
+                                  <div class="flex-1 min-w-0 pt-0.5 font-medium text-md leading-snug text-pretty wrap-anywhere {{ t.titleCls }}">{{ t.title }}</div>
+                                  <sc-if value="{{ t.pending }}" hint-placeholder-val="{{ false }}"><span title="{{ tx.pending }}" aria-label="{{ tx.pending }}" class="tl-spin"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="loader" size="{{ 14 }}" hint-size="14px,14px"></x-import></span></sc-if>
+                                  <sc-if value="{{ t.hasMenu }}" hint-placeholder-val="{{ true }}"><div onClick="{{ stop }}" class="flex -my-0.5 -mr-1"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.IconButton" icon="ellipsis" size="sm" label="{{ tx.moveTo }}" onClick="{{ t.onMenu }}" hint-size="28px,28px"></x-import></div></sc-if>
+                                </div>
+                                <sc-if value="{{ t.hasMeta }}" hint-placeholder-val="{{ false }}">
+                                  <div class="flex items-center flex-wrap gap-x-3 gap-y-1.5 text-xs text-text-secondary">
+                                    <sc-if value="{{ t.hasDue }}" hint-placeholder-val="{{ false }}"><span class="inline-flex items-center gap-1 font-medium {{ t.dueCls }}"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="calendar" size="{{ 14 }}" hint-size="14px,14px"></x-import><span>{{ t.dueText }}</span></span></sc-if>
+                                    <sc-if value="{{ t.overdue }}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Badge" tone="danger" size="sm" icon="triangle-alert" hint-size="70px,20px">{{ tx.overdue }}</x-import></sc-if>
+                                    <sc-if value="{{ t.hasCheck }}" hint-placeholder-val="{{ false }}"><span class="inline-flex items-center gap-1 {{ t.checkCls }}"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="square-check" size="{{ 14 }}" hint-size="14px,14px"></x-import><span>{{ t.checkText }}</span></span></sc-if>
+                                  </div>
+                                </sc-if>
+                              </div>
+                            </sc-for>
+                            <sc-for list="{{ c.floating }}" as="fc" hint-placeholder-count="0">
+                              <div class="relative flex-none h-18 border-2 border-dashed border-border-focus rounded-md bg-brand-soft">
+                                <div class="absolute -top-3 left-3 -right-3.5 z-5 px-3 py-2.5 flex flex-col gap-2 bg-surface-card border border-purple-300 rounded-md shadow-lg rotate-3 pointer-events-none">
+                                  <sc-if value="{{ fc.hasLabels }}" hint-placeholder-val="{{ false }}"><div class="flex gap-1 flex-wrap"><sc-for list="{{ fc.labels }}" as="l" hint-placeholder-count="1"><span class="tl-chip {{ l.chipCls }}"><span class="tl-dot {{ l.dotCls }}"></span><span>{{ l.name }}</span></span></sc-for></div></sc-if>
+                                  <div class="font-medium text-md leading-snug text-text-primary">{{ fc.title }}</div>
+                                  <sc-if value="{{ fc.hasDue }}" hint-placeholder-val="{{ false }}"><span class="inline-flex items-center gap-1 text-xs text-text-secondary"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="calendar" size="{{ 14 }}" hint-size="14px,14px"></x-import><span>{{ fc.dueText }}</span></span></sc-if>
+                                </div>
+                              </div>
+                            </sc-for>
+                            <sc-if value="{{ c.gapEnd }}" hint-placeholder-val="{{ false }}"><div class="tl-gap"></div></sc-if>
+                            <sc-if value="{{ c.empty }}" hint-placeholder-val="{{ false }}"><div class="py-4.5 px-3 text-sm text-text-tertiary text-center border border-dashed border-border-default rounded-md">{{ c.emptyText }}</div></sc-if>
+                            <div onDragOver="{{ c.onEndOver }}" class="flex-none min-h-1.5"></div>
+                          </div>
+                          <sc-if value="{{ c.adding }}" hint-placeholder-val="{{ false }}">
+                            <div class="flex flex-col gap-2">
+                              <textarea ref="{{ quickRef }}" value="{{ quick }}" onChange="{{ onQuick }}" onKeyDown="{{ onQuickKey }}" rows="2" placeholder="{{ tx.taskTitlePh }}" aria-label="{{ tx.taskTitlePh }}" class="tl-field resize-none px-2.5 py-2 rounded-md leading-snug border-border-focus shadow-focus"></textarea>
+                              <sc-if value="{{ c.hasQuickErr }}" hint-placeholder-val="{{ false }}"><div role="alert" class="tl-err">{{ quickErr }}</div></sc-if>
+                              <div class="flex items-center gap-1.5"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" size="sm" disabled="{{ busy }}" onClick="{{ addTask }}" hint-size="90px,30px">{{ tx.add }}</x-import><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.IconButton" icon="x" size="sm" label="{{ tx.cancel }}" onClick="{{ cancelAdd }}" hint-size="28px,28px"></x-import></div>
+                            </div>
+                          </sc-if>
+                          <sc-if value="{{ c.canAdd }}" hint-placeholder-val="{{ true }}">
+                            <button onClick="{{ c.onAdd }}" class="tl-ghost-btn h-8.5 px-2 text-sm"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="plus" size="{{ 16 }}" hint-size="16px,16px"></x-import><span>{{ tx.addTask }}</span></button>
+                          </sc-if>
+                        </section>
+                      </sc-for>
+
+                      <sc-if value="{{ showArch }}" hint-placeholder-val="{{ false }}">
+                        <section aria-label="{{ tx.archivedCol }}" class="flex-none snap-start flex flex-col gap-2 p-2 rounded-lg border-2 border-dashed border-border-default bg-transparent {{ colW }}">
+                          <div class="flex items-center gap-2 min-h-8 px-1 text-text-secondary">
+                            <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="archive" size="{{ 16 }}" hint-size="16px,16px"></x-import>
+                            <span class="flex-1 font-semibold text-md">{{ tx.archivedCol }}</span>
+                            <span class="min-w-5.5 h-5 px-1.5 rounded-xs bg-surface-sunken text-xs font-medium inline-flex items-center justify-center">{{ archCount }}</span>
+                          </div>
+                          <div class="flex flex-col gap-2">
+                            <sc-for list="{{ archivedTasks }}" as="t" hint-placeholder-count="1">
+                              <div data-task-id="{{ t.id }}" role="button" tabIndex="0" aria-label="{{ t.aria }}" onClick="{{ t.onOpen }}" onKeyDown="{{ t.onKey }}" class="tl-card {{ t.cls }}">
+                                <sc-if value="{{ t.hasLabels }}" hint-placeholder-val="{{ false }}"><div class="flex flex-wrap gap-1"><sc-for list="{{ t.labels }}" as="l" hint-placeholder-count="1"><span class="tl-chip {{ l.chipCls }}"><span class="tl-dot {{ l.dotCls }}"></span><span>{{ l.name }}</span></span></sc-for></div></sc-if>
+                                <div class="flex items-start gap-2">
+                                  <span onClick="{{ stop }}" class="flex pt-0.5"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Checkbox" checked="{{ t.done }}" disabled="{{ true }}" label="{{ doneSr }}" hint-size="20px,20px"></x-import></span>
+                                  <div class="flex-1 min-w-0 pt-0.5 font-medium text-md leading-snug text-pretty wrap-anywhere {{ t.titleCls }}">{{ t.title }}</div>
+                                  <sc-if value="{{ t.pending }}" hint-placeholder-val="{{ false }}"><span title="{{ tx.pending }}" aria-label="{{ tx.pending }}" class="tl-spin"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="loader" size="{{ 14 }}" hint-size="14px,14px"></x-import></span></sc-if>
+                                </div>
+                                <sc-if value="{{ t.hasCheck }}" hint-placeholder-val="{{ false }}"><span class="inline-flex items-center gap-1 text-xs {{ t.checkCls }}"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="square-check" size="{{ 14 }}" hint-size="14px,14px"></x-import><span>{{ t.checkText }}</span></span></sc-if>
+                                <div class="text-xs text-text-tertiary">{{ t.archText }}</div>
+                              </div>
+                            </sc-for>
+                            <sc-if value="{{ archEmpty }}" hint-placeholder-val="{{ false }}"><div class="py-4.5 px-3 text-sm text-text-tertiary text-center">{{ tx.noArchived }}</div></sc-if>
+                          </div>
+                        </section>
+                        <section aria-label="{{ tx.archivedCols }}" class="flex-none snap-start flex flex-col gap-2 p-2 rounded-lg border-2 border-dashed border-border-default bg-transparent {{ colW }}">
+                          <div class="flex items-center gap-2 min-h-8 px-1 text-text-secondary">
+                            <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="columns-3" size="{{ 16 }}" hint-size="16px,16px"></x-import>
+                            <span class="flex-1 font-semibold text-md">{{ tx.archivedCols }}</span>
+                            <span class="min-w-5.5 h-5 px-1.5 rounded-xs bg-surface-sunken text-xs font-medium inline-flex items-center justify-center">{{ archColCount }}</span>
+                          </div>
+                          <div class="flex flex-col gap-2">
+                            <sc-for list="{{ archivedCols }}" as="ac" hint-placeholder-count="1">
+                              <div class="flex flex-col gap-2 px-3 py-2.5 bg-neutral-25 border border-border-subtle rounded-md">
+                                <div class="flex items-start gap-2"><div class="flex-1 min-w-0 font-semibold text-md text-text-primary wrap-anywhere">{{ ac.name }}</div><sc-if value="{{ ac.pending }}" hint-placeholder-val="{{ false }}"><span title="{{ tx.pending }}" aria-label="{{ tx.pending }}" class="tl-spin"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="loader" size="{{ 14 }}" hint-size="14px,14px"></x-import></span></sc-if></div>
+                                <div class="flex items-center gap-x-1.5 flex-wrap text-xs text-text-tertiary"><span>{{ ac.when }}</span><span aria-hidden="true">·</span><span>{{ ac.count }}</span></div>
+                                <sc-if value="{{ ac.canAct }}" hint-placeholder-val="{{ true }}">
+                                  <div class="flex items-center gap-1.5 flex-wrap"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" variant="secondary" size="sm" icon-left="rotate-ccw" onClick="{{ ac.onRestore }}" hint-size="110px,30px">{{ tx.restore }}</x-import><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" variant="ghost" size="sm" icon-left="trash-2" onClick="{{ ac.onDelete }}" hint-size="170px,30px">{{ tx.deleteForever }}</x-import></div>
+                                </sc-if>
+                              </div>
+                            </sc-for>
+                            <sc-if value="{{ archColsEmpty }}" hint-placeholder-val="{{ false }}"><div class="py-4.5 px-3 text-sm text-text-tertiary text-center">{{ tx.noArchivedCols }}</div></sc-if>
+                          </div>
+                        </section>
+                      </sc-if>
+
+                      <sc-if value="{{ canAddCol }}" hint-placeholder-val="{{ true }}">
+                        <div class="flex-none snap-start {{ colW }}">
+                          <sc-if value="{{ notAddingCol }}" hint-placeholder-val="{{ true }}">
+                            <button onClick="{{ openAddCol }}" class="w-full h-11.5 flex items-center gap-2 px-3.5 border border-dashed border-border-default rounded-lg bg-transparent text-text-secondary font-medium text-md cursor-pointer hover:bg-surface-card hover:text-text-primary hover:border-border-strong focus-visible:outline-2 focus-visible:outline-border-focus"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="plus" size="{{ 16 }}" hint-size="16px,16px"></x-import><span>{{ tx.addColumn }}</span></button>
+                          </sc-if>
+                          <sc-if value="{{ addingCol }}" hint-placeholder-val="{{ false }}"><div class="p-2 rounded-lg bg-surface-sunken flex flex-col gap-2">
+                            <input value="{{ newColName }}" onChange="{{ onNewColName }}" onKeyDown="{{ onNewColKey }}" autoFocus="{{ true }}" placeholder="{{ tx.colNamePh }}" aria-label="{{ tx.colNamePh }}" class="tl-field h-9 px-2.5"></input>
+                            <sc-if value="{{ hasNewColErr }}" hint-placeholder-val="{{ false }}"><div role="alert" class="tl-err">{{ newColErr }}</div></sc-if>
+                            <div class="flex items-center gap-1.5"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" size="sm" disabled="{{ busy }}" onClick="{{ addColumn }}" hint-size="110px,30px">{{ tx.addColumn }}</x-import><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.IconButton" icon="x" size="sm" label="{{ tx.cancel }}" onClick="{{ cancelAddCol }}" hint-size="28px,28px"></x-import></div>
+                          </div></sc-if>
+                        </div>
+                      </sc-if>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ showPager }}" hint-placeholder-val="{{ false }}">
+                    <div class="flex flex-col items-center gap-2 -mt-1">
+                      <div class="flex items-center gap-1.5">
+                        <sc-for list="{{ pagerDots }}" as="p" hint-placeholder-count="3"><button onClick="{{ p.onClick }}" aria-label="{{ p.label }}" class="h-1.5 rounded-full cursor-pointer transition-all {{ p.cls }}"></button></sc-for>
+                      </div>
+                      <span aria-live="polite" class="text-xs text-text-secondary">{{ pageLabel }}</span>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ showKbdHelp }}" hint-placeholder-val="{{ false }}">
+                    <div class="flex items-center gap-1.5 text-xs text-text-tertiary"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="keyboard" size="{{ 14 }}" hint-size="14px,14px"></x-import><span>{{ tx.kbdHelp }}</span></div>
+                  </sc-if>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ isLabels }}" hint-placeholder-val="{{ false }}">
+                <div data-screen-label="Etiquetas do quadro" class="flex flex-col gap-4 max-w-180 w-full mx-auto">
+                  <div class="flex items-end gap-3 flex-wrap">
+                    <div class="flex-1 min-w-50">
+                      <h1 class="font-display font-semibold text-3xl leading-tight tracking-tight text-text-primary">{{ tx.boardLabels }}</h1>
+                      <div class="mt-1 text-sm text-text-secondary">{{ labelsSub }}</div>
+                    </div>
+                    <sc-if value="{{ canEditLabels }}" hint-placeholder-val="{{ true }}"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" icon-left="plus" onClick="{{ openNewLabel }}" hint-size="130px,36px">{{ tx.newLabel }}</x-import></sc-if>
+                  </div>
+                  <sc-if value="{{ boardRO }}" hint-placeholder-val="{{ false }}">
+                    <div role="status" class="flex items-center gap-2 px-3 py-2.5 rounded-sm bg-surface-sunken text-sm font-medium text-text-secondary"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="lock" size="{{ 14 }}" hint-size="14px,14px"></x-import><span>{{ tx.boardArchivedBanner }}</span></div>
+                  </sc-if>
+                  <sc-if value="{{ labelsEmpty }}" hint-placeholder-val="{{ false }}">
+                    <div class="py-14 px-4 flex flex-col items-center text-center gap-2 border border-dashed border-border-default rounded-lg">
+                      <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="tag" size="{{ 28 }}" color="var(--text-tertiary)" hint-size="28px,28px"></x-import>
+                      <div class="font-medium text-lg text-text-primary">{{ tx.noLabelsYet }}</div>
+                      <div class="text-md text-text-secondary">{{ tx.noLabelsYetSub }}</div>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ hasLabelRows }}" hint-placeholder-val="{{ true }}">
+                    <div class="flex flex-col bg-surface-card border border-border-subtle rounded-lg overflow-hidden divide-y divide-border-subtle">
+                      <sc-for list="{{ labelRows }}" as="l" hint-placeholder-count="3">
+                        <div class="flex items-center gap-3 py-2.5 pr-2.5 pl-4 min-h-12">
+                          <div class="flex-1 min-w-0 flex items-center gap-3 flex-wrap"><span class="tl-chip {{ l.chipCls }}"><span class="tl-dot {{ l.dotCls }}"></span><span>{{ l.name }}</span></span><span class="text-sm text-text-tertiary">{{ l.usage }}</span><sc-if value="{{ l.pending }}" hint-placeholder-val="{{ false }}"><span title="{{ tx.pending }}" aria-label="{{ tx.pending }}" class="tl-spin"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="loader" size="{{ 14 }}" hint-size="14px,14px"></x-import></span></sc-if></div>
+                          <sc-if value="{{ canEditLabels }}" hint-placeholder-val="{{ true }}">
+                            <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.IconButton" icon="pencil" size="sm" label="{{ tx.editLabel }}" onClick="{{ l.onEdit }}" hint-size="28px,28px"></x-import>
+                            <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.IconButton" icon="trash-2" size="sm" label="{{ tx.delete }}" onClick="{{ l.onDelete }}" hint-size="28px,28px"></x-import>
+                          </sc-if>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+                <div data-screen-label="Configurações" class="flex flex-col gap-3.5 max-w-180 w-full mx-auto">
+                  <h1 class="mb-1 font-display font-semibold text-3xl leading-tight tracking-tight text-text-primary">{{ tx.settings }}</h1>
+                  <div class="tl-panel flex items-center justify-between gap-x-4 gap-y-3 flex-wrap">
+                    <div class="min-w-50 flex-1 font-medium text-lg text-text-primary">{{ tx.language }}</div>
+                    <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.SegmentedControl" options="{{ langOptsLong }}" value="{{ lang }}" onChange="{{ setLang }}" hint-size="260px,34px"></x-import>
+                  </div>
+                  <div class="tl-panel flex items-center justify-between gap-x-4 gap-y-3 flex-wrap">
+                    <div class="min-w-50 flex-1"><div class="font-medium text-lg text-text-primary">{{ tx.theme }}</div><div class="mt-0.5 text-sm text-text-secondary">{{ tx.themeSub }}</div></div>
+                    <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.SegmentedControl" options="{{ themeOpts }}" value="{{ themePref }}" onChange="{{ setTheme }}" hint-size="240px,34px"></x-import>
+                  </div>
+                  <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+                    <div class="tl-panel flex flex-col gap-2.5">
+                      <div class="font-medium text-lg text-text-primary">{{ tx.shortcuts }}</div>
+                      <sc-for list="{{ shortcutRows }}" as="r" hint-placeholder-count="5"><div class="flex items-center gap-3 text-md text-text-secondary"><kbd class="tl-kbd">{{ r.k }}</kbd><span>{{ r.label }}</span></div></sc-for>
+                    </div>
+                  </sc-if>
+                  <div class="tl-panel flex flex-col gap-3">
+                    <div class="font-medium text-lg text-text-primary">{{ tx.session }}</div>
+                    <div class="text-sm text-text-secondary">{{ signedIn }}</div>
+                    <div><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" variant="secondary" icon-left="log-out" onClick="{{ logout }}" hint-size="90px,36px">{{ tx.logout }}</x-import></div>
+                  </div>
+                </div>
+              </sc-if>
+
+            </div>
+          </div>
+
+          <sc-if value="{{ detailOpen }}" hint-placeholder-val="{{ false }}">
+            <div onClick="{{ detailBackdrop }}" class="{{ detailWrapCls }}">
+              <div role="dialog" aria-modal="true" aria-label="{{ d.title }}" data-screen-label="Detalhe da tarefa" class="{{ detailPanelCls }}">
+                <div class="h-14 flex-none flex items-center gap-2 pr-3 pl-4 border-b border-border-subtle">
+                  <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.IconButton" icon="arrow-left" label="{{ tx.back }}" onClick="{{ detailClose }}" hint-size="34px,34px"></x-import></sc-if>
+                  <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="columns-3" size="{{ 14 }}" color="var(--text-tertiary)" hint-size="14px,14px"></x-import>
+                  <sc-if value="{{ dOk }}" hint-placeholder-val="{{ true }}"><span class="text-sm text-text-secondary">{{ tx.column }}</span><span class="min-w-0 font-medium text-sm text-text-primary overflow-hidden text-ellipsis whitespace-nowrap">{{ d.colName }}</span></sc-if>
+                  <sc-if value="{{ d.archived }}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Badge" tone="neutral" size="sm" icon="archive" hint-size="80px,20px">{{ tx.archivedCol }}</x-import></sc-if>
+                  <div class="flex-1"></div>
+                  <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.IconButton" icon="x" label="{{ tx.close }}" onClick="{{ detailClose }}" hint-size="34px,34px"></x-import></sc-if>
+                </div>
+                <sc-if value="{{ dLoading }}" hint-placeholder-val="{{ false }}">
+                  <div aria-busy="true" class="flex-1 flex flex-col gap-4.5 animate-skeleton {{ dPad }}">
+                    <div class="h-7 w-2/3 bg-surface-sunken rounded-sm"></div>
+                    <div class="flex gap-6"><div class="h-8.5 w-37.5 bg-surface-sunken rounded-sm"></div><div class="h-8.5 w-45 bg-surface-sunken rounded-sm"></div></div>
+                    <div class="h-3.5 w-1/3 bg-surface-sunken rounded-sm"></div><div class="h-23 bg-surface-sunken rounded-sm"></div>
+                    <div class="h-3.5 w-1/4 bg-surface-sunken rounded-sm"></div><div class="h-3 w-4/5 bg-surface-sunken rounded-sm"></div><div class="h-3 w-3/5 bg-surface-sunken rounded-sm"></div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ dError }}" hint-placeholder-val="{{ false }}">
+                  <div role="alert" class="flex-1 min-h-70 py-14 px-6 flex flex-col items-center justify-center text-center gap-2">
+                    <div class="tl-well bg-surface-sunken text-text-secondary"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="cloud-off" size="{{ 24 }}" hint-size="24px,24px"></x-import></div>
+                    <h2 class="mt-2 font-display font-semibold text-2xl tracking-tight text-text-primary">{{ tx.loadErrTitle }}</h2>
+                    <p class="text-md text-text-secondary">{{ tx.loadErrSub }}</p>
+                    <div class="mt-2"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" variant="secondary" icon-left="refresh-cw" onClick="{{ retryBoards }}" hint-size="160px,36px">{{ tx.retry }}</x-import></div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ dNF }}" hint-placeholder-val="{{ false }}">
+                  <div role="alert" class="flex-1 min-h-70 py-14 px-6 flex flex-col items-center justify-center text-center gap-2">
+                    <div class="tl-well bg-surface-sunken text-text-secondary"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="file-x" size="{{ 24 }}" hint-size="24px,24px"></x-import></div>
+                    <h2 class="mt-2 font-display font-semibold text-2xl tracking-tight text-text-primary">{{ tx.taskNF }}</h2>
+                    <p class="text-md text-text-secondary">{{ tx.taskNFSub }}</p>
+                    <div class="mt-2"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" variant="secondary" onClick="{{ detailClose }}" hint-size="90px,36px">{{ tx.close }}</x-import></div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ dOk }}" hint-placeholder-val="{{ true }}">
+                <div class="flex-1 min-h-0 overflow-auto flex flex-col gap-6 {{ dPad }}">
+                  <sc-if value="{{ d.hasBanner }}" hint-placeholder-val="{{ false }}">
+                    <div role="status" class="flex items-center gap-2 px-3 py-2.5 rounded-sm bg-surface-sunken text-sm font-medium text-text-secondary"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="lock" size="{{ 14 }}" hint-size="14px,14px"></x-import><span>{{ d.banner }}</span></div>
+                  </sc-if>
+                  <sc-if value="{{ d.colArchWarn }}" hint-placeholder-val="{{ false }}">
+                    <div role="alert" class="flex items-center gap-2 px-3 py-2.5 rounded-sm bg-red-50 text-red-700 text-sm font-medium"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="circle-alert" size="{{ 16 }}" hint-size="16px,16px"></x-import><span>{{ tx.errColArchived }}</span></div>
+                  </sc-if>
+                  <div class="flex flex-col gap-2">
+                    <div class="flex items-start gap-2.5">
+                      <span class="flex pt-2"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Checkbox" checked="{{ d.done }}" disabled="{{ d.ro }}" onChange="{{ d.onDone }}" label="{{ doneSr }}" hint-size="20px,20px"></x-import></span>
+                      <textarea value="{{ titleDraft }}" onChange="{{ onTitle }}" onBlur="{{ onTitleBlur }}" onKeyDown="{{ onTitleKey }}" readOnly="{{ d.ro }}" rows="1" aria-label="{{ tx.title }}" class="flex-1 min-w-0 resize-none field-sizing-content min-h-9 border border-transparent rounded-sm px-2 py-1 -ml-1 bg-transparent font-display font-semibold text-2xl leading-snug tracking-tight outline-0 hover:bg-surface-hover focus:border-border-focus focus:shadow-focus focus:bg-surface-card {{ d.titleCls }}"></textarea>
+                    </div>
+                    <sc-if value="{{ hasTitleErr }}" hint-placeholder-val="{{ false }}"><div role="alert" class="tl-err">{{ titleErr }}</div></sc-if>
+                    <sc-if value="{{ d.hasBadge }}" hint-placeholder-val="{{ false }}"><div class="flex gap-2">
+                      <sc-if value="{{ d.done }}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Badge" tone="success" icon="check" hint-size="90px,24px">{{ tx.done }}</x-import></sc-if>
+                      <sc-if value="{{ d.overdue }}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Badge" tone="danger" icon="triangle-alert" hint-size="80px,24px">{{ tx.overdue }}</x-import></sc-if>
+                    </div></sc-if>
+                  </div>
+                  <div class="flex flex-wrap gap-x-8 gap-y-4">
+                    <div class="flex flex-col gap-1.5">
+                      <span class="font-medium text-xs text-text-secondary">{{ tx.due }}</span>
+                      <div class="flex items-center gap-1.5">
+                        <input type="date" value="{{ d.due }}" onChange="{{ d.onDue }}" disabled="{{ d.ro }}" aria-label="{{ tx.due }}" class="tl-field h-8.5 px-2.5 {{ d.fieldCls }}"></input>
+                        <sc-if value="{{ d.hasDue }}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" variant="ghost" size="sm" icon-left="x" onClick="{{ d.clearDue }}" hint-size="120px,30px">{{ tx.removeDue }}</x-import></sc-if>
+                      </div>
+                    </div>
+                    <div class="relative flex flex-col gap-1.5 min-w-0">
+                      <span class="font-medium text-xs text-text-secondary">{{ tx.labels }}</span>
+                      <div class="flex items-center gap-1.5 flex-wrap min-h-8.5">
+                        <sc-for list="{{ d.labels }}" as="l" hint-placeholder-count="1"><span class="tl-chip {{ l.chipCls }}"><span class="tl-dot {{ l.dotCls }}"></span><span>{{ l.name }}</span></span></sc-for>
+                        <sc-if value="{{ d.active }}" hint-placeholder-val="{{ true }}"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.IconButton" icon="plus" size="sm" variant="outline" label="{{ tx.addLabel }}" active="{{ labelPop }}" onClick="{{ toggleLabelPop }}" hint-size="28px,28px"></x-import></sc-if>
+                      </div>
+                      <sc-if value="{{ labelPop }}" hint-placeholder-val="{{ false }}">
+                        <div onClick="{{ closeLabelPop }}" class="fixed inset-0 z-20"></div>
+                        <div role="dialog" aria-label="{{ tx.labels }}" class="absolute top-full left-0 mt-1.5 z-21 w-72.5 max-w-full p-2 bg-surface-card border border-border-subtle rounded-lg shadow-lg flex flex-col gap-1.5">
+                          <input value="{{ lpQ }}" onChange="{{ onLpQ }}" autoFocus="{{ true }}" placeholder="{{ tx.searchLabels }}" aria-label="{{ tx.searchLabels }}" class="tl-field h-8.5 px-2.5"></input>
+                          <div class="max-h-50 overflow-auto flex flex-col gap-0.5">
+                            <sc-for list="{{ d.lpItems }}" as="li" hint-placeholder-count="3">
+                              <button role="menuitemcheckbox" aria-checked="{{ li.checked }}" onClick="{{ li.onClick }}" class="min-h-9 flex items-center gap-2.5 px-2 rounded-sm bg-transparent cursor-pointer text-left hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-border-focus">
+                                <span class="flex pointer-events-none"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Checkbox" checked="{{ li.checked }}" hint-size="20px,20px"></x-import></span><span class="tl-chip {{ li.chipCls }}"><span class="tl-dot {{ li.dotCls }}"></span><span>{{ li.name }}</span></span>
+                              </button>
+                            </sc-for>
+                            <sc-if value="{{ d.lpEmpty }}" hint-placeholder-val="{{ false }}"><div class="p-2 text-sm text-text-tertiary">{{ tx.noLabels }}</div></sc-if>
+                          </div>
+                          <div class="h-px bg-border-subtle my-0.5"></div>
+                          <sc-if value="{{ d.lpCreating }}" hint-placeholder-val="{{ false }}">
+                            <div class="flex flex-col gap-2 p-1">
+                              <input value="{{ d.lpName }}" onChange="{{ onLpName }}" onKeyDown="{{ onLpNameKey }}" autoFocus="{{ true }}" placeholder="{{ tx.labelNamePh }}" aria-label="{{ tx.name }}" class="tl-field h-8.5 px-2.5"></input>
+                              <div class="flex gap-1.5 flex-wrap">
+                                <sc-for list="{{ d.lpSwatches }}" as="w" hint-placeholder-count="10"><button onClick="{{ w.onClick }}" title="{{ w.title }}" aria-label="{{ w.title }}" aria-pressed="{{ w.sel }}" class="size-5 rounded-sm cursor-pointer {{ w.cls }}"></button></sc-for>
+                              </div>
+                              <sc-if value="{{ d.hasLpErr }}" hint-placeholder-val="{{ false }}"><div role="alert" class="tl-err">{{ lpErr }}</div></sc-if>
+                              <div class="flex gap-1.5"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" size="sm" disabled="{{ busy }}" onClick="{{ createLabelFromPop }}" hint-size="80px,30px">{{ tx.create }}</x-import><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.IconButton" icon="x" size="sm" label="{{ tx.cancel }}" onClick="{{ cancelLpNew }}" hint-size="28px,28px"></x-import></div>
+                            </div>
+                          </sc-if>
+                          <sc-if value="{{ d.lpNotCreating }}" hint-placeholder-val="{{ true }}"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" variant="ghost" size="sm" icon-left="plus" onClick="{{ startLpNew }}" hint-size="130px,30px">{{ tx.createLabel }}</x-import></sc-if>
+                          <button onClick="{{ manageLabels }}" class="self-start bg-transparent px-2 py-1 font-medium text-sm text-text-link cursor-pointer underline underline-offset-2">{{ tx.manageLabels }}</button>
+                        </div>
+                      </sc-if>
+                    </div>
+                  </div>
+
+                  <section class="flex flex-col gap-2">
+                    <div class="flex items-center gap-2"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="align-left" size="{{ 16 }}" color="var(--text-secondary)" hint-size="16px,16px"></x-import><h3 class="font-semibold text-lg text-text-primary">{{ tx.description }}</h3></div>
+                    <textarea value="{{ descDraft }}" onChange="{{ onDesc }}" readOnly="{{ d.ro }}" placeholder="{{ tx.descPh }}" aria-label="{{ tx.description }}" class="tl-field w-full min-h-23 resize-y field-sizing-content px-3 py-2.5 leading-normal {{ d.fieldCls }}"></textarea>
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <span class="text-xs {{ d.descCountCls }}">{{ d.descCount }}</span>
+                      <sc-if value="{{ d.hasDescErr }}" hint-placeholder-val="{{ false }}"><div role="alert" class="tl-err">{{ descErr }}</div></sc-if>
+                      <div class="flex-1"></div>
+                      <sc-if value="{{ d.descDirty }}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" variant="ghost" size="sm" onClick="{{ cancelDesc }}" hint-size="80px,30px">{{ tx.cancel }}</x-import><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" size="sm" disabled="{{ busy }}" onClick="{{ saveDesc }}" hint-size="70px,30px">{{ tx.save }}</x-import></sc-if>
+                    </div>
+                  </section>
+
+                  <section class="flex flex-col gap-2">
+                    <div class="flex items-center gap-2"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="square-check" size="{{ 16 }}" color="var(--text-secondary)" hint-size="16px,16px"></x-import><h3 class="font-semibold text-lg text-text-primary">{{ tx.checklist }}</h3><sc-if value="{{ d.hasCheck }}" hint-placeholder-val="{{ false }}"><span class="text-xs font-medium text-text-secondary">{{ d.checkText }}</span></sc-if></div>
+                    <sc-if value="{{ d.hasCheck }}" hint-placeholder-val="{{ false }}">
+                      <div role="progressbar" aria-label="{{ tx.checklist }}" aria-valuetext="{{ d.checkText }}" class="h-1.5 rounded-full bg-surface-sunken overflow-hidden"><div class="h-full transition-all {{ d.checkBarCls }}" style="width:{{ d.checkPct }}"></div></div>
+                    </sc-if>
+                    <sc-if value="{{ d.kbdItemActive }}" hint-placeholder-val="{{ false }}"><div role="status" class="flex items-center gap-2 px-3 py-2 rounded-md bg-brand-soft text-purple-700 font-medium text-sm"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="move" size="{{ 16 }}" hint-size="16px,16px"></x-import><span>{{ d.kbdItemText }}</span></div></sc-if>
+                    <div class="flex flex-col {{ d.listCls }}">
+                      <sc-for list="{{ d.items }}" as="it" hint-placeholder-count="2">
+                        <div draggable="{{ d.active }}" onDragStart="{{ it.onDragStart }}" onDragEnd="{{ it.onDragEnd }}" onDragOver="{{ it.onDragOver }}" onDrop="{{ it.onDrop }}" class="flex items-center gap-2 min-h-9.5 px-0.5 rounded-sm hover:bg-surface-hover {{ it.cls }}">
+                          <button type="button" data-item-id="{{ it.id }}" aria-label="{{ it.aria }}" onKeyDown="{{ it.onGripKey }}" class="flex p-0.75 rounded-xs bg-transparent text-text-disabled cursor-grab focus-visible:outline-2 focus-visible:outline-border-focus focus:text-text-secondary"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="grip-vertical" size="{{ 14 }}" hint-size="14px,14px"></x-import></button>
+                          <sc-if value="{{ it.pending }}" hint-placeholder-val="{{ false }}"><span title="{{ tx.pending }}" aria-label="{{ tx.pending }}" class="tl-spin"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="loader" size="{{ 14 }}" hint-size="14px,14px"></x-import></span></sc-if>
+                          <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Checkbox" checked="{{ it.done }}" onChange="{{ it.onCheck }}" hint-size="20px,20px"></x-import>
+                          <input value="{{ it.text }}" onChange="{{ it.onText }}" onFocus="{{ it.onFocus }}" onBlur="{{ it.onBlur }}" onKeyDown="{{ it.onKey }}" aria-label="{{ tx.checklist }}" class="flex-1 min-w-0 h-7.5 px-1.5 border border-transparent rounded-sm bg-transparent text-md outline-0 focus:border-border-focus focus:bg-surface-card {{ it.textCls }}"></input>
+                          <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.IconButton" icon="x" size="sm" label="{{ tx.deleteItem }}" onClick="{{ it.onDelete }}" hint-size="28px,28px"></x-import>
+                        </div>
+                      </sc-for>
+                      <sc-if value="{{ d.active }}" hint-placeholder-val="{{ true }}">
+                        <div class="flex items-center gap-2 min-h-9.5 pr-0.5 pl-6 text-text-tertiary">
+                          <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="plus" size="{{ 16 }}" hint-size="16px,16px"></x-import>
+                          <input value="{{ newItem }}" onChange="{{ onNewItem }}" onKeyDown="{{ onNewItemKey }}" placeholder="{{ tx.itemPh }}" aria-label="{{ tx.itemPh }}" class="flex-1 min-w-0 h-7.5 px-1.5 border border-transparent rounded-sm bg-transparent text-md text-text-primary outline-0 placeholder:text-text-tertiary focus:border-border-focus focus:bg-surface-card"></input>
+                        </div>
+                      </sc-if>
+                    </div>
+                    <sc-if value="{{ d.hasItemErr }}" hint-placeholder-val="{{ false }}"><div role="alert" class="tl-err">{{ itemErr }}</div></sc-if>
+                  </section>
+                </div>
+                <div class="flex-none flex items-center gap-2 flex-wrap py-3 pr-4 pl-5 border-t border-border-subtle bg-neutral-25">
+                  <span class="flex-1 min-w-30 text-xs text-text-tertiary">{{ d.created }}</span>
+                  <sc-if value="{{ d.showActiveActions }}" hint-placeholder-val="{{ true }}">
+                    <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" variant="secondary" size="sm" icon-left="arrow-right-left" onClick="{{ d.onMove }}" hint-size="110px,30px">{{ tx.moveTo }}</x-import>
+                    <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" variant="secondary" size="sm" icon-left="archive" onClick="{{ d.onArchive }}" hint-size="100px,30px">{{ tx.archive }}</x-import>
+                  </sc-if>
+                  <sc-if value="{{ d.showArchActions }}" hint-placeholder-val="{{ false }}">
+                    <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" variant="ghost" size="sm" icon-left="trash-2" disabled="{{ d.archBtnsDisabled }}" onClick="{{ d.onDelete }}" hint-size="170px,30px">{{ tx.deleteForever }}</x-import>
+                    <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" size="sm" icon-left="rotate-ccw" disabled="{{ d.archBtnsDisabled }}" onClick="{{ d.onRestore }}" hint-size="110px,30px">{{ tx.restore }}</x-import>
+                  </sc-if>
+                </div>
+                </sc-if>
+              </div>
+            </div>
+          </sc-if>
+        </sc-if>
+
+        <sc-if value="{{ dialogOpen }}" hint-placeholder-val="{{ false }}">
+          <div onClick="{{ closeDialog }}" class="absolute inset-0 z-60 bg-surface-overlay flex items-center justify-center p-5">
+            <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Dialog" inline="{{ true }}" title="{{ dlg.title }}" description="{{ dlg.desc }}" onClose="{{ closeDialog }}" width="{{ dlg.width }}" hint-size="440px,200px">
+              <div class="flex flex-col gap-4">
+                <sc-if value="{{ dlg.isBoard }}" hint-placeholder-val="{{ false }}">
+                  <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Input" label="{{ tx.name }}" placeholder="{{ tx.boardNamePh }}" value="{{ dName }}" onChange="{{ onDName }}" onKeyDown="{{ onDNameKey }}" error="{{ dErrName }}" autoFocus="{{ true }}" hint-size="100%,74px"></x-import>
+                  <label class="flex flex-col gap-2">
+                    <span class="font-medium text-md text-text-primary">{{ tx.description }} <span class="font-normal text-text-tertiary">{{ tx.optional }}</span></span>
+                    <textarea value="{{ dDesc }}" onChange="{{ onDDesc }}" placeholder="{{ tx.boardDescPh }}" class="tl-field w-full min-h-22 resize-y px-3 py-2.5 leading-normal"></textarea>
+                    <span class="flex items-center gap-2"><span class="text-xs {{ dDescCountCls }}">{{ dDescCount }}</span><sc-if value="{{ hasDErrDesc }}" hint-placeholder-val="{{ false }}"><span role="alert" class="tl-err">{{ dErrDesc }}</span></sc-if></span>
+                  </label>
+                  <div class="flex justify-end gap-2 flex-wrap mt-1"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" variant="secondary" onClick="{{ closeDialog }}" hint-size="90px,36px">{{ tx.cancel }}</x-import><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" disabled="{{ busy }}" onClick="{{ saveBoard }}" hint-size="110px,36px">{{ dlg.cta }}</x-import></div>
+                </sc-if>
+                <sc-if value="{{ dlg.isDelBoard }}" hint-placeholder-val="{{ false }}">
+                  <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Input" label="{{ tx.typeToConfirm }}" placeholder="{{ dlg.confirmPh }}" value="{{ dConfirm }}" onChange="{{ onDConfirm }}" autoFocus="{{ true }}" size="md" hint-size="100%,64px"></x-import>
+                  <div class="flex justify-end gap-2 flex-wrap mt-1"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" variant="secondary" onClick="{{ closeDialog }}" hint-size="90px,36px">{{ tx.cancel }}</x-import><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" variant="danger" disabled="{{ dlg.confirmDisabled }}" onClick="{{ dlg.onOk }}" hint-size="170px,36px">{{ tx.deleteForever }}</x-import></div>
+                </sc-if>
+                <sc-if value="{{ dlg.isConfirm }}" hint-placeholder-val="{{ false }}">
+                  <div class="flex justify-end gap-2 flex-wrap mt-1"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" variant="secondary" onClick="{{ closeDialog }}" hint-size="120px,36px">{{ dlg.cancelLabel }}</x-import><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" variant="danger" onClick="{{ dlg.onOk }}" hint-size="110px,36px">{{ dlg.okLabel }}</x-import></div>
+                </sc-if>
+                <sc-if value="{{ dlg.isMove }}" hint-placeholder-val="{{ false }}">
+                  <div role="listbox" class="flex flex-col gap-1.5">
+                    <sc-for list="{{ dlg.moveOpts }}" as="o" hint-placeholder-count="3">
+                      <button role="option" aria-selected="{{ o.cur }}" onClick="{{ o.onClick }}" class="min-h-11.5 flex items-center gap-2.5 px-3 border rounded-md cursor-pointer text-left hover:bg-surface-hover focus-visible:outline-2 focus-visible:outline-border-focus {{ o.cls }}">
+                        <span class="flex-1 font-medium text-md text-text-primary">{{ o.name }}</span>
+                        <span class="text-xs text-text-tertiary">{{ o.curText }}</span>
+                        <span class="flex w-4 text-purple-700 {{ o.checkCls }}"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Icon" name="check" size="{{ 16 }}" hint-size="16px,16px"></x-import></span>
+                      </button>
+                    </sc-for>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ dlg.isLabel }}" hint-placeholder-val="{{ false }}">
+                  <x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Input" label="{{ tx.name }}" placeholder="{{ tx.labelNamePh }}" value="{{ lName }}" onChange="{{ onLName }}" onKeyDown="{{ onLNameKey }}" autoFocus="{{ true }}" size="md" hint-size="100%,64px"></x-import>
+                  <div class="flex flex-col gap-2">
+                    <span class="font-medium text-md text-text-primary">{{ tx.color }} · <span class="font-normal text-text-secondary">{{ dlg.colorName }}</span></span>
+                    <div role="radiogroup" aria-label="{{ tx.color }}" class="flex gap-2 flex-wrap">
+                      <sc-for list="{{ dlg.swatches }}" as="w" hint-placeholder-count="10"><button role="radio" aria-checked="{{ w.sel }}" onClick="{{ w.onClick }}" title="{{ w.title }}" aria-label="{{ w.title }}" class="size-6.5 rounded-sm cursor-pointer {{ w.cls }}"></button></sc-for>
+                    </div>
+                  </div>
+                  <div class="flex"><span class="tl-chip {{ dlg.preview.chipCls }}"><span class="tl-dot {{ dlg.preview.dotCls }}"></span><span>{{ dlg.preview.name }}</span></span></div>
+                  <sc-if value="{{ hasLErr }}" hint-placeholder-val="{{ false }}"><div role="alert" class="tl-err">{{ lErr }}</div></sc-if>
+                  <div class="flex justify-end gap-2 flex-wrap mt-1"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" variant="secondary" onClick="{{ closeDialog }}" hint-size="90px,36px">{{ tx.cancel }}</x-import><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" disabled="{{ busy }}" onClick="{{ saveLabel }}" hint-size="120px,36px">{{ dlg.cta }}</x-import></div>
+                </sc-if>
+                <sc-if value="{{ dlg.isShortcuts }}" hint-placeholder-val="{{ false }}">
+                  <div class="flex flex-col gap-2.5">
+                    <sc-for list="{{ shortcutRows }}" as="r" hint-placeholder-count="5"><div class="flex items-center gap-3 text-md text-text-secondary"><kbd class="tl-kbd">{{ r.k }}</kbd><span>{{ r.label }}</span></div></sc-for>
+                    <div class="mt-1 text-xs text-text-tertiary">{{ tx.kbdHelp }}</div>
+                  </div>
+                </sc-if>
+              </div>
+            </x-import>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ toastOpen }}" hint-placeholder-val="{{ false }}">
+          <div class="absolute left-1/2 bottom-6 -translate-x-1/2 z-70 max-w-full px-3">
+            <div class="flex items-center gap-2"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Toast" tone="{{ toast.tone }}" title="{{ toast.title }}" onClose="{{ closeToast }}" hint-size="320px,52px"></x-import><sc-if value="{{ toast.hasAction }}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="PRpuraDesignSystem_ea4aaf.Button" variant="secondary" size="sm" icon-left="refresh-cw" onClick="{{ toast.onAction }}" hint-size="140px,30px">{{ toast.actionLabel }}</x-import></sc-if></div>
+          </div>
+        </sc-if>
+        <div role="status" aria-live="assertive" class="sr-only">{{ live }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;device&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;desktop&quot;,&quot;mobile&quot;],&quot;default&quot;:&quot;desktop&quot;,&quot;tsType&quot;:&quot;'desktop'|'mobile'&quot;},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;,&quot;system&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;'light'|'dark'|'system'&quot;},&quot;lang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;pt&quot;,&quot;en&quot;],&quot;default&quot;:&quot;pt&quot;,&quot;tsType&quot;:&quot;'pt'|'en'&quot;}}">
+const NOW=Date.now(),DAY=864e5;
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parse=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+const TODAY=iso(new Date());
+const off=n=>{const d=parse(TODAY);d.setDate(d.getDate()+n);return iso(d)};
+const dayDiff=s=>Math.round((parse(s)-parse(TODAY))/DAY);
+const tr=(s,v)=>String(s||'').replace(/\{(\w+)\}/g,(m,k)=>v&&v[k]!=null?v[k]:m);
+const norm=s=>(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const COLORS=['purple','blue','sky','green','lime','yellow','orange','red','pink','black'];
+const isOver=t=>!t.archivedAt&&!t.done&&!!t.due&&t.due<TODAY;
+const byOrder=(a,b)=>a.order-b.order;
+let uid=500;const nid=p=>p+(++uid);
+const val=e=>e&&e.target?e.target.value:e;
+const chipOf=l=>({id:l.id,name:l.name,chipCls:'bg-label-'+l.color+'/18',dotCls:'bg-label-'+l.color});
+function seed(){
+  const labels=[],L=(b,name,color)=>{const l={id:nid('l'),boardId:b,name,color};labels.push(l);return l.id};
+  const bug=L('b1','Bug','red'),feat=L('b1','Feature','green'),des=L('b1','Design','purple'),urg=L('b1','Urgent','orange'),home=L('b2','Home','blue'),health=L('b2','Health','lime');
+  const C=(...n)=>n.map(x=>({id:nid('c'),name:x,archivedAt:null}));
+  const c1=C('To do','Doing','Done'),c2=C('This week','Someday'),c3=C('Ideas');
+  const boards=[{id:'b1',name:'Product launch',description:'Everything left before the public release.',createdAt:NOW-2*DAY,archivedAt:null,columns:c1},
+    {id:'b2',name:'Personal',description:'',createdAt:NOW-6*DAY,archivedAt:null,columns:c2},
+    {id:'b3',name:'Old side project',description:'Archived to show how an archived board looks.',createdAt:NOW-90*DAY,archivedAt:NOW-30*DAY,columns:c3}];
+  let o=0;
+  const T=(b,c,title,x)=>{x=x||{};return {id:nid('t'),boardId:b,colId:c,title,desc:x.desc||'',due:x.d!=null?off(x.d):'',done:!!x.done,labels:x.l||[],
+    checklist:(x.ck||[]).map(([text,done])=>({id:nid('i'),text,done:!!done})),order:o++,archivedAt:x.arch?NOW-x.arch*DAY:null,createdAt:NOW-4*DAY}};
+  const tasks=[
+    T('b1',c1[0].id,'Write release notes',{l:[feat],d:3,desc:'Summarize every feature shipped since the beta.'}),
+    T('b1',c1[0].id,'Fix login on Safari',{l:[bug,urg],d:-1,desc:'The session is lost after a page reload.'}),
+    T('b1',c1[0].id,'Pick the landing page hero image',{l:[des]}),
+    T('b1',c1[0].id,'Translate the onboarding emails',{arch:1}),
+    T('b1',c1[1].id,'Polish the board screen',{l:[des,feat],d:0,desc:'Spacing, empty states and keyboard focus.',ck:[['Empty state for a board with no lists',1],['Visible focus ring on cards',1],['Consistent spacing between lists']]}),
+    T('b1',c1[1].id,'Set up error monitoring',{ck:[['Create the project',1],['Add the source maps upload']]}),
+    T('b1',c1[2].id,'Register and login',{l:[feat],done:true}),
+    T('b1',c1[2].id,'Archive boards',{l:[feat],done:true}),
+    T('b2',c2[0].id,'Book a dentist appointment',{l:[health]}),
+    T('b2',c2[0].id,'Buy groceries',{l:[home],ck:[['Coffee'],['Bread',1],['Fruit']]}),
+    T('b2',c2[1].id,'Learn to play the guitar'),
+    T('b3',c3[0].id,'Rewrite it in a weekend')];
+  return {boards,labels,tasks};
+}
+const ACC={name:'Demo',email:'demo@example.com',pw:'demo1234'};
+
+class Component extends DCLogic {
+  state=(()=>({device:this.props.device||'desktop',themePref:this.props.theme||'light',lang:this.props.lang||'pt',sysDark:false,
+    screen:'app',loginMode:'normal',rate:false,attempts:0,dataMode:'sample',boardsStatus:'ready',
+    sim:{mouse:false,kbd:false,filters:false,fail:false,conflict:false,conflictId:null,boardNF:false,taskNF:false},
+    view:'boards',prevView:'boards',boardsTab:'active',boardId:null,...seed(),account:{...ACC},emails:[ACC.email],
+    an:'',ae:'',ap:'',aErr:{},aBusy:false,loginErr:'',
+    q:'',fLabels:[],fDue:'',showArch:false,labelFilterOpen:false,boardMenu:null,headMenu:false,
+    editCol:null,editColName:'',editColErr:'',colMenu:null,addingCol:false,newColName:'',newColErr:'',addingTask:null,quick:'',quickErr:'',
+    drag:null,over:null,kbd:null,live:'',page:0,
+    detailId:null,titleDraft:'',titleErr:'',descDraft:'',descErr:'',newItem:'',itemErr:'',labelPop:false,lpQ:'',lpNew:null,lpErr:'',
+    editItem:null,kbdCol:null,kbdItem:null,saving:0,resume:null,dialog:null,dName:'',dDesc:'',dErr:{},dConfirm:'',lName:'',lColor:'purple',lErr:'',toast:null}))();
+  searchRef=React.createRef();boardRef=React.createRef();quickRef=React.createRef();
+  timers=[];
+  componentDidMount(){
+    this.mq=window.matchMedia('(prefers-color-scheme: dark)');this.mqh=e=>this.setState({sysDark:e.matches});this.mq.addEventListener('change',this.mqh);this.setState({sysDark:this.mq.matches});
+    this.kh=e=>this.onGlobalKey(e);window.addEventListener('keydown',this.kh);
+    if(!window.TL_I18N){this.poll=setInterval(()=>{if(window.TL_I18N){clearInterval(this.poll);this.forceUpdate()}},50)}
+  }
+  componentWillUnmount(){this.mq&&this.mq.removeEventListener('change',this.mqh);window.removeEventListener('keydown',this.kh);clearInterval(this.poll);clearTimeout(this.tt);clearTimeout(this.rateT);this.timers.forEach(clearTimeout)}
+  later(fn,ms){const id=setTimeout(fn,ms);this.timers.push(id);return id}
+  dict(){const D=window.TL_I18N;return D?D[this.state.lang]:{}}
+  f(k,v){return tr(this.dict()[k]||'',v)}
+  toast(k,tone,v,action){clearTimeout(this.tt);this.setState({toast:{title:this.f(k,v),tone:tone||'success',action:action||null}});this.tt=setTimeout(()=>this.setState({toast:null}),action?7000:3000)}
+  board(){return this.state.boards.find(b=>b.id===this.state.boardId)}
+  ro(){const b=this.board();return !!(b&&b.archivedAt)}
+  acols(){const b=this.board();return b?b.columns.filter(c=>!c.archivedAt):[]}
+  activeIn(colId,except){return this.state.tasks.filter(t=>t.colId===colId&&!t.archivedAt&&t.id!==except).sort(byOrder)}
+  upd(id,p,pend){this.mutate(s=>({tasks:s.tasks.map(t=>t.id===id?{...t,...(typeof p==='function'?p(t):p)}:t)}),pend)}
+  mutate(fn,pend){const snap={boards:this.state.boards,tasks:this.state.tasks,labels:this.state.labels};this.setState(s=>({...fn(s),saving:s.saving+1}));
+    this.later(()=>{const st=this.state,sim=st.sim;
+      if(sim.fail||sim.conflict){const t=snap.tasks.find(x=>x.id===st.detailId);this.setState(s=>({...snap,saving:Math.max(0,s.saving-1),...(t?{titleDraft:t.title,descDraft:t.desc}:{})}));
+        if(st.view==='board'&&!snap.boards.some(b=>b.id===st.boardId))this.go('boards');
+        if(sim.conflict)this.toast('conflict','danger',null,{label:this.f('reload'),fn:()=>this.reloadConflict()});
+        else this.toast('saveFail','danger',null,{label:this.f('retry'),fn:()=>this.mutate(fn,pend)})}
+      else this.setState(s=>({saving:Math.max(0,s.saving-1),...(pend?this.unpend(s,pend):{})}))},650)}
+  unpend(s,id){const P=o=>o.id===id?{...o,pending:false}:o;return {boards:s.boards.map(b=>({...P(b),columns:b.columns.map(P)})),tasks:s.tasks.map(t=>({...P(t),checklist:t.checklist.map(P)})),labels:s.labels.map(P)}}
+  reloadConflict(){const id=this.state.sim.conflictId;this.setState({boardsStatus:'loading'});
+    this.later(()=>this.setState(st=>({boardsStatus:'ready',tasks:st.tasks.map(t=>t.id===id?{...t,archivedAt:Date.now()}:t),sim:{...st.sim,conflict:false,conflictId:null}})),700)}
+  setCols(fn,pend){const id=this.state.boardId;this.mutate(s=>({boards:s.boards.map(b=>b.id===id?{...b,columns:fn(b.columns)}:b)}),pend)}
+  reorderActive(fn){this.setCols(cs=>{const act=cs.filter(c=>!c.archivedAt),arc=cs.filter(c=>c.archivedAt);return [...fn(act),...arc]})}
+  closeLayers(){return {labelFilterOpen:false,boardMenu:null,colMenu:null,headMenu:false}}
+  go(view,x){const s=this.state;this.setState({view,prevView:s.view==='settings'?s.prevView:s.view,detailId:null,kbd:null,...this.closeLayers(),...(x||{})});const m=document.querySelector('[data-main-scroll]');if(m)m.scrollTop=0}
+  openBoard(id,x){this.go('board',{boardId:id,q:'',fLabels:[],fDue:'',showArch:false,addingTask:null,addingCol:false,editCol:null,page:0,drag:null,over:null,...(x||{})});if(this.boardRef.current)this.boardRef.current.scrollLeft=0}
+  goBack(){const s=this.state;if(s.view==='board')return this.go('boards',{boardsTab:this.ro()?'archived':s.boardsTab});if(s.view==='labels')return this.go('board');if(s.view==='settings')return this.go(s.prevView==='board'&&s.boardId?'board':'boards')}
+  openBoardDialog(id){const b=id&&this.state.boards.find(x=>x.id===id);this.setState({boardMenu:null,dialog:{type:'board',id:id||null},dName:b?b.name:'',dDesc:b?b.description:'',dErr:{}})}
+  saveBoard(){if(this.state.saving)return;const s=this.state,name=s.dName.trim(),description=s.dDesc.trim(),id=s.dialog.id,e={};
+    if(!name)e.name='errBoardName';else if(name.length>100)e.name='errLen100';if(description.length>1000)e.desc='errLen1000';
+    if(e.name||e.desc)return this.setState({dErr:e});this.setState({dialog:null});
+    if(id){this.mutate(st=>({boards:st.boards.map(b=>b.id===id?{...b,name,description}:b)}));return this.toast('tBoardSaved')}
+    const nb={id:nid('b'),name,description,createdAt:Date.now(),archivedAt:null,columns:[],pending:true};this.mutate(st=>({boards:[nb,...st.boards]}),nb.id);this.openBoard(nb.id);this.toast('tBoardCreated')}
+  archiveBoard(id){this.setState({boardMenu:null});this.mutate(s=>({boards:s.boards.map(b=>b.id===id?{...b,archivedAt:Date.now()}:b)}));this.toast('tBoardArchived')}
+  restoreBoard(id){this.setState({boardMenu:null});this.mutate(s=>({boards:s.boards.map(b=>b.id===id?{...b,archivedAt:null}:b)}));this.toast('tBoardRestored')}
+  deleteBoard(){const s=this.state,id=s.dialog.id;this.setState({dialog:null});this.mutate(st=>({boards:st.boards.filter(b=>b.id!==id),tasks:st.tasks.filter(t=>t.boardId!==id),labels:st.labels.filter(l=>l.boardId!==id)}));if(s.boardId===id)this.go('boards',{boardId:null});this.toast('tBoardDeleted')}
+  colErr(name){if(!name)return 'errColName';if(name.length>100)return 'errLen100';return ''}
+  startEditCol(c){this.setState({editCol:c.id,editColName:c.name,editColErr:'',colMenu:null})}
+  saveEditCol(){const s=this.state,name=s.editColName.trim(),e=this.colErr(name);if(!s.editCol)return;if(e)return this.setState({editColErr:this.f(e)});
+    const c=this.board().columns.find(x=>x.id===s.editCol);this.setCols(cs=>cs.map(x=>x.id===s.editCol?{...x,name}:x));this.setState({editCol:null,editColErr:''});if(c&&c.name!==name)this.toast('tColRenamed')}
+  addColumn(){if(this.state.saving)return;const s=this.state,name=s.newColName.trim(),e=this.colErr(name);if(e)return this.setState({newColErr:this.f(e)});
+    const nc={id:nid('c'),name,archivedAt:null,pending:true};this.reorderActive(a=>[...a,nc]);this.setState({newColName:'',newColErr:''});this.toast('tColCreated');
+    this.later(()=>{const el=this.boardRef.current;if(el)el.scrollTo({left:el.scrollWidth,behavior:'smooth'})},60)}
+  archiveCol(id){this.setState({colMenu:null});this.setCols(cs=>cs.map(c=>c.id===id?{...c,archivedAt:Date.now()}:c));this.toast('tColArchived')}
+  restoreCol(id){this.setCols(cs=>{const c=cs.find(x=>x.id===id);if(!c)return cs;const rest=cs.filter(x=>x.id!==id);return [...rest.filter(x=>!x.archivedAt),{...c,archivedAt:null},...rest.filter(x=>x.archivedAt)]});this.toast('tColRestored')}
+  deleteCol(id){this.setState({dialog:null});this.mutate(s=>({boards:s.boards.map(b=>b.id===s.boardId?{...b,columns:b.columns.filter(c=>c.id!==id)}:b),tasks:s.tasks.filter(t=>t.colId!==id)}));this.toast('tColDeleted')}
+  openAdd(colId){this.setState({addingTask:colId,quick:'',quickErr:'',colMenu:null});this.later(()=>this.quickRef.current&&this.quickRef.current.focus(),40)}
+  addTask(){if(this.state.saving)return;const s=this.state,colId=s.addingTask,title=s.quick.trim();if(!colId)return;let e='';
+    if(!title)e='errTaskTitle';else if(title.length>100)e='errLen100';if(e)return this.setState({quickErr:this.f(e)});
+    const max=this.activeIn(colId).reduce((m,t)=>Math.max(m,t.order),0);
+    const t={id:nid('t'),boardId:s.boardId,colId,title,desc:'',due:'',done:false,labels:[],checklist:[],order:max+1,archivedAt:null,createdAt:Date.now(),pending:true};
+    this.setState({quick:'',quickErr:''});this.mutate(st=>({tasks:[...st.tasks,t]}),t.id);this.toast('tTaskCreated')}
+  place(tasks,id,colId,index){const dragged=tasks.find(t=>t.id===id);const list=tasks.filter(t=>t.colId===colId&&!t.archivedAt&&t.id!==id).sort(byOrder);
+    list.splice(Math.max(0,Math.min(index,list.length)),0,{...dragged,colId});const m={};list.forEach((t,i)=>m[t.id]=i);
+    return tasks.map(t=>t.id===id?{...t,colId,order:m[id]}:(m[t.id]!=null?{...t,order:m[t.id]}:t))}
+  moveTask(id,colId,index){const s=this.state,t=s.tasks.find(x=>x.id===id);if(!t||t.archivedAt||this.ro())return false;
+    const prev=s.tasks;this.setState({tasks:this.place(prev,id,colId,index)});
+    if(s.sim.fail||s.sim.conflict){this.later(()=>{this.setState({tasks:prev});if(s.sim.conflict)this.toast('conflict','danger',null,{label:this.f('reload'),fn:()=>this.reloadConflict()});else this.toast('tMoveFail','danger')},700);return false}
+    return true}
+  endDrag(){if(this.state.drag||this.state.over)this.setState({drag:null,over:null})}
+  dropTaskAt(colId,beforeId){const d=this.state.drag;this.setState({drag:null,over:null});if(!d||d.type!=='t')return;
+    const list=this.activeIn(colId,d.id);let i=beforeId?list.findIndex(x=>x.id===beforeId):-1;if(i<0)i=list.length;this.moveTask(d.id,colId,i)}
+  dropColOn(colId){const d=this.state.drag;this.setState({drag:null,over:null});if(!d||d.type!=='c'||d.id===colId)return;
+    this.reorderActive(cs=>{const a=[...cs];const fi=a.findIndex(c=>c.id===d.id),ti=a.findIndex(c=>c.id===colId);if(fi<0||ti<0)return cs;const [m]=a.splice(fi,1);a.splice(ti,0,m);return a})}
+  toggleDone(id,v){this.upd(id,{done:!!v})}
+  archiveTask(id){this.upd(id,{archivedAt:Date.now()});this.toast('tTaskArchived')}
+  restoreTask(id){const t=this.state.tasks.find(x=>x.id===id),b=this.board();if(!t||!b)return;const c=b.columns.find(x=>x.id===t.colId);if(!c||c.archivedAt)return this.toast('errColArchived','danger');
+    const max=this.activeIn(t.colId).reduce((m,x)=>Math.max(m,x.order),0);this.upd(id,{archivedAt:null,order:max+1});this.toast('tTaskRestored')}
+  colArchivedFor(id){const t=this.state.tasks.find(x=>x.id===id),b=this.board();const c=t&&b&&b.columns.find(x=>x.id===t.colId);return !!(c&&c.archivedAt)}
+  askDeleteTask(id){if(this.colArchivedFor(id))return this.toast('errColArchived','danger');this.setState({dialog:{type:'delTask',id}})}
+  deleteForever(id){if(this.colArchivedFor(id)){this.setState({dialog:null});return this.toast('errColArchived','danger')}this.setState({dialog:null,detailId:null});this.mutate(s=>({tasks:s.tasks.filter(t=>t.id!==id)}));this.toast('tTaskDeleted')}
+  kbdAnnounce(k,key){const t=this.state.tasks.find(x=>x.id===k.id),c=this.acols().find(x=>x.id===k.colId);const n=this.activeIn(k.colId,k.id).length+1;return this.f(key||'kbdAnnounce',{title:t?t.title:'',col:c?c.name:'',i:k.index+1,n})}
+  pickKbd(id){const t=this.state.tasks.find(x=>x.id===id);if(!t)return;const idx=this.activeIn(t.colId).findIndex(x=>x.id===id);const k={id,colId:t.colId,index:idx,origColId:t.colId,origIndex:idx};this.setState({kbd:k,live:this.kbdAnnounce(k)})}
+  focusSel(sel){this.later(()=>{const el=document.querySelector(sel);if(el)el.focus()},30)}
+  focusCard(id){this.focusSel('[data-task-id="'+id+'"]')}
+  kbdKey(e){const s=this.state,k=s.kbd,cols=this.acols();if(!k||!cols.length)return false;const ci=cols.findIndex(c=>c.id===k.colId);const n={...k};
+    const others=cid=>this.activeIn(cid,k.id).length;
+    if(e.key==='ArrowUp')n.index=Math.max(0,k.index-1);
+    else if(e.key==='ArrowDown')n.index=Math.min(others(k.colId),k.index+1);
+    else if(e.key==='ArrowLeft'||e.key==='ArrowRight'){const ni=ci+(e.key==='ArrowLeft'?-1:1);if(ni<0||ni>=cols.length){e.preventDefault();return true}n.colId=cols[ni].id;n.index=Math.min(k.index,others(n.colId));this.scrollToCol(ni)}
+    else if(e.key===' '||e.key==='Enter'){e.preventDefault();this.setState({kbd:null,live:this.kbdAnnounce(k,'kbdDropped'),sim:{...s.sim,kbd:false}});if(k.colId!==k.origColId||k.index!==k.origIndex)this.moveTask(k.id,k.colId,k.index);this.focusCard(k.id);return true}
+    else if(e.key==='Escape'){e.preventDefault();this.setState({kbd:null,live:this.f('kbdCancel'),sim:{...s.sim,kbd:false}});this.focusCard(k.id);return true}
+    else return false;
+    e.preventDefault();this.setState({kbd:n,live:this.kbdAnnounce(n)});this.focusCard(k.id);return true}
+  colAnnounce(k,key){const cols=this.acols(),c=cols.find(x=>x.id===k.id);return this.f(key||'kbdColAnnounce',{name:c?c.name:'',i:k.index+1,n:cols.length})}
+  pickCol(id){const i=this.acols().findIndex(c=>c.id===id);const k={id,index:i,origIndex:i};this.setState({kbdCol:k,colMenu:null,live:this.colAnnounce(k)})}
+  kbdColKey(e){const k=this.state.kbdCol,cols=this.acols();if(!k||!cols.length){this.setState({kbdCol:null});return false}const n={...k},sel='[data-col-id="'+k.id+'"]';
+    if(e.key==='ArrowLeft')n.index=Math.max(0,k.index-1);else if(e.key==='ArrowRight')n.index=Math.min(cols.length-1,k.index+1);
+    else if(e.key===' '||e.key==='Enter'){e.preventDefault();this.setState({kbdCol:null,live:this.colAnnounce(k,'kbdColDropped')});if(k.index!==k.origIndex)this.reorderActive(cs=>{const m=cs.find(c=>c.id===k.id),a=cs.filter(c=>c.id!==k.id);a.splice(k.index,0,m);return a});this.focusSel(sel);return true}
+    else if(e.key==='Escape'){e.preventDefault();this.setState({kbdCol:null,live:this.f('kbdCancel')});this.focusSel(sel);return true}
+    else if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();return true}else return false;
+    e.preventDefault();this.setState({kbdCol:n,live:this.colAnnounce(n)});this.scrollToCol(n.index);this.focusSel(sel);return true}
+  pickItem(id){const t=this.state.tasks.find(x=>x.id===this.state.detailId);if(!t)return;const i=t.checklist.findIndex(x=>x.id===id);const k={id,index:i,origIndex:i};this.setState({kbdItem:k,live:this.itemAnnounce(k)})}
+  itemAnnounce(k,key){const t=this.state.tasks.find(x=>x.id===this.state.detailId),it=t&&t.checklist.find(x=>x.id===k.id);return this.f(key||'kbdItemAnnounce',{name:it?it.text:'',i:k.index+1,n:t?t.checklist.length:0})}
+  kbdItemKey(e){const k=this.state.kbdItem,t=this.state.tasks.find(x=>x.id===this.state.detailId);if(!k||!t){this.setState({kbdItem:null});return false}const n={...k},sel='[data-item-id="'+k.id+'"]';
+    if(e.key==='ArrowUp')n.index=Math.max(0,k.index-1);else if(e.key==='ArrowDown')n.index=Math.min(t.checklist.length-1,k.index+1);
+    else if(e.key===' '||e.key==='Enter'){e.preventDefault();this.setState({kbdItem:null,live:this.itemAnnounce(k,'kbdItemDropped')});if(k.index!==k.origIndex)this.upd(t.id,x=>{const m=x.checklist.find(y=>y.id===k.id),a=x.checklist.filter(y=>y.id!==k.id);a.splice(k.index,0,m);return {checklist:a}});this.focusSel(sel);return true}
+    else if(e.key==='Escape'){e.preventDefault();this.setState({kbdItem:null,live:this.f('kbdCancel')});this.focusSel(sel);return true}
+    else if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();return true}else return false;
+    e.preventDefault();this.setState({kbdItem:n,live:this.itemAnnounce(n)});this.focusSel(sel);return true}
+  saveItem(){const s=this.state,ei=s.editItem,t=s.tasks.find(x=>x.id===s.detailId);if(!ei||!t)return true;const v=ei.text.trim();let e='';if(!v)e='errItemEmpty';else if(v.length>200)e='errLen200';if(e){this.setState({itemErr:this.f(e)});return false}
+    const it=t.checklist.find(i=>i.id===ei.id);this.setState({editItem:null,itemErr:''});if(it&&it.text!==v)this.upd(t.id,x=>({checklist:x.checklist.map(y=>y.id===ei.id?{...y,text:v}:y)}));return true}
+  scrollToCol(i){const el=this.boardRef.current;if(!el||this.state.device!=='mobile')return;const c=el.querySelector('section');const w=c?c.offsetWidth+12:el.clientWidth;el.scrollTo({left:i*w,behavior:'smooth'})}
+  onGlobalKey(e){if(this.skipKey){this.skipKey=false;return}const s=this.state;if(s.screen!=='app')return;
+    if(s.kbd&&this.kbdKey(e))return;if(s.kbdCol&&this.kbdColKey(e))return;if(s.kbdItem&&this.kbdItemKey(e))return;
+    const tag=(e.target&&e.target.tagName)||'',typing=/INPUT|TEXTAREA|SELECT/.test(tag)||(e.target&&e.target.isContentEditable);
+    if(e.key==='Escape'){if(this.closeInnermost())e.preventDefault();return}
+    if(typing||e.metaKey||e.ctrlKey||e.altKey)return;
+    if(s.dialog||s.detailId)return;
+    if(e.key==='/'&&s.view==='board'){e.preventDefault();this.searchRef.current&&this.searchRef.current.focus()}
+    else if((e.key==='n'||e.key==='N')&&s.view==='board'&&!this.ro()){const c=this.acols()[0];if(c){e.preventDefault();this.setState({q:'',fLabels:[],fDue:''});this.openAdd(c.id);this.scrollToCol(0)}}
+    else if(e.key==='?'){this.setState({dialog:{type:'shortcuts'}})}}
+  closeInnermost(){const s=this.state;
+    if(s.dialog){this.setState({dialog:null});return true}
+    if(s.labelFilterOpen||s.boardMenu||s.colMenu||s.headMenu){this.setState(this.closeLayers());return true}
+    if(s.labelPop){this.setState({labelPop:false,lpNew:null,lpErr:''});return true}
+    if(s.editItem){this.setState({editItem:null,itemErr:''});return true}
+    if(s.detailId){this.requestClose();return true}
+    if(s.addingTask){this.setState({addingTask:null,quick:'',quickErr:''});return true}
+    if(s.addingCol){this.setState({addingCol:false,newColName:'',newColErr:''});return true}
+    if(s.editCol){this.setState({editCol:null,editColErr:''});return true}
+    return false}
+  openDetail(id){const t=this.state.tasks.find(x=>x.id===id);if(!t)return;this.setState({detailId:id,titleDraft:t.title,titleErr:'',descDraft:t.desc,descErr:'',newItem:'',itemErr:'',labelPop:false,lpQ:'',lpNew:null,lpErr:'',editItem:null,kbdItem:null,...this.closeLayers()})}
+  dirty(){const s=this.state,t=s.tasks.find(x=>x.id===s.detailId);if(!t||t.archivedAt||this.ro())return false;
+    const ei=s.editItem&&t.checklist.find(i=>i.id===s.editItem.id);return !!(ei&&ei.text!==s.editItem.text)||s.descDraft!==t.desc||s.titleDraft.trim()!==t.title}
+  requestClose(){if(this.dirty())return this.setState({dialog:{type:'discard'}});this.closeDetail()}
+  closeDetail(){const id=this.state.detailId;this.setState({detailId:null,dialog:null,labelPop:false});if(id)this.focusCard(id)}
+  saveTitle(){const s=this.state,v=s.titleDraft.trim();let e='';if(!v)e='errTaskTitle';else if(v.length>100)e='errLen100';if(e)return this.setState({titleErr:this.f(e)});this.upd(s.detailId,{title:v});this.setState({titleDraft:v,titleErr:''})}
+  saveDesc(){const s=this.state,v=s.descDraft;if(v.length>5000)return this.setState({descErr:this.f('errLen5000')});this.upd(s.detailId,{desc:v});this.setState({descErr:''})}
+  labelErr(name,exceptId){const s=this.state;if(!name)return 'errLabelName';if(name.length>50)return 'errLen50';
+    if(s.labels.some(l=>l.boardId===s.boardId&&l.id!==exceptId&&l.name.toLowerCase()===name.toLowerCase()))return 'errLabelDup';return ''}
+  createLabelFromPop(){if(this.state.saving)return;const s=this.state,p=s.lpNew,name=(p.name||'').trim(),e=this.labelErr(name);if(e)return this.setState({lpErr:this.f(e)});
+    const l={id:nid('l'),boardId:s.boardId,name,color:p.color,pending:true};this.setState({lpNew:null,lpErr:'',lpQ:''});this.mutate(st=>({labels:[...st.labels,l],tasks:st.tasks.map(t=>t.id===s.detailId&&!t.labels.includes(l.id)?{...t,labels:[...t.labels,l.id]}:t)}),l.id);this.toast('tLabelCreated')}
+  openLabelDialog(id){const l=id&&this.state.labels.find(x=>x.id===id);this.setState({dialog:{type:'label',id:id||null},lName:l?l.name:'',lColor:l?l.color:COLORS[0],lErr:''})}
+  saveLabel(){if(this.state.saving)return;const s=this.state,id=s.dialog.id,name=s.lName.trim(),color=s.lColor,e=this.labelErr(name,id);if(e)return this.setState({lErr:this.f(e)});
+    this.setState({dialog:null});if(id){this.mutate(st=>({labels:st.labels.map(l=>l.id===id?{...l,name,color}:l)}));return this.toast('tLabelSaved')}
+    const nl={id:nid('l'),boardId:s.boardId,name,color,pending:true};this.mutate(st=>({labels:[...st.labels,nl]}),nl.id);this.toast('tLabelCreated')}
+  deleteLabel(id){this.setState(s=>({fLabels:s.fLabels.filter(x=>x!==id),dialog:null}));this.mutate(s=>({labels:s.labels.filter(l=>l.id!==id),tasks:s.tasks.map(t=>({...t,labels:t.labels.filter(x=>x!==id)}))}));this.toast('tLabelDeleted')}
+  setProto(v){const base={aErr:{},loginErr:'',aBusy:false,ap:'',detailId:null,dialog:null,kbd:null};
+    if(v==='app')return this.setState({...base,screen:'app',loginMode:'normal'});
+    if(v==='signup')return this.setState({...base,screen:'signup',an:'',ae:'',loginErr:this.state.rate?this.f('errRate'):''});
+    if(v==='ratelimit')return this.setState({...base,screen:'login',loginMode:'normal',rate:true,attempts:5,ae:this.state.account.email,loginErr:this.f('errRate')});
+    const resume=v==='expired'&&this.state.screen==='app'?{view:this.state.view,boardId:this.state.boardId,detailId:this.state.detailId}:null;
+    this.setState({...base,resume,screen:'login',loginMode:v==='expired'?'expired':'normal',rate:false,attempts:0,ae:v==='login'?'':this.state.account.email})}
+  authFail(x){const a=this.state.attempts+1;if(a>=5){clearTimeout(this.rateT);this.rateT=setTimeout(()=>this.setState({rate:false,attempts:0,loginErr:''}),60000);return this.setState({...x,aBusy:false,attempts:a,rate:true,loginErr:this.f('errRate')})}this.setState({...x,aBusy:false,attempts:a})}
+  authSubmit(){const s=this.state;if(s.aBusy)return;if(s.rate)return this.setState({loginErr:this.f('errRate')});const email=s.ae.trim().toLowerCase();
+    if(s.screen==='signup'){const er={},name=s.an.trim();if(!name)er.name='errName';else if(name.length>100)er.name='errLen100';if(!EMAIL_RE.test(email))er.email='errEmail';if(s.ap.length<8||s.ap.length>72)er.pw='errPwLen';
+      if(Object.keys(er).length)return this.setState({aErr:er});this.setState({aBusy:true,aErr:{},loginErr:''});
+      return this.later(()=>{if(this.state.emails.includes(email))return this.authFail({aErr:{email:'errEmailTaken'}});
+        this.setState(st=>({aBusy:false,screen:'app',loginMode:'normal',attempts:0,account:{name,email,pw:st.ap},emails:[...st.emails,email],an:'',ap:'',view:'boards',boardsStatus:'ready'}));this.toast('tAccountCreated')},900)}
+    this.setState({aBusy:true,loginErr:''});
+    this.later(()=>{const st=this.state;if(email===st.account.email&&st.ap===st.account.pw){const r=st.resume;this.setState({aBusy:false,screen:'app',loginMode:'normal',attempts:0,ap:'',view:r?r.view:'boards',boardId:r?r.boardId:st.boardId,resume:null});if(r&&r.detailId)this.later(()=>this.openDetail(r.detailId),0);return}
+      this.authFail({loginErr:this.f('errLogin')})},800)}
+  setData(mode){if(mode==='loading'||mode==='error')return this.setState({dataMode:mode,boardsStatus:mode,kbd:null,kbdCol:null,dialog:null});const base=mode==='empty'?{boards:[],tasks:[],labels:[]}:seed();this.setState({dataMode:mode,...base,boardsStatus:'ready',view:'boards',boardsTab:'active',detailId:null,boardId:null,kbd:null,dialog:null})}
+  setSim(k,v){const s=this.state,sim={...s.sim,[k]:v};
+    const ensure=x=>{const b=s.boards.find(b=>b.id==='b1'&&!b.archivedAt)||s.boards.find(b=>!b.archivedAt);if(!b)return;if(s.view!=='board'||s.boardId!==b.id)this.openBoard(b.id,x);else this.setState(x||{})};
+    if(k==='mouse'){this.setState({sim:{...sim,kbd:false},kbd:null,detailId:null});if(v)ensure({q:'',fLabels:[],fDue:''})}
+    else if(k==='kbd'){this.setState({sim:{...sim,mouse:false},detailId:null});if(v){ensure({q:'',fLabels:[],fDue:''});this.later(()=>{const cols=this.acols();const ci=cols.findIndex(c=>this.activeIn(c.id).length>0);if(ci<0)return;const c=cols[ci],t=this.activeIn(c.id)[0];const nb=cols[ci+1];
+        const k2={id:t.id,colId:nb?nb.id:c.id,index:nb?Math.min(1,this.activeIn(nb.id).length):0,origColId:c.id,origIndex:0};this.setState({kbd:k2,live:this.kbdAnnounce(k2)});this.focusCard(t.id)},80)}else this.setState({kbd:null})}
+    else if(k==='filters'){this.setState({sim});if(v)ensure({fLabels:[],q:'',fDue:''}),this.later(()=>{const l=this.state.labels.find(x=>x.boardId===this.state.boardId&&x.name==='Feature')||this.state.labels.find(x=>x.boardId===this.state.boardId);if(l)this.setState({fLabels:[l.id]})},20);else this.setState({q:'',fLabels:[],fDue:''})}
+    else if(k==='fail'){this.setState({sim:{...sim,conflict:false,conflictId:null}})}
+    else if(k==='conflict'){if(!v)return this.setState({sim:{...sim,conflictId:null}});this.setState({sim:{...sim,fail:false}});ensure({});this.later(()=>{const t=this.state.tasks.find(x=>x.boardId===this.state.boardId&&!x.archivedAt&&x.title==='Polish the board screen')||this.state.tasks.find(x=>x.boardId===this.state.boardId&&!x.archivedAt);if(!t)return;this.setState(st=>({sim:{...st.sim,conflictId:t.id}}));this.openDetail(t.id)},60)}
+    else if(k==='boardNF'){this.setState({sim:{...sim,taskNF:false}});if(v)this.go('board',{boardId:'b-404'});else this.go('boards')}
+    else if(k==='taskNF'){this.setState({sim:{...sim,boardNF:false}});if(v){ensure({});this.later(()=>this.setState({detailId:'t-404',titleDraft:'',descDraft:''}),40)}else this.setState({detailId:null})}
+    else this.setState({sim})}
+  renderVals(){
+    const s=this.state,D=window.TL_I18N,tx=D?D[s.lang]:{},M=D?D.months[s.lang]:[],f=(k,v)=>tr(tx[k]||'',v),en=s.lang==='en';
+    const mob=s.device==='mobile',dark=s.themePref==='dark'||(s.themePref==='system'&&s.sysDark);
+    const stop=e=>e.stopPropagation();
+    const fmtL=d=>{if(!d)return '';const x=parse(d);return en?M[x.getMonth()]+' '+x.getDate()+', '+x.getFullYear():x.getDate()+' '+M[x.getMonth()]+', '+x.getFullYear()};
+    const fmtTs=ts=>fmtL(iso(new Date(ts)));
+    const fmtS=d=>{const n=dayDiff(d);if(n===0)return tx.today;if(n===1)return tx.tomorrow;if(n===-1)return tx.yesterday;const x=parse(d),same=x.getFullYear()===new Date().getFullYear();return (en?M[x.getMonth()]+' '+x.getDate():x.getDate()+' '+M[x.getMonth()])+(same?'':', '+x.getFullYear())};
+    const mi=(label,icon,danger,fn)=>({label,icon,cls:danger?'text-red-600':'text-text-primary',onClick:e=>{e&&e.stopPropagation&&e.stopPropagation();fn()}});
+    const board=this.board(),ro=!!(board&&board.archivedAt),allCols=board?board.columns:[],cols=allCols.filter(c=>!c.archivedAt);
+    const bLabels=s.labels.filter(l=>l.boardId===s.boardId),labMap=Object.fromEntries(bLabels.map(l=>[l.id,l]));
+    const chips=ids=>ids.filter(i=>labMap[i]).map(i=>chipOf(labMap[i]));
+    const isAuth=s.screen!=='app',isSignup=s.screen==='signup';
+    const protoScreen=s.screen==='signup'?'signup':s.screen==='app'?'app':s.loginMode==='expired'?'expired':s.rate?'ratelimit':'login';
+    const st=s.boardsStatus,arTab=s.boardsTab==='archived';
+    const shownBoards=s.boards.filter(b=>arTab?!!b.archivedAt:!b.archivedAt).sort((a,b)=>b.createdAt-a.createdAt);
+    const boardCards=shownBoards.map(b=>({id:b.id,name:b.name,description:b.description,hasDesc:!!b.description,pending:!!b.pending,cls:b.pending?'opacity-60':'',
+      dateIcon:b.archivedAt?'archive':'calendar',dateText:b.archivedAt?f('boardArchivedOn',{d:fmtTs(b.archivedAt)}):f('createdOn',{d:fmtTs(b.createdAt)}),
+      onOpen:()=>this.openBoard(b.id),onKey:e=>{if(e.target!==e.currentTarget)return;if(e.key==='Enter'||e.key===' '){e.preventDefault();this.openBoard(b.id)}},
+      menuOpen:s.boardMenu===b.id,onMenu:e=>{e&&e.stopPropagation&&e.stopPropagation();this.setState({boardMenu:s.boardMenu===b.id?null:b.id})},
+      menuItems:b.archivedAt?[mi(tx.restore,'rotate-ccw',false,()=>this.restoreBoard(b.id)),mi(tx.deleteForever,'trash-2',true,()=>this.setState({boardMenu:null,dialog:{type:'delBoard',id:b.id},dConfirm:''}))]
+        :[mi(tx.edit,'pencil',false,()=>this.openBoardDialog(b.id)),mi(tx.archive,'archive',false,()=>this.archiveBoard(b.id))]}));
+    const active=s.tasks.filter(t=>t.boardId===s.boardId&&!t.archivedAt&&cols.some(c=>c.id===t.colId));
+    const nq=norm(s.q),fAct=!!(nq||s.fLabels.length||s.fDue);
+    const match=t=>(!nq||norm(t.title).includes(nq)||norm(t.desc).includes(nq))&&(!s.fLabels.length||t.labels.some(l=>s.fLabels.includes(l)))&&(!s.fDue||(s.fDue==='overdue'?isOver(t):s.fDue==='today'?t.due===TODAY:s.fDue==='done'?!!t.done:!t.due));
+    const lists={};cols.forEach(c=>lists[c.id]=active.filter(t=>t.colId===c.id).sort(byOrder));
+    const kt=s.kbd&&active.find(t=>t.id===s.kbd.id);
+    if(kt){Object.keys(lists).forEach(k=>lists[k]=lists[k].filter(t=>t.id!==kt.id));const L2=lists[s.kbd.colId];if(L2)L2.splice(Math.min(s.kbd.index,L2.length),0,kt)}
+    const dragT=s.drag&&s.drag.type==='t'?s.tasks.find(t=>t.id===s.drag.id):null;
+    let demo=null;
+    if(s.sim.mouse&&!fAct&&!ro&&cols.length>1){const si=cols.findIndex(c=>lists[c.id].length);if(si>=0){const src=lists[cols[si].id][0],tc=cols[(si+1)%cols.length];demo={src:src.id,target:tc.id,card:{title:src.title,labels:chips(src.labels),hasLabels:src.labels.length>0,dueText:src.due?fmtS(src.due):'',hasDue:!!src.due}}}}
+    const colName=id=>{for(const b of s.boards){const c=b.columns.find(x=>x.id===id);if(c)return c.name}return '—'};
+    const card=t=>{const arch=!!t.archivedAt,od=isOver(t),ck=t.checklist,ckd=ck.filter(i=>i.done).length;
+      const ghost=(!!dragT&&dragT.id===t.id)||(!!demo&&demo.src===t.id),lifted=!!kt&&kt.id===t.id,sel=s.detailId===t.id;
+      const hasDue=!!t.due&&!arch,hasCheck=ck.length>0,canDrag=!arch&&!ro&&!fAct&&!s.kbd&&!s.kbdCol&&!t.pending;
+      return {id:t.id,title:t.title,pending:!!t.pending,labels:chips(t.labels),hasLabels:t.labels.some(i=>labMap[i]),
+        done:!!t.done,doneDisabled:arch||ro,onDone:v=>this.toggleDone(t.id,v),titleCls:t.done?'text-text-tertiary line-through':'text-text-primary',
+        hasDue,dueText:t.due?fmtS(t.due):'',dueCls:t.done?'text-green-700':od?'text-red-600':'text-text-secondary',overdue:od,
+        hasCheck,checkText:ckd+'/'+ck.length,checkCls:hasCheck&&ckd===ck.length?'text-green-700':'text-text-secondary',hasMeta:hasDue||hasCheck,
+        archText:arch?f('archivedOn',{d:fmtTs(t.archivedAt)})+' · '+f('fromCol',{name:colName(t.colId)}):'',hasMenu:!arch&&!ro,drag:canDrag,
+        cls:[ghost?'border-dashed border-purple-300':lifted?'border-border-focus':sel?'border-purple-300':'border-border-subtle',
+          lifted?'shadow-lg ring-3 ring-border-focus/22 -translate-y-0.5 -rotate-1':sel?'shadow-xs ring-3 ring-border-focus/22':'shadow-xs',
+          ghost?'opacity-45':t.pending?'opacity-60':'',arch?'bg-neutral-25':'bg-surface-card'].join(' '),
+        gapBefore:!!dragT&&!!s.over&&s.over.colId===t.colId&&s.over.before===t.id&&dragT.id!==t.id,
+        aria:t.title+(t.done?', '+tx.done:'')+(od?', '+tx.overdue:'')+(t.due?', '+tx.due+' '+fmtS(t.due):''),
+        onOpen:()=>{if(this.state.kbd)return;this.openDetail(t.id)},
+        onKey:e=>{if(e.target!==e.currentTarget)return;if(e.key===' '&&canDrag&&!this.state.kbd&&!this.state.kbdCol){e.preventDefault();this.skipKey=true;this.pickKbd(t.id)}else if(e.key==='Enter'&&!this.state.kbd){e.preventDefault();this.skipKey=true;this.openDetail(t.id)}},
+        onMenu:e=>{e.stopPropagation();this.setState({dialog:{type:'moveTo',id:t.id}})},
+        onDragStart:e=>{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',t.id);this.setState({drag:{type:'t',id:t.id},over:null,sim:{...this.state.sim,mouse:false}})},
+        onDragEnd:()=>this.endDrag(),
+        onDragOver:e=>{const d=this.state.drag;if(!d||d.type!=='t')return;e.preventDefault();e.stopPropagation();const ov=this.state.over;if(!ov||ov.colId!==t.colId||ov.before!==t.id)this.setState({over:{colId:t.colId,before:t.id}})},
+        onDrop:e=>{const d=this.state.drag;if(!d||d.type!=='t')return;e.preventDefault();e.stopPropagation();this.dropTaskAt(t.colId,t.id)}}};
+    const vcols=(()=>{if(!s.kbdCol)return cols;const a=cols.filter(c=>c.id!==s.kbdCol.id),m=cols.find(c=>c.id===s.kbdCol.id);if(m)a.splice(s.kbdCol.index,0,m);return a})();
+    const colsVM=vcols.map(c=>{const list=fAct?lists[c.id].filter(match):lists[c.id];const liftedC=!!s.kbdCol&&s.kbdCol.id===c.id;
+      const over=!!s.drag&&!!s.over&&s.over.colId===c.id,last=list[list.length-1],gapEnd=!!dragT&&over&&s.over.before==null&&!(last&&last.id===dragT.id);
+      const fl=demo&&demo.target===c.id?[demo.card]:[],headDrag=!ro&&!fAct&&!s.kbd&&!s.kbdCol&&s.editCol!==c.id,editing=s.editCol===c.id;
+      return {id:c.id,name:c.name,count:list.length,tasks:list.map(card),gapEnd,floating:fl,empty:list.length===0&&!gapEnd&&!fl.length,emptyText:ro?tx.emptyCol:tx.dropHere,
+        cls:[over&&s.drag.type==='t'?'bg-surface-selected':'bg-surface-sunken',liftedC?'outline-2 outline-border-focus -outline-offset-2 shadow-lg -translate-y-0.75':over?'outline-2 outline-dashed outline-border-focus -outline-offset-2':'',s.drag&&s.drag.type==='c'&&s.drag.id===c.id?'opacity-50':''].join(' '),
+        pending:!!c.pending,headAria:f('reorderCol',{name:c.name}),headDrag,headCls:headDrag?'cursor-grab':'cursor-default',editable:!ro,editing,showNameBtn:!ro&&!editing,showNameText:ro,hasEditErr:editing&&!!s.editColErr,
+        onHeadKey:e=>{if(e.target!==e.currentTarget)return;if(e.key===' '&&headDrag){e.preventDefault();this.skipKey=true;this.pickCol(c.id)}},
+        onStartEdit:e=>{e.stopPropagation();this.startEditCol(c)},
+        menuOpen:s.colMenu===c.id,onMenu:e=>{e&&e.stopPropagation&&e.stopPropagation();this.setState({colMenu:s.colMenu===c.id?null:c.id})},
+        menuItems:[mi(tx.rename,'pencil',false,()=>this.startEditCol(c)),mi(tx.archive,'archive',false,()=>this.archiveCol(c.id))],
+        adding:!ro&&s.addingTask===c.id,canAdd:!ro&&s.addingTask!==c.id,hasQuickErr:s.addingTask===c.id&&!!s.quickErr,onAdd:()=>this.openAdd(c.id),
+        onHeadDragStart:e=>{if(!headDrag){e.preventDefault();return}e.stopPropagation();e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',c.id);this.setState({drag:{type:'c',id:c.id},over:null,colMenu:null})},
+        onDragOver:e=>{const d=this.state.drag;if(!d||d.type==='i')return;e.preventDefault();const ov=this.state.over;if(!ov||ov.colId!==c.id)this.setState({over:{colId:c.id,before:null}})},
+        onEndOver:e=>{const d=this.state.drag;if(!d||d.type!=='t')return;e.preventDefault();e.stopPropagation();const ov=this.state.over;if(!ov||ov.colId!==c.id||ov.before!=null)this.setState({over:{colId:c.id,before:null}})},
+        onDrop:e=>{e.preventDefault();const d=this.state.drag;if(!d)return;if(d.type==='c')this.dropColOn(c.id);else this.dropTaskAt(c.id,this.state.over&&this.state.over.colId===c.id?this.state.over.before:null)}}});
+    const archivedTasks=s.tasks.filter(t=>t.boardId===s.boardId&&t.archivedAt).sort((a,b)=>b.archivedAt-a.archivedAt).map(card);
+    const colTaskN=id=>s.tasks.filter(x=>x.colId===id).length;
+    const archivedCols=allCols.filter(c=>c.archivedAt).sort((a,b)=>b.archivedAt-a.archivedAt).map(c=>{const n=colTaskN(c.id);return {id:c.id,name:c.name,pending:!!c.pending,when:f('colArchivedOn',{d:fmtTs(c.archivedAt)}),count:n===1?tx.oneTask:f('nTasks',{n}),canAct:!ro,
+      onRestore:()=>this.restoreCol(c.id),onDelete:()=>this.setState({dialog:{type:'delCol',id:c.id}})}});
+    const filtCount=active.filter(match).length,pg=Math.max(0,Math.min(s.page,cols.length-1));
+    const showBoardCols=(cols.length>0||s.showArch)&&!(fAct&&filtCount===0);
+    const kbdColObj=s.kbd&&cols.find(c=>c.id===s.kbd.colId);
+    const t=s.tasks.find(x=>x.id===s.detailId);let d={};
+    if(t){const arch=!!t.archivedAt,dro=arch||ro,ck=t.checklist,ckd=ck.filter(i=>i.done).length,lq=norm(s.lpQ),od=isOver(t),tCol=allCols.find(c=>c.id===t.colId),colArch=arch&&!!(tCol&&tCol.archivedAt);
+      d={title:t.title,colArchWarn:colArch&&!ro,archBtnsDisabled:colArch,ro:dro,active:!dro,archived:arch,hasBanner:dro,banner:arch?tx.taskArchivedBanner:tx.boardArchivedBanner,showActiveActions:!arch&&!ro,showArchActions:arch&&!ro,
+        colName:colName(t.colId),overdue:od,done:!!t.done,hasBadge:!!t.done||od,onDone:v=>this.toggleDone(t.id,v),titleCls:t.done?'text-text-tertiary line-through':'text-text-primary',
+        listCls:dro?'pointer-events-none opacity-60':'',fieldCls:dro?'opacity-60':'',
+        due:t.due,hasDue:!!t.due&&!dro,onDue:e=>this.upd(t.id,{due:val(e)||''}),clearDue:()=>this.upd(t.id,{due:''}),labels:chips(t.labels),
+        lpItems:bLabels.filter(l=>!lq||norm(l.name).includes(lq)).map(l=>({...chipOf(l),checked:t.labels.includes(l.id),onClick:()=>this.upd(t.id,x=>({labels:x.labels.includes(l.id)?x.labels.filter(i=>i!==l.id):[...x.labels,l.id]}))})),
+        lpEmpty:!bLabels.some(l=>!lq||norm(l.name).includes(lq)),lpCreating:!!s.lpNew,lpNotCreating:!s.lpNew,lpName:s.lpNew?s.lpNew.name:'',
+        lpSwatches:COLORS.map(c=>{const sel=!!s.lpNew&&s.lpNew.color===c;return {title:tx['c_'+c],sel,cls:'bg-label-'+c+(sel?' ring-2 ring-offset-2 ring-offset-surface-card ring-label-'+c:''),onClick:()=>this.setState(x=>({lpNew:{...x.lpNew,color:c}}))}}),
+        hasLpErr:!!s.lpErr,descDirty:s.descDraft!==t.desc&&!dro,descCount:s.descDraft.length+' / 5000',descCountCls:s.descDraft.length>5000?'text-red-600':'text-text-tertiary',hasDescErr:!!s.descErr,
+        hasCheck:ck.length>0,checkText:ckd+'/'+ck.length,checkPct:(ck.length?Math.round(ckd/ck.length*100):0)+'%',checkBarCls:ck.length&&ckd===ck.length?'bg-green-500':'bg-brand',
+        items:(()=>{if(!s.kbdItem)return ck;const a=ck.filter(x=>x.id!==s.kbdItem.id),m=ck.find(x=>x.id===s.kbdItem.id);if(m)a.splice(s.kbdItem.index,0,m);return a})().map(i=>({id:i.id,pending:!!i.pending,text:s.editItem&&s.editItem.id===i.id?s.editItem.text:i.text,done:i.done,
+          cls:s.kbdItem&&s.kbdItem.id===i.id?'bg-brand-soft':'',textCls:i.done?'text-text-tertiary line-through':'text-text-primary',aria:f('reorderItem',{name:i.text}),
+          onGripKey:e=>{if(e.key===' '&&!this.state.kbdItem&&!dro){e.preventDefault();this.skipKey=true;this.pickItem(i.id)}},
+          onFocus:()=>{if(!this.state.editItem||this.state.editItem.id!==i.id)this.setState({editItem:{id:i.id,text:i.text},itemErr:''})},
+          onBlur:()=>{if(this.skipBlur){this.skipBlur=false;return}this.saveItem()},
+          onKey:e=>{if(e.key==='Enter'){e.preventDefault();if(this.saveItem()){this.skipBlur=true;e.currentTarget.blur()}}else if(e.key==='Escape'){e.preventDefault();this.skipKey=true;this.skipBlur=true;this.setState({editItem:null,itemErr:''});e.currentTarget.blur()}},
+          onCheck:v=>this.upd(t.id,x=>({checklist:x.checklist.map(y=>y.id===i.id?{...y,done:v}:y)})),
+          onText:e=>this.setState({editItem:{id:i.id,text:val(e)},itemErr:''}),
+          onDelete:()=>this.upd(t.id,x=>({checklist:x.checklist.filter(y=>y.id!==i.id)})),
+          onDragStart:e=>{e.stopPropagation();e.dataTransfer.setData('text/plain',i.id);this.setState({drag:{type:'i',id:i.id}})},onDragEnd:()=>this.endDrag(),
+          onDragOver:e=>{if(this.state.drag&&this.state.drag.type==='i')e.preventDefault()},
+          onDrop:e=>{const dd=this.state.drag;if(!dd||dd.type!=='i')return;e.preventDefault();this.setState({drag:null});this.upd(t.id,x=>{const a=[...x.checklist],fi=a.findIndex(y=>y.id===dd.id),ti=a.findIndex(y=>y.id===i.id);if(fi<0||ti<0||fi===ti)return {};const [m]=a.splice(fi,1);a.splice(ti,0,m);return {checklist:a}})}})),
+        hasItemErr:!!s.itemErr,kbdItemActive:!!s.kbdItem,kbdItemText:s.kbdItem?f('kbdItemActive',{name:(ck.find(x=>x.id===s.kbdItem.id)||{}).text,i:s.kbdItem.index+1,n:ck.length}):'',
+        created:f('createdTask',{d:fmtTs(t.createdAt)}),
+        onArchive:()=>this.archiveTask(t.id),onRestore:()=>this.restoreTask(t.id),onDelete:()=>this.askDeleteTask(t.id),onMove:()=>this.setState({dialog:{type:'moveTo',id:t.id}})}}
+    const dl=s.dialog,dlg={};
+    if(dl){const ty=dl.type;Object.assign(dlg,{width:440,isBoard:ty==='board',isDelBoard:ty==='delBoard',isConfirm:['delCol','discard','delTask','delLabel'].includes(ty),
+      isMove:ty==='moveTo',isLabel:ty==='label',isShortcuts:ty==='shortcuts',cancelLabel:tx.cancel,okLabel:tx.delete,onOk:()=>this.setState({dialog:null})});
+      if(ty==='board')Object.assign(dlg,{title:dl.id?tx.editBoard:tx.newBoard,cta:dl.id?tx.save:tx.createBoard});
+      if(ty==='delBoard'){const b=s.boards.find(x=>x.id===dl.id);Object.assign(dlg,{title:f('delBoardTitle',{name:b?b.name:''}),desc:tx.delBoardDesc,confirmPh:b?b.name:'',confirmDisabled:!b||s.dConfirm!==b.name,onOk:()=>this.deleteBoard()})}
+      if(ty==='delCol'){const c=allCols.find(x=>x.id===dl.id);const n=s.tasks.filter(x=>x.colId===dl.id).length;Object.assign(dlg,{title:f('delColTitle',{name:c?c.name:''}),desc:n===0?tx.delColDesc0:n===1?tx.delColDesc1:f('delColDesc',{n}),okLabel:tx.deleteForever,onOk:()=>this.deleteCol(dl.id)})}
+      if(ty==='discard')Object.assign(dlg,{title:tx.discardTitle,desc:tx.discardDesc,cancelLabel:tx.keepEditing,okLabel:tx.discard,onOk:()=>this.closeDetail()});
+      if(ty==='delTask')Object.assign(dlg,{title:tx.delTaskTitle,desc:tx.delTaskDesc,okLabel:tx.deleteForever,onOk:()=>this.deleteForever(dl.id)});
+      if(ty==='delLabel'){const l=labMap[dl.id],n=s.tasks.filter(x=>x.labels.includes(dl.id)).length;Object.assign(dlg,{title:f('delLabelTitle',{name:l?l.name:''}),desc:n===0?tx.delLabelDesc0:n===1?tx.delLabelDesc1:f('delLabelDesc',{n}),onOk:()=>this.deleteLabel(dl.id)})}
+      if(ty==='moveTo'){const mt=s.tasks.find(x=>x.id===dl.id);Object.assign(dlg,{title:tx.moveTo,desc:mt?'“'+mt.title+'”':'',width:400,
+        moveOpts:mt?cols.map(c=>{const cur=mt.colId===c.id;return {name:c.name,cur,curText:cur?tx.current:'',cls:cur?'border-purple-200 bg-surface-selected':'border-border-subtle bg-surface-card',checkCls:cur?'opacity-100':'opacity-0',
+          onClick:()=>{this.setState({dialog:null});if(!cur){const ok=this.moveTask(mt.id,c.id,this.activeIn(c.id,mt.id).length);if(ok)this.toast('tTaskMoved','success',{col:c.name})}}}}):[]})}
+      if(ty==='label')Object.assign(dlg,{title:dl.id?tx.editLabel:tx.newLabel,cta:dl.id?tx.save:tx.createLabel,colorName:tx['c_'+s.lColor],
+        swatches:COLORS.map(c=>{const sel=s.lColor===c;return {title:tx['c_'+c],sel,cls:'bg-label-'+c+(sel?' ring-2 ring-offset-2 ring-offset-surface-card ring-label-'+c:''),onClick:()=>this.setState({lColor:c,lErr:''})}}),
+        preview:chipOf({id:'p',name:s.lName.trim()||tx.labelNamePh,color:s.lColor})});
+      if(ty==='shortcuts')Object.assign(dlg,{title:tx.shortcuts,width:420})}
+    const shortcutRows=[['N',tx.scNew],['/',tx.scSearch],['Esc',tx.scEsc],[en?'Space':'Espaço',tx.scMove],['?',tx.scHelp]].map(([k,l])=>({k,label:l}));
+    const labelRows=bLabels.map(l=>{const n=s.tasks.filter(x=>x.labels.includes(l.id)).length;return {...chipOf(l),pending:!!l.pending,usage:n===0?tx.usedIn0:n===1?tx.usedIn1:f('usedIn',{n}),
+      onEdit:()=>this.openLabelDialog(l.id),onDelete:()=>this.setState({dialog:{type:'delLabel',id:l.id}})}});
+    const view=s.view,bName=board?board.name:(st==='ready'?tx.boardNF:'');
+    const goBoard=()=>this.go('board');
+    const crumbs=(view==='board'?[{label:bName}]:view==='labels'?[{label:bName,onClick:goBoard},{label:tx.labels}]:view==='settings'?[{label:tx.settings}]:[]);
+    const crumbList=[{label:tx.myBoards,onClick:()=>this.go('boards',{boardsTab:ro?'archived':s.boardsTab}),isLink:true,isCurrent:false},...crumbs.map((c,i)=>({label:c.label,onClick:c.onClick,isLink:i<crumbs.length-1,isCurrent:i===crumbs.length-1}))];
+    const mobileTitle=view==='board'?bName:view==='labels'?tx.boardLabels:view==='settings'?tx.settings:'';
+    const url='my-trello.app'+(isAuth?(isSignup?'/signup':'/login'):view==='boards'?'/boards':view==='board'?'/b/'+s.boardId+(t?'/t/'+t.id:''):view==='labels'?'/b/'+s.boardId+'/labels':'/settings');
+    const frameCls=mob?'w-97.5 h-211 flex-none rounded-device border-10 border-bezel overflow-hidden flex flex-col bg-surface-card shadow-window'
+      :'w-full max-w-360 h-full min-h-170 rounded-xl overflow-hidden flex flex-col border border-border-subtle bg-surface-card shadow-window';
+    const detailWrapCls=mob?'absolute inset-0 z-40 flex bg-surface-card':'absolute inset-0 z-40 flex items-start justify-center pt-10 px-6 pb-6 bg-surface-overlay overflow-auto';
+    const detailPanelCls=mob?'flex-1 flex flex-col min-h-0 bg-surface-card':'w-full max-w-190 max-h-full flex flex-col min-h-0 bg-surface-card rounded-xl border border-border-subtle shadow-lg overflow-hidden';
+    const headMenuItems=[mi(tx.boardLabels,'tag',false,()=>this.go('labels',{headMenu:false}))];
+    const doneSr=React.createElement('span',{className:'sr-only'},tx.markDone);
+    return {tx,stop,doneSr,busy:s.saving>0,isMobile:mob,isDesktop:!mob,themeAttr:dark?'dark':'light',schemeCls:dark?'scheme-dark':'scheme-light',frameCls,url,live:s.live,
+      protoScreen,protoScreenOpts:[{value:'signup',label:'Criar conta'},{value:'login',label:'Entrar'},{value:'ratelimit',label:'Entrar (muitas tentativas)'},{value:'expired',label:'Sessão expirada'},{value:'app',label:'App'}],
+      setProtoScreen:v=>this.setProto(v),device:s.device,deviceOpts:[{value:'desktop',label:'Desktop',icon:'monitor'},{value:'mobile',label:'Celular',icon:'smartphone'}],
+      setDevice:v=>this.setState({device:v,page:0}),themePref:s.themePref,setTheme:v=>this.setState({themePref:v}),
+      themeOpts:[{value:'light',label:tx.light||'Claro',icon:'sun'},{value:'dark',label:tx.dark||'Escuro',icon:'moon'},{value:'system',label:tx.system||'Sistema',icon:'monitor-cog'}],
+      lang:s.lang,setLang:v=>this.setState({lang:v}),langOpts:[{value:'pt',label:'PT-BR'},{value:'en',label:'EN'}],langOptsLong:[{value:'pt',label:'Português (Brasil)'},{value:'en',label:'English'}],
+      dataMode:s.dataMode,dataOpts:[{value:'sample',label:'Exemplo'},{value:'empty',label:'Vazio'},{value:'loading',label:'Carregando'},{value:'error',label:'Erro'}],setData:v=>this.setData(v),
+      simMouse:s.sim.mouse,simKbd:!!s.kbd,simFilters:fAct,simFail:s.sim.fail,simConflict:s.sim.conflict,simBoardNF:s.sim.boardNF&&view==='board'&&!board,simTaskNF:s.sim.taskNF&&!!s.detailId&&!t,
+      setSimMouse:v=>this.setSim('mouse',v),setSimKbd:v=>this.setSim('kbd',v),setSimFilters:v=>this.setSim('filters',v),setSimFail:v=>this.setSim('fail',v),setSimConflict:v=>this.setSim('conflict',v),setSimBoardNF:v=>this.setSim('boardNF',v),setSimTaskNF:v=>this.setSim('taskNF',v),
+      isAuth,isApp:!isAuth,isSignup,authTitle:isSignup?tx.signupTitle:tx.loginTitle,authSub:isSignup?tx.signupSub:tx.loginSub,
+      isExpired:s.screen==='login'&&s.loginMode==='expired',hasAuthErr:!!s.loginErr,authErr:s.loginErr,authErrIcon:s.rate?'timer':'circle-alert',
+      an:s.an,ae:s.ae,ap:s.ap,onAn:e=>this.setState({an:val(e),aErr:{...s.aErr,name:''}}),onAe:e=>this.setState({ae:val(e),aErr:{...s.aErr,email:''},loginErr:s.rate?s.loginErr:''}),onAp:e=>this.setState({ap:val(e),aErr:{...s.aErr,pw:''},loginErr:s.rate?s.loginErr:''}),
+      aErrName:s.aErr.name?tx[s.aErr.name]:'',aErrEmail:s.aErr.email?tx[s.aErr.email]:'',aErrPw:s.aErr.pw?tx[s.aErr.pw]:'',pwHint:isSignup?tx.pwHint:null,pwPh:isSignup?tx.pwPh:'',
+      aBusy:s.aBusy,authCta:s.aBusy?(isSignup?tx.creating:tx.loggingIn):(isSignup?tx.signup:tx.login),
+      authSubmit:e=>{e&&e.preventDefault();this.authSubmit()},authSwitchPrefix:isSignup?tx.haveAccount:tx.noAccount,authSwitchLink:isSignup?tx.haveAccountLink:tx.createAccountLink,
+      authSwitch:e=>{e.preventDefault();this.setProto(isSignup?'login':'signup')},protoHint:f('protoHint',{email:ACC.email,pw:ACC.pw}),
+      showBack:mob&&view!=='boards',showLogo:!mob||view==='boards',showCrumb:!mob&&view!=='boards',crumbs:crumbList,mobileTitle,
+      showMobileHeadMenu:mob&&view==='board'&&!!board&&st==='ready',headMenu:s.headMenu,headMenuItems,toggleHeadMenu:()=>this.setState({headMenu:!s.headMenu}),closeHeadMenu:()=>this.setState({headMenu:false}),
+      showSettingsBtn:view==='boards'||view==='board',goBack:()=>this.goBack(),goBoards:()=>this.go('boards'),goSettings:()=>this.go('settings'),openShortcuts:()=>this.setState({dialog:{type:'shortcuts'}}),
+      contentCls:'mx-auto flex flex-col gap-5 '+(view==='board'?'':'max-w-270 ')+(mob?'px-4 pt-4 pb-6':'px-8 pt-7 pb-10'),
+      isBoards:view==='boards',boardsLoading:st==='loading',boardsError:st==='error',boardsTabsShown:st==='ready',boardsTab:s.boardsTab,setBoardsTab:v=>this.setState({boardsTab:v,boardMenu:null}),
+      boardsTabOpts:[{value:'active',label:tx.tabActive},{value:'archived',label:tx.tabArchived}],showCreateBoard:st==='ready'&&!arTab,
+      boardsEmpty:st==='ready'&&!arTab&&!shownBoards.length,archivedEmpty:st==='ready'&&arTab&&!shownBoards.length,boardsReady:st==='ready'&&shownBoards.length>0,
+      skeletons:['w-1/2','w-3/4','w-2/3','w-3/5','w-4/5','w-1/2'].map(cls=>({cls})),boardCards,openCreateBoard:()=>this.openBoardDialog(null),
+      retryBoards:()=>{this.setState({boardsStatus:'loading'});this.later(()=>this.setState({boardsStatus:'ready',dataMode:'sample'}),900)},closeBoardMenu:e=>{e&&e.stopPropagation();this.setState({boardMenu:null})},
+      isBoard:view==='board'&&!!board&&st==='ready',boardLoading:view==='board'&&st==='loading',boardError:view==='board'&&st==='error',boardNF:view==='board'&&st==='ready'&&!board,
+      skelCols:[3,2,1,2].map(k=>({cards:['h-14','h-18','h-22'].slice(0,k).map(cls=>({cls}))})),boardName:board?board.name:'',boardDesc:board?board.description:'',hasBoardDesc:!!(board&&board.description),
+      boardRO:ro,restoreOpenBoard:()=>board&&this.restoreBoard(board.id),
+      searchRef:this.searchRef,q:s.q,onQ:e=>this.setState({q:val(e)}),hasQ:!!s.q,clearQ:()=>this.setState({q:''}),
+      onSearchKey:e=>{if(e.key==='Escape'&&s.q){this.skipKey=true;this.setState({q:''})}},searchW:mob?'w-full':'w-65',
+      labelFilterText:s.fLabels.length?f('labelsN',{n:s.fLabels.length}):tx.labels,labelFilterVariant:s.fLabels.length?'soft':'secondary',labelFilterOpen:s.labelFilterOpen,
+      toggleLabelFilter:()=>this.setState({labelFilterOpen:!s.labelFilterOpen}),closeLabelFilter:()=>this.setState({labelFilterOpen:false}),
+      labelFilterItems:bLabels.map(l=>({...chipOf(l),checked:s.fLabels.includes(l.id),onClick:()=>this.setState(x=>({fLabels:x.fLabels.includes(l.id)?x.fLabels.filter(i=>i!==l.id):[...x.fLabels,l.id]}))})),noLabelsAtAll:!bLabels.length,
+      dueOpts:[{value:'',label:tx.anyDue},{value:'overdue',label:tx.overdueF},{value:'today',label:tx.dueTodayF},{value:'none',label:tx.noDueF},{value:'done',label:tx.doneF}],fDue:s.fDue,onFDue:v=>this.setState({fDue:v}),
+      showArch:s.showArch,onShowArch:v=>this.setState({showArch:v}),
+      filtersActive:fAct,showDragOff:fAct&&!ro,resultText:filtCount===1?tx.oneTask:f('nTasks',{n:filtCount}),clearFilters:()=>this.setState({q:'',fLabels:[],fDue:'',sim:{...s.sim,filters:false}}),
+      kbdActive:!!kt||!!s.kbdCol,kbdText:s.kbdCol?f('kbdColActive',{name:(cols.find(c=>c.id===s.kbdCol.id)||{}).name,i:s.kbdCol.index+1,n:cols.length}):kt&&kbdColObj?f('kbdActive',{title:kt.title,col:kbdColObj.name,i:s.kbd.index+1,n:this.activeIn(kbdColObj.id,kt.id).length+1}):'',
+      showKbdHelp:!mob&&!ro&&!kt&&!s.kbdCol&&!fAct&&cols.length>0,
+      boardNoCols:!!board&&!ro&&cols.length===0&&!s.showArch,noResults:fAct&&filtCount===0&&cols.length>0,showBoardCols,cols:colsVM,colW:mob?'w-11/12':'w-71',colGap:mob?'gap-3':'gap-3.5',snap:mob?'snap-x snap-mandatory':'',boardRef:this.boardRef,
+      onBoardScroll:e=>{if(!mob)return;const el=e.currentTarget,c=el.querySelector('section'),w=c?c.offsetWidth+12:el.clientWidth,p=Math.round(el.scrollLeft/w);if(p!==this.state.page)this.setState({page:p})},
+      endDrag:()=>this.endDrag(),closeColMenu:e=>{e&&e.stopPropagation();this.setState({colMenu:null})},
+      editColName:s.editColName,editColErr:s.editColErr,onEditColName:e=>this.setState({editColName:val(e),editColErr:''}),
+      onEditColKey:e=>{if(e.key==='Enter'){e.preventDefault();this.saveEditCol()}else if(e.key==='Escape'){this.skipKey=true;this.setState({editCol:null,editColErr:''})}},onEditColBlur:()=>{if(this.state.editCol)this.saveEditCol()},
+      quickRef:this.quickRef,quick:s.quick,quickErr:s.quickErr,onQuick:e=>this.setState({quick:val(e),quickErr:''}),
+      onQuickKey:e=>{if(e.key==='Enter'){e.preventDefault();this.addTask()}else if(e.key==='Escape'){this.skipKey=true;this.setState({addingTask:null,quick:'',quickErr:''})}},
+      addTask:()=>{this.addTask();this.quickRef.current&&this.quickRef.current.focus()},cancelAdd:()=>this.setState({addingTask:null,quick:'',quickErr:''}),
+      archivedTasks,archEmpty:!archivedTasks.length,archCount:archivedTasks.length,archivedCols,archColsEmpty:!archivedCols.length,archColCount:archivedCols.length,
+      canAddCol:!ro&&cols.length>0,addingCol:s.addingCol,notAddingCol:!s.addingCol,newColName:s.newColName,newColErr:s.newColErr,hasNewColErr:!!s.newColErr,
+      openAddCol:()=>this.setState({addingCol:true,newColName:'',newColErr:''}),onNewColName:e=>this.setState({newColName:val(e),newColErr:''}),
+      onNewColKey:e=>{if(e.key==='Enter'){e.preventDefault();this.addColumn()}else if(e.key==='Escape'){this.skipKey=true;this.setState({addingCol:false,newColName:'',newColErr:''})}},
+      addColumn:()=>this.addColumn(),cancelAddCol:()=>this.setState({addingCol:false,newColName:'',newColErr:''}),
+      showPager:mob&&showBoardCols&&cols.length>1,pageLabel:cols[pg]?f('pageOf',{col:cols[pg].name,i:pg+1,n:cols.length}):'',
+      pagerDots:cols.map((c,i)=>({label:c.name,cls:i===pg?'w-4.5 bg-brand':'w-1.5 bg-border-default',onClick:()=>this.scrollToCol(i)})),
+      detailOpen:!!s.detailId&&view==='board',dOk:!!t&&st==='ready',dLoading:!!s.detailId&&st==='loading',dError:!!s.detailId&&st==='error',dNF:!!s.detailId&&st==='ready'&&!t,
+      detailClose:()=>this.requestClose(),detailBackdrop:e=>{if(e.target===e.currentTarget)this.requestClose()},d,detailWrapCls,detailPanelCls,dPad:mob?'px-4 pt-4 pb-6':'px-7 pt-5 pb-7',
+      titleDraft:s.titleDraft,titleErr:s.titleErr,hasTitleErr:!!s.titleErr,onTitle:e=>this.setState({titleDraft:val(e).replace(/\n/g,''),titleErr:''}),onTitleBlur:()=>{if(this.state.detailId&&t&&!t.archivedAt&&!ro)this.saveTitle()},
+      onTitleKey:e=>{if(e.key==='Enter'){e.preventDefault();e.currentTarget.blur()}else if(e.key==='Escape'&&t){this.skipKey=true;this.setState({titleDraft:t.title,titleErr:''});e.currentTarget.blur()}},
+      labelPop:s.labelPop,toggleLabelPop:()=>this.setState({labelPop:!s.labelPop,lpQ:'',lpNew:null,lpErr:''}),closeLabelPop:()=>this.setState({labelPop:false,lpNew:null,lpErr:''}),
+      lpQ:s.lpQ,onLpQ:e=>this.setState({lpQ:val(e)}),startLpNew:()=>this.setState({lpNew:{name:s.lpQ,color:'blue'},lpErr:''}),onLpName:e=>this.setState({lpNew:{...s.lpNew,name:val(e)},lpErr:''}),
+      onLpNameKey:e=>{if(e.key==='Enter'){e.preventDefault();this.createLabelFromPop()}},createLabelFromPop:()=>this.createLabelFromPop(),cancelLpNew:()=>this.setState({lpNew:null,lpErr:''}),lpErr:s.lpErr,
+      manageLabels:()=>{this.setState({labelPop:false});this.go('labels')},
+      descDraft:s.descDraft,onDesc:e=>this.setState({descDraft:val(e),descErr:''}),saveDesc:()=>this.saveDesc(),cancelDesc:()=>t&&this.setState({descDraft:t.desc,descErr:''}),descErr:s.descErr,
+      newItem:s.newItem,itemErr:s.itemErr,onNewItem:e=>this.setState({newItem:val(e),itemErr:''}),
+      onNewItemKey:e=>{if(e.key!=='Enter'||!t)return;e.preventDefault();if(this.state.saving)return;const v=s.newItem.trim();if(!v)return this.setState({itemErr:tx.errItemEmpty});if(v.length>200)return this.setState({itemErr:tx.errLen200});
+        const ni={id:nid('i'),text:v,done:false,pending:true};this.upd(t.id,x=>({checklist:[...x.checklist,ni]}),ni.id);this.setState({newItem:'',itemErr:''})},
+      dialogOpen:!!dl,dlg,closeDialog:()=>this.setState({dialog:null}),
+      dName:s.dName,dErrName:s.dErr.name?tx[s.dErr.name]:'',onDName:e=>this.setState({dName:val(e),dErr:{...s.dErr,name:''}}),onDNameKey:e=>{if(e.key==='Enter'){e.preventDefault();this.saveBoard()}},saveBoard:()=>this.saveBoard(),
+      dDesc:s.dDesc,onDDesc:e=>this.setState({dDesc:val(e),dErr:{...s.dErr,desc:''}}),dDescCount:s.dDesc.length+' / 1000',dDescCountCls:s.dDesc.length>1000?'text-red-600':'text-text-tertiary',hasDErrDesc:!!s.dErr.desc,dErrDesc:s.dErr.desc?tx[s.dErr.desc]:'',
+      dConfirm:s.dConfirm,onDConfirm:e=>this.setState({dConfirm:val(e)}),
+      lName:s.lName,onLName:e=>this.setState({lName:val(e),lErr:''}),lErr:s.lErr,hasLErr:!!s.lErr,saveLabel:()=>this.saveLabel(),onLNameKey:e=>{if(e.key==='Enter'){e.preventDefault();this.saveLabel()}},
+      shortcutRows,isLabels:view==='labels'&&!!board,labelRows,hasLabelRows:labelRows.length>0,labelsEmpty:!!board&&!bLabels.length,canEditLabels:!ro,openNewLabel:()=>this.openLabelDialog(null),
+      labelsSub:board?board.name+' · '+tx.labelsSub:'',
+      isSettings:view==='settings',signedIn:f('signedInAs',{name:s.account.name,email:s.account.email}),
+      logout:()=>this.setState({screen:'login',loginMode:'normal',ae:s.account.email,ap:'',detailId:null,resume:null}),
+      toastOpen:!!s.toast,toast:s.toast?{...s.toast,hasAction:!!s.toast.action,actionLabel:s.toast.action?s.toast.action.label:'',onAction:()=>{const a=s.toast.action;this.setState({toast:null});if(a)a.fn()}}:{},closeToast:()=>this.setState({toast:null})};
+  }
+}
+</script>
+</body>
+</html>
