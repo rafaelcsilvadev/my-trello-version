@@ -28,5 +28,13 @@ Decisions that bind every app in the monorepo. App-specific decisions live in `<
 - **Date**: 2026-10-14
 - **Status**: active
 
+### GL-AD-004
+- **Decision**: One GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every pull request (any base branch) and on pushes to `main`. A matrix runs each back-end script (`lint`, `build`, `test`, `test:integration`, `test:e2e`) as its own parallel job with `fail-fast: false`; integration and e2e use Testcontainers on the runner's Docker daemon.
+- **Reason**: Every PR is checked before review, and each script shows up as a separate status check, so one failure never hides another.
+- **Trade-off**: Each matrix job repeats checkout, setup and install, and two jobs pull the PostgreSQL image; actions are pinned to major tags, not commit SHAs.
+- **Scope**: all apps (front-end and mobile add their own jobs when they start)
+- **Date**: 2026-10-21
+- **Status**: active
+
 ## Handoff
 
