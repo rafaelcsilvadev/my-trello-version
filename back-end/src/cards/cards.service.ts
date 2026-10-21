@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { isUUID } from 'class-validator';
+import type { EntityManager } from 'typeorm';
 import type { Board } from '../boards/board.entity';
 import { BoardArchivedError } from '../boards/boards.errors';
 import { BoardsService } from '../boards/boards.service';
@@ -117,7 +118,7 @@ export class CardsService {
     return this.withDetailsOf(await this.findOwnedCard(ownerId, id));
   }
 
-  private async findOwnedCard(ownerId: string, id: string): Promise<Card> {
+  async findOwnedCard(ownerId: string, id: string): Promise<Card> {
     const card = isUUID(id)
       ? await this.cardsRepository.findOwned(ownerId, id)
       : null;
@@ -294,6 +295,30 @@ export class CardsService {
           throw new LabelNotFoundError();
         }
       },
+    );
+  }
+
+  // Write hook for rows owned by a card (checklist items): the writeLocked
+  // guards, then the card-archived guard, then work in the same transaction
+  // through its manager. before runs under the lock ahead of the archived
+  // guards, so a missing owned row wins over an archived card (BE-AD-011).
+  writeActiveCard<T>(
+    ownerId: string,
+    cardId: string,
+    work: (card: Card, manager: EntityManager) => Promise<T>,
+    before?: (card: Card, manager: EntityManager) => Promise<void>,
+  ): Promise<T> {
+    return this.writeLocked(
+      ownerId,
+      cardId,
+      (card, _list, cards) => {
+        if (card.archivedAt) {
+          throw new CardArchivedError();
+        }
+
+        return work(card, cards.manager);
+      },
+      before && ((_board, card, cards) => before(card, cards.manager)),
     );
   }
 

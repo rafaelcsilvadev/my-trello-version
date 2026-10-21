@@ -22,5 +22,6 @@ import { CardsService } from './cards.service';
   ],
   controllers: [CardsController, CardLabelsController],
   providers: [CardsRepository, CardsService],
+  exports: [CardsService],
 })
 export class CardsModule {}

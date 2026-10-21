@@ -1,3 +1,4 @@
+import type { EntityManager } from 'typeorm';
 import type { Board } from '../../../src/boards/board.entity';
 import {
   BoardArchivedError,
@@ -33,6 +34,9 @@ const ARCHIVED_AT = new Date('2026-10-16T09:00:00Z');
 const BUG_LABEL_ID = 'f1b3d5a7-2c4e-4f6a-8b0d-9e1c3a5b7d24';
 const IDEA_LABEL_ID = 'd6e8a0c2-4b6d-4e8f-9a1c-3e5b7d9f1a36';
 const NO_ITEMS: ChecklistProgress = { total: 0, done: 0 };
+// Stands for the transaction's manager: the mocked transaction hands work the
+// same repository, so its manager is the one writeActiveCard must pass on.
+const TX_MANAGER = {} as EntityManager;
 
 type CardsRepositoryMock = jest.Mocked<
   Pick<
@@ -54,6 +58,7 @@ type CardsRepositoryMock = jest.Mocked<
     | 'checklistCountsByCard'
     | 'save'
     | 'delete'
+    | 'manager'
   >
 >;
 
@@ -193,6 +198,7 @@ describe('CardsService', () => {
       checklistCountsByCard: jest.fn(),
       save: jest.fn((card: Card) => Promise.resolve(card)),
       delete: jest.fn(),
+      manager: TX_MANAGER,
     };
     cards.transaction.mockImplementation((work) =>
       work(cards as unknown as CardsRepository),
@@ -1233,6 +1239,129 @@ describe('CardsService', () => {
         CardArchivedError,
       );
       expectNoLabelWrites();
+    });
+  });
+
+  // Rows owned by a card (checklist items) are written through this hook: the
+  // writeLocked guards, then the card-archived guard, then work with the
+  // transaction's manager (CHK-19 to CHK-22).
+  describe('writeActiveCard', () => {
+    let work: jest.Mock<Promise<string>, [Card, EntityManager]>;
+
+    const write = (
+      id = CARD_ID,
+      before?: (card: Card, manager: EntityManager) => Promise<void>,
+    ) => service.writeActiveCard(OWNER_ID, id, work, before);
+
+    beforeEach(() => {
+      work = jest.fn().mockResolvedValue('written');
+    });
+
+    it('runs work with the locked card and the transaction manager and returns its result', async () => {
+      const locked = buildCard({ title: 'Locked' });
+      givenCard(buildCard());
+      cards.findOwned
+        .mockResolvedValueOnce(buildCard())
+        .mockResolvedValue(locked);
+
+      await expect(write()).resolves.toBe('written');
+      expect(work).toHaveBeenCalledTimes(1);
+      expect(work).toHaveBeenCalledWith(locked, TX_MANAGER);
+      expect(cards.lockOwnedBoard).toHaveBeenCalledWith(OWNER_ID, BOARD_ID);
+    });
+
+    it('throws CardNotFoundError for a non-UUID id without querying', async () => {
+      await expect(write('not-a-uuid')).rejects.toBeInstanceOf(
+        CardNotFoundError,
+      );
+      expect(cards.findOwned).not.toHaveBeenCalled();
+      expect(work).not.toHaveBeenCalled();
+    });
+
+    it('throws CardNotFoundError when the owner has no such card', async () => {
+      cards.findOwned.mockResolvedValue(null);
+
+      await expect(write()).rejects.toBeInstanceOf(CardNotFoundError);
+      expect(cards.lockOwnedBoard).not.toHaveBeenCalled();
+      expect(work).not.toHaveBeenCalled();
+    });
+
+    it('throws CardNotFoundError when the card is gone under the lock', async () => {
+      givenCard(buildCard());
+      cards.findOwned
+        .mockResolvedValueOnce(buildCard())
+        .mockResolvedValue(null);
+      const before = jest.fn().mockResolvedValue(undefined);
+
+      await expect(write(CARD_ID, before)).rejects.toBeInstanceOf(
+        CardNotFoundError,
+      );
+      expect(before).not.toHaveBeenCalled();
+      expect(work).not.toHaveBeenCalled();
+    });
+
+    it('runs before under the lock with the locked card and the transaction manager', async () => {
+      const locked = buildCard({ title: 'Locked' });
+      givenCard(buildCard());
+      cards.findOwned
+        .mockResolvedValueOnce(buildCard())
+        .mockResolvedValue(locked);
+      const before = jest.fn().mockResolvedValue(undefined);
+
+      await write(CARD_ID, before);
+
+      expect(before).toHaveBeenCalledWith(locked, TX_MANAGER);
+      expect(cards.lockOwnedBoard.mock.invocationCallOrder[0]).toBeLessThan(
+        before.mock.invocationCallOrder[0],
+      );
+      expect(before.mock.invocationCallOrder[0]).toBeLessThan(
+        work.mock.invocationCallOrder[0],
+      );
+    });
+
+    it('throws the error of before ahead of the board, list and card archived checks', async () => {
+      class BeforeError extends Error {}
+      givenCard(buildArchivedCard(), {
+        list: buildArchivedList(),
+        board: buildBoard({ archivedAt: ARCHIVED_AT }),
+      });
+
+      await expect(
+        write(CARD_ID, () => Promise.reject(new BeforeError())),
+      ).rejects.toBeInstanceOf(BeforeError);
+      expect(work).not.toHaveBeenCalled();
+    });
+
+    it('throws BoardArchivedError before ListArchivedError and CardArchivedError', async () => {
+      givenCard(buildArchivedCard(), {
+        list: buildArchivedList(),
+        board: buildBoard({ archivedAt: ARCHIVED_AT }),
+      });
+
+      await expect(write()).rejects.toBeInstanceOf(BoardArchivedError);
+      expect(work).not.toHaveBeenCalled();
+    });
+
+    it('throws ListArchivedError before CardArchivedError', async () => {
+      givenCard(buildArchivedCard(), { list: buildArchivedList() });
+
+      await expect(write()).rejects.toBeInstanceOf(ListArchivedError);
+      expect(work).not.toHaveBeenCalled();
+    });
+
+    it('throws CardArchivedError on an archived card', async () => {
+      givenCard(buildArchivedCard());
+
+      await expect(write()).rejects.toBeInstanceOf(CardArchivedError);
+      expect(work).not.toHaveBeenCalled();
+    });
+
+    it('writes nothing on the card itself', async () => {
+      givenCard(buildCard());
+
+      await write();
+
+      expectNoWrites();
     });
   });
 });
