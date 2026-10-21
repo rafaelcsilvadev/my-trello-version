@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { BoardsModule } from './boards/boards.module';
 import { CardsModule } from './cards/cards.module';
+import { ChecklistsModule } from './checklists/checklists.module';
 import { validateEnv } from './config/env.schema';
 import { DatabaseModule } from './database/database.module';
 import { HealthModule } from './health/health.module';
@@ -23,6 +24,7 @@ import { UsersModule } from './users/users.module';
     ListsModule,
     CardsModule,
     LabelsModule,
+    ChecklistsModule,
   ],
 })
 export class AppModule {}

@@ -101,11 +101,11 @@ T8 → T9 → T10 → T11 → T12
 
 **Done when**:
 
-- [ ] Integration: insert with defaults → `done` `false`, `created_at` = `updated_at`; `text` of 201 chars and `position` `-1` rejected
-- [ ] Integration: two items at the same `(card_id, position)` rejected at commit; a swap of two positions inside one transaction commits (deferred)
-- [ ] Integration: deleting a card deletes its items; deleting a list and deleting a board delete the items of their cards
-- [ ] Integration: migration `down` drops the table and `up` runs again
-- [ ] Build gate passes; ≥ 7 new integration tests
+- [x] Integration: insert with defaults → `done` `false`, `created_at` = `updated_at`; `text` of 201 chars and `position` `-1` rejected
+- [x] Integration: two items at the same `(card_id, position)` rejected at commit; a swap of two positions inside one transaction commits (deferred)
+- [x] Integration: deleting a card deletes its items; deleting a list and deleting a board delete the items of their cards
+- [x] Integration: migration `down` drops the table and `up` runs again
+- [x] Build gate passes; ≥ 7 new integration tests
 
 **Tests**: integration
 **Gate**: build
