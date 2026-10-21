@@ -39,7 +39,7 @@ A card names one piece of work, but most work has steps, and a description canno
 | Card body | Every card response gains `checklist: { "total", "done" }`; `{ "total": 0, "done": 0 }` when the card has no items | Discussed (context.md) | y |
 | Card `updatedAt` | Unchanged by every item write | Discussed (context.md); same as LBL-21 | y |
 | Archive semantics | Items have no archive; an archived board, list or card makes its items read-only: writes → `409` `/problems/board-archived`, `/problems/list-archived` or `/problems/card-archived`; `GET` still answers | Item writes are card writes (CRD-27, LBL-23, LBL-24, LBL-27) | y |
-| Error precedence | Lookup `404` first (`card-not-found` on nested routes, `checklist-item-not-found` on item routes), then `board-archived` > `list-archived` > `card-archived`, then `400` body validation | Same order as labels (LBL-25); a state conflict wins over a bad body because the write is refused whatever the body is | y |
+| Error precedence | `400` body validation first (global `ValidationPipe`, before the controller), then lookup `404` (`card-not-found` on nested routes, `checklist-item-not-found` on item routes), then `board-archived` > `list-archived` > `card-archived` | Same order as cards and labels (LBL-25); the pipe always runs before the service | y |
 | Unknown, foreign or malformed item id | `404` `/problems/checklist-item-not-found`, identical in all three cases | BE-AD-008 | y |
 | Unknown, foreign or malformed card id on nested routes | `404` `/problems/card-not-found`, same body as CRD-38 | Reuses the card lookup (BE-AD-008) | y |
 | Empty `PATCH` body `{}` | `200` with the unchanged item; `updatedAt` unchanged | Same as LST-12 | y |
@@ -161,7 +161,7 @@ A card names one piece of work, but most work has steps, and a description canno
 1. WHILE a card's board is archived the system SHALL answer `POST /api/v1/cards/:cardId/checklist-items`, and `PATCH`, `DELETE` and `POST .../move` on `/api/v1/checklist-items/:id` of that card, with `409` and `type` `/problems/board-archived`, whether the list or the card is archived or not, and SHALL NOT change any item.  <!-- CHK-19 -->
 2. WHILE a card's list is archived and its board is active the system SHALL answer the routes of CHK-19 with `409` and `type` `/problems/list-archived`, whether the card is archived or not, and SHALL NOT change any item.  <!-- CHK-20 -->
 3. WHILE a card is archived and its list and board are active the system SHALL answer the routes of CHK-19 with `409` and `type` `/problems/card-archived` and SHALL NOT change any item.  <!-- CHK-21 -->
-4. IF a lookup of CHK-04 or CHK-23 fails THEN the system SHALL return its `404` before any `409` of CHK-19 to CHK-21; IF a `409` of CHK-19 to CHK-21 applies THEN the system SHALL return it before any `400` of CHK-03, CHK-07, CHK-08 or CHK-14.  <!-- CHK-22 -->
+4. IF a lookup of CHK-04 or CHK-23 fails THEN the system SHALL return its `404` before any `409` of CHK-19 to CHK-21.  <!-- CHK-22 -->
 
 **Independent Test**: e2e test adds an item, archives the card, and `POST` item, `PATCH`, `DELETE` and `move` all return `409` `/problems/card-archived`; archiving the list instead returns `/problems/list-archived`; archiving the board returns `/problems/board-archived`; after unarchiving, the items are unchanged.
 
