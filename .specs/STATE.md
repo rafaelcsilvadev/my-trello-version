@@ -36,5 +36,13 @@ Decisions that bind every app in the monorepo. App-specific decisions live in `<
 - **Date**: 2026-10-21
 - **Status**: active
 
+### GL-AD-005
+- **Decision**: The API contract lives in the workspace package `packages/api-contract` (`@my-trello/api-contract`). The back-end `openapi:export` script writes the OpenAPI document with Nest preview mode (no database, no secrets), and `openapi-typescript` turns it into `src/schema.d.ts`; both generated files are committed. A CI job (`api-contract`) regenerates them and fails on any diff.
+- **Reason**: Front-end and mobile import the same types the API serves, and a contract change shows up in the PR diff instead of breaking a client at runtime.
+- **Trade-off**: Types only, no runtime client yet (the front-end picks one, e.g. `openapi-fetch`); every DTO change needs `pnpm --filter @my-trello/api-contract run generate`. `openapi-typescript` 7.13 declares a `typescript ^5` peer while the repo uses TypeScript 6, so pnpm warns about an unmet peer; generation and type checks pass.
+- **Scope**: all apps
+- **Date**: 2026-10-21
+- **Status**: active
+
 ## Handoff
 

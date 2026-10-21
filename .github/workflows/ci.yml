@@ -40,3 +40,34 @@ jobs:
       # Integration and e2e suites start PostgreSQL with Testcontainers, using
       # the Docker daemon that ubuntu-latest runners already provide.
       - run: pnpm --filter back-end run ${{ matrix.script }}
+
+  api-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    name: api-contract
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Regenerates openapi.json and schema.d.ts from the back-end source; any
+      # change means a DTO or controller changed without `pnpm run generate`.
+      - run: pnpm --filter @my-trello/api-contract run generate
+
+      - name: Check the committed contract is up to date
+        run: |
+          if [ -n "$(git status --porcelain -- packages/api-contract)" ]; then
+            git status --short -- packages/api-contract
+            git diff -- packages/api-contract
+            echo "::error::API contract is out of date. Run 'pnpm --filter @my-trello/api-contract run generate' and commit the result."
+            exit 1
+          fi
+
+      - run: pnpm --filter @my-trello/api-contract run test

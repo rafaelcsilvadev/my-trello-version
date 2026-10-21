@@ -7,7 +7,11 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { NestExpressApplication } from '@nestjs/platform-express';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import {
+  DocumentBuilder,
+  type OpenAPIObject,
+  SwaggerModule,
+} from '@nestjs/swagger';
 import type { NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
@@ -17,7 +21,7 @@ import { ProblemDetailsFilter } from './errors/problem-details.filter';
 import { validationExceptionFactory } from './errors/validation.exception';
 import { HTTP_LOGGER } from './logging/logging.module';
 
-const API_PREFIX = '/api/v1';
+export const API_PREFIX = '/api/v1';
 // Swagger UI and its assets live here; the JSON document at `${DOCS_PATH}-json`.
 const DOCS_PATH = '/api/docs';
 // Same as body-parser's default, made explicit so the 413 detail can name it.
@@ -64,15 +68,21 @@ function enableCors(app: NestExpressApplication): void {
 }
 
 function setupSwagger(app: NestExpressApplication): void {
+  // useGlobalPrefix is off by default, so the docs stay at /api/docs.
+  SwaggerModule.setup(DOCS_PATH, app, () => createOpenApiDocument(app));
+}
+
+// Shared with the openapi:export script, so the exported file matches the
+// document served at /api/docs-json.
+export function createOpenApiDocument(
+  app: NestExpressApplication,
+): OpenAPIObject {
   const config = new DocumentBuilder()
     .setTitle('My Trello API')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
-  // useGlobalPrefix is off by default, so the docs stay at /api/docs.
-  SwaggerModule.setup(DOCS_PATH, app, () =>
-    SwaggerModule.createDocument(app, config),
-  );
+  return SwaggerModule.createDocument(app, config);
 }
 
 // body-parser errors are not HttpExceptions, so the filter would answer 500.
