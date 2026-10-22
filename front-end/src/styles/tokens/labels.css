@@ -1,0 +1,14 @@
+/* Card label colors and the device bezel, from the prototype (design/Task List.dc.html:24). */
+:root {
+  --label-purple: #8E24AA;
+  --label-blue: #2563EB;
+  --label-sky: #0891B2;
+  --label-green: #16A34A;
+  --label-lime: #65A30D;
+  --label-yellow: #CA8A04;
+  --label-orange: #EA580C;
+  --label-red: #DC2626;
+  --label-pink: #DB2777;
+  --label-black: #374151;
+  --bezel: #0E0C10;
+}
