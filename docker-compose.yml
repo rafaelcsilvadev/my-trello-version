@@ -29,7 +29,7 @@ services:
       # in a real deployment.
       JWT_SECRET: dev-only-jwt-secret-do-not-use-in-production
       JWT_EXPIRES_IN: 1h
-      # Vite dev server of the future front-end.
+      # Vite dev server and the web container share this host origin.
       CORS_ORIGINS: http://localhost:5173
     ports:
       - "3000:3000"
@@ -44,6 +44,18 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+
+  web:
+    build:
+      context: .
+      dockerfile: front-end/Dockerfile
+      args:
+        # Baked into the bundle: the browser calls the API through the host.
+        VITE_API_URL: http://localhost:3000
+    depends_on:
+      - api
+    ports:
+      - "5173:8080"
 
 volumes:
   postgres-data:
