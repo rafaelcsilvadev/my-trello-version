@@ -417,8 +417,8 @@ T16 → T17 → T18 → T19 → T20
 
 **Done when**:
 
-- [ ] Unit: `/b/x?q=1` kept; `null`, `""`, `boards`, `//evil.com`, `/\evil.com`, `https://evil.com`, `javascript:alert(1)` → `/boards`
-- [ ] Build gate passes; ≥ 8 new tests
+- [x] Unit: `/b/x?q=1` kept; `null`, `""`, `boards`, `//evil.com`, `/\evil.com`, `https://evil.com`, `javascript:alert(1)` → `/boards`
+- [x] Build gate passes; ≥ 8 new tests
 
 **Tests**: unit
 **Gate**: build
