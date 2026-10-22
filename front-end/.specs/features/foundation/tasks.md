@@ -610,8 +610,8 @@ T16 → T17 → T18 → T19 → T20
 
 **Done when**:
 
-- [ ] Every command in the new README section runs as written on a fresh clone
-- [ ] Build gate passes; test count unchanged
+- [x] Every command in the new README section runs as written on a fresh clone
+- [x] Build gate passes; test count unchanged
 
 **Tests**: none
 **Gate**: build
