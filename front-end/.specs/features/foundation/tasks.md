@@ -554,12 +554,12 @@ T16 → T17 → T18 → T19 → T20
 
 **Done when**:
 
-- [ ] e2e: `/boards` without a token → URL `/login?redirect=%2Fboards`
-- [ ] e2e: with a token in `localStorage`, `/login` → `/boards`
-- [ ] e2e: `/nope` shows the not-found view
-- [ ] e2e: `localStorage` theme `dark` + language `pt-BR` → `html[data-theme=dark][lang=pt-BR]`
-- [ ] e2e: the API health URL answers `200` with an `Access-Control-Allow-Origin: http://localhost:5173` header for a request with that `Origin` (CORS proof)
-- [ ] Full gate passes; ≥ 5 e2e tests
+- [x] e2e: `/boards` without a token → URL `/login?redirect=%2Fboards`
+- [x] e2e: with a token in `localStorage`, `/login` → `/boards`
+- [x] e2e: `/nope` shows the not-found view
+- [x] e2e: `localStorage` theme `dark` + language `pt-BR` → `html[data-theme=dark][lang=pt-BR]`
+- [x] e2e: the API health URL answers `200` with an `Access-Control-Allow-Origin: http://localhost:5173` header for a request with that `Origin` (CORS proof)
+- [x] Full gate passes; ≥ 5 e2e tests
 
 **Tests**: e2e
 **Gate**: full
