@@ -1,10 +1,8 @@
 import { render } from '@testing-library/react';
-import { I18nextProvider } from 'react-i18next';
-import { createMemoryRouter, RouterProvider } from 'react-router';
+import { createMemoryRouter, type RouteObject } from 'react-router';
 
-import { createRoutes } from '@/app/routes';
-import { createI18n } from '@/shared/i18n/i18n';
-import { LanguageController } from '@/shared/i18n/language-controller';
+import { App } from '@/app/app';
+import { createAppServices } from '@/app/app-services';
 import {
   createPreferencesStore,
   type Preferences,
@@ -16,14 +14,21 @@ type RenderAppOptions = {
   route: string;
   token?: string;
   prefs?: Partial<Preferences>;
+  // Matched before the app's own routes, e.g. a test page on a real path.
+  routes?: RouteObject[];
 };
 
-export function renderApp({ route, token, prefs }: RenderAppOptions) {
+export function renderApp({
+  route,
+  token,
+  prefs,
+  routes = [],
+}: RenderAppOptions) {
+  // Seed storage first: the services read it once, as on a real page load.
   const storage = createSafeStorage();
-  const session = createSessionStore(storage);
   const preferences = createPreferencesStore(storage);
   if (token !== undefined) {
-    session.setToken(token);
+    createSessionStore(storage).setToken(token);
   }
   if (prefs?.theme) {
     preferences.setTheme(prefs.theme);
@@ -32,17 +37,15 @@ export function renderApp({ route, token, prefs }: RenderAppOptions) {
     preferences.setLanguage(prefs.language);
   }
 
-  const i18n = createI18n(preferences.get().language);
-  const router = createMemoryRouter(createRoutes({ session }), {
-    initialEntries: [route],
+  const services = createAppServices({
+    storage,
+    createRouter: (appRoutes) =>
+      createMemoryRouter([...routes, ...appRoutes], {
+        initialEntries: [route],
+      }),
   });
 
-  render(
-    <I18nextProvider i18n={i18n}>
-      <LanguageController store={preferences} i18n={i18n} />
-      <RouterProvider router={router} />
-    </I18nextProvider>,
-  );
+  render(<App services={services} />);
 
-  return { router, session };
+  return services;
 }
