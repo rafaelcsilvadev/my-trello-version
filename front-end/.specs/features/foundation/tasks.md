@@ -279,10 +279,10 @@ T16 → T17 → T18 → T19 → T20
 
 **Done when**:
 
-- [ ] Unit: flattened key sets of `en` and `pt-BR` are equal and no value is empty (this test fails when a key is removed from either file)
-- [ ] Component: language `en` → `<html lang="en">` and a key renders the EN text; `setLanguage('pt-BR')` → `<html lang="pt-BR">` and PT text, without reload
-- [ ] A `t('missing.key')` call fails `typecheck` (checked locally with `// @ts-expect-error` in the test file)
-- [ ] Build gate passes; ≥ 4 new tests
+- [x] Unit: flattened key sets of `en` and `pt-BR` are equal and no value is empty (this test fails when a key is removed from either file)
+- [x] Component: language `en` → `<html lang="en">` and a key renders the EN text; `setLanguage('pt-BR')` → `<html lang="pt-BR">` and PT text, without reload
+- [x] A `t('missing.key')` call fails `typecheck` (checked locally with `// @ts-expect-error` in the test file)
+- [x] Build gate passes; ≥ 4 new tests
 
 **Tests**: unit
 **Gate**: build
