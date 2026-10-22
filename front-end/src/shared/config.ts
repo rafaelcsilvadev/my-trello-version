@@ -9,3 +9,4 @@ export function resolveApiOrigin(env: { VITE_API_URL?: string }): string {
 }
 
 export const apiOrigin = resolveApiOrigin(import.meta.env);
+export const ciTypecheckProbe: number = 'not a number';
