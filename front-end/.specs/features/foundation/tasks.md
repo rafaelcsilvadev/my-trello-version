@@ -391,9 +391,9 @@ T16 → T17 → T18 → T19 → T20
 
 **Done when**:
 
-- [ ] Unit: a query failing with `ApiError 404` runs its fn once; with `ApiError 500` and with `status 0` it runs 4 times (retry delay set to 0 in the test)
-- [ ] Unit: a mutation failing with `500` runs once
-- [ ] Build gate passes; ≥ 4 new tests
+- [x] Unit: a query failing with `ApiError 404` runs its fn once; with `ApiError 500` and with `status 0` it runs 4 times (retry delay set to 0 in the test)
+- [x] Unit: a mutation failing with `500` runs once
+- [x] Build gate passes; ≥ 4 new tests
 
 **Tests**: unit
 **Gate**: build
