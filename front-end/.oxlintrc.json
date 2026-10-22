@@ -1,0 +1,81 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["eslint", "typescript", "oxc", "unicorn", "react", "jsx-a11y", "vitest"],
+  "rules": {
+    "react/rules-of-hooks": "error",
+    "react/exhaustive-deps": "error"
+  },
+  "env": {
+    "browser": true
+  },
+  "overrides": [
+    {
+      "files": ["src/features/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "regex": "^@/(features|pages|app)(/|$)",
+                "message": "A feature imports only its own files (relative) and @/shared (FE-AD-006)."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/shared/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "regex": "^@/(features|pages|app)(/|$)",
+                "message": "shared imports only shared (FE-AD-006)."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/pages/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "regex": "^@/app(/|$)",
+                "message": "Pages do not import app (FE-AD-006)."
+              },
+              {
+                "regex": "^@/features/[^/]+/.+",
+                "message": "Import a feature through its index only (FE-AD-006)."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/app/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "regex": "^@/features/[^/]+/.+",
+                "message": "Import a feature through its index only (FE-AD-006)."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
