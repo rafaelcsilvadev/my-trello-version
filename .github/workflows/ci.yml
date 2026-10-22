@@ -15,7 +15,36 @@ permissions:
   contents: read
 
 jobs:
+  # Back-end and contract jobs always run, so the required check names always
+  # report; on a pull request that touches nothing they depend on, their steps
+  # are skipped and the check passes in seconds. Pushes to main run everything.
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    name: changes
+    outputs:
+      back-end: ${{ steps.filter.outputs.back-end }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - id: filter
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [ "$EVENT_NAME" != "pull_request" ]; then
+            echo "back-end=true" >> "$GITHUB_OUTPUT"
+          elif git diff --name-only "$BASE_SHA" HEAD | grep -qE '^(back-end/|packages/api-contract/|package\.json$|pnpm-lock\.yaml$|pnpm-workspace\.yaml$|\.nvmrc$|\.github/workflows/ci\.yml$)'; then
+            echo "back-end=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "back-end=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No back-end, contract or root change; back-end and api-contract steps are skipped."
+          fi
+
   back-end:
+    needs: changes
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
@@ -26,42 +55,54 @@ jobs:
     name: back-end (${{ matrix.script }})
     steps:
       - uses: actions/checkout@v7
+        if: needs.changes.outputs.back-end == 'true'
 
       # Reads the pnpm version from packageManager in the root package.json.
       - uses: pnpm/action-setup@v6
+        if: needs.changes.outputs.back-end == 'true'
 
       - uses: actions/setup-node@v7
+        if: needs.changes.outputs.back-end == 'true'
         with:
           node-version-file: .nvmrc
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
+        if: needs.changes.outputs.back-end == 'true'
 
       # Integration and e2e suites start PostgreSQL with Testcontainers, using
       # the Docker daemon that ubuntu-latest runners already provide.
       - run: pnpm --filter back-end run ${{ matrix.script }}
+        if: needs.changes.outputs.back-end == 'true'
 
   api-contract:
+    needs: changes
     runs-on: ubuntu-latest
     timeout-minutes: 10
     name: api-contract
     steps:
       - uses: actions/checkout@v7
+        if: needs.changes.outputs.back-end == 'true'
 
       - uses: pnpm/action-setup@v6
+        if: needs.changes.outputs.back-end == 'true'
 
       - uses: actions/setup-node@v7
+        if: needs.changes.outputs.back-end == 'true'
         with:
           node-version-file: .nvmrc
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
+        if: needs.changes.outputs.back-end == 'true'
 
       # Regenerates openapi.json and schema.d.ts from the back-end source; any
       # change means a DTO or controller changed without `pnpm run generate`.
       - run: pnpm --filter @my-trello/api-contract run generate
+        if: needs.changes.outputs.back-end == 'true'
 
       - name: Check the committed contract is up to date
+        if: needs.changes.outputs.back-end == 'true'
         run: |
           if [ -n "$(git status --porcelain -- packages/api-contract)" ]; then
             git status --short -- packages/api-contract
@@ -71,3 +112,4 @@ jobs:
           fi
 
       - run: pnpm --filter @my-trello/api-contract run test
+        if: needs.changes.outputs.back-end == 'true'
