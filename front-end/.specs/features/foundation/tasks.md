@@ -471,11 +471,11 @@ T16 → T17 → T18 → T19 → T20
 
 **Done when**:
 
-- [ ] Component (fake timers): plain toast visible inside `role="status"` at 2999 ms, gone at 3000 ms
-- [ ] Component: toast with action visible at 6999 ms, gone at 7000 ms
-- [ ] Component: clicking the action calls its callback once and hides the toast immediately
-- [ ] Component: two toasts shown back to back are both visible and each expires on its own timer
-- [ ] Build gate passes; ≥ 4 new tests
+- [x] Component (fake timers): plain toast visible inside `role="status"` at 2999 ms, gone at 3000 ms
+- [x] Component: toast with action visible at 6999 ms, gone at 7000 ms
+- [x] Component: clicking the action calls its callback once and hides the toast immediately
+- [x] Component: two toasts shown back to back are both visible and each expires on its own timer
+- [x] Build gate passes; ≥ 4 new tests
 
 **Tests**: unit
 **Gate**: build
