@@ -363,11 +363,11 @@ T16 → T17 → T18 → T19 → T20
 
 **Done when**:
 
-- [ ] Unit: on `/b/x/t/y?q=1` → token cleared, `clearCache` called, `navigate('/login?redirect=%2Fb%2Fx%2Ft%2Fy%3Fq%3D1&reason=session-expired')`
-- [ ] Unit: two calls in a row (parallel 401s) → `navigate` and `clearCache` called once
-- [ ] Unit: on `/login?redirect=%2Fboards` → `navigate('/login?redirect=%2Fboards&reason=session-expired')`; on `/login` with no redirect → no `redirect` param
-- [ ] Unit: after `setToken` again, a new expiry navigates again
-- [ ] Build gate passes; ≥ 5 new tests
+- [x] Unit: on `/b/x/t/y?q=1` → token cleared, `clearCache` called, `navigate('/login?redirect=%2Fb%2Fx%2Ft%2Fy%3Fq%3D1&reason=session-expired')`
+- [x] Unit: two calls in a row (parallel 401s) → `navigate` and `clearCache` called once
+- [x] Unit: on `/login?redirect=%2Fboards` → `navigate('/login?redirect=%2Fboards&reason=session-expired')`; on `/login` with no redirect → no `redirect` param
+- [x] Unit: after `setToken` again, a new expiry navigates again
+- [x] Build gate passes; ≥ 5 new tests
 
 **Tests**: unit
 **Gate**: build
