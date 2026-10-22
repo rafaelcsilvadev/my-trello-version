@@ -77,7 +77,7 @@ T16 → T17 → T18 → T19 → T20
 
 ### T1: Front-end package scaffold
 
-**What**: Create the `front-end` workspace package: `package.json` (design versions; scripts `dev`, `build`, `preview`, `lint`, `typecheck`, `test`), `tsconfig.json` (strict, `moduleResolution: bundler`, `jsx: react-jsx`, `verbatimModuleSyntax`), `vite.config.ts` (React plugin, `server.port 5173 strictPort`, Vitest block with `jsdom`), `index.html`, `src/main.tsx` rendering an empty `<App />`, `.oxlintrc.json` (react, react-hooks, jsx-a11y), prettier config; add `front-end` to `pnpm-workspace.yaml`; depend on `@my-trello/api-contract` `workspace:*`.
+**What**: Create the `front-end` workspace package: `package.json` (design versions; scripts `dev`, `build`, `preview`, `lint`, `typecheck`, `test`), `tsconfig.json` (strict, `moduleResolution: bundler`, `jsx: react-jsx`, `verbatimModuleSyntax`), `vite.config.ts` (React plugin, `server.port 5173 strictPort`, Vitest block with `jsdom`), `index.html`, `src/main.tsx` rendering an empty `<App />`, `.oxlintrc.json` (react, react-hooks, jsx-a11y, plus the FE-AD-006 dependency rule as `no-restricted-imports` overrides per folder), `@/` → `src/` alias in `tsconfig.json` and `vite.config.ts`, prettier config; add `front-end` to `pnpm-workspace.yaml`; depend on `@my-trello/api-contract` `workspace:*`.
 **Where**: `front-end/package.json` (+ `tsconfig.json`, `vite.config.ts`, `index.html`, `src/main.tsx`, `src/app/app.tsx`, `.oxlintrc.json`, `.prettierrc.json`, `pnpm-workspace.yaml`)
 **Depends on**: None
 **Reuses**: `back-end/package.json` lint script shape, `packages/api-contract/tsconfig.json` strictness
@@ -94,6 +94,7 @@ T16 → T17 → T18 → T19 → T20
 - [ ] `pnpm --filter front-end run dev` serves `http://localhost:5173` (curl `200`, HTML contains `<div id="root">`)
 - [ ] Smoke component test: `<App />` renders without throwing
 - [ ] A deliberate lint error and a deliberate type error each make `lint` / `typecheck` exit non-zero (checked locally, not committed)
+- [ ] Throwaway files `src/features/a/index.ts` importing `@/features/b`, and `src/shared/x.ts` importing `@/features/a`, each make `lint` exit non-zero (checked locally, not committed)
 - [ ] Build gate passes; 1 test
 
 **Tests**: unit
