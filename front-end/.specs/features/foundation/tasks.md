@@ -251,11 +251,11 @@ T16 → T17 → T18 → T19 → T20
 
 **Done when**:
 
-- [ ] Unit: `resolveTheme` truth table (light/dark ignore device; system follows it)
-- [ ] Component: `light` with a dark device → `data-theme="light"`; `dark` with a light device → `data-theme="dark"`
-- [ ] Component: `system` switches `light → dark` when the mocked media query fires `change`, without remount
-- [ ] Component: after switching from `system` to `light`, a media `change` no longer alters `data-theme`
-- [ ] Build gate passes; ≥ 6 new tests
+- [x] Unit: `resolveTheme` truth table (light/dark ignore device; system follows it)
+- [x] Component: `light` with a dark device → `data-theme="light"`; `dark` with a light device → `data-theme="dark"`
+- [x] Component: `system` switches `light → dark` when the mocked media query fires `change`, without remount
+- [x] Component: after switching from `system` to `light`, a media `change` no longer alters `data-theme`
+- [x] Build gate passes; ≥ 6 new tests
 
 **Tests**: unit
 **Gate**: build
