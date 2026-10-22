@@ -197,10 +197,10 @@ T16 → T17 → T18 → T19 → T20
 
 **Done when**:
 
-- [ ] Unit: a token stored under `my-trello.token` before creation is returned by `getToken`; `setToken` persists; `clear` removes and `getToken` → `null`
-- [ ] Unit: subscribers are called on `setToken` and `clear`, and not after unsubscribe
-- [ ] Unit (hook): `useHasSession` re-renders `false → true → false` across `setToken` / `clear`
-- [ ] Build gate passes; ≥ 5 new tests
+- [x] Unit: a token stored under `my-trello.token` before creation is returned by `getToken`; `setToken` persists; `clear` removes and `getToken` → `null`
+- [x] Unit: subscribers are called on `setToken` and `clear`, and not after unsubscribe
+- [x] Unit (hook): `useHasSession` re-renders `false → true → false` across `setToken` / `clear`
+- [x] Build gate passes; ≥ 5 new tests
 
 **Tests**: unit
 **Gate**: build
