@@ -1,0 +1,29 @@
+import type { Translation } from './en';
+
+export const ptBR = {
+  routes: {
+    login: 'Entrar',
+    signup: 'Criar conta',
+    boards: 'Meus quadros',
+    board: 'Quadro',
+    card: 'Cartão',
+    labels: 'Etiquetas',
+    settings: 'Configurações',
+  },
+  notFound: {
+    title: 'Página não encontrada',
+    goToBoards: 'Ir para Meus quadros',
+  },
+  session: {
+    expired: 'Sua sessão expirou. Entre novamente.',
+  },
+  errors: {
+    network: 'Não foi possível falar com o servidor. Verifique sua conexão.',
+    loadTitle: 'Não foi possível carregar',
+    loadDetail: 'Verifique sua conexão e tente de novo.',
+    retry: 'Tentar novamente',
+  },
+  toast: {
+    close: 'Fechar',
+  },
+} as const satisfies Translation;
