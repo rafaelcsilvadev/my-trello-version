@@ -583,10 +583,10 @@ T16 → T17 → T18 → T19 → T20
 
 **Done when**:
 
-- [ ] The PR shows five green front-end checks next to the existing six
-- [ ] A throwaway commit with a type error in `front-end/src` turns `front-end (typecheck)` red while the other front-end checks still report (then reverted, not merged)
-- [ ] `protect-main` required checks list the five new names (`gh api` read-back)
-- [ ] Build gate passes; test count unchanged
+- [x] The PR shows five green front-end checks next to the existing six
+- [x] A throwaway commit with a type error in `front-end/src` turns `front-end (typecheck)` red while the other front-end checks still report (then reverted, not merged)
+- [x] `protect-main` required checks list the five new names (`gh api` read-back)
+- [x] Build gate passes; test count unchanged
 
 **Tests**: none
 **Gate**: full
