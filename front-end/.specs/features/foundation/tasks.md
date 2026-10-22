@@ -334,12 +334,12 @@ T16 → T17 → T18 → T19 → T20
 
 **Done when**:
 
-- [ ] Unit (MSW): with token `t1`, `GET /api/v1/me` arrives at `${baseUrl}/api/v1/me` with `Authorization: Bearer t1`; without token, the header is absent
-- [ ] Unit: `401` on `GET /api/v1/boards` with a token → `onSessionExpired` called once; `401` without a token → not called
-- [ ] Unit: `401` on `POST /api/v1/auth/login` and on `POST /api/v1/auth/register` (with and without a stored token) → not called, and `call()` rejects with `type '/problems/invalid-credentials'`
-- [ ] Unit: `403`, `404`, `500` with a token → not called
-- [ ] Type check: `// @ts-expect-error` on `GET '/api/v1/nope'` and on a `POST /api/v1/boards` body with `name: 1` (fails `typecheck` if the error disappears)
-- [ ] Build gate passes; ≥ 8 new tests
+- [x] Unit (MSW): with token `t1`, `GET /api/v1/me` arrives at `${baseUrl}/api/v1/me` with `Authorization: Bearer t1`; without token, the header is absent
+- [x] Unit: `401` on `GET /api/v1/boards` with a token → `onSessionExpired` called once; `401` without a token → not called
+- [x] Unit: `401` on `POST /api/v1/auth/login` and on `POST /api/v1/auth/register` (with and without a stored token) → not called, and `call()` rejects with `type '/problems/invalid-credentials'`
+- [x] Unit: `403`, `404`, `500` with a token → not called
+- [x] Type check: `// @ts-expect-error` on `GET '/api/v1/nope'` and on a `POST /api/v1/boards` body with `title: 1` (`CreateBoardDto` has `title`, not `name`) (fails `typecheck` if the error disappears)
+- [x] Build gate passes; ≥ 8 new tests
 
 **Tests**: unit
 **Gate**: build
