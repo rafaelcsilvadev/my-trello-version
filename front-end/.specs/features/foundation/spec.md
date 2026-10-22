@@ -196,46 +196,46 @@ The API (back-end features 0–6) is done, but there is no web client. Every scr
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| FND-01 | P1: Run the web app | Design | Pending |
-| FND-02 | P1: Run the web app | Design | Pending |
-| FND-03 | P1: Run the web app | Design | Pending |
-| FND-04 | P1: Run the web app | Design | Pending |
-| FND-05 | P1: Routes and auth guard | Design | Pending |
-| FND-06 | P1: Routes and auth guard | Design | Pending |
-| FND-07 | P1: Routes and auth guard | Design | Pending |
-| FND-08 | P1: Routes and auth guard | Design | Pending |
-| FND-09 | P1: Routes and auth guard | Design | Pending |
-| FND-10 | P1: Routes and auth guard | Design | Pending |
-| FND-11 | P1: Typed API client | Design | Pending |
-| FND-12 | P1: Typed API client | Design | Pending |
-| FND-13 | P1: Typed API client | Design | Pending |
-| FND-14 | P1: Typed API client | Design | Pending |
-| FND-15 | P1: Typed API client | Design | Pending |
-| FND-16 | P1: Typed API client | Design | Pending |
-| FND-17 | P1: Typed API client | Design | Pending |
-| FND-18 | P1: Typed API client | Design | Pending |
-| FND-19 | P1: Typed API client | Design | Pending |
-| FND-20 | P1: Theme and language | Design | Pending |
-| FND-21 | P1: Theme and language | Design | Pending |
-| FND-22 | P1: Theme and language | Design | Pending |
-| FND-23 | P1: Theme and language | Design | Pending |
-| FND-24 | P1: Theme and language | Design | Pending |
-| FND-25 | P1: Theme and language | Design | Pending |
-| FND-26 | P1: Theme and language | Design | Pending |
-| FND-27 | P1: Theme and language | Design | Pending |
-| FND-28 | P1: Theme and language | Design | Pending |
-| FND-29 | P1: Toasts | Design | Pending |
-| FND-30 | P1: Toasts | Design | Pending |
-| FND-31 | P1: Toasts | Design | Pending |
-| FND-32 | P1: Quality gates in CI | Design | Pending |
-| FND-33 | P1: Quality gates in CI | Design | Pending |
-| FND-34 | P1: Quality gates in CI | Design | Pending |
-| FND-35 | P1: Quality gates in CI | Design | Pending |
-| FND-36 | Edge cases | Design | Pending |
-| FND-37 | Edge cases | Design | Pending |
-| FND-38 | Edge cases | Design | Pending |
+| FND-01 | P1: Run the web app | Validate | ✅ Verified |
+| FND-02 | P1: Run the web app | Validate | ✅ Verified |
+| FND-03 | P1: Run the web app | Validate | ✅ Verified |
+| FND-04 | P1: Run the web app | Validate | ✅ Verified |
+| FND-05 | P1: Routes and auth guard | Validate | ✅ Verified |
+| FND-06 | P1: Routes and auth guard | Validate | ✅ Verified |
+| FND-07 | P1: Routes and auth guard | Validate | ✅ Verified |
+| FND-08 | P1: Routes and auth guard | Validate | ✅ Verified |
+| FND-09 | P1: Routes and auth guard | Validate | ✅ Verified |
+| FND-10 | P1: Routes and auth guard | Validate | ✅ Verified |
+| FND-11 | P1: Typed API client | Validate | ✅ Verified |
+| FND-12 | P1: Typed API client | Validate | ✅ Verified |
+| FND-13 | P1: Typed API client | Validate | ✅ Verified |
+| FND-14 | P1: Typed API client | Validate | ✅ Verified |
+| FND-15 | P1: Typed API client | Validate | ✅ Verified |
+| FND-16 | P1: Typed API client | Validate | ✅ Verified |
+| FND-17 | P1: Typed API client | Validate | ✅ Verified |
+| FND-18 | P1: Typed API client | Validate | ✅ Verified |
+| FND-19 | P1: Typed API client | Validate | ✅ Verified |
+| FND-20 | P1: Theme and language | Validate | ✅ Verified |
+| FND-21 | P1: Theme and language | Validate | ✅ Verified |
+| FND-22 | P1: Theme and language | Validate | ✅ Verified |
+| FND-23 | P1: Theme and language | Validate | ✅ Verified |
+| FND-24 | P1: Theme and language | Validate | ✅ Verified |
+| FND-25 | P1: Theme and language | Validate | ✅ Verified |
+| FND-26 | P1: Theme and language | Validate | ✅ Verified |
+| FND-27 | P1: Theme and language | Validate | ✅ Verified |
+| FND-28 | P1: Theme and language | Validate | ✅ Verified |
+| FND-29 | P1: Toasts | Validate | ✅ Verified |
+| FND-30 | P1: Toasts | Validate | ✅ Verified |
+| FND-31 | P1: Toasts | Validate | ✅ Verified |
+| FND-32 | P1: Quality gates in CI | Validate | ✅ Verified |
+| FND-33 | P1: Quality gates in CI | Validate | ✅ Verified |
+| FND-34 | P1: Quality gates in CI | Validate | ✅ Verified |
+| FND-35 | P1: Quality gates in CI | Validate | ✅ Verified |
+| FND-36 | Edge cases | Validate | ✅ Verified |
+| FND-37 | Edge cases | Validate | ✅ Verified |
+| FND-38 | Edge cases | Validate | ✅ Verified |
 
-**Coverage:** 38 total, 0 mapped to tasks, 38 unmapped ⚠️ (mapped in Tasks)
+**Coverage:** 38 total, 38 mapped to tasks, 0 unmapped
 
 ---
 
