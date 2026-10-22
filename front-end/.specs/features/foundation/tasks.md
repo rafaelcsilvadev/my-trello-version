@@ -442,12 +442,12 @@ T16 → T17 → T18 → T19 → T20
 
 **Done when**:
 
-- [ ] Component: with a token, each of the seven routes renders its own heading (7 cases)
-- [ ] Component: without a token, `/boards`, `/b/x`, `/b/x/t/y`, `/b/x/labels`, `/settings` end at `/login?redirect=<encoded path>` and the protected heading never renders
-- [ ] Component: with a token, `/login` and `/signup` end at `/boards`; `/` ends at `/boards` (with token) and `/login?redirect=%2Fboards` (without)
-- [ ] Component: `/nope/deep` renders the not-found view; its link goes to `/boards`
-- [ ] Component: `/login?reason=session-expired` shows "Your session expired. Log in again." in EN and "Sua sessão expirou. Entre novamente." in PT; `/login` alone does not
-- [ ] Build gate passes; ≥ 20 new tests
+- [x] Component: with a token, each of the seven routes renders its own heading (7 cases)
+- [x] Component: without a token, `/boards`, `/b/x`, `/b/x/t/y`, `/b/x/labels`, `/settings` end at `/login?redirect=<encoded path>` and the protected heading never renders
+- [x] Component: with a token, `/login` and `/signup` end at `/boards`; `/` ends at `/boards` (with token) and `/login?redirect=%2Fboards` (without)
+- [x] Component: `/nope/deep` renders the not-found view; its link goes to `/boards`
+- [x] Component: `/login?reason=session-expired` shows "Your session expired. Log in again." in EN and "Sua sessão expirou. Entre novamente." in PT; `/login` alone does not
+- [x] Build gate passes; ≥ 20 new tests
 
 **Tests**: unit
 **Gate**: build
