@@ -224,10 +224,10 @@ T16 → T17 → T18 → T19 → T20
 
 **Done when**:
 
-- [ ] Unit: empty storage → `{ theme: 'system', language: 'en' }`, also when `navigator.language` is `pt-BR`
-- [ ] Unit: stored `dark` / `pt-BR` are read back; `setTheme('light')` / `setLanguage('pt-BR')` persist and notify
-- [ ] Unit: stored `"blue"`, `""`, `"PT-BR"`, `"pt"` are ignored and the defaults are used
-- [ ] Build gate passes; ≥ 6 new tests
+- [x] Unit: empty storage → `{ theme: 'system', language: 'en' }`, also when `navigator.language` is `pt-BR`
+- [x] Unit: stored `dark` / `pt-BR` are read back; `setTheme('light')` / `setLanguage('pt-BR')` persist and notify
+- [x] Unit: stored `"blue"`, `""`, `"PT-BR"`, `"pt"` are ignored and the defaults are used
+- [x] Build gate passes; ≥ 6 new tests
 
 **Tests**: unit
 **Gate**: build
