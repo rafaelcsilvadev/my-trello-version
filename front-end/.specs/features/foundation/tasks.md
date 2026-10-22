@@ -90,12 +90,12 @@ T16 → T17 → T18 → T19 → T20
 
 **Done when**:
 
-- [ ] `pnpm install` at the root updates the single lockfile; no new lockfile appears
-- [ ] `pnpm --filter front-end run dev` serves `http://localhost:5173` (curl `200`, HTML contains `<div id="root">`)
-- [ ] Smoke component test: `<App />` renders without throwing
-- [ ] A deliberate lint error and a deliberate type error each make `lint` / `typecheck` exit non-zero (checked locally, not committed)
-- [ ] Throwaway files `src/features/a/index.ts` importing `@/features/b`, and `src/shared/x.ts` importing `@/features/a`, each make `lint` exit non-zero (checked locally, not committed)
-- [ ] Build gate passes; 1 test
+- [x] `pnpm install` at the root updates the single lockfile; no new lockfile appears
+- [x] `pnpm --filter front-end run dev` serves `http://localhost:5173` (curl `200`, HTML contains `<div id="root">`)
+- [x] Smoke component test: `<App />` renders without throwing
+- [x] A deliberate lint error and a deliberate type error each make `lint` / `typecheck` exit non-zero (checked locally, not committed)
+- [x] Throwaway files `src/features/a/index.ts` importing `@/features/b`, and `src/shared/x.ts` importing `@/features/a`, each make `lint` exit non-zero (checked locally, not committed)
+- [x] Build gate passes; 1 test
 
 **Tests**: unit
 **Gate**: build
