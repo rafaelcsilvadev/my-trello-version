@@ -144,9 +144,9 @@ T16 → T17 → T18 → T19 → T20
 
 **Done when**:
 
-- [ ] `pnpm --filter front-end build` emits CSS containing `--brand` and a `[data-theme=dark]` rule, and utility classes `bg-surface-page` / `text-text-primary` used in `App` resolve to the token variables
-- [ ] No request to `fonts.googleapis.com` in the built CSS
-- [ ] Build gate passes; test count unchanged (1)
+- [x] `pnpm --filter front-end build` emits CSS containing `--brand` and a `[data-theme=dark]` rule, and utility classes `bg-surface-page` / `text-text-primary` used in `App` resolve to the token variables
+- [x] No request to `fonts.googleapis.com` in the built CSS
+- [x] Build gate passes; test count unchanged (1)
 
 **Tests**: none
 **Gate**: build
