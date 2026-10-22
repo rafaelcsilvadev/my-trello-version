@@ -306,11 +306,11 @@ T16 → T17 → T18 → T19 → T20
 
 **Done when**:
 
-- [ ] Unit: success resolves `data`; a `409` Problem body → `ApiError` with its `status`, `type`, `title`, `detail`, `requestId`; a `400` body with `errors[]` keeps `errors`
-- [ ] Unit: `500` with `text/html` body → `status 500`, `type 'about:blank'`; JSON body without `type` → `about:blank`
-- [ ] Unit: rejected promise (`TypeError: Failed to fetch`) → `status 0`, `type 'about:blank'`
-- [ ] Unit: `isProblemType` true for matching type, false for other type and for non-`ApiError`
-- [ ] Build gate passes; ≥ 7 new tests
+- [x] Unit: success resolves `data`; a `409` Problem body → `ApiError` with its `status`, `type`, `title`, `detail`, `requestId`; a `400` body with `errors[]` keeps `errors`
+- [x] Unit: `500` with `text/html` body → `status 500`, `type 'about:blank'`; JSON body without `type` → `about:blank`
+- [x] Unit: rejected promise (`TypeError: Failed to fetch`) → `status 0`, `type 'about:blank'`
+- [x] Unit: `isProblemType` true for matching type, false for other type and for non-`ApiError`
+- [x] Build gate passes; ≥ 7 new tests
 
 **Tests**: unit
 **Gate**: build
