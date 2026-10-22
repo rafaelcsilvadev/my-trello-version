@@ -119,8 +119,8 @@ T16 → T17 → T18 → T19 → T20
 
 **Done when**:
 
-- [ ] Unit: unset → `http://localhost:3000`; `""` and `"  "` → default; `"http://api.test/"` → `"http://api.test"`; `" http://api.test "` → trimmed
-- [ ] Build gate passes; ≥ 4 new tests
+- [x] Unit: unset → `http://localhost:3000`; `""` and `"  "` → default; `"http://api.test/"` → `"http://api.test"`; `" http://api.test "` → trimmed
+- [x] Build gate passes; ≥ 4 new tests
 
 **Tests**: unit
 **Gate**: build
