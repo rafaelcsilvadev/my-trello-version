@@ -499,11 +499,11 @@ T16 → T17 → T18 → T19 → T20
 
 **Done when**:
 
-- [ ] Component (MSW): token stored, a test page on `/boards` calls `useApi().GET('/api/v1/boards')` through `useQuery`; API answers `401` → URL `/login?redirect=%2Fboards&reason=session-expired`, notice visible, `localStorage` has no token, query cache empty
-- [ ] Component: two parallel queries both answering `401` → one navigation (router history grows by one entry)
-- [ ] Component: `POST /api/v1/auth/login` answering `401` from `/login` → URL unchanged, token untouched
-- [ ] Component: stored `dark` + `pt-BR` → `data-theme="dark"`, `lang="pt-BR"`, PT heading on first render
-- [ ] Build gate passes; ≥ 4 new tests
+- [x] Component (MSW): token stored, a test page on `/boards` calls `useApi().GET('/api/v1/boards')` through `useQuery`; API answers `401` → URL `/login?redirect=%2Fboards&reason=session-expired`, notice visible, `localStorage` has no token, query cache empty
+- [x] Component: two parallel queries both answering `401` → one navigation (router history grows by one entry)
+- [x] Component: `POST /api/v1/auth/login` answering `401` from `/login` → URL unchanged, token untouched
+- [x] Component: stored `dark` + `pt-BR` → `data-theme="dark"`, `lang="pt-BR"`, PT heading on first render
+- [x] Build gate passes; ≥ 4 new tests
 
 **Tests**: unit
 **Gate**: build
