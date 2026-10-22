@@ -62,4 +62,4 @@ Decisions for the web app. They must conform to the global decisions in the root
 
 ## Handoff
 
-Foundation: Specify and Design approved; tasks.md approved (20 tasks), T1 next. Execute runs one task per branch/PR (pair-programming), after the spec/design/tasks docs PR.
+Foundation: done. All 20 tasks merged, one PR each (T1–T20); README documents running and testing the web app. Next: feature 1 `auth` (sign up, log in, rate-limit notice, log out), starting at Specify.
