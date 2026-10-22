@@ -54,8 +54,12 @@ front-end/src/
 │   ├── components/      View: feature UI
 │   └── index.ts         public API: the only file other layers may import
 ├── shared/              api, session, preferences, theme, i18n, navigation, storage, config, ui/, lib/
-├── styles/
-└── test/
+└── styles/
+
+front-end/test/          tests, outside src (FE-AD-007)
+├── unit/                mirrors src/: test/unit/<path>/<file>.spec.ts(x)
+├── e2e/                 Playwright: <journey>.e2e-spec.ts
+└── support/             Vitest setup, renderApp, MSW server and handlers
 ```
 
 ### Modular MVVM
@@ -114,7 +118,7 @@ Controlled inputs with `useState`, no form library. Client-side checks only mirr
 
 ### Conventions
 
-- Files kebab-case (`board-card.tsx`), components PascalCase, hooks `use-*.ts`, tests next to the file (`*.test.ts(x)`).
+- Files kebab-case (`board-card.tsx`), components PascalCase, hooks `use-*.ts`, tests in `test/unit/` mirroring `src/` (`*.spec.ts(x)`, FE-AD-007).
 - Named exports only. Lazy routes use `lazy: () => import('…').then((m) => ({ Component: m.BoardsPage }))`.
 
 ### Tests per layer
@@ -258,11 +262,11 @@ All paths under `front-end/`.
 - **Fonts**: self-hosted `@fontsource-variable/{outfit,onest,jetbrains-mono}` instead of the Google Fonts `@import` in `tokens/fonts.css` (no third-party request; works offline in Docker).
 
 ### Test infrastructure
-- `vitest` config inside `vite.config.ts` (`environment: 'jsdom'`, `setupFiles: ['src/test/setup.ts']`).
-- `src/test/setup.ts`: `@testing-library/jest-dom/vitest`, MSW `setupServer` started with unhandled requests as errors, `localStorage.clear()` between tests.
-- `src/test/render-app.tsx`: `renderApp({ route, token?, prefs? })` builds the real providers around `createMemoryRouter(createRoutes(...))`, returns `{ router, session, user }`.
-- `src/test/msw/handlers.ts`: typed helpers built on the contract paths.
-- `e2e/` + `playwright.config.ts`: `webServer` = [`docker compose up --wait postgres api` (reused if `http://localhost:3000/api/v1/health` answers), `vite preview --port 5173 --strictPort`]; Chromium only.
+- `vitest` config inside `vite.config.ts` (`environment: 'jsdom'`, `include: ['test/unit/**/*.spec.{ts,tsx}']`, `setupFiles: ['test/support/setup.ts']`).
+- `test/support/setup.ts`: `@testing-library/jest-dom/vitest`, MSW `setupServer` started with unhandled requests as errors, `localStorage.clear()` between tests.
+- `test/support/render-app.tsx`: `renderApp({ route, token?, prefs? })` builds the real providers around `createMemoryRouter(createRoutes(...))`, returns `{ router, session, user }`.
+- `test/support/msw/handlers.ts`: typed helpers built on the contract paths.
+- `test/e2e/` + `playwright.config.ts`: `webServer` = [`docker compose up --wait postgres api` (reused if `http://localhost:3000/api/v1/health` answers), `vite preview --port 5173 --strictPort`]; Chromium only.
 
 ### Docker
 - `front-end/Dockerfile`: `base` (node 24.17.0-alpine, corepack, workspace manifests incl. `packages/api-contract`) → `build` (`pnpm install --filter front-end...`, `ARG VITE_API_URL=http://localhost:3000`, `pnpm --filter front-end build`) → `runtime` `nginxinc/nginx-unprivileged:1.31.7-alpine` serving `dist/` on `8080` (non-root) with `front-end/nginx.conf` (`try_files $uri /index.html`, FND-02).
@@ -330,4 +334,4 @@ Storage keys: `my-trello.token`, `my-trello.theme`, `my-trello.language`.
 | Lint | oxlint (`react`, `react-hooks`, `jsx-a11y` plugins) + prettier, same as back-end | One lint toolchain in the repo |
 | Docker runtime | `nginx-unprivileged` on 8080, host 5173 | Non-root container; one CORS origin for dev and Docker |
 
-> Project-level decisions are recorded in `front-end/.specs/STATE.md` as FE-AD-001…FE-AD-006.
+> Project-level decisions are recorded in `front-end/.specs/STATE.md` as FE-AD-001…FE-AD-007.

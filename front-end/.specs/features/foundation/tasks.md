@@ -22,9 +22,9 @@ Skill scripts for this app run with `--root front-end`. `pnpm` commands run at t
 
 | Code Layer | Required Test Type | Coverage Expectation | Location Pattern | Run Command |
 | ---------- | ------------------ | -------------------- | ---------------- | ----------- |
-| Shared logic (`safeStorage`, stores, `config`, `safeRedirect`, `ApiError`/`call`, `createApiClient`, `sessionExpiry`, `queryClient`) | unit | All branches; 1:1 to spec ACs; every listed edge case (FND-36, FND-37, FND-38, redirect cases) | `front-end/src/**/*.test.ts` | `pnpm --filter front-end test` |
-| Components and routing (`ThemeController`, i18n, toasts, routes/guards/pages, composition root) | unit (component: Testing Library + memory router + MSW) | Every AC the component owns: happy + error paths; timers with fake clock; real providers via `renderApp` | `front-end/src/**/*.test.tsx` | `pnpm --filter front-end test` |
-| Running app (built bundle + real API) | e2e (Playwright, Chromium) | Guard redirects, unknown route, theme and language from storage, served SPA fallback | `front-end/e2e/**/*.spec.ts` | `pnpm --filter front-end test:e2e` |
+| Shared logic (`safeStorage`, stores, `config`, `safeRedirect`, `ApiError`/`call`, `createApiClient`, `sessionExpiry`, `queryClient`) | unit | All branches; 1:1 to spec ACs; every listed edge case (FND-36, FND-37, FND-38, redirect cases) | `front-end/test/unit/**/*.spec.ts` | `pnpm --filter front-end test` |
+| Components and routing (`ThemeController`, i18n, toasts, routes/guards/pages, composition root) | unit (component: Testing Library + memory router + MSW) | Every AC the component owns: happy + error paths; timers with fake clock; real providers via `renderApp` | `front-end/test/unit/**/*.spec.tsx` | `pnpm --filter front-end test` |
+| Running app (built bundle + real API) | e2e (Playwright, Chromium) | Guard redirects, unknown route, theme and language from storage, served SPA fallback | `front-end/test/e2e/**/*.e2e-spec.ts` | `pnpm --filter front-end test:e2e` |
 | Styles, Dockerfile, nginx, compose, CI workflow, docs | none | Build gate + the explicit command checks in each task's Done when | - | build gate only |
 
 ## Gate Check Commands
@@ -77,8 +77,8 @@ T16 → T17 → T18 → T19 → T20
 
 ### T1: Front-end package scaffold
 
-**What**: Create the `front-end` workspace package: `package.json` (design versions; scripts `dev`, `build`, `preview`, `lint`, `typecheck`, `test`), `tsconfig.json` (strict, `moduleResolution: bundler`, `jsx: react-jsx`, `verbatimModuleSyntax`), `vite.config.ts` (React plugin, `server.port 5173 strictPort`, Vitest block with `jsdom`), `index.html`, `src/main.tsx` rendering an empty `<App />`, `.oxlintrc.json` (react, react-hooks, jsx-a11y, plus the FE-AD-006 dependency rule as `no-restricted-imports` overrides per folder), `@/` → `src/` alias in `tsconfig.json` and `vite.config.ts`, prettier config; add `front-end` to `pnpm-workspace.yaml`; depend on `@my-trello/api-contract` `workspace:*`.
-**Where**: `front-end/package.json` (+ `tsconfig.json`, `vite.config.ts`, `index.html`, `src/main.tsx`, `src/app/app.tsx`, `.oxlintrc.json`, `.prettierrc.json`, `pnpm-workspace.yaml`)
+**What**: Create the `front-end` workspace package: `package.json` (design versions; scripts `dev`, `build`, `preview`, `lint`, `typecheck`, `test`), `tsconfig.json` (strict, `moduleResolution: bundler`, `jsx: react-jsx`, `verbatimModuleSyntax`), `vite.config.ts` (React plugin, `server.port 5173 strictPort`, Vitest block with `jsdom` and `include: ['test/unit/**/*.spec.{ts,tsx}']`), `index.html`, `src/main.tsx` rendering an empty `<App />`, `.oxlintrc.json` (react, react-hooks, jsx-a11y, plus the FE-AD-006 dependency rule as `no-restricted-imports` overrides per folder), `@/` → `src/` alias in `tsconfig.json` and `vite.config.ts`, prettier config; add `front-end` to `pnpm-workspace.yaml`; depend on `@my-trello/api-contract` `workspace:*`.
+**Where**: `front-end/package.json` (+ `tsconfig.json`, `vite.config.ts`, `index.html`, `src/main.tsx`, `src/app/app.tsx`, `test/unit/app/app.spec.tsx`, `.oxlintrc.json`, `.prettierrc.json`, `pnpm-workspace.yaml`)
 **Depends on**: None
 **Reuses**: `back-end/package.json` lint script shape, `packages/api-contract/tsconfig.json` strictness
 **Requirement**: FND-03, FND-32
@@ -321,8 +321,8 @@ T16 → T17 → T18 → T19 → T20
 
 ### T10: Typed API client with auth middleware
 
-**What**: `createApiClient({ baseUrl, getToken, onSessionExpired, fetch? })` over `openapi-fetch` `createClient<paths>`; `onRequest` adds `Authorization: Bearer` only with a token; `onResponse` calls `onSessionExpired` on `401` of an authenticated request outside `PUBLIC_AUTH_PATHS`. Test setup gains the MSW server (`src/test/setup.ts`, `src/test/msw/server.ts`, unhandled requests fail the test).
-**Where**: `front-end/src/shared/api/client.ts` (+ `src/test/setup.ts`, `src/test/msw/server.ts`)
+**What**: `createApiClient({ baseUrl, getToken, onSessionExpired, fetch? })` over `openapi-fetch` `createClient<paths>`; `onRequest` adds `Authorization: Bearer` only with a token; `onResponse` calls `onSessionExpired` on `401` of an authenticated request outside `PUBLIC_AUTH_PATHS`. Test setup gains the MSW server (`test/support/setup.ts`, `test/support/msw/server.ts`, unhandled requests fail the test).
+**Where**: `front-end/src/shared/api/client.ts` (+ `test/support/setup.ts`, `test/support/msw/server.ts`)
 **Depends on**: T9
 **Reuses**: `paths` from `@my-trello/api-contract`, `ApiError`/`call` (T9)
 **Requirement**: FND-11, FND-12, FND-13, FND-14 (trigger), FND-15
@@ -430,7 +430,7 @@ T16 → T17 → T18 → T19 → T20
 ### T14: Routes, guards and placeholder pages
 
 **What**: `createRoutes({ session })` with the seven routes, `/` → `/boards`, `*` → `NotFoundPage`; loaders `requireSession` and `redirectIfSession`; `PlaceholderPage({ titleKey })`; `LoginPlaceholderPage` shows the `sessionExpired` notice when `reason=session-expired`; test helper `renderApp({ route, token?, prefs? })` with real providers and `createMemoryRouter`.
-**Where**: `front-end/src/app/routes.tsx` (+ `src/app/guards.ts`, `src/pages/placeholder-page.tsx`, `src/pages/login-placeholder-page.tsx`, `src/pages/not-found-page.tsx`, `src/test/render-app.tsx`)
+**Where**: `front-end/src/app/routes.tsx` (+ `src/app/guards.ts`, `src/pages/placeholder-page.tsx`, `src/pages/login-placeholder-page.tsx`, `src/pages/not-found-page.tsx`, `test/support/render-app.tsx`)
 **Depends on**: T13
 **Reuses**: `SessionStore` (T5), i18n (T8), `safeRedirect` (T13)
 **Requirement**: FND-05, FND-06, FND-07, FND-08, FND-09, FND-16
@@ -487,7 +487,7 @@ T16 → T17 → T18 → T19 → T20
 ### T16: Composition root
 
 **What**: `main.tsx` wires storage → session + preferences → query client → browser router → expiry handler → API client (`ApiProvider` / `useApi`) → `<App>` with `QueryClientProvider`, `I18nextProvider`, `ToastProvider`, `ThemeController`, `LanguageController`, `RouterProvider`. `renderApp` (T14) is switched to the same `createAppServices()` factory so tests and app share the wiring.
-**Where**: `front-end/src/app/app-services.ts` (+ `src/main.tsx`, `src/app/app.tsx`, `src/shared/api/api-context.tsx`, `src/test/render-app.tsx`)
+**Where**: `front-end/src/app/app-services.ts` (+ `src/main.tsx`, `src/app/app.tsx`, `src/shared/api/api-context.tsx`, `test/support/render-app.tsx`)
 **Depends on**: T15
 **Reuses**: every store/client from T2–T15
 **Requirement**: FND-14 (end to end), FND-16, FND-19, FND-36
@@ -541,8 +541,8 @@ T16 → T17 → T18 → T19 → T20
 
 ### T18: Playwright e2e smoke suite
 
-**What**: `playwright.config.ts` (`webServer`: compose `postgres` + `api` reused when `http://localhost:3000/api/v1/health` answers, 180 s timeout; `vite preview --port 5173 --strictPort`; Chromium), `test:e2e` script, `e2e/foundation.spec.ts`.
-**Where**: `front-end/e2e/foundation.spec.ts` (+ `front-end/playwright.config.ts`, `front-end/package.json`)
+**What**: `playwright.config.ts` (`webServer`: compose `postgres` + `api` reused when `http://localhost:3000/api/v1/health` answers, 180 s timeout; `vite preview --port 5173 --strictPort`; Chromium), `test:e2e` script, `test/e2e/foundation.e2e-spec.ts`.
+**Where**: `front-end/test/e2e/foundation.e2e-spec.ts` (+ `front-end/playwright.config.ts`, `front-end/package.json`)
 **Depends on**: T17
 **Reuses**: none
 **Requirement**: FND-34, FND-06, FND-07, FND-09, FND-21, FND-26

@@ -52,6 +52,14 @@ Decisions for the web app. They must conform to the global decisions in the root
 - **Date**: 2026-10-22
 - **Status**: active
 
+### FE-AD-007
+- **Decision**: Tests live outside `src/`, in `front-end/test/`, following the back-end layout: `test/unit/` mirrors `src/` (`src/app/app.tsx` → `test/unit/app/app.spec.tsx`), `test/e2e/` holds Playwright specs (`*.e2e-spec.ts`), and `test/support/` holds shared helpers (Vitest setup, `renderApp`, MSW server and handlers). Unit files are `*.spec.ts(x)` and import production code through the `@/` alias.
+- **Reason**: One test layout across the repo, and `src/` holds only code that ships.
+- **Trade-off**: A test sits far from its file, so a move in `src/` needs the matching move in `test/unit/`; the FE-AD-006 import rule covers `src/` only, so tests may import any layer.
+- **Scope**: front-end
+- **Date**: 2026-10-22
+- **Status**: active
+
 ## Handoff
 
 Foundation: Specify and Design approved; tasks.md approved (20 tasks), T1 next. Execute runs one task per branch/PR (pair-programming), after the spec/design/tasks docs PR.
