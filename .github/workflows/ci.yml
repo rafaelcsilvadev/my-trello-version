@@ -113,3 +113,47 @@ jobs:
 
       - run: pnpm --filter @my-trello/api-contract run test
         if: needs.changes.outputs.back-end == 'true'
+
+  front-end:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        script: [lint, typecheck, test, build]
+    name: front-end (${{ matrix.script }})
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm --filter front-end run ${{ matrix.script }}
+
+  front-end-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    name: front-end (test:e2e)
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm --filter front-end exec playwright install --with-deps chromium
+
+      # Playwright's webServer builds and starts postgres and the API with
+      # docker compose, then serves the production build with vite preview.
+      - run: pnpm --filter front-end run test:e2e
