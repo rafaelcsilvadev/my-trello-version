@@ -44,6 +44,14 @@ Decisions for the web app. They must conform to the global decisions in the root
 - **Date**: 2026-10-22
 - **Status**: active
 
+### FE-AD-006
+- **Decision**: The app is layered `app` → `pages` → `features/<feature>` → `shared`. Each feature is a modular MVVM module: `model/` (framework-free TS on top of the contract types, with no parallel domain model; reshaping happens through `select` mappers), `api/` (key factory, query options, mutation hooks; the only code that calls the API, so it plays the repository role), `view-models/` (`use-<screen>-view-model.ts` returning `{ state, actions }`, only for complex screens), `components/` (Views), and `index.ts` as the only public entry. A feature never imports another feature; pages compose features; `shared` imports nothing above it. oxlint `no-restricted-imports` enforces the rule. Server data lives only in the TanStack Query cache, shareable/reload-safe state in the URL, and the only global client stores are session and preferences. Optimistic updates are limited to drag and drop and toggles. Interactive primitives in `shared/ui` wrap React Aria Components; forms are controlled inputs with no form library.
+- **Reason**: Each ROADMAP feature stays self-contained and reviewable; view-models keep Views testable with plain props, while skipping a repository/mapper layer avoids duplicating the contract types (the cost that made the back-end supersede BE-AD-001/002 with BE-AD-005); one source of truth per kind of state avoids stale copies of server data; React Aria provides the keyboard and focus behavior the prototype requires (drag with keyboard, dialogs, menus) without building it by hand; the forms have one or two fields, so a form library would add more than it saves.
+- **Trade-off**: The UI depends on API shapes directly, so a contract change can reach components (caught by `typecheck`); deciding when a screen is "complex enough" for a view-model is a judgment call; cross-feature screens need composition at the page or a query moved to `shared`; lint overrides must be kept in sync with the folder layout; React Aria adds a dependency and its own styling API (render props / data attributes).
+- **Scope**: front-end
+- **Date**: 2026-10-22
+- **Status**: active
+
 ## Handoff
 
 Foundation: Specify and Design approved; tasks.md approved (20 tasks), T1 next. Execute runs one task per branch/PR (pair-programming), after the spec/design/tasks docs PR.

@@ -37,6 +37,99 @@ graph TD
 
 ---
 
+## Software Architecture
+
+Foundation builds only `app/`, `pages/` and `shared/`, but it fixes the structure every screen feature (`auth` … `settings`) follows. Recorded as FE-AD-006.
+
+### Layers
+
+```
+front-end/src/
+├── app/                 composition root, providers, route table, guards
+├── pages/               one file per route; reads route/search params and lays out feature components
+├── features/<feature>/  one folder per ROADMAP feature (auth, boards, board, card-detail, labels, settings)
+│   ├── api/             keys.ts, queries.ts, mutations.ts — the feature's only door to the API
+│   ├── model/           Model: framework-free TS — view types, `select` mappers, filters, reorder math
+│   ├── view-models/     ViewModel: use-<screen>-view-model.ts (complex screens only)
+│   ├── components/      View: feature UI
+│   └── index.ts         public API: the only file other layers may import
+├── shared/              api, session, preferences, theme, i18n, navigation, storage, config, ui/, lib/
+├── styles/
+└── test/
+```
+
+### Modular MVVM
+
+Each feature is a module with a light MVVM split:
+
+- **Model** (`model/`): API data uses the contract types (`Board`, `Card`, …) as is, so there is no parallel domain model and no repository mapping layer. When a screen needs another shape (ISO string → `Date`, sorted by `position`, derived `isOverdue`), a pure function in `model/` does it, applied through `select` in the query options. View types live here too.
+- **Repository role** (`api/`): query option factories and mutation hooks are the only code that talks to the API. Components and view-models never call the client directly.
+- **ViewModel** (`view-models/use-<screen>-view-model.ts`): a hook that combines queries, mutations, local UI state and handlers, and returns `{ state, actions }` ready to render. Used only for complex screens (`board`, `card-detail`); a simple screen (login, a one-field form) calls feature hooks from its component directly.
+- **View** (`components/`): renders `state` and calls `actions`. It holds no fetching and no business rules, so it is tested with plain props.
+
+Dependencies inside a feature point one way: `components → view-models → api → model`, and `components → model` for view types. `model/` imports nothing from the feature.
+
+### Dependency rule
+
+| Layer | May import | Must not import |
+| ----- | ---------- | --------------- |
+| `app` | `pages`, `features/<f>` (index only), `shared` | — |
+| `pages` | `features/<f>` (index only), `shared` | `app`, feature internals (`features/<f>/api/…`) |
+| `features/<f>` | its own files, `shared` | another feature, `pages`, `app` |
+| `shared` | `shared` | `features`, `pages`, `app` |
+
+- Cross-folder imports use the `@/` alias (`@/shared/api/client`); imports inside one feature are relative.
+- Enforced by oxlint `no-restricted-imports` with per-folder overrides in `.oxlintrc.json`: a feature importing another feature, `shared` importing a feature, or a page deep-importing a feature internal fails `lint`. The exact pattern syntax is checked against oxlint 1.89's rule options in T1, not written from memory.
+- Two features never talk directly. When a screen needs both (card detail applying board labels), the **page** composes them, passing one feature's component to the other as `children` or a slot prop. A query that two or more features need moves to `shared/api/resources/<resource>.ts`.
+
+### State ownership
+
+| Kind | Lives in | Example |
+| ---- | -------- | ------- |
+| Server data | TanStack Query cache only, never copied into `useState` or a store (form drafts are the exception) | boards, lists, cards, labels |
+| Navigation state | URL path and search params | active/archived tab, board search and filters, open card |
+| Local UI state | `useState` / `useReducer` in the component | menu open, inline edit mode, drag preview |
+| Global client state | Only `sessionStore` and `preferencesStore` (FE-AD-003) | token, theme, language |
+
+No Redux, Zustand or a context-based global store. State that has to survive reload or be shareable by link goes in the URL.
+
+### Data access inside a feature
+
+- `api/keys.ts`: hierarchical key factory, e.g. `boardKeys.all = ['boards']`, `boardKeys.list(status)`, `boardKeys.detail(id)`, so one `invalidateQueries({ queryKey: boardKeys.all })` covers the whole resource.
+- `api/queries.ts`: factories `(api: ApiClient, ...args) => queryOptions({ queryKey, queryFn: () => call(api.GET(...)) })`, used by thin hooks (`useBoards(status)`, which takes `api` from `useApi()`) and by route loaders when a screen prefetches.
+- `api/mutations.ts`: one hook per command (`useCreateBoard`, `useMoveCard`), with `onSuccess` invalidating the narrowest key that changed.
+- **Optimistic updates** only where the UI must respond instantly: drag and drop, the done toggle, checklist item toggle. Pattern: `onMutate` cancels queries, snapshots and `setQueryData`; `onError` restores the snapshot and shows a toast; `onSettled` invalidates. Every other mutation waits for the server.
+- Components never call `api.GET/POST` or `fetch`. They use feature hooks, and errors reach them as `ApiError` (FE-AD-002), checked with `isProblemType`.
+
+### Components
+
+- **`shared/ui/`**: Púrpura primitives (Button, IconButton, TextField, Dialog, Menu, Popover, Tooltip, Tabs, Spinner, EmptyState). Interactive widgets wrap **React Aria Components** (focus management, keyboard, ARIA) and are styled with Tailwind and the tokens. Primitives know no domain types and no i18n keys: text arrives through props. Foundation needs none of them (toasts are custom, per the table above). `react-aria-components` (1.22.1 at Design, peer `react ^19`) is added by the first feature that needs a widget.
+- **Feature components** receive contract types (`Board`, `Card`, …) or `model/` view types, and use only their own feature's hooks.
+- **Pages** read params, choose the feature components and handle page-level layout. They hold no server state of their own.
+- Composition over configuration: compound components and `children`/slot props instead of growing boolean props; a value threaded more than two levels down becomes a feature-scoped context.
+
+### Forms
+
+Controlled inputs with `useState`, no form library. Client-side checks only mirror back-end limits (required, max length) so the user gets feedback before submit; the back-end stays the authority. `ApiError.errors` (`{ field, message }`) maps onto the matching field. The submit button is disabled while the mutation is pending.
+
+### Conventions
+
+- Files kebab-case (`board-card.tsx`), components PascalCase, hooks `use-*.ts`, tests next to the file (`*.test.ts(x)`).
+- Named exports only. Lazy routes use `lazy: () => import('…').then((m) => ({ Component: m.BoardsPage }))`.
+
+### Tests per layer
+
+| Layer | Test | Tooling |
+| ----- | ---- | ------- |
+| `model/` | Pure unit tests, including `select` mappers | Vitest |
+| `api/` hooks | Request shape, invalidation, optimistic rollback on error | Vitest + MSW + a `QueryClient` wrapper |
+| `view-models/` | `state`/`actions` for each scenario (loading, error, success, after an action) | `renderHook` + MSW + a `QueryClient` wrapper |
+| `components/`, `shared/ui/` | Behavior and accessibility (roles, keyboard) with plain props | Testing Library |
+| `pages/` | Route params, guards, composition | `renderApp` + memory router + MSW |
+| Journeys | One happy path per feature against the real API | Playwright (FE-AD-005) |
+
+---
+
 ## Code Reuse Analysis
 
 ### Existing Components to Leverage
@@ -233,8 +326,8 @@ Storage keys: `my-trello.token`, `my-trello.theme`, `my-trello.language`.
 | -------- | ------ | --------- |
 | TypeScript version | `~6.0.3` (not 7.0) | Aligned with back-end and api-contract (GL-AD-001 shared tooling); `react-i18next` peer accepts ^6 |
 | Library versions (at Design, 2026-10-22) | react/react-dom 19.3.1, vite 8.3.5, @vitejs/plugin-react 6.1.2, react-router 8.5.0, tailwindcss + @tailwindcss/vite 4.3.3, @tanstack/react-query 5.104.5, openapi-fetch 0.17.0, i18next 26.5.5, react-i18next 17.1.1, vitest 5.0.5, @testing-library/react 16.3.3, @testing-library/dom 10.4.2, @testing-library/user-event 14.6.8, @testing-library/jest-dom 7.0.1, msw 3.0.3, @playwright/test 1.64.1, jsdom 30.1.3, oxlint 1.89.0, prettier 3.9.10 | Latest stable on npm; peer ranges checked (`plugin-react` needs vite ^8; `react-router` needs node ≥22.22, repo pins 24.17.0) |
-| Folder layout | `src/app` (composition, routes), `src/shared/*` (cross-cutting), `src/pages/*` (route screens), later `src/features/<feature>/` | Screen features own their folder; shared code has no imports from features |
+| Folder layout | `src/app`, `src/pages`, `src/features/<feature>`, `src/shared` with a lint-enforced dependency rule | See Software Architecture (FE-AD-006) |
 | Lint | oxlint (`react`, `react-hooks`, `jsx-a11y` plugins) + prettier, same as back-end | One lint toolchain in the repo |
 | Docker runtime | `nginx-unprivileged` on 8080, host 5173 | Non-root container; one CORS origin for dev and Docker |
 
-> Project-level decisions are recorded in `front-end/.specs/STATE.md` as FE-AD-001…FE-AD-005.
+> Project-level decisions are recorded in `front-end/.specs/STATE.md` as FE-AD-001…FE-AD-006.
