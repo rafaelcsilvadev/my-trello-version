@@ -1,0 +1,25 @@
+/* Dark theme overrides, from the prototype (design/Task List.dc.html:25-33). */
+[data-theme=dark] {
+  --neutral-0: #1B1820; --neutral-25: #1F1C25; --neutral-50: #25212B; --neutral-100: #2C2833; --neutral-200: #36313E; --neutral-300: #474150;
+  --neutral-400: #6A6275; --neutral-500: #938B9F; --neutral-600: #B7B0C1; --neutral-700: #D5D0DC; --neutral-800: #E9E6EE; --neutral-900: #F6F4F9;
+  --purple-50: #2D1733; --purple-100: #3C1F45; --purple-200: #57306A; --purple-300: #7D4790; --purple-600: #E0AEE8; --purple-700: #D89EE1;
+  --green-50: #142A1E; --green-100: #1B3A29; --green-700: #7BD9A2;
+  --amber-50: #2F2412; --amber-100: #3F3016; --amber-700: #F5BE66;
+  --red-50: #351A1B; --red-100: #4A2223; --red-600: #F07C7C; --red-700: #F49A9A;
+  --blue-50: #172238; --blue-100: #1E2D4A; --blue-700: #9CB9F7;
+
+  --brand: #9B30AE; --brand-hover: #AD45BF; --brand-press: #B957CA; --brand-soft: #2D1733; --brand-soft-hover: #3C1F45; --on-brand: #FFFFFF;
+
+  --text-primary: #F6F4F9; --text-secondary: #B7B0C1; --text-tertiary: #938B9F; --text-disabled: #6A6275; --text-link: #D89EE1;
+
+  --surface-page: #141117; --surface-card: #1B1820; --surface-sunken: #25212B; --surface-hover: #221E28; --surface-selected: #2D1733;
+  --surface-overlay: rgba(5, 3, 8, 0.6);
+
+  --border-subtle: #2F2A36; --border-default: #433D4C; --border-strong: #6A6275; --border-focus: #BF6DCC;
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4); --shadow-input: 0 1px 2px rgba(0, 0, 0, 0.3); --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.45); --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.55); --shadow-window: 0 30px 80px rgba(0, 0, 0, 0.6);
+
+  --gradient-auth: linear-gradient(180deg, #22152A 0%, #17131B 55%, #111B1D 100%);
+  --gradient-desk: radial-gradient(60% 50% at 0% 70%, rgba(161, 63, 179, 0.22) 0%, rgba(161, 63, 179, 0) 100%), radial-gradient(60% 50% at 100% 70%, rgba(161, 63, 179, 0.22) 0%, rgba(161, 63, 179, 0) 100%), #0E0C11;
+}
