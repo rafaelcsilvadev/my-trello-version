@@ -44,5 +44,13 @@ Decisions that bind every app in the monorepo. App-specific decisions live in `<
 - **Date**: 2026-10-21
 - **Status**: active
 
+### GL-AD-006
+- **Decision**: A `changes` job diffs each pull request against its base. When no file under `back-end/` or `packages/api-contract/`, no root `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml` or `.nvmrc`, and not `ci.yml` changed, the `back-end (*)` and `api-contract` jobs still run but skip every step, so their required checks pass in seconds. Pushes to `main` always run every step. Refines GL-AD-004.
+- **Reason**: Front-end PRs waited minutes for back-end suites (Testcontainers e2e) they cannot affect. Skipping steps instead of jobs keeps the check names the `protect-main` ruleset requires; a skipped matrix job would report under an unexpanded name and leave the PR waiting.
+- **Trade-off**: Every step of those jobs repeats the same `if`. A front-end PR that changes the lockfile still runs the back-end suites. A break caused by a file outside the list shows up only on the push to `main`.
+- **Scope**: all apps
+- **Date**: 2026-10-22
+- **Status**: active
+
 ## Handoff
 
