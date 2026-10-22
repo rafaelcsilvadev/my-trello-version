@@ -170,10 +170,10 @@ T16 → T17 → T18 → T19 → T20
 
 **Done when**:
 
-- [ ] Unit: with `localStorage`, `set` then `get` returns the value and the value is in `localStorage`; `remove` deletes it
-- [ ] Unit: when the backend getter throws, and when `setItem` throws, `set`/`get`/`remove` work in memory and never throw
-- [ ] Unit: `get` of a missing key → `null`
-- [ ] Build gate passes; ≥ 5 new tests
+- [x] Unit: with `localStorage`, `set` then `get` returns the value and the value is in `localStorage`; `remove` deletes it
+- [x] Unit: when the backend getter throws, and when `setItem` throws, `set`/`get`/`remove` work in memory and never throw
+- [x] Unit: `get` of a missing key → `null`
+- [x] Build gate passes; ≥ 5 new tests
 
 **Tests**: unit
 **Gate**: build
