@@ -527,10 +527,10 @@ T16 → T17 → T18 → T19 → T20
 
 **Done when**:
 
-- [ ] `docker compose up --build -d` then `curl -i http://localhost:5173/` → `200`, `text/html`, `Content-Security-Policy` header present
-- [ ] `curl -i http://localhost:5173/b/abc/t/def` → `200` with the same HTML; `curl -I` on a built `/assets/*.js` → `200` with `Cache-Control` long-lived
-- [ ] Container runs as non-root (`docker compose exec web id -u` ≠ `0`)
-- [ ] Build gate passes; test count unchanged
+- [x] `docker compose up --build -d` then `curl -i http://localhost:5173/` → `200`, `text/html`, `Content-Security-Policy` header present
+- [x] `curl -i http://localhost:5173/b/abc/t/def` → `200` with the same HTML; `curl -I` on a built `/assets/*.js` → `200` with `Cache-Control` long-lived
+- [x] Container runs as non-root (`docker compose exec web id -u` ≠ `0`)
+- [x] Build gate passes; test count unchanged
 
 **Tests**: none
 **Gate**: build
