@@ -4,7 +4,7 @@
 
 [English](README.md) | **Português**
 
-> 🚧 **Projeto em andamento.** A API do back-end está com todas as features prontas (0 a 6). Front-end (web) e mobile ainda não começaram.
+> 🚧 **Projeto em andamento.** A API do back-end está com todas as features prontas (0 a 6). O front-end (web) já tem a base pronta (ainda sem telas). O mobile ainda não começou.
 
 Uma versão pessoal do Trello: cada usuário se cadastra e gerencia só os próprios quadros, listas e cartões.
 
@@ -29,6 +29,8 @@ O projeto tem dois objetivos:
 
 MVP = features 0 a 4. Roadmap completo em [`back-end/.specs/ROADMAP.md`](back-end/.specs/ROADMAP.md).
 
+Front-end (web): `foundation` concluída (estrutura do app, rotas e guard de autenticação, cliente tipado da API, tema, i18n PT-BR/EN, toasts, serviço Docker, CI). As telas vêm a seguir, uma feature por vez. Roadmap em [`front-end/.specs/ROADMAP.md`](front-end/.specs/ROADMAP.md).
+
 ---
 
 ## Stack
@@ -39,7 +41,8 @@ MVP = features 0 a 4. Roadmap completo em [`back-end/.specs/ROADMAP.md`](back-en
 - **Auth:** JWT (`@nestjs/jwt`), senha com argon2id nativo do `node:crypto`, rate limit com `@nestjs/throttler`
 - **Observabilidade:** Pino (logs JSON com request id e redação de senhas em qualquer profundidade)
 - **Docs:** Swagger / OpenAPI em `/api/docs`
-- **Testes:** Jest, Supertest, Testcontainers (PostgreSQL real nos testes de integração e e2e)
+- **Web:** React 19 + Vite 8, React Router 8, TanStack Query, `openapi-fetch`, Tailwind CSS v4, i18next, servido por nginx no Docker
+- **Testes:** Jest, Supertest, Testcontainers (PostgreSQL real nos testes de integração e e2e); Vitest, Testing Library, MSW e Playwright no app web
 - **Qualidade:** oxlint (type-aware), Prettier
 - **Infra:** Docker multi-stage + Docker Compose
 
@@ -50,7 +53,7 @@ MVP = features 0 a 4. Roadmap completo em [`back-end/.specs/ROADMAP.md`](back-en
 - **Seguro por padrão.** Todas as rotas exigem token. Rotas públicas precisam de `@Public()` explícito. Login e cadastro têm rate limit por IP. A aplicação não sobe sem `JWT_SECRET` válido. Headers de segurança com `helmet`, CORS restrito às origens de `CORS_ORIGINS` e corpo JSON limitado a 100kb (`413` Problem Details).
 - **Três níveis de teste.** Unitário (sem I/O), integração (repositórios contra PostgreSQL real) e e2e (HTTP contra a aplicação inteira). Mais de 1.000 testes até agora.
 - **Contrato da API compartilhado.** `packages/api-contract` guarda os tipos TypeScript gerados do documento OpenAPI. O CI regenera e falha se o contrato commitado estiver desatualizado.
-- **Roda com um comando.** `docker compose up` sobe API e banco, sem instalar Node nem PostgreSQL.
+- **Roda com um comando.** `docker compose up` sobe o app web, a API e o banco, sem instalar Node nem PostgreSQL.
 
 ---
 
@@ -138,6 +141,9 @@ docker compose up --build
 - API: http://localhost:3000/api/v1
 - Health check: http://localhost:3000/api/v1/health
 - Swagger: http://localhost:3000/api/docs
+- App web: http://localhost:5173
+
+A imagem web grava o `VITE_API_URL` (padrão `http://localhost:3000`) no bundle durante o build. Para apontar para outra origem da API, mude o build arg `VITE_API_URL` do serviço `web` no `docker-compose.yml` e refaça o build.
 
 Para carregar os dados de demonstração (um usuário com boards, listas, cards, labels e checklists), rode em outro terminal:
 
@@ -146,6 +152,12 @@ docker compose exec api node dist/seed/seed.js
 ```
 
 Depois entre com `demo@example.com` / `demo1234`. Cada execução volta a conta demo para os mesmos dados; outros usuários não são afetados.
+
+Para parar tudo (use `-v` para apagar também o volume do banco):
+
+```bash
+docker compose down
+```
 
 ### Localmente
 
@@ -164,7 +176,19 @@ Dados de demonstração (o seed lê as variáveis de ambiente, não o `.env`):
 set -a && . ./.env && set +a && pnpm seed
 ```
 
+App web, a partir da raiz do repositório, com a API rodando (Docker ou `pnpm start:dev`):
+
+```bash
+cd front-end
+pnpm dev                # http://localhost:5173
+```
+
+- `VITE_API_URL` define a origem da API (padrão `http://localhost:3000`), por exemplo `VITE_API_URL=http://localhost:4000 pnpm dev`.
+- Mantenha a porta 5173: a API só aceita chamadas do navegador vindas das origens em `CORS_ORIGINS` (`http://localhost:5173` no `docker-compose.yml`).
+
 ### Testes
+
+Back-end, a partir da raiz do repositório:
 
 ```bash
 cd back-end
@@ -173,6 +197,20 @@ pnpm test:integration   # integração (sobe PostgreSQL via Testcontainers)
 pnpm test:e2e           # e2e HTTP
 pnpm lint
 ```
+
+App web, a partir da raiz do repositório:
+
+```bash
+cd front-end
+pnpm test               # unitários e de componente (Vitest + MSW)
+pnpm typecheck
+pnpm lint
+pnpm build
+pnpm exec playwright install chromium   # uma vez, baixa o navegador
+pnpm test:e2e           # Playwright; sobe postgres e api com docker compose
+```
+
+O `test:e2e` deixa os containers `postgres` e `api` rodando, para a próxima execução ser mais rápida. Pare-os a partir da raiz do repositório com `docker compose down`.
 
 ---
 
@@ -186,6 +224,12 @@ my-trello-version/
 │   ├── src/               # módulos NestJS (auth, users, health, errors, logging, ...)
 │   ├── test/              # unit/, integration/, e2e/
 │   └── Dockerfile
+├── front-end/
+│   ├── .specs/            # roadmap, decisões e specs por feature
+│   ├── src/               # app/, pages/, shared/, styles/
+│   ├── test/              # unit/, e2e/, support/
+│   ├── Dockerfile
+│   └── nginx.conf
 ├── packages/
 │   └── api-contract/      # tipos da API gerados do OpenAPI
 └── docker-compose.yml

@@ -4,7 +4,7 @@
 
 **English** | [Português](README.PT.md)
 
-> 🚧 **Work in progress.** The back-end API is feature-complete (features 0 to 6). The web front-end and mobile app have not started yet.
+> 🚧 **Work in progress.** The back-end API is feature-complete (features 0 to 6). The web front-end has its foundation in place (no screens yet). The mobile app has not started yet.
 
 A personal take on Trello: each user signs up and manages only their own boards, lists and cards.
 
@@ -29,6 +29,8 @@ The project has two goals:
 
 MVP = features 0 to 4. Full roadmap in [`back-end/.specs/ROADMAP.md`](back-end/.specs/ROADMAP.md).
 
+Web front-end: `foundation` is done (app shell, routes and auth guard, typed API client, theme, PT-BR/EN i18n, toasts, Docker service, CI). The screens come next, one feature at a time. Roadmap in [`front-end/.specs/ROADMAP.md`](front-end/.specs/ROADMAP.md).
+
 ---
 
 ## Stack
@@ -39,7 +41,8 @@ MVP = features 0 to 4. Full roadmap in [`back-end/.specs/ROADMAP.md`](back-end/.
 - **Auth:** JWT (`@nestjs/jwt`), passwords hashed with native argon2id from `node:crypto`, rate limiting with `@nestjs/throttler`
 - **Observability:** Pino (JSON logs with request id and password redaction at any depth)
 - **Docs:** Swagger / OpenAPI at `/api/docs`
-- **Tests:** Jest, Supertest, Testcontainers (real PostgreSQL in integration and e2e tests)
+- **Web:** React 19 + Vite 8, React Router 8, TanStack Query, `openapi-fetch`, Tailwind CSS v4, i18next, served by nginx in Docker
+- **Tests:** Jest, Supertest, Testcontainers (real PostgreSQL in integration and e2e tests); Vitest, Testing Library, MSW and Playwright on the web app
 - **Quality:** oxlint (type-aware), Prettier
 - **Infra:** multi-stage Docker build + Docker Compose
 
@@ -50,7 +53,7 @@ MVP = features 0 to 4. Full roadmap in [`back-end/.specs/ROADMAP.md`](back-end/.
 - **Secure by default.** Every route requires a token. Public routes must opt out explicitly with `@Public()`. Login and sign-up are rate-limited per IP. The app refuses to boot without a valid `JWT_SECRET`. Security headers via `helmet`, CORS limited to the origins in `CORS_ORIGINS`, and JSON bodies capped at 100kb (`413` Problem Details).
 - **Three test levels.** Unit (no I/O), integration (repositories against a real PostgreSQL) and e2e (HTTP against the whole app). More than 1,000 tests so far.
 - **Shared API contract.** `packages/api-contract` holds TypeScript types generated from the OpenAPI document. CI regenerates them and fails if the committed contract is out of date.
-- **One-command run.** `docker compose up` starts the API and the database, with no local Node or PostgreSQL install.
+- **One-command run.** `docker compose up` starts the web app, the API and the database, with no local Node or PostgreSQL install.
 
 ---
 
@@ -138,6 +141,9 @@ docker compose up --build
 - API: http://localhost:3000/api/v1
 - Health check: http://localhost:3000/api/v1/health
 - Swagger: http://localhost:3000/api/docs
+- Web app: http://localhost:5173
+
+The web image bakes `VITE_API_URL` (default `http://localhost:3000`) into the bundle at build time. To point it at another API origin, change the `VITE_API_URL` build arg of the `web` service in `docker-compose.yml` and rebuild.
 
 To load the demo data (a user with boards, lists, cards, labels and checklists), run in another terminal:
 
@@ -146,6 +152,12 @@ docker compose exec api node dist/seed/seed.js
 ```
 
 Then log in as `demo@example.com` / `demo1234`. Every run resets the demo account to the same data; other users are not touched.
+
+To stop everything (add `-v` to also delete the database volume):
+
+```bash
+docker compose down
+```
 
 ### Locally
 
@@ -164,7 +176,19 @@ Demo data (the seed reads the environment, not `.env`):
 set -a && . ./.env && set +a && pnpm seed
 ```
 
+Web app, from the repository root, with the API running (Docker or `pnpm start:dev`):
+
+```bash
+cd front-end
+pnpm dev                # http://localhost:5173
+```
+
+- `VITE_API_URL` sets the API origin (default `http://localhost:3000`), e.g. `VITE_API_URL=http://localhost:4000 pnpm dev`.
+- Keep port 5173: the API only accepts browser calls from the origins in `CORS_ORIGINS` (`http://localhost:5173` in `docker-compose.yml`).
+
 ### Tests
+
+Back-end, from the repository root:
 
 ```bash
 cd back-end
@@ -173,6 +197,20 @@ pnpm test:integration   # integration (starts PostgreSQL via Testcontainers)
 pnpm test:e2e           # HTTP e2e
 pnpm lint
 ```
+
+Web app, from the repository root:
+
+```bash
+cd front-end
+pnpm test               # unit and component (Vitest + MSW)
+pnpm typecheck
+pnpm lint
+pnpm build
+pnpm exec playwright install chromium   # once, downloads the browser
+pnpm test:e2e           # Playwright; starts postgres and api with docker compose
+```
+
+`test:e2e` leaves the `postgres` and `api` containers running, so the next run is faster. Stop them from the repository root with `docker compose down`.
 
 ---
 
@@ -186,6 +224,12 @@ my-trello-version/
 │   ├── src/               # NestJS modules (auth, users, health, errors, logging, ...)
 │   ├── test/              # unit/, integration/, e2e/
 │   └── Dockerfile
+├── front-end/
+│   ├── .specs/            # roadmap, decisions and per-feature specs
+│   ├── src/               # app/, pages/, shared/, styles/
+│   ├── test/              # unit/, e2e/, support/
+│   ├── Dockerfile
+│   └── nginx.conf
 ├── packages/
 │   └── api-contract/      # API types generated from OpenAPI
 └── docker-compose.yml
