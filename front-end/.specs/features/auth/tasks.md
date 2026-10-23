@@ -274,10 +274,10 @@ T18 → T19 → T20
 
 **Done when**:
 
-- [ ] Unit: `409` + `/problems/email-already-registered` → `{ email: 'emailTaken' }`
-- [ ] Unit: `400` `errors[]` with `name` (empty trimmed name → `nameRequired`, else `nameTooLong`), `email` → `emailInvalid`, `password` → `passwordLength`; unknown field ignored; non-400/409 → `null`
-- [ ] Unit: `formAlertFor`: `429` → `rateLimited` (both forms); `0`, `500`, `503` → `network`; log in `400`/`401` → `invalidCredentials`; sign up `401` → `network`
-- [ ] Build gate passes; ≥ 12 new tests
+- [x] Unit: `409` + `/problems/email-already-registered` → `{ email: 'emailTaken' }`
+- [x] Unit: `400` `errors[]` with `name` (empty trimmed name → `nameRequired`, else `nameTooLong`), `email` → `emailInvalid`, `password` → `passwordLength`; unknown field ignored; non-400/409 → `null`
+- [x] Unit: `formAlertFor`: `429` → `rateLimited` (both forms); `0`, `500`, `503` → `network`; log in `400`/`401` → `invalidCredentials`; sign up `401` → `network`
+- [x] Build gate passes; ≥ 12 new tests
 
 **Tests**: unit
 **Gate**: build
