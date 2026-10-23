@@ -301,10 +301,10 @@ T18 → T19 → T20
 
 **Done when**:
 
-- [ ] Unit (MSW): sign up sends `{ name, email, password }` to `/api/v1/auth/register`; log in sends `{ email, password }` to `/api/v1/auth/login`
-- [ ] Unit: `201`/`200` → token stored; `401`/`409`/`429` → no token and `error` is an `ApiError` with that status
-- [ ] Unit: a log-in `401` does not trigger session expiry (FND-15 stays true)
-- [ ] Build gate passes; ≥ 6 new tests
+- [x] Unit (MSW): sign up sends `{ name, email, password }` to `/api/v1/auth/register`; log in sends `{ email, password }` to `/api/v1/auth/login`
+- [x] Unit: `201`/`200` → token stored; `401`/`409`/`429` → no token and `error` is an `ApiError` with that status
+- [x] Unit: a log-in `401` does not trigger session expiry (FND-15 stays true)
+- [x] Build gate passes; ≥ 6 new tests
 
 **Tests**: unit
 **Gate**: build
