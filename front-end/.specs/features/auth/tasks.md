@@ -93,9 +93,9 @@ T18 → T19 → T20
 
 **Done when**:
 
-- [ ] `pnpm --filter front-end ls lucide-react react-aria-components` prints `1.61.0` and `1.22.1`
-- [ ] No new peer-dependency warning for React 19
-- [ ] Build gate passes; test count unchanged
+- [x] `pnpm --filter front-end ls lucide-react react-aria-components` prints `1.61.0` and `1.22.1`
+- [x] No new peer-dependency warning for React 19
+- [x] Build gate passes; test count unchanged
 
 **Tests**: none
 **Gate**: build
