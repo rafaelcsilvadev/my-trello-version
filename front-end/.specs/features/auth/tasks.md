@@ -221,8 +221,8 @@ T18 → T19 → T20
 
 **Done when**:
 
-- [ ] Unit: text "task list" visible; icon `aria-hidden="true"`
-- [ ] Build gate passes; ≥ 1 new test
+- [x] Unit: text "task list" visible; icon `aria-hidden="true"`
+- [x] Build gate passes; ≥ 1 new test
 
 **Tests**: unit
 **Gate**: build
