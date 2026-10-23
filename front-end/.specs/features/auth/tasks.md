@@ -196,8 +196,8 @@ T18 → T19 → T20
 
 **Done when**:
 
-- [ ] Unit: each tone has its role and text; icon SVG has `aria-hidden="true"`
-- [ ] Build gate passes; ≥ 3 new tests
+- [x] Unit: each tone has its role and text; icon SVG has `aria-hidden="true"`
+- [x] Build gate passes; ≥ 3 new tests
 
 **Tests**: unit
 **Gate**: build
