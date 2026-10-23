@@ -1,11 +1,14 @@
 import { useQueries } from '@tanstack/react-query';
 import { cleanup, screen, waitFor } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
+import { useEffect } from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { call } from '@/shared/api/api-error';
 import { useApi } from '@/shared/api/api-context';
 import { apiOrigin } from '@/shared/config';
+import { useSession } from '@/shared/session/session-context';
+import type { SessionStore } from '@/shared/session/session-store';
 
 import { server } from '../../support/msw/server';
 import { renderApp } from '../../support/render-app';
@@ -105,6 +108,25 @@ describe('App composition root', () => {
     expect(response.status).toBe(401);
     expect(currentUrl(router)).toBe('/login');
     expect(localStorage.getItem('my-trello.token')).toBe(TOKEN);
+  });
+
+  it('gives components the services session store', async () => {
+    let seen: SessionStore | undefined;
+    function SessionProbe() {
+      const store = useSession();
+      useEffect(() => {
+        seen = store;
+      }, [store]);
+      return <h1>Probe</h1>;
+    }
+    const { session } = renderApp({
+      route: '/probe',
+      routes: [{ path: '/probe', element: <SessionProbe /> }],
+    });
+
+    await screen.findByRole('heading', { level: 1, name: 'Probe' });
+
+    expect(seen).toBe(session);
   });
 
   it('applies the stored dark theme and pt-BR language on the first render', async () => {
