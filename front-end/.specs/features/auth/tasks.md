@@ -328,10 +328,10 @@ T18 → T19 → T20
 
 **Done when**:
 
-- [ ] Unit (MSW): `useCurrentUser` returns `name` and `email` from `GET /api/v1/me`
-- [ ] Unit: sign out → token `null`, location `/login` with empty search, cache empty
-- [ ] Unit: after sign out, no extra `GET /api/v1/me` request is sent (count handler calls)
-- [ ] Build gate passes; ≥ 4 new tests
+- [x] Unit (MSW): `useCurrentUser` returns `name` and `email` from `GET /api/v1/me`
+- [x] Unit: sign out → token `null`, location `/login` with empty search, cache empty
+- [x] Unit: after sign out, no extra `GET /api/v1/me` request is sent (count handler calls)
+- [x] Build gate passes; ≥ 4 new tests
 
 **Tests**: unit
 **Gate**: build
