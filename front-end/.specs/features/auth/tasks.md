@@ -145,8 +145,8 @@ T18 → T19 → T20
 
 **Done when**:
 
-- [ ] Unit: renders children as accessible name; `type="submit"` submits its form; `isDisabled` → `disabled` attribute and no `onPress`; variant/size classes applied
-- [ ] Build gate passes; ≥ 4 new tests
+- [x] Unit: renders children as accessible name; `type="submit"` submits its form; `isDisabled` → `disabled` attribute and no `onPress`; variant/size classes applied
+- [x] Build gate passes; ≥ 4 new tests
 
 **Tests**: unit
 **Gate**: build
