@@ -60,6 +60,14 @@ Decisions for the web app. They must conform to the global decisions in the root
 - **Date**: 2026-10-22
 - **Status**: active
 
+### FE-AD-008
+- **Decision**: Icons come from `lucide-react`, pinned to an exact version (`1.61.0` at Design), imported by name (`import { Settings } from 'lucide-react'`) with no wrapper component. Decorative icons get `aria-hidden`; icon-only controls carry an `aria-label` from i18n.
+- **Reason**: The Púrpura design system uses Lucide (stroke 2 px, `currentColor`, 14–20 px), and the package defaults already match it; per-icon imports keep only used icons in the bundle.
+- **Trade-off**: The prototype's CDN `lucide-static@0.454.0` mask-based `Icon` is not reused, so an icon renamed between versions shows up as a type error on bump; the exact pin means bumps are manual.
+- **Scope**: front-end
+- **Date**: 2026-10-23
+- **Status**: active
+
 ## Handoff
 
 Foundation: done. All 20 tasks merged, one PR each (T1–T20); README documents running and testing the web app. Validation: PASS (`features/foundation/validation.md`, 38/38 FND requirements verified, 25/25 mutants killed). Next: feature 1 `auth` (sign up, log in, rate-limit notice, log out), starting at Specify.
