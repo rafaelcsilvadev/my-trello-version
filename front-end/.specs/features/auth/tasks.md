@@ -119,9 +119,9 @@ T18 → T19 → T20
 
 **Done when**:
 
-- [ ] Unit: a child reads the same store passed to the provider; `useSession` outside the provider throws
-- [ ] `renderApp` test: a component inside the app gets `services.session`
-- [ ] Build gate passes; ≥ 3 new tests
+- [x] Unit: a child reads the same store passed to the provider; `useSession` outside the provider throws
+- [x] `renderApp` test: a component inside the app gets `services.session`
+- [x] Build gate passes; ≥ 3 new tests
 
 **Tests**: unit
 **Gate**: build
