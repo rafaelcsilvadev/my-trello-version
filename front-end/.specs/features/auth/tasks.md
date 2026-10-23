@@ -246,11 +246,11 @@ T18 → T19 → T20
 
 **Done when**:
 
-- [ ] Unit: name `""`/`"   "` → `nameRequired`; 1 and 100 chars (after trim) valid; 101 → `nameTooLong`
-- [ ] Unit: e-mail `ana@example.com` and `  ana@example.com ` valid; `ana`, `ana@`, `ana@x`, `ana@x.c`, `a b@x.com` → `emailInvalid`
-- [ ] Unit: password 7 and 73 chars → `passwordLength`; 8 and 72 valid; spaces count (not trimmed)
-- [ ] Unit: all valid → `{}`; `firstInvalidField` order name → email → password, `null` when none
-- [ ] Build gate passes; ≥ 14 new tests
+- [x] Unit: name `""`/`"   "` → `nameRequired`; 1 and 100 chars (after trim) valid; 101 → `nameTooLong`
+- [x] Unit: e-mail `ana@example.com` and `  ana@example.com ` valid; `ana`, `ana@`, `ana@x`, `ana@x.c`, `a b@x.com` → `emailInvalid`
+- [x] Unit: password 7 and 73 chars → `passwordLength`; 8 and 72 valid; spaces count (not trimmed)
+- [x] Unit: all valid → `{}`; `firstInvalidField` order name → email → password, `null` when none
+- [x] Build gate passes; ≥ 14 new tests
 
 **Tests**: unit
 **Gate**: build
