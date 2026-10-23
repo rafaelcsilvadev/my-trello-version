@@ -170,9 +170,9 @@ T18 → T19 → T20
 
 **Done when**:
 
-- [ ] Unit: label names the input; hint and error are referenced by `aria-describedby`; `error` → `aria-invalid="true"` and message visible; no `error` → no `aria-invalid`; `autoComplete` and `type` forwarded; `inputRef` reaches the `<input>`
-- [ ] Unit: inside a `<form noValidate>`, an invalid `type="email"` value still fires `submit` (no native block)
-- [ ] Build gate passes; ≥ 7 new tests
+- [x] Unit: label names the input; hint and error are referenced by `aria-describedby`; `error` → `aria-invalid="true"` and message visible; no `error` → no `aria-invalid`; `autoComplete` and `type` forwarded; `inputRef` reaches the `<input>`
+- [x] Unit: inside a `<form noValidate>`, an invalid `type="email"` value still fires `submit` (no native block)
+- [x] Build gate passes; ≥ 7 new tests
 
 **Tests**: unit
 **Gate**: build
