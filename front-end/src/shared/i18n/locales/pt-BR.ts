@@ -26,11 +26,22 @@ export const ptBR = {
       noAccount: 'Ainda não tem conta?',
       createAccountLink: 'Criar conta',
     },
+    signUp: {
+      submit: 'Criar conta',
+      submitting: 'Criando…',
+    },
     fields: {
+      name: 'Nome',
       email: 'E-mail',
       password: 'Senha',
+      passwordHint: 'Use de 8 a 72 caracteres',
     },
     errors: {
+      nameRequired: 'Informe seu nome',
+      nameTooLong: 'Use até 100 caracteres',
+      emailInvalid: 'Informe um e-mail válido',
+      emailTaken: 'Este e-mail já está cadastrado',
+      passwordLength: 'Use de 8 a 72 caracteres',
       invalidCredentials: 'E-mail ou senha inválidos',
       rateLimited: 'Muitas tentativas. Aguarde um minuto e tente novamente.',
     },

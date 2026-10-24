@@ -437,12 +437,12 @@ T18 → T19 → T20
 
 **Done when**:
 
-- [ ] Unit: fields, hint and `autocomplete` `name`/`email`/`new-password`
-- [ ] Unit: each invalid field shows its doc message, no request sent (MSW handler call count 0), focus on first invalid field
-- [ ] Unit: valid submit sends trimmed name and e-mail, raw password
-- [ ] Unit (delayed MSW): "Criando…" + `disabled` while pending; second Enter sends nothing
-- [ ] Unit: `201` → `onSuccess`; `409` → "Este e-mail já está cadastrado" on E-mail; `400 errors[]` → field messages; `429` and network → form alerts; resubmit clears previous errors and alert
-- [ ] Build gate passes; ≥ 14 new tests
+- [x] Unit: fields, hint and `autocomplete` `name`/`email`/`new-password`
+- [x] Unit: each invalid field shows its doc message, no request sent (MSW handler call count 0), focus on first invalid field
+- [x] Unit: valid submit sends trimmed name and e-mail, raw password
+- [x] Unit (delayed MSW): "Criando…" + `disabled` while pending; second Enter sends nothing
+- [x] Unit: `201` → `onSuccess`; `409` → "Este e-mail já está cadastrado" on E-mail; `400 errors[]` → field messages; `429` and network → form alerts; resubmit clears previous errors and alert
+- [x] Build gate passes; ≥ 14 new tests
 
 **Tests**: unit
 **Gate**: build

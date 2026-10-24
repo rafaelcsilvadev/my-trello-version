@@ -24,11 +24,22 @@ export const en = {
       noAccount: 'Don’t have an account?',
       createAccountLink: 'Create account',
     },
+    signUp: {
+      submit: 'Create account',
+      submitting: 'Creating…',
+    },
     fields: {
+      name: 'Name',
       email: 'Email',
       password: 'Password',
+      passwordHint: 'Use 8 to 72 characters',
     },
     errors: {
+      nameRequired: 'Enter your name',
+      nameTooLong: 'Use up to 100 characters',
+      emailInvalid: 'Enter a valid email',
+      emailTaken: 'This email is already registered',
+      passwordLength: 'Use 8 to 72 characters',
       invalidCredentials: 'Invalid email or password',
       rateLimited: 'Too many attempts. Wait a minute and try again.',
     },
