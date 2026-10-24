@@ -51,7 +51,7 @@ describe('routes', () => {
   describe('without a token', () => {
     it.each([
       ['/login', 'Good to see you again'],
-      ['/signup', 'Create account'],
+      ['/signup', 'Create your account'],
     ])('renders %s with heading "%s"', async (route, title) => {
       const { router } = renderApp({ route });
 

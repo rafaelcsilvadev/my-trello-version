@@ -25,8 +25,12 @@ export const en = {
       createAccountLink: 'Create account',
     },
     signUp: {
+      title: 'Create your account',
+      subtitle: 'Keep all your boards in one place.',
       submit: 'Create account',
       submitting: 'Creating…',
+      haveAccount: 'Already have an account?',
+      haveAccountLink: 'Sign in',
     },
     fields: {
       name: 'Name',
@@ -43,6 +47,7 @@ export const en = {
       invalidCredentials: 'Invalid email or password',
       rateLimited: 'Too many attempts. Wait a minute and try again.',
     },
+    accountCreated: 'Account created',
   },
   errors: {
     network: 'Couldn’t reach the server. Check your connection.',
