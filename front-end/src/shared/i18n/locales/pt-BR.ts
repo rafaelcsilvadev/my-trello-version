@@ -27,8 +27,12 @@ export const ptBR = {
       createAccountLink: 'Criar conta',
     },
     signUp: {
+      title: 'Crie sua conta',
+      subtitle: 'Organize seus quadros em um só lugar.',
       submit: 'Criar conta',
       submitting: 'Criando…',
+      haveAccount: 'Já tem conta?',
+      haveAccountLink: 'Já tenho conta',
     },
     fields: {
       name: 'Nome',
@@ -45,6 +49,7 @@ export const ptBR = {
       invalidCredentials: 'E-mail ou senha inválidos',
       rateLimited: 'Muitas tentativas. Aguarde um minuto e tente novamente.',
     },
+    accountCreated: 'Conta criada',
   },
   errors: {
     network: 'Não foi possível falar com o servidor. Verifique sua conexão.',

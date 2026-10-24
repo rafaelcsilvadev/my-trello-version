@@ -3,6 +3,7 @@ import { redirect, type RouteObject } from 'react-router';
 import { LoginPage } from '@/pages/login-page';
 import { NotFoundPage } from '@/pages/not-found-page';
 import { PlaceholderPage } from '@/pages/placeholder-page';
+import { SignupPage } from '@/pages/signup-page';
 import type { SessionStore } from '@/shared/session/session-store';
 
 import { redirectIfSession, requireSession } from './guards';
@@ -18,10 +19,7 @@ export function createRoutes({
       loader: redirectIfSession(session),
       children: [
         { path: 'login', element: <LoginPage /> },
-        {
-          path: 'signup',
-          element: <PlaceholderPage titleKey="signup" />,
-        },
+        { path: 'signup', element: <SignupPage /> },
       ],
     },
     {
