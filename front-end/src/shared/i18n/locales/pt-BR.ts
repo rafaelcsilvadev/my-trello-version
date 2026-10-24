@@ -17,6 +17,20 @@ export const ptBR = {
   session: {
     expired: 'Sua sessão expirou. Entre novamente.',
   },
+  auth: {
+    logIn: {
+      submit: 'Entrar',
+      submitting: 'Entrando…',
+    },
+    fields: {
+      email: 'E-mail',
+      password: 'Senha',
+    },
+    errors: {
+      invalidCredentials: 'E-mail ou senha inválidos',
+      rateLimited: 'Muitas tentativas. Aguarde um minuto e tente novamente.',
+    },
+  },
   errors: {
     network: 'Não foi possível falar com o servidor. Verifique sua conexão.',
     loadTitle: 'Não foi possível carregar',
