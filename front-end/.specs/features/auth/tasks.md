@@ -557,7 +557,7 @@ T18 → T19 → T20
 
 ### T19: Auth e2e journey
 
-**What**: One Playwright test: sign up a unique e-mail → `/boards` + toast → Settings icon → "Sair" → `/login`; open `/settings` → `/login?redirect=%2Fsettings`; log in → `/settings` shows "Connected as" (EN default). Three auth calls total.
+**What**: One Playwright test: sign up a unique e-mail → `/boards` + toast → Settings icon → "Sair" → `/login`; open `/settings` → `/login?redirect=%2Fsettings`; log in → `/settings` shows "Signed in as" (EN default). Three auth calls total.
 **Where**: `front-end/test/e2e/auth.e2e-spec.ts`
 **Depends on**: T18
 **Reuses**: `foundation.e2e-spec.ts` setup

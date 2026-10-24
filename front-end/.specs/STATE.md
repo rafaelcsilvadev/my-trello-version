@@ -70,4 +70,4 @@ Decisions for the web app. They must conform to the global decisions in the root
 
 ## Handoff
 
-Foundation: done. All 20 tasks merged, one PR each (T1–T20); README documents running and testing the web app. Validation: PASS (`features/foundation/validation.md`, 38/38 FND requirements verified, 25/25 mutants killed). Next: feature 1 `auth` (sign up, log in, rate-limit notice, log out), starting at Specify.
+Auth: done. All 20 tasks merged, one PR each (T1–T20); README documents signing up and logging in. Validation: PASS (`features/auth/validation.md`, 27/27 FAUTH requirements verified, 33/33 mutants killed, 2 equivalent). Foundation: done and validated (`features/foundation/validation.md`). Next: feature 2 `boards` (active/archived tabs, create, edit, archive, restore, delete), starting at Specify.
