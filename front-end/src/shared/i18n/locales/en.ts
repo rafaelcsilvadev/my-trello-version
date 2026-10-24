@@ -8,6 +8,9 @@ export const en = {
     labels: 'Labels',
     settings: 'Settings',
   },
+  nav: {
+    settings: 'Settings',
+  },
   notFound: {
     title: 'Page not found',
     goToBoards: 'Go to My boards',

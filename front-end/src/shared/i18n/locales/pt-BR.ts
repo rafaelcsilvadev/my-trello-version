@@ -10,6 +10,9 @@ export const ptBR = {
     labels: 'Etiquetas',
     settings: 'Configurações',
   },
+  nav: {
+    settings: 'Configurações',
+  },
   notFound: {
     title: 'Página não encontrada',
     goToBoards: 'Ir para Meus quadros',

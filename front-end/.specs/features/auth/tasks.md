@@ -519,9 +519,9 @@ T18 → T19 → T20
 
 **Done when**:
 
-- [ ] Unit (`renderApp`): on `/boards` the logo link points to `/boards` and the "Configurações" link to `/settings`
-- [ ] Unit: on `/settings` the Settings link is absent; on `/login` there is no top bar
-- [ ] Build gate passes; ≥ 3 new tests
+- [x] Unit (`renderApp`): on `/boards` the logo link points to `/boards` and the "Configurações" link to `/settings`
+- [x] Unit: on `/settings` the Settings link is absent; on `/login` there is no top bar
+- [x] Build gate passes; ≥ 3 new tests
 
 **Tests**: unit
 **Gate**: build
