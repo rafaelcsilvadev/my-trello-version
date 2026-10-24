@@ -545,8 +545,8 @@ T18 → T19 → T20
 
 **Done when**:
 
-- [ ] Unit (`renderApp`): `/settings` with a token shows the heading and the session text; "Sair" → `/login`, then opening `/boards` → `/login?redirect=%2Fboards`
-- [ ] Build gate passes; ≥ 2 new tests
+- [x] Unit (`renderApp`): `/settings` with a token shows the heading and the session text; "Sair" → `/login`, then opening `/boards` → `/login?redirect=%2Fboards`
+- [x] Build gate passes; ≥ 2 new tests
 
 **Tests**: unit
 **Gate**: build
