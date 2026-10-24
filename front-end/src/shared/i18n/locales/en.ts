@@ -15,6 +15,20 @@ export const en = {
   session: {
     expired: 'Your session expired. Log in again.',
   },
+  auth: {
+    logIn: {
+      submit: 'Sign in',
+      submitting: 'Signing in…',
+    },
+    fields: {
+      email: 'Email',
+      password: 'Password',
+    },
+    errors: {
+      invalidCredentials: 'Invalid email or password',
+      rateLimited: 'Too many attempts. Wait a minute and try again.',
+    },
+  },
   errors: {
     network: 'Couldn’t reach the server. Check your connection.',
     loadTitle: 'Couldn’t load',
