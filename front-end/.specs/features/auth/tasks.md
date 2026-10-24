@@ -492,10 +492,10 @@ T18 → T19 → T20
 
 **Done when**:
 
-- [ ] Unit (MSW): text "Conectado como Demo · demo@example.com"
-- [ ] Unit: while `/me` is pending and after it fails with `500`, "Sair" is enabled and no "Conectado como" text shows
-- [ ] Unit: click "Sair" → token removed and location `/login`
-- [ ] Build gate passes; ≥ 4 new tests
+- [x] Unit (MSW): text "Conectado como Demo · demo@example.com"
+- [x] Unit: while `/me` is pending and after it fails with `500`, "Sair" is enabled and no "Conectado como" text shows
+- [x] Unit: click "Sair" → token removed and location `/login`
+- [x] Build gate passes; ≥ 4 new tests
 
 **Tests**: unit
 **Gate**: build
