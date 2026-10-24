@@ -466,9 +466,9 @@ T18 → T19 → T20
 
 **Done when**:
 
-- [ ] Unit (`renderApp`): `201` → location `/boards`, toast "Conta criada", token stored; `?redirect=%2Fsettings` still lands on `/boards`
-- [ ] Unit: "Já tenho conta" link goes to `/login`
-- [ ] Build gate passes; ≥ 3 new tests
+- [x] Unit (`renderApp`): `201` → location `/boards`, toast "Conta criada", token stored; `?redirect=%2Fsettings` still lands on `/boards`
+- [x] Unit: "Já tenho conta" link goes to `/login`
+- [x] Build gate passes; ≥ 3 new tests
 
 **Tests**: unit
 **Gate**: build
