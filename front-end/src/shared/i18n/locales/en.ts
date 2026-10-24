@@ -17,8 +17,12 @@ export const en = {
   },
   auth: {
     logIn: {
+      title: 'Good to see you again',
+      subtitle: 'Sign in to continue.',
       submit: 'Sign in',
       submitting: 'Signing in…',
+      noAccount: 'Don’t have an account?',
+      createAccountLink: 'Create account',
     },
     fields: {
       email: 'Email',

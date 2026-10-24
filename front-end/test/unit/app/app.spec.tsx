@@ -97,7 +97,10 @@ describe('App composition root', () => {
   it('keeps the URL and the token when a login request answers 401', async () => {
     respond401('post', '/api/v1/auth/login');
     const { router, session, api } = renderApp({ route: '/login' });
-    await screen.findByRole('heading', { level: 1, name: 'Sign in' });
+    await screen.findByRole('heading', {
+      level: 1,
+      name: 'Good to see you again',
+    });
     // A token stored after the guard ran makes the request carry Authorization.
     session.setToken(TOKEN);
 
@@ -136,7 +139,7 @@ describe('App composition root', () => {
     });
 
     expect((await screen.findByRole('heading', { level: 1 })).textContent).toBe(
-      'Entrar',
+      'Bom te ver de novo',
     );
     await waitFor(() => {
       expect(document.documentElement.dataset.theme).toBe('dark');

@@ -1,6 +1,6 @@
 import { redirect, type RouteObject } from 'react-router';
 
-import { LoginPlaceholderPage } from '@/pages/login-placeholder-page';
+import { LoginPage } from '@/pages/login-page';
 import { NotFoundPage } from '@/pages/not-found-page';
 import { PlaceholderPage } from '@/pages/placeholder-page';
 import type { SessionStore } from '@/shared/session/session-store';
@@ -17,7 +17,7 @@ export function createRoutes({
     {
       loader: redirectIfSession(session),
       children: [
-        { path: 'login', element: <LoginPlaceholderPage /> },
+        { path: 'login', element: <LoginPage /> },
         {
           path: 'signup',
           element: <PlaceholderPage titleKey="signup" />,

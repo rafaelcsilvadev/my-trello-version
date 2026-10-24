@@ -19,8 +19,12 @@ export const ptBR = {
   },
   auth: {
     logIn: {
+      title: 'Bom te ver de novo',
+      subtitle: 'Entre para continuar.',
       submit: 'Entrar',
       submitting: 'Entrando…',
+      noAccount: 'Ainda não tem conta?',
+      createAccountLink: 'Criar conta',
     },
     fields: {
       email: 'E-mail',
