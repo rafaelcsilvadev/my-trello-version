@@ -355,8 +355,8 @@ T18 → T19 → T20
 
 **Done when**:
 
-- [ ] Unit: title is a level-1 heading; subtitle, children and footer render
-- [ ] Build gate passes; ≥ 2 new tests
+- [x] Unit: title is a level-1 heading; subtitle, children and footer render
+- [x] Build gate passes; ≥ 2 new tests
 
 **Tests**: unit
 **Gate**: build

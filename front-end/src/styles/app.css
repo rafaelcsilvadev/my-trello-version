@@ -58,3 +58,5 @@
   --color-label-purple: var(--label-purple); --color-label-blue: var(--label-blue); --color-label-sky: var(--label-sky); --color-label-green: var(--label-green); --color-label-lime: var(--label-lime);
   --color-label-yellow: var(--label-yellow); --color-label-orange: var(--label-orange); --color-label-red: var(--label-red); --color-label-pink: var(--label-pink); --color-label-black: var(--label-black);
 }
+
+@utility bg-auth { background: var(--gradient-auth); }
