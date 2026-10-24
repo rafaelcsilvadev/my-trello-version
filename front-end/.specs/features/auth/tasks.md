@@ -380,13 +380,13 @@ T18 → T19 → T20
 
 **Done when**:
 
-- [ ] Unit: fields E-mail/Senha with `autocomplete` `email`/`current-password`; empty submit still sends the request
-- [ ] Unit (delayed MSW): while pending, button shows "Entrando…" and is `disabled`; a second Enter sends no second request
-- [ ] Unit: `200` → `onSuccess` once; `401` and `400` → "E-mail ou senha inválidos" (`role="alert"`), values kept, `onSuccess` not called
-- [ ] Unit: `429` → rate-limit alert, button enabled; network error and `500` → `errors.network` alert, button enabled
-- [ ] Unit: resubmit hides the previous alert; `sessionExpired` → `role="status"` box with "Sua sessão expirou. Entre novamente."
-- [ ] Unit: PT-BR and EN texts both render (one test per language)
-- [ ] Build gate passes; ≥ 12 new tests
+- [x] Unit: fields E-mail/Senha with `autocomplete` `email`/`current-password`; empty submit still sends the request
+- [x] Unit (delayed MSW): while pending, button shows "Entrando…" and is `disabled`; a second Enter sends no second request
+- [x] Unit: `200` → `onSuccess` once; `401` and `400` → "E-mail ou senha inválidos" (`role="alert"`), values kept, `onSuccess` not called
+- [x] Unit: `429` → rate-limit alert, button enabled; network error and `500` → `errors.network` alert, button enabled
+- [x] Unit: resubmit hides the previous alert; `sessionExpired` → `role="status"` box with "Sua sessão expirou. Entre novamente."
+- [x] Unit: PT-BR and EN texts both render (one test per language)
+- [x] Build gate passes; ≥ 12 new tests
 
 **Tests**: unit
 **Gate**: build
