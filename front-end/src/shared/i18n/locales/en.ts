@@ -49,6 +49,13 @@ export const en = {
     },
     accountCreated: 'Account created',
   },
+  settings: {
+    session: {
+      title: 'Session',
+      connectedAs: 'Signed in as {{name}} · {{email}}',
+      signOut: 'Sign out',
+    },
+  },
   errors: {
     network: 'Couldn’t reach the server. Check your connection.',
     loadTitle: 'Couldn’t load',

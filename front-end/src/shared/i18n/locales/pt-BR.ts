@@ -51,6 +51,13 @@ export const ptBR = {
     },
     accountCreated: 'Conta criada',
   },
+  settings: {
+    session: {
+      title: 'Sessão',
+      connectedAs: 'Conectado como {{name}} · {{email}}',
+      signOut: 'Sair',
+    },
+  },
   errors: {
     network: 'Não foi possível falar com o servidor. Verifique sua conexão.',
     loadTitle: 'Não foi possível carregar',
