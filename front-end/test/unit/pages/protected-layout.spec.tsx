@@ -22,7 +22,9 @@ describe('ProtectedLayout', () => {
     await heading('Meus quadros');
     const banner = within(screen.getByRole('banner'));
     expect(
-      banner.getByRole('link', { name: 'task list' }).getAttribute('href'),
+      banner
+        .getByRole('link', { name: 'My Trello Version' })
+        .getAttribute('href'),
     ).toBe('/boards');
     expect(
       banner.getByRole('link', { name: 'Configurações' }).getAttribute('href'),
@@ -43,7 +45,9 @@ describe('ProtectedLayout', () => {
       renderApp({ route, token: TOKEN });
 
       await heading('Settings');
-      expect(screen.getByRole('link', { name: 'task list' })).toBeTruthy();
+      expect(
+        screen.getByRole('link', { name: 'My Trello Version' }),
+      ).toBeTruthy();
       expect(screen.queryByRole('link', { name: 'Settings' })).toBeNull();
     },
   );

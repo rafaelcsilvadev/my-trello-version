@@ -8,10 +8,10 @@ describe('Logo', () => {
     cleanup();
   });
 
-  it('shows the "task list" wordmark', () => {
+  it('shows the "My Trello Version" wordmark', () => {
     render(<Logo />);
 
-    expect(screen.getByText('task list')).toBeTruthy();
+    expect(screen.getByText('My Trello Version')).toBeTruthy();
   });
 
   it('hides the icon from assistive technology', () => {

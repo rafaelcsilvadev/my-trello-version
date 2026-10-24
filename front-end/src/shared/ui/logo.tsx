@@ -9,7 +9,7 @@ export function Logo() {
         <ListChecks size={16} aria-hidden="true" />
       </span>
       <span className="font-display text-xl leading-none font-semibold tracking-tight text-text-primary">
-        task list
+        My Trello Version
       </span>
     </span>
   );
