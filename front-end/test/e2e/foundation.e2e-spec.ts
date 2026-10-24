@@ -52,3 +52,23 @@ test('the API allows the app origin through CORS', async ({ request }) => {
   expect(response.status()).toBe(200);
   expect(response.headers()['access-control-allow-origin']).toBe(APP_ORIGIN);
 });
+
+test('the tab shows the logo favicon', async ({ page, request }) => {
+  await page.goto('/login');
+
+  await expect(page.locator('link[rel="icon"]')).toHaveAttribute(
+    'href',
+    '/favicon.svg',
+  );
+  const response = await request.get('/favicon.svg');
+  expect(response.status()).toBe(200);
+  expect(response.headers()['content-type']).toContain('image/svg+xml');
+  // A malformed SVG is still served with 200; only decoding it proves it renders.
+  const width = await page.evaluate(async () => {
+    const img = new Image();
+    img.src = '/favicon.svg';
+    await img.decode();
+    return img.naturalWidth;
+  });
+  expect(width).toBeGreaterThan(0);
+});

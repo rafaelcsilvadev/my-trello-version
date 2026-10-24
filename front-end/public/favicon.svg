@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+  <!-- Same mark as src/shared/ui/logo.tsx: brand square, lucide ListChecks (ISC) icon. -->
+  <style>
+    rect { fill: #720981; }
+    @media (prefers-color-scheme: dark) { rect { fill: #9B30AE; } }
+  </style>
+  <rect width="28" height="28" rx="8" />
+  <g transform="translate(6 6) scale(0.6667)" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M13 5h8" />
+    <path d="M13 12h8" />
+    <path d="M13 19h8" />
+    <path d="m3 17 2 2 4-4" />
+    <path d="m3 7 2 2 4-4" />
+  </g>
+</svg>
