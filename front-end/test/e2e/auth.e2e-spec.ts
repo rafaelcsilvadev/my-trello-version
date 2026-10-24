@@ -18,7 +18,8 @@ test('sign up, sign out and log in back to the requested page', async ({
   await page.goto('/signup');
   await page.getByLabel('Name').fill('E2E User');
   await page.getByLabel('Email').fill(email);
-  await page.getByLabel('Password').fill(PASSWORD);
+  await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
+  await page.getByLabel('Confirm password').fill(PASSWORD);
   await page.getByRole('button', { name: 'Create account' }).click();
 
   await expect(page).toHaveURL('/boards');

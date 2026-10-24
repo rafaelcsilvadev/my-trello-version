@@ -39,6 +39,9 @@ async function signUp() {
   fireEvent.change(screen.getByLabelText(/^Password/), {
     target: { value: 'secret-123' },
   });
+  fireEvent.change(screen.getByLabelText('Confirm password'), {
+    target: { value: 'secret-123' },
+  });
   fireEvent.click(screen.getByRole('button', { name: 'Create account' }));
 }
 

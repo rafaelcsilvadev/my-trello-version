@@ -40,6 +40,7 @@ export const en = {
       email: 'Email',
       password: 'Password',
       passwordHint: 'Use 8 to 72 characters',
+      confirmPassword: 'Confirm password',
     },
     errors: {
       nameRequired: 'Enter your name',
@@ -47,6 +48,7 @@ export const en = {
       emailInvalid: 'Enter a valid email',
       emailTaken: 'This email is already registered',
       passwordLength: 'Use 8 to 72 characters',
+      passwordMismatch: "Passwords don't match",
       invalidCredentials: 'Invalid email or password',
       rateLimited: 'Too many attempts. Wait a minute and try again.',
     },

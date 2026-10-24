@@ -1,13 +1,18 @@
-import type { SignUpField, SignUpFieldErrors, SignUpValues } from './types';
+import type { SignUpField, SignUpFieldErrors, SignUpFormValues } from './types';
 
 const NAME_MAX_LENGTH = 100;
 const PASSWORD_MIN_LENGTH = 8;
 const PASSWORD_MAX_LENGTH = 72;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-const FIELD_ORDER: readonly SignUpField[] = ['name', 'email', 'password'];
+const FIELD_ORDER: readonly SignUpField[] = [
+  'name',
+  'email',
+  'password',
+  'confirmPassword',
+];
 
 // Name and e-mail are checked trimmed; the password is checked as typed because spaces are part of it.
-export function validateSignUp(values: SignUpValues): SignUpFieldErrors {
+export function validateSignUp(values: SignUpFormValues): SignUpFieldErrors {
   const errors: SignUpFieldErrors = {};
   const name = values.name.trim();
   if (name.length === 0) {
@@ -21,6 +26,9 @@ export function validateSignUp(values: SignUpValues): SignUpFieldErrors {
   const { length } = values.password;
   if (length < PASSWORD_MIN_LENGTH || length > PASSWORD_MAX_LENGTH) {
     errors.password = 'passwordLength';
+  }
+  if (values.confirmPassword !== values.password) {
+    errors.confirmPassword = 'passwordMismatch';
   }
   return errors;
 }

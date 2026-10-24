@@ -28,11 +28,13 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [fieldErrors, setFieldErrors] = useState<SignUpFieldErrors>({});
   const [alert, setAlert] = useState<FormAlert | null>(null);
   const nameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
+  const confirmPasswordRef = useRef<HTMLInputElement>(null);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -40,12 +42,17 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
       return;
     }
     setAlert(null);
-    const values = { name, email, password };
+    const values = { name, email, password, confirmPassword };
     const errors = validateSignUp(values);
     setFieldErrors(errors);
     const invalid = firstInvalidField(errors);
     if (invalid) {
-      const refs = { name: nameRef, email: emailRef, password: passwordRef };
+      const refs = {
+        name: nameRef,
+        email: emailRef,
+        password: passwordRef,
+        confirmPassword: confirmPasswordRef,
+      };
       refs[invalid].current?.focus();
       return;
     }
@@ -106,6 +113,15 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
         hint={t('auth.fields.passwordHint')}
         error={errorFor('password')}
         inputRef={passwordRef}
+      />
+      <TextField
+        label={t('auth.fields.confirmPassword')}
+        type="password"
+        autoComplete="new-password"
+        value={confirmPassword}
+        onChange={setConfirmPassword}
+        error={errorFor('confirmPassword')}
+        inputRef={confirmPasswordRef}
       />
       <div className="mt-1.5">
         <Button type="submit" size="lg" fullWidth isDisabled={signUp.isPending}>
