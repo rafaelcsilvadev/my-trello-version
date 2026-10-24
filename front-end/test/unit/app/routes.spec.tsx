@@ -50,7 +50,7 @@ describe('routes', () => {
 
   describe('without a token', () => {
     it.each([
-      ['/login', 'Sign in'],
+      ['/login', 'Good to see you again'],
       ['/signup', 'Create account'],
     ])('renders %s with heading "%s"', async (route, title) => {
       const { router } = renderApp({ route });
@@ -71,7 +71,7 @@ describe('routes', () => {
       async (route, protectedTitle, url) => {
         const { router } = renderApp({ route });
 
-        expect(await heading()).toBe('Sign in');
+        expect(await heading()).toBe('Good to see you again');
         expect(currentUrl(router)).toBe(url);
         expect(screen.queryByText(protectedTitle)).toBeNull();
       },
@@ -80,7 +80,7 @@ describe('routes', () => {
     it('sends / to login with redirect to /boards', async () => {
       const { router } = renderApp({ route: '/' });
 
-      expect(await heading()).toBe('Sign in');
+      expect(await heading()).toBe('Good to see you again');
       expect(currentUrl(router)).toBe('/login?redirect=%2Fboards');
     });
   });
@@ -122,7 +122,7 @@ describe('routes', () => {
     it('is absent on /login without the reason', async () => {
       renderApp({ route: '/login' });
 
-      expect(await heading()).toBe('Sign in');
+      expect(await heading()).toBe('Good to see you again');
       expect(
         screen.queryByText('Your session expired. Log in again.'),
       ).toBeNull();
@@ -131,7 +131,7 @@ describe('routes', () => {
     it('is absent for another reason', async () => {
       renderApp({ route: '/login?reason=other' });
 
-      expect(await heading()).toBe('Sign in');
+      expect(await heading()).toBe('Good to see you again');
       expect(
         screen.queryByText('Your session expired. Log in again.'),
       ).toBeNull();

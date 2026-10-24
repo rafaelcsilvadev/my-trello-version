@@ -410,10 +410,10 @@ T18 → T19 → T20
 
 **Done when**:
 
-- [ ] Unit (`renderApp`): `/login?redirect=%2Fsettings` + `200` → `/settings`; no `redirect` → `/boards`; `redirect=//evil.com` → `/boards`
-- [ ] Unit: `reason=session-expired` shows the status box; "Criar conta" link goes to `/signup`
-- [ ] Existing route and session-expiry tests still pass (FND-07, FND-16, FND-38)
-- [ ] Build gate passes; ≥ 5 new tests
+- [x] Unit (`renderApp`): `/login?redirect=%2Fsettings` + `200` → `/settings`; no `redirect` → `/boards`; `redirect=//evil.com` → `/boards`
+- [x] Unit: `reason=session-expired` shows the status box; "Criar conta" link goes to `/signup`
+- [x] Existing route and session-expiry tests still pass (FND-07, FND-16, FND-38)
+- [x] Build gate passes; ≥ 5 new tests
 
 **Tests**: unit
 **Gate**: build
