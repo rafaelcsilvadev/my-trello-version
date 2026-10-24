@@ -595,9 +595,9 @@ T18 → T19 → T20
 
 **Done when**:
 
-- [ ] README steps reproduce a log in from a fresh clone
-- [ ] `front-end/.specs/ROADMAP.md` row 1 status is Done
-- [ ] Build gate passes
+- [x] README steps reproduce a log in from a fresh clone
+- [x] `front-end/.specs/ROADMAP.md` row 1 status is Done
+- [x] Build gate passes
 
 **Tests**: none
 **Gate**: build
