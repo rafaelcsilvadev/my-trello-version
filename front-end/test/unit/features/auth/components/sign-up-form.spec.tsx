@@ -98,6 +98,8 @@ function renderForm({ language = 'pt-BR' }: { language?: Language } = {}) {
 const nameInput = () => screen.getByLabelText<HTMLInputElement>('Nome');
 const emailInput = () => screen.getByLabelText<HTMLInputElement>('E-mail');
 const passwordInput = () => screen.getByLabelText<HTMLInputElement>('Senha');
+const confirmPasswordInput = () =>
+  screen.getByLabelText<HTMLInputElement>('Confirmar senha');
 const submitButton = () => screen.getByRole('button');
 const form = () => submitButton().closest('form') as HTMLFormElement;
 
@@ -115,11 +117,18 @@ const valid = {
   password: 'secret-123',
 };
 
-function fillAndSubmit(values: Partial<typeof valid> = {}) {
+// The confirmation repeats the password unless the case sets it.
+function fillAndSubmit(
+  values: Partial<typeof valid> & { confirmPassword?: string } = {},
+) {
   const { name, email, password } = { ...valid, ...values };
+  const confirmPassword = values.confirmPassword ?? password;
   fireEvent.change(nameInput(), { target: { value: name } });
   fireEvent.change(emailInput(), { target: { value: email } });
   fireEvent.change(passwordInput(), { target: { value: password } });
+  fireEvent.change(confirmPasswordInput(), {
+    target: { value: confirmPassword },
+  });
   fireEvent.submit(form());
 }
 
@@ -129,7 +138,7 @@ describe('SignUpForm', () => {
     localStorage.clear();
   });
 
-  it('shows Nome, E-mail and Senha with sign-up autocomplete, the password hint and a Criar conta button (FAUTH-01, FAUTH-27)', () => {
+  it('shows Nome, E-mail, Senha and Confirmar senha with sign-up autocomplete, the password hint and a Criar conta button (FAUTH-01, FAUTH-27)', () => {
     renderForm();
 
     expect(nameInput().type).toBe('text');
@@ -139,6 +148,8 @@ describe('SignUpForm', () => {
     expect(passwordInput().type).toBe('password');
     expect(passwordInput().autocomplete).toBe('new-password');
     expect(passwordInput().getAttribute('aria-describedby')).toBeTruthy();
+    expect(confirmPasswordInput().type).toBe('password');
+    expect(confirmPasswordInput().autocomplete).toBe('new-password');
     expect(screen.getByText('Use de 8 a 72 caracteres')).toBeTruthy();
     expect(submitButton().textContent).toBe('Criar conta');
     expect(form().noValidate).toBe(true);
@@ -169,6 +180,12 @@ describe('SignUpForm', () => {
       { password: 'a'.repeat(73) },
       passwordInput,
       'Use de 8 a 72 caracteres',
+    ],
+    [
+      'a confirmation that does not match',
+      { confirmPassword: 'secret-124' },
+      confirmPasswordInput,
+      'As senhas não coincidem',
     ],
   ])(
     'shows the field message and sends no request for %s (FAUTH-02–FAUTH-05)',
@@ -214,6 +231,7 @@ describe('SignUpForm', () => {
     });
 
     await waitFor(() => expect(onSuccess).toHaveBeenCalled());
+    // The confirmation stays on the client.
     expect(bodies).toEqual([
       { name: 'Ana', email: 'ana@example.com', password: ' secret 123 ' },
     ]);
@@ -374,6 +392,7 @@ describe('SignUpForm', () => {
 
     expect(screen.getByLabelText('Name')).toBeTruthy();
     expect(screen.getByLabelText('Email')).toBeTruthy();
+    expect(screen.getByLabelText('Confirm password')).toBeTruthy();
     expect(screen.getByText('Use 8 to 72 characters')).toBeTruthy();
     expect(submitButton().textContent).toBe('Create account');
 

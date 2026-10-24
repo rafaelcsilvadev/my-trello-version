@@ -2,7 +2,6 @@ import { type ApiError, isProblemType } from '@/shared/api/api-error';
 
 import type {
   FormAlert,
-  SignUpField,
   SignUpFieldError,
   SignUpFieldErrors,
   SignUpValues,
@@ -12,7 +11,7 @@ const EMAIL_TAKEN_TYPE = '/problems/email-already-registered';
 
 // The API only says which field failed, so the message is picked from the value the user sent.
 const SERVER_FIELD_ERRORS: Record<
-  SignUpField,
+  keyof SignUpValues,
   (values: SignUpValues) => SignUpFieldError
 > = {
   name: (values) =>
@@ -37,7 +36,7 @@ export function mapSignUpServerErrors(
   const errors: SignUpFieldErrors = {};
   for (const { field } of err.errors) {
     if (Object.hasOwn(SERVER_FIELD_ERRORS, field)) {
-      const key = field as SignUpField;
+      const key = field as keyof SignUpValues;
       errors[key] = SERVER_FIELD_ERRORS[key](values);
     }
   }

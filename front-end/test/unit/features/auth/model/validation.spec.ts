@@ -1,19 +1,22 @@
 import { describe, expect, it } from 'vitest';
 
-import type { SignUpValues } from '@/features/auth/model/types';
+import type { SignUpFormValues } from '@/features/auth/model/types';
 import {
   firstInvalidField,
   validateSignUp,
 } from '@/features/auth/model/validation';
 
-const VALID: SignUpValues = {
+const VALID: SignUpFormValues = {
   name: 'Ana',
   email: 'ana@example.com',
   password: 'password123',
+  confirmPassword: 'password123',
 };
 
-function errorsFor(values: Partial<SignUpValues>) {
-  return validateSignUp({ ...VALID, ...values });
+// The confirmation follows the password unless the case sets it.
+function errorsFor(values: Partial<SignUpFormValues>) {
+  const confirmPassword = values.password ?? VALID.password;
+  return validateSignUp({ ...VALID, confirmPassword, ...values });
 }
 
 describe('validateSignUp', () => {
@@ -81,11 +84,40 @@ describe('validateSignUp', () => {
     });
   });
 
+  describe('confirmPassword', () => {
+    it.each([
+      ['empty', ''],
+      ['different', 'password124'],
+      ['the password with a trailing space', 'password123 '],
+    ])('rejects a confirmation that is %s', (_case, confirmPassword) => {
+      expect(errorsFor({ confirmPassword })).toEqual({
+        confirmPassword: 'passwordMismatch',
+      });
+    });
+
+    it('reports the mismatch alongside an invalid password', () => {
+      expect(
+        errorsFor({ password: 'short', confirmPassword: 'other' }),
+      ).toEqual({
+        password: 'passwordLength',
+        confirmPassword: 'passwordMismatch',
+      });
+    });
+  });
+
   it('reports every invalid field at once', () => {
-    expect(validateSignUp({ name: '', email: 'ana', password: '' })).toEqual({
+    expect(
+      validateSignUp({
+        name: '',
+        email: 'ana',
+        password: '',
+        confirmPassword: 'x',
+      }),
+    ).toEqual({
       name: 'nameRequired',
       email: 'emailInvalid',
       password: 'passwordLength',
+      confirmPassword: 'passwordMismatch',
     });
   });
 });
@@ -105,9 +137,13 @@ describe('firstInvalidField', () => {
       },
     ],
     ['email', { password: 'passwordLength', email: 'emailTaken' }],
-    ['password', { password: 'passwordLength' }],
+    [
+      'password',
+      { confirmPassword: 'passwordMismatch', password: 'passwordLength' },
+    ],
+    ['confirmPassword', { confirmPassword: 'passwordMismatch' }],
   ] as const)(
-    'picks %s first in name → email → password order',
+    'picks %s first in name → email → password → confirmPassword order',
     (field, errors) => {
       expect(firstInvalidField(errors)).toBe(field);
     },

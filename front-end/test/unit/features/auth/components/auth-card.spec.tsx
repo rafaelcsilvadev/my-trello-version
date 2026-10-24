@@ -51,6 +51,6 @@ describe('AuthCard', () => {
       </AuthCard>,
     );
 
-    expect(screen.getByText('task list')).toBeTruthy();
+    expect(screen.getByText('My Trello Version')).toBeTruthy();
   });
 });

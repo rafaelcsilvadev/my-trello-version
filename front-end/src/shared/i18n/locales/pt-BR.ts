@@ -42,6 +42,7 @@ export const ptBR = {
       email: 'E-mail',
       password: 'Senha',
       passwordHint: 'Use de 8 a 72 caracteres',
+      confirmPassword: 'Confirmar senha',
     },
     errors: {
       nameRequired: 'Informe seu nome',
@@ -49,6 +50,7 @@ export const ptBR = {
       emailInvalid: 'Informe um e-mail válido',
       emailTaken: 'Este e-mail já está cadastrado',
       passwordLength: 'Use de 8 a 72 caracteres',
+      passwordMismatch: 'As senhas não coincidem',
       invalidCredentials: 'E-mail ou senha inválidos',
       rateLimited: 'Muitas tentativas. Aguarde um minuto e tente novamente.',
     },
