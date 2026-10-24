@@ -4,6 +4,7 @@ import { LoginPage } from '@/pages/login-page';
 import { NotFoundPage } from '@/pages/not-found-page';
 import { PlaceholderPage } from '@/pages/placeholder-page';
 import { ProtectedLayout } from '@/pages/protected-layout';
+import { SettingsPage } from '@/pages/settings-page';
 import { SignupPage } from '@/pages/signup-page';
 import type { SessionStore } from '@/shared/session/session-store';
 
@@ -38,7 +39,7 @@ export function createRoutes({
           path: 'b/:boardId/labels',
           element: <PlaceholderPage titleKey="labels" />,
         },
-        { path: 'settings', element: <PlaceholderPage titleKey="settings" /> },
+        { path: 'settings', element: <SettingsPage /> },
       ],
     },
     { path: '*', element: <NotFoundPage /> },
