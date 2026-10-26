@@ -12,6 +12,8 @@ const variants = {
     'border-transparent bg-brand text-on-brand hover:bg-brand-hover active:bg-(--brand-press)',
   secondary:
     'border-border-subtle bg-surface-card text-text-primary shadow-xs hover:bg-(--neutral-50) active:bg-neutral-100',
+  danger:
+    'border-transparent bg-danger text-(--text-on-dark) hover:bg-red-600 active:bg-red-700',
 };
 
 const sizes = {
