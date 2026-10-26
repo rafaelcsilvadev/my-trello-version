@@ -475,8 +475,8 @@ T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Unit: grid renders children in order as a list; skeleton has `aria-busy="true"` and 6 placeholders
-- [ ] Build gate passes; ≥ 2 new tests
+- [x] Unit: grid renders children in order as a list; skeleton has `aria-busy="true"` and 6 placeholders
+- [x] Build gate passes; ≥ 2 new tests
 
 **Tests**: unit
 **Gate**: build
