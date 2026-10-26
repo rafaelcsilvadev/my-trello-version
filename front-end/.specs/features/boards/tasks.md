@@ -500,8 +500,8 @@ T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Unit: active shows title, text and "Criar quadro" calling `onCreate`; archived shows "Nenhum quadro arquivado"
-- [ ] Build gate passes; ≥ 2 new tests
+- [x] Unit: active shows title, text and "Criar quadro" calling `onCreate`; archived shows "Nenhum quadro arquivado"
+- [x] Build gate passes; ≥ 2 new tests
 
 **Tests**: unit
 **Gate**: build

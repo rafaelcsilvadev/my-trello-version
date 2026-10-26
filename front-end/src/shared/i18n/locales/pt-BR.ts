@@ -70,6 +70,13 @@ export const ptBR = {
     retry: 'Tentar novamente',
   },
   boards: {
+    create: 'Criar quadro',
+    empty: {
+      activeTitle: 'Crie seu primeiro quadro',
+      activeDetail:
+        'Um quadro reúne as colunas e tarefas de um projeto ou de uma área da sua vida.',
+      archived: 'Nenhum quadro arquivado',
+    },
     card: {
       createdOn: 'Criado em {{date}}',
       archivedOn: 'Arquivado em {{date}}',
