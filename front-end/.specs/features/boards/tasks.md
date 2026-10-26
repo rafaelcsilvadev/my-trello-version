@@ -550,8 +550,8 @@ T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Unit: title interpolates the board title; button disabled when empty, wrong case or extra space; enabled on exact match and calls `onConfirm`; Cancelar and Esc call `onClose`; field resets when reopened
-- [ ] Build gate passes; ≥ 6 new tests
+- [x] Unit: title interpolates the board title; button disabled when empty, wrong case or extra space; enabled on exact match and calls `onConfirm`; Cancelar and Esc call `onClose`; field resets when reopened
+- [x] Build gate passes; ≥ 6 new tests
 
 **Tests**: unit
 **Gate**: build
