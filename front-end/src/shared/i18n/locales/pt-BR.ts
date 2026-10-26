@@ -72,4 +72,21 @@ export const ptBR = {
   toast: {
     close: 'Fechar',
   },
+  dates: {
+    short: '{{day}} {{month}}, {{year}}',
+    months: {
+      jan: 'jan',
+      feb: 'fev',
+      mar: 'mar',
+      apr: 'abr',
+      may: 'mai',
+      jun: 'jun',
+      jul: 'jul',
+      aug: 'ago',
+      sep: 'set',
+      oct: 'out',
+      nov: 'nov',
+      dec: 'dez',
+    },
+  },
 } as const satisfies Translation;
