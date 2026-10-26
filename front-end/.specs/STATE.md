@@ -76,6 +76,16 @@ Decisions for the web app. They must conform to the global decisions in the root
 - **Date**: 2026-10-26
 - **Status**: active
 
+## Open Items
+
+### P1
+- **Item**: The optimistic rollback writes back the whole snapshot of both board lists. When two changes overlap and the first one fails while the second is still pending, the snapshot taken by the first one still holds the second board, so that board reappears (e.g. archive A and B at once; A fails → B is back in Ativos) until the settle refetch.
+- **Likelihood**: low; it needs two changes in flight at once and the first one failing. The screen fixes itself on the next refetch, and the second change still reaches the server.
+- **Decision**: fix in a future task. Each rollback undoes only its own board (re-insert at its original index, or restore its previous version) instead of the whole list.
+- **Source**: boards T14 (`src/features/boards/api/mutations.ts`, `useOptimisticBoardChange`)
+- **Date**: 2026-10-26
+- **Status**: open
+
 ## Handoff
 
 Auth: done. All 20 tasks merged, one PR each (T1–T20); README documents signing up and logging in. Validation: PASS (`features/auth/validation.md`, 27/27 FAUTH requirements verified, 33/33 mutants killed, 2 equivalent). Foundation: done and validated (`features/foundation/validation.md`). Boards: spec and design approved (42 FBRD requirements, FE-AD-009); tasks approved (T1–T25). Next: Execute T1, one PR per task.
