@@ -69,6 +69,20 @@ export const ptBR = {
     loadDetail: 'Verifique sua conexão e tente de novo.',
     retry: 'Tentar novamente',
   },
+  boards: {
+    card: {
+      createdOn: 'Criado em {{date}}',
+      archivedOn: 'Arquivado em {{date}}',
+      menu: 'Ações do quadro',
+      pending: 'Salvando…',
+    },
+    actions: {
+      edit: 'Editar',
+      archive: 'Arquivar',
+      restore: 'Restaurar',
+      deleteForever: 'Excluir definitivamente',
+    },
+  },
   toast: {
     close: 'Fechar',
   },

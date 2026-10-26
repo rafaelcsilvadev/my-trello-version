@@ -67,6 +67,20 @@ export const en = {
     loadDetail: 'Check your connection and try again.',
     retry: 'Try again',
   },
+  boards: {
+    card: {
+      createdOn: 'Created {{date}}',
+      archivedOn: 'Archived {{date}}',
+      menu: 'Board actions',
+      pending: 'Saving…',
+    },
+    actions: {
+      edit: 'Edit',
+      archive: 'Archive',
+      restore: 'Restore',
+      deleteForever: 'Delete permanently',
+    },
+  },
   toast: {
     close: 'Close',
   },
