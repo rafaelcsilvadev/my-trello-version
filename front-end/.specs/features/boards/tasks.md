@@ -425,8 +425,8 @@ T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Unit (MSW): each hook calls its path and removes the board from its list before the response; each restores on failure; two concurrent archives both stay removed until both settle; `usePendingBoardIds` holds the id only while pending
-- [ ] Build gate passes; ≥ 8 new tests
+- [x] Unit (MSW): each hook calls its path and removes the board from its list before the response; each restores on failure; two concurrent archives both stay removed until both settle; `usePendingBoardIds` holds the id only while pending
+- [x] Build gate passes; ≥ 8 new tests
 
 **Tests**: unit
 **Gate**: build
