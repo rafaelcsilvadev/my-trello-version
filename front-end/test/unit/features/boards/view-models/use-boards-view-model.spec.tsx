@@ -42,6 +42,12 @@ const oldPlans: Board = {
   archivedAt: '2026-10-24T12:00:00.000Z',
 };
 
+const travel: Board = {
+  ...roadmap,
+  id: '3f1c2b7a-8d4e-4b6f-a5c9-2e7d1a0b9c8f',
+  title: 'Travel',
+};
+
 const values: BoardFormValues = { name: '  Roadmap ', description: '' };
 
 function problem(
@@ -110,6 +116,61 @@ function createHandler(...responses: (() => Response)[]) {
   );
   return bodies;
 }
+
+type ChangeRequest = { method: string; path: string; body: unknown };
+
+// Serves both lists from `lists`, counts each list fetch and records every change request.
+// Each change is answered by the next queued response, or by a success one.
+function boardsServer(...responses: (() => Response | Promise<Response>)[]) {
+  const lists = { active: [roadmap, travel], archived: [oldPlans] };
+  const fetches = { active: 0, archived: 0 };
+  const changes: ChangeRequest[] = [];
+  async function answer(request: Request, success: () => Response) {
+    const path = new URL(request.url).pathname;
+    const text = await request.text();
+    changes.push({
+      method: request.method,
+      path,
+      body: text ? JSON.parse(text) : undefined,
+    });
+    return (responses.shift() ?? success)();
+  }
+  server.use(
+    http.get(boardsUrl, ({ request }) => {
+      const tab =
+        new URL(request.url).searchParams.get('archived') === 'true'
+          ? 'archived'
+          : 'active';
+      fetches[tab] += 1;
+      return HttpResponse.json(lists[tab]);
+    }),
+    http.patch(`${boardsUrl}/:id`, ({ request }) =>
+      answer(request, () => HttpResponse.json(roadmap)),
+    ),
+    http.post(`${boardsUrl}/:id/archive`, ({ request }) =>
+      answer(request, () => HttpResponse.json(roadmap)),
+    ),
+    http.post(`${boardsUrl}/:id/unarchive`, ({ request }) =>
+      answer(request, () => HttpResponse.json(oldPlans)),
+    ),
+    http.delete(`${boardsUrl}/:id`, ({ request }) =>
+      answer(request, () => new HttpResponse(null, { status: 204 })),
+    ),
+  );
+  return { lists, fetches, changes };
+}
+
+// Holds a response until `open()`, so a test can look at the screen mid-request.
+function gate() {
+  let open!: () => void;
+  const opened = new Promise<void>((resolve) => {
+    open = resolve;
+  });
+  return { open, wait: () => opened };
+}
+
+const saveFail = 'Não foi possível salvar. Tente novamente.';
+const conflict = 'Este item foi arquivado. Recarregue para ver o estado atual.';
 
 describe('useBoardsViewModel', () => {
   afterEach(cleanup);
@@ -306,6 +367,280 @@ describe('useBoardsViewModel', () => {
         errors: { name: 'nameRequired' },
       });
       expect(bodies).toEqual([]);
+    });
+  });
+  describe('changes', () => {
+    const edited: BoardFormValues = {
+      name: ' Roadmap 2027 ',
+      description: '  ',
+    };
+    const roadmapPath = `/api/v1/boards/${roadmap.id}`;
+
+    it('opens the edit and delete dialogs for a board', () => {
+      boardsServer();
+      const { result } = setup();
+
+      act(() => result.current.vm.actions.openEdit(roadmap));
+      expect(result.current.vm.state.dialog).toEqual({
+        kind: 'edit',
+        board: roadmap,
+      });
+      act(() => result.current.vm.actions.openDelete(oldPlans));
+      expect(result.current.vm.state.dialog).toEqual({
+        kind: 'delete',
+        board: oldPlans,
+      });
+      act(() => result.current.vm.actions.closeDialog());
+      expect(result.current.vm.state.dialog).toEqual({ kind: 'none' });
+    });
+
+    it('edit closes the dialog, shows the new title before the response and toasts "Quadro salvo"', async () => {
+      const held = gate();
+      const { changes } = boardsServer(async () => {
+        await held.wait();
+        return HttpResponse.json({ ...roadmap, title: 'Roadmap 2027' });
+      });
+      const { result } = setup();
+      await waitFor(() =>
+        expect(result.current.vm.state.query.data).toEqual([roadmap, travel]),
+      );
+      act(() => result.current.vm.actions.openEdit(roadmap));
+
+      act(() => result.current.vm.actions.submitEdit(roadmap, edited));
+
+      expect(result.current.vm.state.dialog).toEqual({ kind: 'none' });
+      await waitFor(() =>
+        expect(result.current.vm.state.query.data?.[0]).toMatchObject({
+          title: 'Roadmap 2027',
+          description: null,
+        }),
+      );
+      expect(result.current.vm.state.pendingIds).toEqual(new Set([roadmap.id]));
+      expect(changes).toEqual([
+        {
+          method: 'PATCH',
+          path: roadmapPath,
+          body: { title: 'Roadmap 2027', description: null },
+        },
+      ]);
+
+      held.open();
+
+      await screen.findByText('Quadro salvo');
+      expect(result.current.vm.state.pendingIds).toEqual(new Set());
+    });
+
+    it('edit with invalid values sends nothing and keeps the dialog with the field errors', () => {
+      const { changes } = boardsServer();
+      const { result } = setup();
+      act(() => result.current.vm.actions.openEdit(roadmap));
+      const blank: BoardFormValues = { name: '  ', description: '' };
+
+      act(() => result.current.vm.actions.submitEdit(roadmap, blank));
+
+      expect(result.current.vm.state.dialog).toEqual({
+        kind: 'edit',
+        board: roadmap,
+        values: blank,
+        errors: { name: 'nameRequired' },
+      });
+      expect(changes).toEqual([]);
+    });
+
+    it('edit 400 with errors[] reopens the dialog with the submitted values and field errors', async () => {
+      boardsServer(() =>
+        problem(400, [{ field: 'description', message: 'too long' }]),
+      );
+      const { result } = setup();
+      act(() => result.current.vm.actions.openEdit(roadmap));
+
+      act(() => result.current.vm.actions.submitEdit(roadmap, edited));
+
+      await waitFor(() =>
+        expect(result.current.vm.state.dialog).toEqual({
+          kind: 'edit',
+          board: roadmap,
+          values: edited,
+          errors: { description: 'descriptionTooLong' },
+        }),
+      );
+      expect(screen.queryByText(saveFail)).toBeNull();
+    });
+
+    it('edit 500 toasts with Tentar novamente, which resends the same body', async () => {
+      const { changes } = boardsServer(() => problem(500));
+      const { result } = setup();
+
+      act(() => result.current.vm.actions.submitEdit(roadmap, edited));
+
+      await screen.findByText(saveFail);
+      fireEvent.click(screen.getByRole('button', { name: 'Tentar novamente' }));
+
+      await screen.findByText('Quadro salvo');
+      expect(changes).toEqual([
+        {
+          method: 'PATCH',
+          path: roadmapPath,
+          body: { title: 'Roadmap 2027', description: null },
+        },
+        {
+          method: 'PATCH',
+          path: roadmapPath,
+          body: { title: 'Roadmap 2027', description: null },
+        },
+      ]);
+    });
+
+    it('archive removes the card at once, marks it pending and toasts "Quadro arquivado"', async () => {
+      const held = gate();
+      const { changes } = boardsServer(async () => {
+        await held.wait();
+        return HttpResponse.json(roadmap);
+      });
+      const { result } = setup();
+      await waitFor(() =>
+        expect(result.current.vm.state.query.data).toEqual([roadmap, travel]),
+      );
+
+      act(() => result.current.vm.actions.archive(roadmap));
+
+      await waitFor(() =>
+        expect(result.current.vm.state.query.data).toEqual([travel]),
+      );
+      expect(result.current.vm.state.pendingIds).toEqual(new Set([roadmap.id]));
+      held.open();
+
+      await screen.findByText('Quadro arquivado');
+      expect(changes).toEqual([
+        { method: 'POST', path: `${roadmapPath}/archive`, body: undefined },
+      ]);
+    });
+
+    it('toasts each of two archives made at the same time', async () => {
+      boardsServer();
+      const { result } = setup();
+
+      act(() => {
+        result.current.vm.actions.archive(roadmap);
+        result.current.vm.actions.archive(travel);
+      });
+
+      await waitFor(() =>
+        expect(screen.getAllByText('Quadro arquivado')).toHaveLength(2),
+      );
+    });
+
+    it('restore toasts "Quadro restaurado"', async () => {
+      const { changes } = boardsServer();
+      const { result } = setup('/boards?archived=true');
+
+      act(() => result.current.vm.actions.restore(oldPlans));
+
+      await screen.findByText('Quadro restaurado');
+      expect(changes).toEqual([
+        {
+          method: 'POST',
+          path: `/api/v1/boards/${oldPlans.id}/unarchive`,
+          body: undefined,
+        },
+      ]);
+    });
+
+    it('confirmDelete closes the dialog, sends DELETE and toasts "Quadro excluído definitivamente"', async () => {
+      const { changes } = boardsServer();
+      const { result } = setup('/boards?archived=true');
+      act(() => result.current.vm.actions.openDelete(oldPlans));
+
+      act(() => result.current.vm.actions.confirmDelete(oldPlans));
+
+      expect(result.current.vm.state.dialog).toEqual({ kind: 'none' });
+      await screen.findByText('Quadro excluído definitivamente');
+      expect(changes).toEqual([
+        {
+          method: 'DELETE',
+          path: `/api/v1/boards/${oldPlans.id}`,
+          body: undefined,
+        },
+      ]);
+    });
+
+    it('archive 500 toasts with Tentar novamente, which archives the same board after a tab switch', async () => {
+      const { changes } = boardsServer(() => problem(500));
+      const { result } = setup();
+
+      act(() => result.current.vm.actions.archive(roadmap));
+      await screen.findByText(saveFail);
+      act(() => result.current.vm.actions.selectTab('archived'));
+      fireEvent.click(screen.getByRole('button', { name: 'Tentar novamente' }));
+
+      await screen.findByText('Quadro arquivado');
+      expect(changes.map(({ method, path }) => `${method} ${path}`)).toEqual([
+        `POST ${roadmapPath}/archive`,
+        `POST ${roadmapPath}/archive`,
+      ]);
+    });
+
+    it('409 toasts the conflict with Recarregar, which refetches the lists', async () => {
+      const { fetches } = boardsServer(() => problem(409));
+      const { result } = setup();
+
+      act(() => result.current.vm.actions.submitEdit(roadmap, edited));
+      await screen.findByText(conflict);
+      await waitFor(() =>
+        expect(result.current.vm.state.pendingIds).toEqual(new Set()),
+      );
+      await waitFor(() =>
+        expect(result.current.vm.state.query.isFetching).toBe(false),
+      );
+      const before = fetches.active;
+
+      fireEvent.click(screen.getByRole('button', { name: 'Recarregar' }));
+
+      await waitFor(() => expect(fetches.active).toBe(before + 1));
+      expect(
+        screen.queryByRole('button', { name: 'Tentar novamente' }),
+      ).toBeNull();
+    });
+
+    it('404 toasts saveFail without a button and refetches the lists, even with another change pending', async () => {
+      const held = gate();
+      const { lists, fetches } = boardsServer(
+        async () => {
+          await held.wait();
+          return HttpResponse.json(travel);
+        },
+        () => problem(404),
+      );
+      lists.archived = [];
+      const { result } = setup('/boards?archived=true');
+      await waitFor(() =>
+        expect(result.current.vm.state.query.isSuccess).toBe(true),
+      );
+      const before = fetches.archived;
+      // Still pending when the restore fails, so the shared settle refetch waits for it.
+      act(() => result.current.vm.actions.archive(travel));
+
+      act(() => result.current.vm.actions.restore(oldPlans));
+
+      await screen.findByText(saveFail);
+      await waitFor(() => expect(fetches.archived).toBe(before + 1));
+      expect(result.current.vm.state.query.data).toEqual([]);
+      expect(screen.queryByRole('button')).toBeNull();
+      held.open();
+    });
+
+    it('401 on a change shows no toast', async () => {
+      boardsServer(() => problem(401));
+      const { result, onSessionExpired } = setup();
+
+      act(() => result.current.vm.actions.archive(roadmap));
+
+      await waitFor(() => expect(onSessionExpired).toHaveBeenCalled());
+      await waitFor(() =>
+        expect(result.current.vm.state.pendingIds).toEqual(new Set()),
+      );
+      expect(screen.queryByText(saveFail)).toBeNull();
+      expect(screen.queryByText('Quadro arquivado')).toBeNull();
     });
   });
 });

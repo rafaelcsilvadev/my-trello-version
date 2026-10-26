@@ -600,8 +600,8 @@ T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Unit: success toasts "Quadro salvo/arquivado/restaurado/excluído definitivamente"; `500` → saveFail + Tentar novamente resending the same variables (also after a tab switch); `409` → conflict + Recarregar invalidating both lists; `404` → saveFail without action + refetch; edit `400` reopens the dialog with submitted values and field errors
-- [ ] Build gate passes; ≥ 10 new tests
+- [x] Unit: success toasts "Quadro salvo/arquivado/restaurado/excluído definitivamente"; `500` → saveFail + Tentar novamente resending the same variables (also after a tab switch); `409` → conflict + Recarregar invalidating both lists; `404` → saveFail without action + refetch; edit `400` reopens the dialog with submitted values and field errors
+- [x] Build gate passes; ≥ 10 new tests
 
 **Tests**: unit
 **Gate**: build
