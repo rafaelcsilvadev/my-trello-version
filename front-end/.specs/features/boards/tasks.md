@@ -100,8 +100,8 @@ T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Unit: `danger` renders the danger classes; `primary`/`secondary` unchanged
-- [ ] Build gate passes; ≥ 1 new test
+- [x] Unit: `danger` renders the danger classes; `primary`/`secondary` unchanged
+- [x] Build gate passes; ≥ 1 new test
 
 **Tests**: unit
 **Gate**: build

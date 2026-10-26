@@ -79,4 +79,16 @@ describe('Button', () => {
     expect(classList.contains('h-(--control-md)')).toBe(false);
     expect(classList.contains('w-full')).toBe(true);
   });
+
+  it('applies the danger variant classes', () => {
+    render(<Button variant="danger">Excluir definitivamente</Button>);
+
+    const { classList } = screen.getByRole('button');
+    expect(classList.contains('bg-danger')).toBe(true);
+    expect(classList.contains('text-(--text-on-dark)')).toBe(true);
+    expect(classList.contains('hover:bg-red-600')).toBe(true);
+    expect(classList.contains('active:bg-red-700')).toBe(true);
+    expect(classList.contains('bg-brand')).toBe(false);
+    expect(classList.contains('bg-surface-card')).toBe(false);
+  });
 });
