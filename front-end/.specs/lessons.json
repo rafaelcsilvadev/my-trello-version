@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 3,
+  "next_id": 4,
   "lessons": [
     {
       "id": "L-001",
@@ -40,6 +40,24 @@
       ],
       "created": "2026-10-26T20:51:23Z",
       "last_seen": "2026-10-26T20:51:23Z"
+    },
+    {
+      "id": "L-003",
+      "key": "surviving_mutant::test per item state with at least two items and assert the untouched item stays unaffected",
+      "text": "Test per-item state with at least two items and assert the untouched item stays unaffected",
+      "signal": "surviving_mutant",
+      "scope": "components",
+      "status": "candidate",
+      "features": [
+        "boards"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "N5 front-end/src/features/boards/components/boards-screen.tsx:89 (components)"
+      ],
+      "created": "2026-10-26T21:23:45Z",
+      "last_seen": "2026-10-26T21:23:45Z"
     }
   ]
 }

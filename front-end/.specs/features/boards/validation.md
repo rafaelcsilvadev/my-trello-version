@@ -2,12 +2,88 @@
 
 **Date**: 2026-10-26
 **Spec**: `front-end/.specs/features/boards/spec.md`
-**Diff range**: `7b72e08..d165846` (51 non-merge commits, first feature commit `fdc0e30`; 55 files, +4942/-57). Scope: `front-end/` plus `README.md` / `README.PT.md`. No lockfile, `package.json` or CI file changed.
-**Verifier**: independent sub-agent (author ≠ verifier), iteration 1
+**Diff range**: `7b72e08..522bf47` (iteration 2). Iteration 1 covered `7b72e08..d165846` (51 non-merge commits, first feature commit `fdc0e30`; 55 files, +4942/-57). Scope: `front-end/` plus `README.md` / `README.PT.md`. No lockfile, `package.json` or CI file changed.
+**Verifier**: independent sub-agent (author ≠ verifier), iteration 2 of 3
 
-## Validation: Boards - FAIL ❌
+## Validation: Boards - FAIL ❌ (iteration 2)
 
-**Result**: FAIL ❌. The behavior is correct: all 42 FBRD requirements are implemented and have `file:line` evidence, and the gate is green (513 unit/component tests, +202 over the feature; 8 e2e in CI, incl. `boards.e2e-spec.ts`). The tests are not discriminating enough: 6 of 61 mutants survived (2 more are equivalent and not counted). Five survivors sit in `BoardsScreen` wiring that no screen test exercises, one sits in the form counter. The worst one (M43) would let a title-only edit silently wipe the board description, and no unit or e2e test would notice. Every gap is a missing test, not a code defect.
+**Result (iteration 2)**: FAIL ❌, one Minor gap left. The three test-only fix commits (`27ca400`, `4208d8a`, `96e2485`, PR #178) kill all 6 iteration-1 survivors (M40-M43, M48, M50). The gate is green: 519 unit/component tests, 8 e2e in CI on `522bf47`. Of 6 new mutations around the same wiring, 4 are killed, 1 is equivalent and 1 survives: N5 (`pendingIds.size > 0`) disables the menu of every card while any change is in flight, and no test notices, because the new pending test renders a single card. The spec asks for "that card's" menu and "one change per card at a time" (FBRD-42). Fix 4 below adds a second card to that test. Behavior is correct; the gap is a missing assertion.
+
+See [Iteration 2](#iteration-2) for the evidence. Everything from "Task Completion" down to "Next steps" in the iteration-1 summary is kept as history, with status updates marked "iteration 2".
+
+### Iteration 1 result (history)
+
+**Result (iteration 1)**: FAIL ❌. The behavior is correct: all 42 FBRD requirements are implemented and have `file:line` evidence, and the gate is green (513 unit/component tests, +202 over the feature; 8 e2e in CI, incl. `boards.e2e-spec.ts`). The tests are not discriminating enough: 6 of 61 mutants survived (2 more are equivalent and not counted). Five survivors sit in `BoardsScreen` wiring that no screen test exercises, one sits in the form counter. The worst one (M43) would let a title-only edit silently wipe the board description, and no unit or e2e test would notice. Every gap is a missing test, not a code defect.
+
+---
+
+## Iteration 2
+
+Verifier run on 2026-10-26 against `522bf47` (branch `docs/boards-revalidation`, equal to `main`). Paths are relative to `front-end/test/unit/features/boards/components/`.
+
+### Fix commits reviewed
+
+All three are test-only (`git show --stat`: +119/-1, +8, +10; the -1 is the `@testing-library/react` import split). No test deleted, no assertion weakened.
+
+| Fix | New test (`file:line`) | AC | Asserted value vs spec outcome | Verdict |
+| --- | ---------------------- | -- | ------------------------------ | ------- |
+| Fix 1.1 | `boards-screen.spec.tsx:286-309` | FBRD-23, FBRD-25 | Rendered screen, menu → Edit: Name `toBe('Roadmap')`, Description `toBe('Q4 plans')`, counter `'8 / 1000'` (the board's values and matching counter, FBRD-23); title-only change → `PATCH` body `toEqual({ title: 'Roadmap 2027', description: 'Q4 plans' })` (trimmed name, description kept, FBRD-25); toast `'Board saved'` (FBRD-26) | ✅ spec-anchored, drives the real view-model + MSW |
+| Fix 1.2 | `boards-screen.spec.tsx:311-332` | FBRD-41 | `400` with `errors[{ field: 'description' }]` → reopened `'Edit board'` dialog shows `'Use up to 1000 characters'` (the FBRD-41 description message) and the submitted values `'Roadmap 2027'` / `'Q4 plans'` | ✅ |
+| Fix 1.3 | `boards-screen.spec.tsx:334-355` | FBRD-42 | Edit with a held `PATCH` → card shows `'Roadmap 2027'` at once, then its `Board actions` button `hasAttribute('disabled')` `toBe(true)`. Uses edit instead of the archive the fix plan named; equally valid (archive removes the card). Renders one card only, see N5 | ⚠️ discriminating for M40/N2, not for N5 |
+| Fix 1.4 | `boards-screen.spec.tsx:357-372` | FBRD-18 | Create with a held `POST` → the dialog's button named `'Creating…'` has `disabled` | ✅ |
+| Fix 2 | `board-form-dialog.spec.tsx:166-172` | FBRD-16 | Types `'  ab  '` → `'6 / 1000'` (raw length, spaces counted, matches the "before trim" assumption) | ✅ |
+| Fix 3 | `board-card.spec.tsx:95-103` | FBRD-04 | Description element `classList.contains('line-clamp-2')` `toBe(true)` (2-line clamp). Class-level check, the only observable in jsdom | ✅ |
+
+None of the new tests mirrors the implementation: they go through roles, labels, MSW request bodies and rendered text, not through view-model internals.
+
+### Gate (iteration 2)
+
+- **Build gate** (real tree, repo root): `pnpm --filter front-end lint && pnpm --filter front-end typecheck && pnpm --filter front-end test && pnpm --filter front-end build` → exit 0. oxlint + Prettier clean, `tsc` clean, **52 files / 519 tests passed**, 0 failed, 0 skipped; `vite build` OK (JS 630.11 kB, same 500 kB warning as observation 1).
+- **Test count**: 513 → 519 (+6, one per fix item). Feature delta now +208 over the 311 baseline.
+- **E2E**: CI run `40403138879` on `main` at `522bf474` (`success`), job `front-end (test:e2e)` (`121854453296`) `success`, log: `8 passed (50.4s)`. All 12 jobs `success`. The previous main run `40402885613` (`06cd571`, merge of PR #178) was `cancelled` (superseded by the next push), not failed on a test.
+
+### Discrimination sensor (iteration 2)
+
+Temporary worktree `<scratchpad>/wt2`, detached at `522bf47`. No `pnpm` command ran in it; the real `node_modules`, `front-end/node_modules` and `packages/api-contract/node_modules` were symlinked, and Vitest ran from the worktree's `front-end/` with `node ./node_modules/vitest/vitest.mjs run` (full unit suite per mutant). Unmutated sanity run: 519/519 passed. A script applied one mutation at a time (target text had to occur exactly once), ran the suite, reverted with `git checkout -- <file>` and asserted a clean tracked tree before the next. Afterwards: `git worktree remove --force`, `git worktree prune`; the real tree's `git status --porcelain` equals the baseline (empty) and `find … -xtype l` on the three `node_modules` found no broken links.
+
+Re-run of the iteration-1 survivors (same mutations as the iteration-1 table):
+
+| # | File:line (`front-end/src/features/boards/components/…`) | Mutation | Failing tests | Killed? |
+| - | -------------------------------------------------------- | -------- | ------------- | ------- |
+| M40 | `boards-screen.tsx:89` | `isPending={pendingIds.has(board.id)}` → `false` | 1 (`disables the card menu while its change is in flight`) | ✅ Killed |
+| M41 | `boards-screen.tsx:115` | `isPending={isCreating}` → `false` | 1 (`shows Creating… on a disabled submit button…`) | ✅ Killed |
+| M42 | `boards-screen.tsx:125` | `dialog.values ?? formValuesOf(dialog.board)` → `formValuesOf(dialog.board)` | 1 (`reopens the edit dialog with the submitted values after a 400`) | ✅ Killed |
+| M43 | `boards-screen.tsx:147` | `description: board.description ?? ''` → `''` | 2 (edit prefill, reopened values) | ✅ Killed |
+| M48 | `board-card.tsx:93` | `line-clamp-2` removed | 1 (`clamps the description to two lines`) | ✅ Killed |
+| M50 | `board-form-dialog.tsx:110` | counter on `description.trim().length` | 1 (`counts the description as typed, spaces included`) | ✅ Killed |
+
+New mutations around the same wiring (not tried in iteration 1):
+
+| # | File:line | Mutation | Failing tests | Killed? |
+| - | --------- | -------- | ------------- | ------- |
+| N1 | `boards-screen.tsx:128` | Edit submits the board's old values (`submitEdit(dialog.board, formValuesOf(dialog.board))`) | 3 | ✅ Killed |
+| N2 | `boards-screen.tsx:89` | Pending ids keyed wrong (`pendingIds.has(board.title)`) | 1 | ✅ Killed |
+| N3 | `boards-screen.tsx:115` | Create pending inverted (`isPending={!isCreating}`) | 2 (incl. `BoardsPage lands on /b/{id}`) | ✅ Killed |
+| N4 | `board-form-dialog.tsx:110` | Counter off by one (`description.length + 1`) | 7 | ✅ Killed |
+| N5 | `boards-screen.tsx:89` | Every card pending while any change is in flight (`pendingIds.size > 0`) | 0 | ❌ Survived → Fix 4 |
+| (E3) N6 | `boards-screen.tsx:147` | Edit prefill trims the board's title and description | 0 | Equivalent: the API trims `title` and `description` on create and edit (spec assumption "Trim"; BRD rules), so a board from `GET /api/v1/boards` never has surrounding spaces and the trim is a no-op on real data. Not counted |
+
+**Iteration 2 sensor result**: 10/11 non-equivalent mutations killed, 1 survived (N5), 1 equivalent.
+
+**Cumulative sensor** (iteration 1 + 2): 64 non-equivalent mutations, 63 killed, 1 survived (N5); 3 equivalent (E1, E2, E3) not counted. The iteration-1 kills stand without a re-run: the fix commits only add tests to the suite that killed them.
+
+### Spec-anchored status changes (iteration 2)
+
+| AC | Iteration 1 | Iteration 2 evidence | Result |
+| -- | ----------- | -------------------- | ------ |
+| FBRD-04 | ⚠️ Weak (M48) | `board-card.spec.tsx:95-103` `classList.contains('line-clamp-2')` `toBe(true)` | ✅ |
+| FBRD-16 | ⚠️ Weak (M50) | `board-form-dialog.spec.tsx:166-172` `'  ab  '` → `'6 / 1000'` | ✅ |
+| FBRD-18 | ⚠️ Weak (M41) | `boards-screen.spec.tsx:357-372` `'Creating…'` button `disabled` on the rendered screen (M41, N3 killed) | ✅ |
+| FBRD-23 | ⚠️ Weak (M43) | `boards-screen.spec.tsx:296-300` Name `'Roadmap'`, Description `'Q4 plans'`, `'8 / 1000'`; `:308` `PATCH` keeps `description: 'Q4 plans'` (M43, N1 killed) | ✅ |
+| FBRD-41 | ⚠️ Weak (M42) | `boards-screen.spec.tsx:326-331` reopened dialog: `'Use up to 1000 characters'`, `'Roadmap 2027'`, `'Q4 plans'` | ✅ |
+| FBRD-42 | ⚠️ Weak (M40) | `boards-screen.spec.tsx:347-354` pending card's `Board actions` `disabled` (M40, N2 killed). Only one card is rendered, so locking every card (N5) passes | ⚠️ Weak (N5) |
+
+**Status (iteration 2)**: 41/42 ACs fully discriminating; FBRD-42 still weak. Spec-precision gaps: 0 (FBRD-42 says "that card's" menu and the spec's concurrency row says "one change per card at a time", so other cards staying usable is a spec outcome).
 
 ---
 
@@ -141,7 +217,8 @@ Run in a temporary `git worktree` (`<scratchpad>/wt`, detached `d165846`). No `p
 | (E2) | `features/boards/components/delete-board-dialog.tsx:53` | `isConfirmed` guard in `handleSubmit` removed (M55) | 0 | Equivalent: the only way to submit is the "Excluir definitivamente" button (`type="submit"`, native `disabled` while the name differs) or Enter in the field. HTML implicit submission is blocked when the default button is disabled. Probe in headless Chromium: Enter in a form with a disabled submit button → 0 submits; same form with the button enabled → 1. Defense in depth only. Not counted. |
 
 **Sensor depth**: P0-full (data integrity: edit, archive, restore, delete; 61 manual mutations across validation boundaries, request bodies, every `saveFailureKind` branch, the archived query parameter, optimistic patch/rollback/settle invalidation, pending ids, toasts and their actions, confirmation flows, dialogs, ARIA wiring and the screen composition)
-**Result**: 53/59 killed, 6 survived (2 equivalent mutants excluded) - FAIL ❌
+**Result (iteration 1)**: 53/59 killed, 6 survived (2 equivalent mutants excluded) - FAIL ❌
+**Iteration 2**: M40-M43, M48, M50 now killed; new N1-N4 killed, N5 survived, N6 equivalent. Cumulative 63/64 killed - FAIL ❌ (N5). See [Iteration 2](#iteration-2).
 
 ---
 
@@ -154,7 +231,7 @@ Run in a temporary `git worktree` (`<scratchpad>/wt`, detached `d165846`). No `p
 | No scope creep | ✅ No colors, ordering, search, pagination or "Desfazer"; delete only from Arquivados; no breadcrumb or shortcuts. Extras are small: a "Salvando…" indicator on pending cards (`board-card.tsx:101-110`) and an `updatedAt` fallback when `archivedAt` is missing (`board-card.tsx:44`) |
 | Matches patterns | ✅ Model/api/components/view-model layering (FE-AD-006); TanStack optimistic recipe (FE-AD-009); `shared/ui` wraps React Aria Components; decorative icons `aria-hidden`; texts from i18n keys in both locales (FE-AD-004); tests mirror `src/` (FE-AD-007); oxlint layer rule and Prettier clean |
 | Spec-anchored outcome check (asserted values match spec) | ✅ Exact PT/EN strings, request paths and bodies (`{ title }` without `description`, `description: null`), query strings, toast actions, `aria-selected` / `aria-invalid` / `disabled` |
-| Per-layer Coverage Expectation met (model 1:1 incl. 0/1/100/101 and 1000/1001; hooks; view-model; components; screen; page; one e2e journey) | ❌ The screen layer misses its own wiring: pending → card, creating → dialog, board → edit form values, reopened edit values (M40-M43) |
+| Per-layer Coverage Expectation met (model 1:1 incl. 0/1/100/101 and 1000/1001; hooks; view-model; components; screen; page; one e2e journey) | ⚠️ Iteration 2: the screen wiring is now tested (M40-M43 killed). Remaining: pending state is checked with one card, so per-card scoping is untested (N5) |
 | Every test maps to a spec requirement - no unclaimed tests | ✅ Extras map to Done-when items or edge cases (e.g. `board-card.spec.tsx:136` `updatedAt` fallback, `:145` menu outside the link, `queries.spec.tsx:100` separate caches, `mutations.spec.tsx:258` settle waits for the last change) |
 | Documented guidelines followed: `front-end/.specs/STATE.md` (FE-AD-004..-009), root `.specs/STATE.md` | ✅ |
 
@@ -197,7 +274,9 @@ Run in a temporary `git worktree` (`<scratchpad>/wt`, detached `d165846`). No `p
 
 ## Fix Plans
 
-### Fix 1: Cover the BoardsScreen wiring (M40, M41, M42, M43)
+Status after iteration 2: Fix 1-3 ✅ resolved (`27ca400`, `4208d8a`, `96e2485`, PR #178; every target mutant killed). Fix 4 is new and open.
+
+### Fix 1: Cover the BoardsScreen wiring (M40, M41, M42, M43) - ✅ Resolved in iteration 2
 
 - **Root cause**: `boards-screen.spec.tsx` tests layout and state switches but never drives a change, a create in flight or an edit through the screen, so the props it passes to `BoardCard` and `BoardFormDialog` are unprotected. The worst case (M43) is data loss: an edit that only changes the name would send `description: null`.
 - **Fix task**: In `front-end/test/unit/features/boards/components/boards-screen.spec.tsx` (renderApp + MSW) add:
@@ -208,15 +287,22 @@ Run in a temporary `git worktree` (`<scratchpad>/wt`, detached `d165846`). No `p
 - **Done when**: each new test fails with its mutant applied and passes on `main`; build gate green.
 - **Priority**: Major (M43), Minor (others)
 
-### Fix 2: Counter counts the raw description (M50)
+### Fix 2: Counter counts the raw description (M50) - ✅ Resolved in iteration 2
 
 - **Fix task**: In `board-form-dialog.spec.tsx`, type a description with surrounding spaces (e.g. `'  ab  '`) and assert `'6 / 1000'`. Done when M50 is killed; gate green.
 - **Priority**: Minor
 
-### Fix 3: Assert the 2-line clamp (M48)
+### Fix 3: Assert the 2-line clamp (M48) - ✅ Resolved in iteration 2
 
 - **Fix task**: In `board-card.spec.tsx:87-93`, assert the description element has the `line-clamp-2` class. Done when M48 is killed; gate green.
 - **Priority**: Cosmetic
+
+### Fix 4: Scope the pending menu to its own card (N5) - open
+
+- **Root cause**: `boards-screen.spec.tsx:334-355` renders one board, so `isPending={pendingIds.size > 0}` (every card locked while any change is in flight) passes. FBRD-42 disables "that card's" menu, and the spec allows one change per card at a time, so the other cards must stay usable.
+- **Fix task**: In that test, respond with two active boards (e.g. `[travel, roadmap]`), hold the `PATCH` for Roadmap, and assert Roadmap's `Board actions` button is disabled while Travel's is not (scope with `within(...)` on each list item / link).
+- **Done when**: the test fails with N5 applied (`boards-screen.tsx:89` → `pendingIds.size > 0`) and passes on `main`; build gate green.
+- **Priority**: Minor
 
 ---
 
@@ -224,12 +310,31 @@ Run in a temporary `git worktree` (`<scratchpad>/wt`, detached `d165846`). No `p
 
 | Requirement | Previous Status | New Status |
 | ----------- | --------------- | ---------- |
-| FBRD-01..03, FBRD-05..15, FBRD-17, FBRD-19..22, FBRD-24..40 | Pending | ✅ Verified |
-| FBRD-04, FBRD-16, FBRD-18, FBRD-23, FBRD-41, FBRD-42 | Pending | ❌ Needs Fix (behavior correct, tests not discriminating) |
+| FBRD-01..03, FBRD-05..15, FBRD-17, FBRD-19..22, FBRD-24..40 | Pending | ✅ Verified (iteration 1) |
+| FBRD-04, FBRD-16, FBRD-18, FBRD-23, FBRD-41 | ❌ Needs Fix (iteration 1) | ✅ Verified (iteration 2) |
+| FBRD-42 | ❌ Needs Fix (iteration 1) | ❌ Needs Fix (iteration 2: N5, Fix 4; behavior correct) |
+
+`spec.md` keeps `Pending` in its traceability table until the feature reaches PASS; the Verifier sets the statuses there on the passing iteration.
 
 ---
 
 ## Summary
+
+### Iteration 2
+
+**Overall**: ❌ Not Ready (one Minor test gap)
+
+**Spec-anchored check**: 42/42 ACs matched the spec outcome, 0 spec-precision gaps; 41/42 fully discriminating, FBRD-42 weak (N5)
+**Sensor**: iteration 2: 10/11 killed (6/6 former survivors, 4/5 new), 1 equivalent; cumulative 63/64 killed
+**Gate**: 519 unit/component passed (+6); 8 e2e passed in CI run `40403138879` on `522bf47`
+
+**What works now**: the screen layer drives edit prefill, title-only edit keeping the description, the reopened edit dialog after `400`, the pending card menu and the in-flight create button; the counter counts raw input; the clamp is asserted.
+
+**Issues found**: N5: a card menu locks for any pending change, not only its own (Fix 4).
+
+**Next steps**: apply Fix 4 as one small test-only PR, then re-run the Verifier (iteration 3 of 3, the last before escalating to the user).
+
+### Iteration 1 (history)
 
 **Overall**: ❌ Not Ready (test gaps only)
 
