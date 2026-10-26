@@ -325,8 +325,8 @@ T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Unit: `title` → `nameRequired`/`nameTooLong` by submitted value; `description` → `descriptionTooLong`; unknown fields ignored; `null` when nothing maps; kinds for 0, 500, 503, 409, 404, 400 with and without `errors[]`, 401, 422
-- [ ] Build gate passes; ≥ 10 new tests
+- [x] Unit: `title` → `nameRequired`/`nameTooLong` by submitted value; `description` → `descriptionTooLong`; unknown fields ignored; `null` when nothing maps; kinds for 0, 500, 503, 409, 404, 400 with and without `errors[]`, 401, 422
+- [x] Build gate passes; ≥ 10 new tests
 
 **Tests**: unit
 **Gate**: build
