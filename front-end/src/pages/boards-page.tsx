@@ -10,5 +10,10 @@ export function BoardsPage() {
     void navigate(`/b/${id}`);
   }
 
-  return <BoardsScreen onCreated={handleCreated} />;
+  // Port of the prototype content container (design/Task List.dc.html:1184).
+  return (
+    <main className="mx-auto w-full max-w-270 px-4 pt-4 pb-6 md:px-8 md:pt-7 md:pb-10">
+      <BoardsScreen onCreated={handleCreated} />
+    </main>
+  );
 }
