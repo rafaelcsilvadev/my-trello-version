@@ -72,6 +72,10 @@ export const en = {
   },
   boards: {
     create: 'Create board',
+    tabs: {
+      active: 'Active',
+      archived: 'Archived',
+    },
     empty: {
       activeTitle: 'Create your first board',
       activeDetail:
