@@ -6,7 +6,10 @@ import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { boardKeys } from '@/features/boards/api/keys';
-import { useCreateBoard } from '@/features/boards/api/mutations';
+import {
+  useCreateBoard,
+  useUpdateBoard,
+} from '@/features/boards/api/mutations';
 import { ApiProvider } from '@/shared/api/api-context';
 import { ApiError } from '@/shared/api/api-error';
 import { createApiClient } from '@/shared/api/client';
@@ -42,6 +45,36 @@ function setup() {
     </QueryClientProvider>
   );
   return { wrapper, queryClient };
+}
+
+const roadmap: Board = { ...created, title: 'Roadmap' };
+const backlog: Board = {
+  ...created,
+  id: '9b2d4a1e-3c5f-4e8a-9d7b-1f6e2c8a4b3d',
+  title: 'Backlog',
+  description: null,
+};
+
+const serverError = () =>
+  HttpResponse.json(
+    { type: '/problems/500', title: 'Error', status: 500, detail: '' },
+    {
+      status: 500,
+      headers: { 'Content-Type': 'application/problem+json' },
+    },
+  );
+
+// Holds a request open until the test releases it, so the cache can be read mid-flight.
+function gate() {
+  let release!: () => void;
+  const opened = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  return { opened, release };
+}
+
+function boardUrl(id: string) {
+  return `${boardsUrl}/${id}`;
 }
 
 describe('useCreateBoard', () => {
@@ -119,5 +152,150 @@ describe('useCreateBoard', () => {
     expect(
       queryClient.getQueryState(boardKeys.list(false))?.isInvalidated,
     ).toBe(false);
+  });
+});
+
+describe('useUpdateBoard', () => {
+  it('sends the body to the board path', async () => {
+    const requests: { id: unknown; body: unknown }[] = [];
+    server.use(
+      http.patch(`${boardsUrl}/:id`, async ({ params, request }) => {
+        requests.push({ id: params.id, body: await request.json() });
+        return HttpResponse.json({ ...roadmap, title: 'Plans' });
+      }),
+    );
+    const { wrapper } = setup();
+    const { result } = renderHook(() => useUpdateBoard(), { wrapper });
+
+    await act(() =>
+      result.current.mutateAsync({
+        board: roadmap,
+        body: { title: 'Plans', description: null },
+      }),
+    );
+
+    expect(requests).toEqual([
+      { id: roadmap.id, body: { title: 'Plans', description: null } },
+    ]);
+  });
+
+  it('shows the new title in the active list before the response', async () => {
+    const response = gate();
+    server.use(
+      http.patch(boardUrl(roadmap.id), async () => {
+        await response.opened;
+        return HttpResponse.json({ ...roadmap, title: 'Plans' });
+      }),
+    );
+    const { wrapper, queryClient } = setup();
+    queryClient.setQueryData(boardKeys.list(false), [roadmap, backlog]);
+    const { result } = renderHook(() => useUpdateBoard(), { wrapper });
+
+    act(() =>
+      result.current.mutate({
+        board: roadmap,
+        body: { title: 'Plans', description: 'Q4 plans' },
+      }),
+    );
+
+    await waitFor(() =>
+      expect(queryClient.getQueryData(boardKeys.list(false))).toEqual([
+        { ...roadmap, title: 'Plans' },
+        backlog,
+      ]),
+    );
+    expect(result.current.isPending).toBe(true);
+    response.release();
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+  });
+
+  it('restores the previous list and surfaces an ApiError on a 500', async () => {
+    server.use(http.patch(boardUrl(roadmap.id), serverError));
+    const { wrapper, queryClient } = setup();
+    queryClient.setQueryData(boardKeys.list(false), [roadmap, backlog]);
+    const { result } = renderHook(() => useUpdateBoard(), { wrapper });
+
+    act(() =>
+      result.current.mutate({ board: roadmap, body: { title: 'Plans' } }),
+    );
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(result.current.error).toBeInstanceOf(ApiError);
+    expect(result.current.error?.status).toBe(500);
+    expect(queryClient.getQueryData(boardKeys.list(false))).toEqual([
+      roadmap,
+      backlog,
+    ]);
+  });
+
+  it('invalidates both board lists once the change settles', async () => {
+    server.use(
+      http.patch(boardUrl(roadmap.id), () =>
+        HttpResponse.json({ ...roadmap, title: 'Plans' }),
+      ),
+    );
+    const { wrapper, queryClient } = setup();
+    const { result } = renderHook(() => useUpdateBoard(), { wrapper });
+
+    await act(() =>
+      result.current.mutateAsync({ board: roadmap, body: { title: 'Plans' } }),
+    );
+
+    await waitFor(() =>
+      expect(
+        queryClient.getQueryState(boardKeys.list(false))?.isInvalidated,
+      ).toBe(true),
+    );
+    expect(queryClient.getQueryState(boardKeys.list(true))?.isInvalidated).toBe(
+      true,
+    );
+  });
+
+  it('waits for the last pending board change before invalidating', async () => {
+    const second = gate();
+    server.use(
+      http.patch(boardUrl(roadmap.id), () =>
+        HttpResponse.json({ ...roadmap, title: 'Plans' }),
+      ),
+      http.patch(boardUrl(backlog.id), async () => {
+        await second.opened;
+        return HttpResponse.json({ ...backlog, title: 'Ideas' });
+      }),
+    );
+    const { wrapper, queryClient } = setup();
+    queryClient.setQueryData(boardKeys.list(false), [roadmap, backlog]);
+    const { result } = renderHook(
+      () => ({ first: useUpdateBoard(), second: useUpdateBoard() }),
+      { wrapper },
+    );
+
+    act(() =>
+      result.current.second.mutate({
+        board: backlog,
+        body: { title: 'Ideas' },
+      }),
+    );
+    await act(() =>
+      result.current.first.mutateAsync({
+        board: roadmap,
+        body: { title: 'Plans' },
+      }),
+    );
+
+    // A refetch now would overwrite the second change, still in flight.
+    expect(
+      queryClient.getQueryState(boardKeys.list(false))?.isInvalidated,
+    ).toBe(false);
+    expect(queryClient.getQueryData(boardKeys.list(false))).toEqual([
+      { ...roadmap, title: 'Plans' },
+      { ...backlog, title: 'Ideas' },
+    ]);
+
+    second.release();
+    await waitFor(() =>
+      expect(
+        queryClient.getQueryState(boardKeys.list(false))?.isInvalidated,
+      ).toBe(true),
+    );
   });
 });

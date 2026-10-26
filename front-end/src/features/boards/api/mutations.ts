@@ -4,8 +4,21 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApi } from '@/shared/api/api-context';
 import { type ApiError, call } from '@/shared/api/api-error';
 
-import type { CreateBoardDto } from '../model/types';
+import type { CreateBoardDto, UpdateBoardDto } from '../model/types';
 import { boardKeys } from './keys';
+
+// Shared by every optimistic board change, so each can see whether another is still pending.
+export const BOARD_CHANGE_KEY = ['boards', 'change'] as const;
+
+type BoardList = Board[];
+type BoardListsPatch = {
+  active?: (list: BoardList) => BoardList;
+  archived?: (list: BoardList) => BoardList;
+};
+type BoardListsSnapshot = {
+  active: BoardList | undefined;
+  archived: BoardList | undefined;
+};
 
 export function useCreateBoard() {
   const api = useApi();
@@ -16,5 +29,72 @@ export function useCreateBoard() {
     // A new board is always active; the archived list cannot change.
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: boardKeys.list(false) }),
+  });
+}
+
+export type UpdateBoardVariables = { board: Board; body: UpdateBoardDto };
+
+export function useUpdateBoard() {
+  const api = useApi();
+
+  return useOptimisticBoardChange<UpdateBoardVariables>(
+    ({ board, body }) =>
+      call(
+        api.PATCH('/api/v1/boards/{id}', {
+          params: { path: { id: board.id } },
+          body,
+        }),
+      ),
+    ({ board, body }) => ({
+      active: (list) =>
+        list.map((item) =>
+          item.id === board.id ? { ...item, ...body } : item,
+        ),
+    }),
+  );
+}
+
+// TanStack Query optimistic recipe (FE-AD-009): patch the cached lists now,
+// put the snapshot back on failure, refetch once no other change is in flight.
+function useOptimisticBoardChange<TVariables>(
+  mutationFn: (variables: TVariables) => Promise<unknown>,
+  patch: (variables: TVariables) => BoardListsPatch,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation<unknown, ApiError, TVariables, BoardListsSnapshot>({
+    mutationKey: BOARD_CHANGE_KEY,
+    mutationFn,
+    onMutate: async (variables) => {
+      await queryClient.cancelQueries({ queryKey: boardKeys.all });
+      const snapshot: BoardListsSnapshot = {
+        active: queryClient.getQueryData(boardKeys.list(false)),
+        archived: queryClient.getQueryData(boardKeys.list(true)),
+      };
+      const { active, archived } = patch(variables);
+      if (active) {
+        queryClient.setQueryData<BoardList>(
+          boardKeys.list(false),
+          (list) => list && active(list),
+        );
+      }
+      if (archived) {
+        queryClient.setQueryData<BoardList>(
+          boardKeys.list(true),
+          (list) => list && archived(list),
+        );
+      }
+      return snapshot;
+    },
+    onError: (_error, _variables, snapshot) => {
+      if (!snapshot) return;
+      queryClient.setQueryData(boardKeys.list(false), snapshot.active);
+      queryClient.setQueryData(boardKeys.list(true), snapshot.archived);
+    },
+    // This mutation still counts as pending here, so 1 means it is the last one.
+    onSettled: () =>
+      queryClient.isMutating({ mutationKey: BOARD_CHANGE_KEY }) === 1
+        ? queryClient.invalidateQueries({ queryKey: boardKeys.all })
+        : undefined,
   });
 }
