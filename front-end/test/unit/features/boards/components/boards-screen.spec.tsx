@@ -1,5 +1,11 @@
 import type { Board } from '@my-trello/api-contract';
-import { cleanup, fireEvent, screen, within } from '@testing-library/react';
+import {
+  cleanup,
+  fireEvent,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { delay, http, HttpResponse } from 'msw';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -56,6 +62,30 @@ function renderScreen(route = '/boards') {
       },
     ],
   });
+}
+
+function problem(
+  status: number,
+  errors?: { field: string; message: string }[],
+) {
+  return HttpResponse.json(
+    { type: `/problems/${status}`, title: 'Error', status, detail: '', errors },
+    {
+      status,
+      headers: { 'Content-Type': 'application/problem+json' },
+    },
+  );
+}
+
+async function openEditDialog() {
+  await screen.findByRole('link', { name: /Roadmap/ });
+  fireEvent.click(screen.getByRole('button', { name: 'Board actions' }));
+  fireEvent.click(await screen.findByRole('menuitem', { name: 'Edit' }));
+  return screen.findByRole('dialog', { name: 'Edit board' });
+}
+
+function textbox(dialog: HTMLElement, name: string) {
+  return within(dialog).getByRole<HTMLInputElement>('textbox', { name });
 }
 
 function cardTitles() {
@@ -251,5 +281,93 @@ describe('BoardsScreen', () => {
       await screen.findByRole('heading', { name: 'Create your first board' }),
     ).toBeTruthy();
     expect(screen.queryByRole('link', { name: /Roadmap/ })).toBeNull();
+  });
+
+  it('opens the edit dialog filled with the board and keeps its description when only the name changes', async () => {
+    respondLists([roadmap], []);
+    let body: unknown;
+    server.use(
+      http.patch(`${boardsUrl}/${roadmap.id}`, async ({ request }) => {
+        body = await request.json();
+        return HttpResponse.json({ ...roadmap, title: 'Roadmap 2027' });
+      }),
+    );
+    renderScreen();
+
+    const dialog = await openEditDialog();
+    expect(textbox(dialog, 'Name').value).toBe('Roadmap');
+    expect(textbox(dialog, 'Description (optional)').value).toBe('Q4 plans');
+    expect(within(dialog).getByText('8 / 1000')).toBeTruthy();
+
+    fireEvent.change(textbox(dialog, 'Name'), {
+      target: { value: 'Roadmap 2027' },
+    });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Save' }));
+
+    await screen.findByText('Board saved');
+    expect(body).toEqual({ title: 'Roadmap 2027', description: 'Q4 plans' });
+  });
+
+  it('reopens the edit dialog with the submitted values after a 400', async () => {
+    respondLists([roadmap], []);
+    server.use(
+      http.patch(`${boardsUrl}/${roadmap.id}`, () =>
+        problem(400, [{ field: 'description', message: 'too long' }]),
+      ),
+    );
+    renderScreen();
+    const dialog = await openEditDialog();
+    fireEvent.change(textbox(dialog, 'Name'), {
+      target: { value: 'Roadmap 2027' },
+    });
+
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Save' }));
+
+    const reopened = await screen.findByRole('dialog', { name: 'Edit board' });
+    expect(
+      await within(reopened).findByText('Use up to 1000 characters'),
+    ).toBeTruthy();
+    expect(textbox(reopened, 'Name').value).toBe('Roadmap 2027');
+    expect(textbox(reopened, 'Description (optional)').value).toBe('Q4 plans');
+  });
+
+  it('disables the card menu while its change is in flight', async () => {
+    respondLists([roadmap], []);
+    server.use(
+      http.patch(`${boardsUrl}/${roadmap.id}`, () => delay('infinite')),
+    );
+    renderScreen();
+    const dialog = await openEditDialog();
+    fireEvent.change(textbox(dialog, 'Name'), {
+      target: { value: 'Roadmap 2027' },
+    });
+
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Save' }));
+
+    await screen.findByRole('link', { name: /Roadmap 2027/ });
+    await waitFor(() =>
+      expect(
+        screen
+          .getByRole('button', { name: 'Board actions' })
+          .hasAttribute('disabled'),
+      ).toBe(true),
+    );
+  });
+
+  it('shows Creating… on a disabled submit button while the create is in flight', async () => {
+    respondLists([roadmap], []);
+    server.use(http.post(boardsUrl, () => delay('infinite')));
+    renderScreen();
+    await screen.findByRole('link', { name: /Roadmap/ });
+    fireEvent.click(screen.getByRole('button', { name: 'Create board' }));
+    const dialog = await screen.findByRole('dialog', { name: 'New board' });
+    fireEvent.change(textbox(dialog, 'Name'), { target: { value: 'Travel' } });
+
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Create' }));
+
+    const button = await within(dialog).findByRole('button', {
+      name: 'Creating…',
+    });
+    expect(button.hasAttribute('disabled')).toBe(true);
   });
 });

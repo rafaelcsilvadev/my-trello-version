@@ -163,6 +163,14 @@ describe('BoardFormDialog', () => {
     expect(screen.getByText('7 / 1000')).toBeTruthy();
   });
 
+  it('counts the description as typed, spaces included', () => {
+    renderDialog();
+
+    type(descriptionInput(), '  ab  ');
+
+    expect(screen.getByText('6 / 1000')).toBeTruthy();
+  });
+
   it('submits the raw values once when they are valid', () => {
     const { onSubmit } = renderDialog();
     type(nameInput(), '  Viagem  ');
