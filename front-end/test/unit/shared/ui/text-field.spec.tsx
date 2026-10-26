@@ -103,6 +103,29 @@ describe('TextField', () => {
     expect(screen.getByLabelText('Nome').getAttribute('type')).toBe('text');
   });
 
+  it('shows the placeholder on the input when given', () => {
+    render(
+      <TextField
+        label="Nome"
+        value=""
+        onChange={() => {}}
+        placeholder="Ex.: Lançamento Q3"
+      />,
+    );
+
+    expect(screen.getByLabelText('Nome').getAttribute('placeholder')).toBe(
+      'Ex.: Lançamento Q3',
+    );
+  });
+
+  it('has no placeholder when omitted', () => {
+    render(<TextField label="Nome" value="" onChange={() => {}} />);
+
+    expect(screen.getByLabelText('Nome').hasAttribute('placeholder')).toBe(
+      false,
+    );
+  });
+
   it('attaches inputRef to the input element', () => {
     const inputRef = createRef<HTMLInputElement>();
     render(
