@@ -450,8 +450,8 @@ T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Unit: link `href` is `/b/{id}`; description hidden when `null`; "Criado em …" on active and "Arquivado em …" on archived; menu items Editar · Arquivar vs Restaurar · Excluir definitivamente call the right callback; menu disabled when `isPending`
-- [ ] Build gate passes; ≥ 7 new tests
+- [x] Unit: link `href` is `/b/{id}`; description hidden when `null`; "Criado em …" on active and "Arquivado em …" on archived; menu items Editar · Arquivar vs Restaurar · Excluir definitivamente call the right callback; menu disabled when `isPending`
+- [x] Build gate passes; ≥ 7 new tests
 
 **Tests**: unit
 **Gate**: build
