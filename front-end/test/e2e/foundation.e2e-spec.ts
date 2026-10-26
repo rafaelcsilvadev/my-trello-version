@@ -15,6 +15,8 @@ test('login with a stored token redirects to boards', async ({ page }) => {
   await page.addInitScript(() => {
     window.localStorage.setItem('my-trello.token', 'e2e-token');
   });
+  // The token is fake: the real API would answer 401 and end the session on /boards.
+  await page.route('**/api/v1/boards*', (route) => route.fulfill({ json: [] }));
 
   await page.goto('/login');
 
