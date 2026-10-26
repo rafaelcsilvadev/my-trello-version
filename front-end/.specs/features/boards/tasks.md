@@ -575,8 +575,8 @@ T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Unit: `?archived=true` → archived, anything else → active; `selectTab` writes/removes the param; create success closes, toasts "Quadro criado", calls `onCreated(id)`; `500` keeps the dialog and toasts with Tentar novamente that resends the same body; `400` sets field errors with no toast; `401` shows no toast
-- [ ] Build gate passes; ≥ 8 new tests
+- [x] Unit: `?archived=true` → archived, anything else → active; `selectTab` writes/removes the param; create success closes, toasts "Quadro criado", calls `onCreated(id)`; `500` keeps the dialog and toasts with Tentar novamente that resends the same body; `400` sets field errors with no toast; `401` shows no toast
+- [x] Build gate passes; ≥ 8 new tests
 
 **Tests**: unit
 **Gate**: build
