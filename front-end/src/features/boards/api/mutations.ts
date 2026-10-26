@@ -1,5 +1,9 @@
 import type { Board } from '@my-trello/api-contract';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  useMutation,
+  useMutationState,
+  useQueryClient,
+} from '@tanstack/react-query';
 
 import { useApi } from '@/shared/api/api-context';
 import { type ApiError, call } from '@/shared/api/api-error';
@@ -52,6 +56,63 @@ export function useUpdateBoard() {
         ),
     }),
   );
+}
+
+export type BoardVariables = { board: Board };
+
+export function useArchiveBoard() {
+  const api = useApi();
+
+  return useOptimisticBoardChange<BoardVariables>(
+    ({ board }) =>
+      call(
+        api.POST('/api/v1/boards/{id}/archive', {
+          params: { path: { id: board.id } },
+        }),
+      ),
+    ({ board }) => ({ active: without(board) }),
+  );
+}
+
+export function useRestoreBoard() {
+  const api = useApi();
+
+  return useOptimisticBoardChange<BoardVariables>(
+    ({ board }) =>
+      call(
+        api.POST('/api/v1/boards/{id}/unarchive', {
+          params: { path: { id: board.id } },
+        }),
+      ),
+    ({ board }) => ({ archived: without(board) }),
+  );
+}
+
+export function useDeleteBoard() {
+  const api = useApi();
+
+  return useOptimisticBoardChange<BoardVariables>(
+    ({ board }) =>
+      call(
+        api.DELETE('/api/v1/boards/{id}', {
+          params: { path: { id: board.id } },
+        }),
+      ),
+    ({ board }) => ({ archived: without(board) }),
+  );
+}
+
+// Ids of the boards with a change in flight, so their cards can block a second one (FBRD-42).
+export function usePendingBoardIds(): Set<string> {
+  const ids = useMutationState({
+    filters: { mutationKey: BOARD_CHANGE_KEY, status: 'pending' },
+    select: (mutation) => (mutation.state.variables as BoardVariables).board.id,
+  });
+  return new Set(ids);
+}
+
+function without(board: Board) {
+  return (list: BoardList) => list.filter((item) => item.id !== board.id);
 }
 
 // TanStack Query optimistic recipe (FE-AD-009): patch the cached lists now,

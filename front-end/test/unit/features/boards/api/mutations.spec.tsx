@@ -7,7 +7,11 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { boardKeys } from '@/features/boards/api/keys';
 import {
+  useArchiveBoard,
   useCreateBoard,
+  useDeleteBoard,
+  usePendingBoardIds,
+  useRestoreBoard,
   useUpdateBoard,
 } from '@/features/boards/api/mutations';
 import { ApiProvider } from '@/shared/api/api-context';
@@ -297,5 +301,243 @@ describe('useUpdateBoard', () => {
         queryClient.getQueryState(boardKeys.list(false))?.isInvalidated,
       ).toBe(true),
     );
+  });
+});
+
+const archivedRoadmap: Board = {
+  ...roadmap,
+  archivedAt: '2026-10-24T12:00:00.000Z',
+};
+const archivedBacklog: Board = {
+  ...backlog,
+  archivedAt: '2026-10-24T12:00:00.000Z',
+};
+
+describe('useArchiveBoard', () => {
+  it('removes the board from the active list before the archive response', async () => {
+    const response = gate();
+    const paths: string[] = [];
+    server.use(
+      http.post(`${boardsUrl}/:id/archive`, async ({ request }) => {
+        paths.push(new URL(request.url).pathname);
+        await response.opened;
+        return HttpResponse.json(archivedRoadmap);
+      }),
+    );
+    const { wrapper, queryClient } = setup();
+    queryClient.setQueryData(boardKeys.list(false), [roadmap, backlog]);
+    const { result } = renderHook(() => useArchiveBoard(), { wrapper });
+
+    act(() => result.current.mutate({ board: roadmap }));
+
+    await waitFor(() =>
+      expect(queryClient.getQueryData(boardKeys.list(false))).toEqual([
+        backlog,
+      ]),
+    );
+    await waitFor(() =>
+      expect(paths).toEqual([`/api/v1/boards/${roadmap.id}/archive`]),
+    );
+    expect(result.current.isPending).toBe(true);
+    response.release();
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+  });
+
+  it('restores the active list on a 500', async () => {
+    server.use(http.post(`${boardUrl(roadmap.id)}/archive`, serverError));
+    const { wrapper, queryClient } = setup();
+    queryClient.setQueryData(boardKeys.list(false), [roadmap, backlog]);
+    const { result } = renderHook(() => useArchiveBoard(), { wrapper });
+
+    act(() => result.current.mutate({ board: roadmap }));
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(result.current.error?.status).toBe(500);
+    expect(queryClient.getQueryData(boardKeys.list(false))).toEqual([
+      roadmap,
+      backlog,
+    ]);
+  });
+
+  it('keeps two concurrent archives removed until both settle', async () => {
+    const second = gate();
+    server.use(
+      http.post(`${boardUrl(roadmap.id)}/archive`, () =>
+        HttpResponse.json(archivedRoadmap),
+      ),
+      http.post(`${boardUrl(backlog.id)}/archive`, async () => {
+        await second.opened;
+        return HttpResponse.json(archivedBacklog);
+      }),
+    );
+    const { wrapper, queryClient } = setup();
+    queryClient.setQueryData(boardKeys.list(false), [roadmap, backlog]);
+    const { result } = renderHook(
+      () => ({ first: useArchiveBoard(), second: useArchiveBoard() }),
+      { wrapper },
+    );
+
+    act(() => result.current.second.mutate({ board: backlog }));
+    await act(() => result.current.first.mutateAsync({ board: roadmap }));
+
+    expect(queryClient.getQueryData(boardKeys.list(false))).toEqual([]);
+    expect(
+      queryClient.getQueryState(boardKeys.list(false))?.isInvalidated,
+    ).toBe(false);
+
+    second.release();
+    await waitFor(() =>
+      expect(
+        queryClient.getQueryState(boardKeys.list(false))?.isInvalidated,
+      ).toBe(true),
+    );
+  });
+});
+
+describe('useRestoreBoard', () => {
+  it('removes the board from the archived list before the unarchive response', async () => {
+    const response = gate();
+    const paths: string[] = [];
+    server.use(
+      http.post(`${boardsUrl}/:id/unarchive`, async ({ request }) => {
+        paths.push(new URL(request.url).pathname);
+        await response.opened;
+        return HttpResponse.json(roadmap);
+      }),
+    );
+    const { wrapper, queryClient } = setup();
+    queryClient.setQueryData(boardKeys.list(true), [
+      archivedRoadmap,
+      archivedBacklog,
+    ]);
+    const { result } = renderHook(() => useRestoreBoard(), { wrapper });
+
+    act(() => result.current.mutate({ board: archivedRoadmap }));
+
+    await waitFor(() =>
+      expect(queryClient.getQueryData(boardKeys.list(true))).toEqual([
+        archivedBacklog,
+      ]),
+    );
+    await waitFor(() =>
+      expect(paths).toEqual([`/api/v1/boards/${roadmap.id}/unarchive`]),
+    );
+    expect(result.current.isPending).toBe(true);
+    response.release();
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+  });
+
+  it('restores the archived list on a 500', async () => {
+    server.use(http.post(`${boardUrl(roadmap.id)}/unarchive`, serverError));
+    const { wrapper, queryClient } = setup();
+    queryClient.setQueryData(boardKeys.list(true), [
+      archivedRoadmap,
+      archivedBacklog,
+    ]);
+    const { result } = renderHook(() => useRestoreBoard(), { wrapper });
+
+    act(() => result.current.mutate({ board: archivedRoadmap }));
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(queryClient.getQueryData(boardKeys.list(true))).toEqual([
+      archivedRoadmap,
+      archivedBacklog,
+    ]);
+  });
+});
+
+describe('useDeleteBoard', () => {
+  it('removes the board from the archived list before the delete response', async () => {
+    const response = gate();
+    const ids: unknown[] = [];
+    server.use(
+      http.delete(`${boardsUrl}/:id`, async ({ params }) => {
+        ids.push(params.id);
+        await response.opened;
+        return new HttpResponse(null, { status: 204 });
+      }),
+    );
+    const { wrapper, queryClient } = setup();
+    queryClient.setQueryData(boardKeys.list(true), [
+      archivedRoadmap,
+      archivedBacklog,
+    ]);
+    const { result } = renderHook(() => useDeleteBoard(), { wrapper });
+
+    act(() => result.current.mutate({ board: archivedRoadmap }));
+
+    await waitFor(() =>
+      expect(queryClient.getQueryData(boardKeys.list(true))).toEqual([
+        archivedBacklog,
+      ]),
+    );
+    await waitFor(() => expect(ids).toEqual([roadmap.id]));
+    expect(result.current.isPending).toBe(true);
+    response.release();
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+  });
+
+  it('restores the archived list on a 500', async () => {
+    server.use(http.delete(boardUrl(roadmap.id), serverError));
+    const { wrapper, queryClient } = setup();
+    queryClient.setQueryData(boardKeys.list(true), [
+      archivedRoadmap,
+      archivedBacklog,
+    ]);
+    const { result } = renderHook(() => useDeleteBoard(), { wrapper });
+
+    act(() => result.current.mutate({ board: archivedRoadmap }));
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(queryClient.getQueryData(boardKeys.list(true))).toEqual([
+      archivedRoadmap,
+      archivedBacklog,
+    ]);
+  });
+});
+
+describe('usePendingBoardIds', () => {
+  it('is empty when no board change is in flight', () => {
+    const { wrapper } = setup();
+    const { result } = renderHook(() => usePendingBoardIds(), { wrapper });
+
+    expect(result.current).toEqual(new Set());
+  });
+
+  it('holds the board id only while its change is pending', async () => {
+    const response = gate();
+    server.use(
+      http.post(`${boardUrl(roadmap.id)}/archive`, async () => {
+        await response.opened;
+        return HttpResponse.json(archivedRoadmap);
+      }),
+    );
+    const { wrapper } = setup();
+    const { result } = renderHook(
+      () => ({ archive: useArchiveBoard(), pending: usePendingBoardIds() }),
+      { wrapper },
+    );
+
+    act(() => result.current.archive.mutate({ board: roadmap }));
+
+    await waitFor(() =>
+      expect(result.current.pending).toEqual(new Set([roadmap.id])),
+    );
+    response.release();
+    await waitFor(() => expect(result.current.pending).toEqual(new Set()));
+  });
+
+  it('drops the board id when its change fails', async () => {
+    server.use(http.post(`${boardUrl(roadmap.id)}/archive`, serverError));
+    const { wrapper } = setup();
+    const { result } = renderHook(
+      () => ({ archive: useArchiveBoard(), pending: usePendingBoardIds() }),
+      { wrapper },
+    );
+
+    act(() => result.current.archive.mutate({ board: roadmap }));
+
+    await waitFor(() => expect(result.current.archive.isError).toBe(true));
+    expect(result.current.pending).toEqual(new Set());
   });
 });
