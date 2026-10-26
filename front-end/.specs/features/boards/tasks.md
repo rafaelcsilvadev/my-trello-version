@@ -525,8 +525,8 @@ T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Unit: create title, placeholders and "0 / 1000"; edit prefilled with matching counter; each validation error shows and blocks `onSubmit`; counter follows typing (incl. 1001); valid submit passes raw values; pending shows "Criando…" disabled; server errors render on fields; Cancelar and Esc call `onClose`
-- [ ] Build gate passes; ≥ 10 new tests
+- [x] Unit: create title, placeholders and "0 / 1000"; edit prefilled with matching counter; each validation error shows and blocks `onSubmit`; counter follows typing (incl. 1001); valid submit passes raw values; pending shows "Criando…" disabled; server errors render on fields; Cancelar and Esc call `onClose`
+- [x] Build gate passes; ≥ 10 new tests
 
 **Tests**: unit
 **Gate**: build
