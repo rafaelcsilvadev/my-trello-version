@@ -150,8 +150,8 @@ T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Unit: label is associated; typing calls `onChange`; counter renders when given; error sets `aria-invalid` and shows the message
-- [ ] Build gate passes; ≥ 4 new tests
+- [x] Unit: label is associated; typing calls `onChange`; counter renders when given; error sets `aria-invalid` and shows the message
+- [x] Build gate passes; ≥ 4 new tests
 
 **Tests**: unit
 **Gate**: build
