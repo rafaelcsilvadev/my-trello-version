@@ -675,8 +675,8 @@ T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Full gate passes locally against `docker compose`; the `front-end (e2e)` CI job passes
-- [ ] The test makes 1 call to `/api/v1/auth/*`
+- [x] Full gate passes locally against `docker compose`; the `front-end (e2e)` CI job passes
+- [x] The test makes 1 call to `/api/v1/auth/*`
 
 **Tests**: e2e
 **Gate**: full
