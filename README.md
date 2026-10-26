@@ -29,7 +29,7 @@ The project has two goals:
 
 MVP = features 0 to 4. Full roadmap in [`back-end/.specs/ROADMAP.md`](back-end/.specs/ROADMAP.md).
 
-Web front-end: `foundation` (app shell, routes and auth guard, typed API client, theme, PT-BR/EN i18n, toasts, Docker service, CI) and `auth` (sign-up, log-in, rate-limit notice, log-out) are done. The board screens come next, one feature at a time. Roadmap in [`front-end/.specs/ROADMAP.md`](front-end/.specs/ROADMAP.md).
+Web front-end: `foundation` (app shell, routes and auth guard, typed API client, theme, PT-BR/EN i18n, toasts, Docker service, CI) `auth` (sign-up, log-in, rate-limit notice, log-out) and `boards` (active/archived tabs, create, edit, archive, restore, delete) are done. The board view comes next, one feature at a time. Roadmap in [`front-end/.specs/ROADMAP.md`](front-end/.specs/ROADMAP.md).
 
 ---
 
@@ -158,6 +158,13 @@ In the web app:
 1. Open http://localhost:5173. Without a session you land on `/login`.
 2. Log in with the demo user above, or follow **Create account** to sign up with your own e-mail (name, e-mail, password of 8 to 72 characters). Both take you to `/boards`.
 3. Open **Settings** (gear icon in the top bar) to see the signed-in account and **Sign out**.
+
+Managing boards on `/boards`:
+
+- **Create board** opens a form with a name (up to 100 characters) and an optional description (up to 1000). Saving takes you to the new board at `/b/{id}`; the board view itself is still a placeholder.
+- Each board card has a **Board actions** menu. On the **Active** tab it offers **Edit** (same form, pre-filled) and **Archive**.
+- Archived boards move to the **Archived** tab, where the menu offers **Restore** (back to **Active**) and **Delete permanently**.
+- **Delete permanently** removes the board with all its columns, tasks and labels. It cannot be undone, so the button only unlocks after you type the board's name.
 
 A page opened without a session sends you to `/login` and back to it after logging in. The API limits log-in attempts per IP; when the limit is hit, the form asks you to wait a minute.
 

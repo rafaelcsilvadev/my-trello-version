@@ -88,4 +88,4 @@ Decisions for the web app. They must conform to the global decisions in the root
 
 ## Handoff
 
-Auth: done. All 20 tasks merged, one PR each (T1–T20); README documents signing up and logging in. Validation: PASS (`features/auth/validation.md`, 27/27 FAUTH requirements verified, 33/33 mutants killed, 2 equivalent). Foundation: done and validated (`features/foundation/validation.md`). Boards: spec and design approved (42 FBRD requirements, FE-AD-009); tasks approved (T1–T25). Next: Execute T1, one PR per task.
+Auth: done. All 20 tasks merged, one PR each (T1–T20); README documents signing up and logging in. Validation: PASS (`features/auth/validation.md`, 27/27 FAUTH requirements verified, 33/33 mutants killed, 2 equivalent). Foundation: done and validated (`features/foundation/validation.md`). Boards: done. All 25 tasks merged, one PR each (T1–T25); README documents managing boards. Next: validate `boards` (independent Verifier, discrimination sensor), then specify `board`.
