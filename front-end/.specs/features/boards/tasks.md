@@ -175,8 +175,8 @@ T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Unit: closed renders nothing; open renders `role="dialog"` named by the title; `role="alertdialog"` when asked; Esc calls `onOpenChange(false)`; focus moves into the dialog
-- [ ] Build gate passes; ≥ 5 new tests
+- [x] Unit: closed renders nothing; open renders `role="dialog"` named by the title; `role="alertdialog"` when asked; Esc calls `onOpenChange(false)`; focus moves into the dialog
+- [x] Build gate passes; ≥ 5 new tests
 
 **Tests**: unit
 **Gate**: build
