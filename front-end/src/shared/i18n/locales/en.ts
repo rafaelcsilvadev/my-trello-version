@@ -68,6 +68,13 @@ export const en = {
     retry: 'Try again',
   },
   boards: {
+    create: 'Create board',
+    empty: {
+      activeTitle: 'Create your first board',
+      activeDetail:
+        'A board holds the columns and tasks for a project or an area of your life.',
+      archived: 'No archived boards',
+    },
     card: {
       createdOn: 'Created {{date}}',
       archivedOn: 'Archived {{date}}',
