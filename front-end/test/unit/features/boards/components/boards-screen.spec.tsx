@@ -77,9 +77,17 @@ function problem(
   );
 }
 
+// The menu sits beside the card link, so it is found through the card's list item.
+function cardMenu(title: RegExp) {
+  const item = screen
+    .getAllByRole('listitem')
+    .find((li) => within(li).queryByRole('link', { name: title }));
+  return within(item!).getByRole('button', { name: 'Board actions' });
+}
+
 async function openEditDialog() {
   await screen.findByRole('link', { name: /Roadmap/ });
-  fireEvent.click(screen.getByRole('button', { name: 'Board actions' }));
+  fireEvent.click(cardMenu(/Roadmap/));
   fireEvent.click(await screen.findByRole('menuitem', { name: 'Edit' }));
   return screen.findByRole('dialog', { name: 'Edit board' });
 }
@@ -331,8 +339,8 @@ describe('BoardsScreen', () => {
     expect(textbox(reopened, 'Description (optional)').value).toBe('Q4 plans');
   });
 
-  it('disables the card menu while its change is in flight', async () => {
-    respondLists([roadmap], []);
+  it('disables only the menu of the card whose change is in flight', async () => {
+    respondLists([roadmap, travel], []);
     server.use(
       http.patch(`${boardsUrl}/${roadmap.id}`, () => delay('infinite')),
     );
@@ -346,12 +354,9 @@ describe('BoardsScreen', () => {
 
     await screen.findByRole('link', { name: /Roadmap 2027/ });
     await waitFor(() =>
-      expect(
-        screen
-          .getByRole('button', { name: 'Board actions' })
-          .hasAttribute('disabled'),
-      ).toBe(true),
+      expect(cardMenu(/Roadmap 2027/).hasAttribute('disabled')).toBe(true),
     );
+    expect(cardMenu(/Travel/).hasAttribute('disabled')).toBe(false);
   });
 
   it('shows Creating… on a disabled submit button while the create is in flight', async () => {
