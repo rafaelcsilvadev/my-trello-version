@@ -125,8 +125,8 @@ T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Unit: the input shows the placeholder when given and none when omitted
-- [ ] Build gate passes; ≥ 1 new test
+- [x] Unit: the input shows the placeholder when given and none when omitted
+- [x] Build gate passes; ≥ 1 new test
 
 **Tests**: unit
 **Gate**: build
