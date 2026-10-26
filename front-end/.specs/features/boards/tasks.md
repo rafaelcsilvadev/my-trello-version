@@ -400,8 +400,8 @@ T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Unit (MSW, delayed handler): cache shows the new title before the response; `500` restores the previous list; success invalidates `boards`
-- [ ] Build gate passes; ≥ 4 new tests
+- [x] Unit (MSW, delayed handler): cache shows the new title before the response; `500` restores the previous list; success invalidates `boards`
+- [x] Build gate passes; ≥ 4 new tests
 
 **Tests**: unit
 **Gate**: build
