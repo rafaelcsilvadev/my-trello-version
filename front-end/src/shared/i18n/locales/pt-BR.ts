@@ -68,6 +68,7 @@ export const ptBR = {
     loadTitle: 'Não foi possível carregar',
     loadDetail: 'Verifique sua conexão e tente de novo.',
     retry: 'Tentar novamente',
+    saveFail: 'Não foi possível salvar. Tente novamente.',
   },
   boards: {
     create: 'Criar quadro',
@@ -114,6 +115,9 @@ export const ptBR = {
       nameRequired: 'Dê um nome ao quadro',
       nameTooLong: 'Use até 100 caracteres',
       descriptionTooLong: 'Use até 1000 caracteres',
+    },
+    toast: {
+      created: 'Quadro criado',
     },
   },
   toast: {

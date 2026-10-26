@@ -66,6 +66,7 @@ export const en = {
     loadTitle: 'Couldn’t load',
     loadDetail: 'Check your connection and try again.',
     retry: 'Try again',
+    saveFail: 'Couldn’t save. Try again.',
   },
   boards: {
     create: 'Create board',
@@ -112,6 +113,9 @@ export const en = {
       nameRequired: 'Give the board a name',
       nameTooLong: 'Use up to 100 characters',
       descriptionTooLong: 'Use up to 1000 characters',
+    },
+    toast: {
+      created: 'Board created',
     },
   },
   toast: {
