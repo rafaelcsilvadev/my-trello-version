@@ -625,8 +625,8 @@ T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Unit (`renderApp` + MSW): heading and tabs; skeleton while loading; grid, empty and error states per tab; Criar quadro only on Ativos; archiving the last active board shows the empty state
-- [ ] Build gate passes; ≥ 7 new tests
+- [x] Unit (`renderApp` + MSW): heading and tabs; skeleton while loading; grid, empty and error states per tab; Criar quadro only on Ativos; archiving the last active board shows the empty state
+- [x] Build gate passes; ≥ 7 new tests
 
 **Tests**: unit
 **Gate**: build

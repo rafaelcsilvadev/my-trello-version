@@ -74,6 +74,10 @@ export const ptBR = {
   },
   boards: {
     create: 'Criar quadro',
+    tabs: {
+      active: 'Ativos',
+      archived: 'Arquivados',
+    },
     empty: {
       activeTitle: 'Crie seu primeiro quadro',
       activeDetail:
