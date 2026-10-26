@@ -225,8 +225,8 @@ T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Unit: `tablist` named by `label`; `selected` tab has `aria-selected="true"`; click and arrow keys call `onChange` with the option id
-- [ ] Build gate passes; ≥ 3 new tests
+- [x] Unit: `tablist` named by `label`; `selected` tab has `aria-selected="true"`; click and arrow keys call `onChange` with the option id
+- [x] Build gate passes; ≥ 3 new tests
 
 **Tests**: unit
 **Gate**: build
