@@ -250,8 +250,8 @@ T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Unit (EN and PT-BR): shows title, detail and button texts; button calls `onRetry`
-- [ ] Build gate passes; ≥ 2 new tests
+- [x] Unit (EN and PT-BR): shows title, detail and button texts; button calls `onRetry`
+- [x] Build gate passes; ≥ 2 new tests
 
 **Tests**: unit
 **Gate**: build
