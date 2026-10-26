@@ -45,12 +45,12 @@ Decisions for the web app. They must conform to the global decisions in the root
 - **Status**: active
 
 ### FE-AD-006
-- **Decision**: The app is layered `app` → `pages` → `features/<feature>` → `shared`. Each feature is a modular MVVM module: `model/` (framework-free TS on top of the contract types, with no parallel domain model; reshaping happens through `select` mappers), `api/` (key factory, query options, mutation hooks; the only code that calls the API, so it plays the repository role), `view-models/` (`use-<screen>-view-model.ts` returning `{ state, actions }`, only for complex screens), `components/` (Views), and `index.ts` as the only public entry. A feature never imports another feature; pages compose features; `shared` imports nothing above it. oxlint `no-restricted-imports` enforces the rule. Server data lives only in the TanStack Query cache, shareable/reload-safe state in the URL, and the only global client stores are session and preferences. Optimistic updates are limited to drag and drop and toggles. Interactive primitives in `shared/ui` wrap React Aria Components; forms are controlled inputs with no form library.
+- **Decision**: The app is layered `app` → `pages` → `features/<feature>` → `shared`. Each feature is a modular MVVM module: `model/` (framework-free TS on top of the contract types, with no parallel domain model; reshaping happens through `select` mappers), `api/` (key factory, query options, mutation hooks; the only code that calls the API, so it plays the repository role), `view-models/` (`use-<screen>-view-model.ts` returning `{ state, actions }`, only for complex screens), `components/` (Views), and `index.ts` as the only public entry. A feature never imports another feature; pages compose features; `shared` imports nothing above it. oxlint `no-restricted-imports` enforces the rule. Server data lives only in the TanStack Query cache, shareable/reload-safe state in the URL, and the only global client stores are session and preferences. Optimistic updates are limited to drag and drop and toggles (superseded by FE-AD-009). Interactive primitives in `shared/ui` wrap React Aria Components; forms are controlled inputs with no form library.
 - **Reason**: Each ROADMAP feature stays self-contained and reviewable; view-models keep Views testable with plain props, while skipping a repository/mapper layer avoids duplicating the contract types (the cost that made the back-end supersede BE-AD-001/002 with BE-AD-005); one source of truth per kind of state avoids stale copies of server data; React Aria provides the keyboard and focus behavior the prototype requires (drag with keyboard, dialogs, menus) without building it by hand; the forms have one or two fields, so a form library would add more than it saves.
 - **Trade-off**: The UI depends on API shapes directly, so a contract change can reach components (caught by `typecheck`); deciding when a screen is "complex enough" for a view-model is a judgment call; cross-feature screens need composition at the page or a query moved to `shared`; lint overrides must be kept in sync with the folder layout; React Aria adds a dependency and its own styling API (render props / data attributes).
 - **Scope**: front-end
 - **Date**: 2026-10-22
-- **Status**: active
+- **Status**: active; its optimistic-update rule is superseded by FE-AD-009
 
 ### FE-AD-007
 - **Decision**: Tests live outside `src/`, in `front-end/test/`, following the back-end layout: `test/unit/` mirrors `src/` (`src/app/app.tsx` → `test/unit/app/app.spec.tsx`), `test/e2e/` holds Playwright specs (`*.e2e-spec.ts`), and `test/support/` holds shared helpers (Vitest setup, `renderApp`, MSW server and handlers). Unit files are `*.spec.ts(x)` and import production code through the `@/` alias.
@@ -68,6 +68,14 @@ Decisions for the web app. They must conform to the global decisions in the root
 - **Date**: 2026-10-23
 - **Status**: active
 
+### FE-AD-009
+- **Decision**: Every change to an existing entity (edit, archive, restore, delete, move, toggle) is optimistic: the mutation hook in `api/` cancels the related queries, snapshots them and patches the TanStack Query cache in `onMutate`, writes the snapshot back in `onError`, and invalidates on settle only when no other mutation with the same key is pending. Create waits for the server (the button shows the pending label) because the screen needs the server id. Failure feedback follows doc §10: network/`5xx` → "Não foi possível salvar" with Tentar novamente; `409` → conflict toast with Recarregar; `404` → plain save-fail toast and refetch. Supersedes the optimistic-update rule of FE-AD-006.
+- **Reason**: Doc §10 makes every change optimistic; limiting it to drag and drop and toggles made the approved boards spec (FBRD-25/27/29/34/37) break FE-AD-006, and features 3–5 hit the same rule. Patching the cache keeps one source of truth for server data, as FE-AD-006 requires.
+- **Trade-off**: Each mutation hook carries snapshot/rollback code and a test for the failure path; the screen can show a state the server later rejects for up to one request round-trip.
+- **Scope**: front-end
+- **Date**: 2026-10-26
+- **Status**: active
+
 ## Handoff
 
-Auth: done. All 20 tasks merged, one PR each (T1–T20); README documents signing up and logging in. Validation: PASS (`features/auth/validation.md`, 27/27 FAUTH requirements verified, 33/33 mutants killed, 2 equivalent). Foundation: done and validated (`features/foundation/validation.md`). Next: feature 2 `boards` (active/archived tabs, create, edit, archive, restore, delete), starting at Specify.
+Auth: done. All 20 tasks merged, one PR each (T1–T20); README documents signing up and logging in. Validation: PASS (`features/auth/validation.md`, 27/27 FAUTH requirements verified, 33/33 mutants killed, 2 equivalent). Foundation: done and validated (`features/foundation/validation.md`). Boards: spec and design approved (42 FBRD requirements, FE-AD-009); tasks approved (T1–T25). Next: Execute T1, one PR per task.
