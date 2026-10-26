@@ -70,6 +70,23 @@ export const en = {
   toast: {
     close: 'Close',
   },
+  dates: {
+    short: '{{month}} {{day}}, {{year}}',
+    months: {
+      jan: 'Jan',
+      feb: 'Feb',
+      mar: 'Mar',
+      apr: 'Apr',
+      may: 'May',
+      jun: 'Jun',
+      jul: 'Jul',
+      aug: 'Aug',
+      sep: 'Sep',
+      oct: 'Oct',
+      nov: 'Nov',
+      dec: 'Dec',
+    },
+  },
 } as const;
 
 type DeepStringRecord<T> = {
