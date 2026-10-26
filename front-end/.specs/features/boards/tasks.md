@@ -650,8 +650,8 @@ T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Unit (`renderApp`): `/boards` renders "My boards"; creating a board lands on `/b/{id}`; clicking a card lands on `/b/{id}`
-- [ ] Build gate passes; ≥ 3 new tests
+- [x] Unit (`renderApp`): `/boards` renders "My boards"; creating a board lands on `/b/{id}`; clicking a card lands on `/b/{id}`
+- [x] Build gate passes; ≥ 3 new tests
 
 **Tests**: unit
 **Gate**: build
