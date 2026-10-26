@@ -29,7 +29,7 @@ O projeto tem dois objetivos:
 
 MVP = features 0 a 4. Roadmap completo em [`back-end/.specs/ROADMAP.md`](back-end/.specs/ROADMAP.md).
 
-Front-end (web): `foundation` (estrutura do app, rotas e guard de autenticação, cliente tipado da API, tema, i18n PT-BR/EN, toasts, serviço Docker, CI) e `auth` (cadastro, login, aviso de rate limit, logout) concluídas. As telas de quadros vêm a seguir, uma feature por vez. Roadmap em [`front-end/.specs/ROADMAP.md`](front-end/.specs/ROADMAP.md).
+Front-end (web): `foundation` (estrutura do app, rotas e guard de autenticação, cliente tipado da API, tema, i18n PT-BR/EN, toasts, serviço Docker, CI) `auth` (cadastro, login, aviso de rate limit, logout) e `boards` (abas de ativos/arquivados, criar, editar, arquivar, restaurar, excluir) concluídas. A visão do quadro vem a seguir, uma feature por vez. Roadmap em [`front-end/.specs/ROADMAP.md`](front-end/.specs/ROADMAP.md).
 
 ---
 
@@ -158,6 +158,13 @@ No app web:
 1. Abra http://localhost:5173. Sem sessão, você cai em `/login`.
 2. Entre com o usuário demo acima, ou siga **Criar conta** para se cadastrar com seu próprio e-mail (nome, e-mail, senha de 8 a 72 caracteres). Os dois levam a `/boards`.
 3. Abra **Configurações** (ícone de engrenagem na barra superior) para ver a conta conectada e **Sair**.
+
+Gerenciando quadros em `/boards`:
+
+- **Criar quadro** abre um formulário com nome (até 100 caracteres) e descrição opcional (até 1000). Ao salvar, você vai para o novo quadro em `/b/{id}`; a visão do quadro ainda é um placeholder.
+- Cada cartão de quadro tem o menu **Ações do quadro**. Na aba **Ativos**, ele oferece **Editar** (o mesmo formulário, preenchido) e **Arquivar**.
+- Quadros arquivados vão para a aba **Arquivados**, onde o menu oferece **Restaurar** (volta para **Ativos**) e **Excluir definitivamente**.
+- **Excluir definitivamente** apaga o quadro com todas as colunas, tarefas e etiquetas. Não dá para desfazer, então o botão só libera depois que você digita o nome do quadro.
 
 Uma página aberta sem sessão manda para `/login` e volta para ela depois do login. A API limita tentativas de login por IP; quando o limite estoura, o formulário pede para esperar um minuto.
 

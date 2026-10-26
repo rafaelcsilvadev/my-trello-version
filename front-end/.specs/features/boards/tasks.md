@@ -700,8 +700,8 @@ T23 → T24 → T25
 
 **Done when**:
 
-- [ ] README explains creating, editing, archiving, restoring and deleting boards
-- [ ] Build gate passes; test count unchanged
+- [x] README explains creating, editing, archiving, restoring and deleting boards
+- [x] Build gate passes; test count unchanged
 
 **Tests**: none
 **Gate**: build
