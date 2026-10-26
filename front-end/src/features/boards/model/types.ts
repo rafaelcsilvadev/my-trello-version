@@ -12,6 +12,8 @@ export type BoardFieldError =
   'nameRequired' | 'nameTooLong' | 'descriptionTooLong';
 export type BoardFieldErrors = Partial<Record<BoardField, BoardFieldError>>;
 
+export type BoardsTab = 'active' | 'archived';
+
 // How the screen reacts to a failed create, edit, archive, restore or delete.
 export type SaveFailureKind =
   'retry' | 'conflict' | 'notFound' | 'invalid' | 'sessionExpired';
