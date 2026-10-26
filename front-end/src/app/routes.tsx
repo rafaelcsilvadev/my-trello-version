@@ -1,5 +1,6 @@
 import { redirect, type RouteObject } from 'react-router';
 
+import { BoardsPage } from '@/pages/boards-page';
 import { LoginPage } from '@/pages/login-page';
 import { NotFoundPage } from '@/pages/not-found-page';
 import { PlaceholderPage } from '@/pages/placeholder-page';
@@ -29,7 +30,7 @@ export function createRoutes({
       loader: requireSession(session),
       element: <ProtectedLayout />,
       children: [
-        { path: 'boards', element: <PlaceholderPage titleKey="boards" /> },
+        { path: 'boards', element: <BoardsPage /> },
         { path: 'b/:boardId', element: <PlaceholderPage titleKey="board" /> },
         {
           path: 'b/:boardId/t/:cardId',
