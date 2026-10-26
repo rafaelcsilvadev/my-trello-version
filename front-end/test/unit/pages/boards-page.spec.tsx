@@ -1,5 +1,5 @@
 import type { Board } from '@my-trello/api-contract';
-import { cleanup, fireEvent, screen } from '@testing-library/react';
+import { cleanup, fireEvent, screen, within } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { afterEach, describe, expect, it } from 'vitest';
 
@@ -51,6 +51,19 @@ describe('BoardsPage', () => {
 
     await heading('My boards');
     expect(await screen.findByRole('link', { name: /Roadmap/ })).toBeTruthy();
+  });
+
+  it('renders the boards screen inside the main landmark', async () => {
+    respondBoards([roadmap]);
+    renderApp({ route: '/boards', token: 'token' });
+
+    await heading('My boards');
+    expect(
+      within(screen.getByRole('main')).getByRole('heading', {
+        level: 1,
+        name: 'My boards',
+      }),
+    ).toBeTruthy();
   });
 
   it('lands on /b/{id} after creating a board', async () => {
