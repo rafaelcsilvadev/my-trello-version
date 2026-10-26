@@ -300,8 +300,8 @@ T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Unit: empty and spaces-only name → `nameRequired`; 100 chars ok, 101 → `nameTooLong` (after trim); description 1000 ok, 1001 → `descriptionTooLong`; create body omits empty description; update body sends `null`; delete match is exact (case and spaces)
-- [ ] Build gate passes; ≥ 10 new tests
+- [x] Unit: empty and spaces-only name → `nameRequired`; 100 chars ok, 101 → `nameTooLong` (after trim); description 1000 ok, 1001 → `descriptionTooLong`; create body omits empty description; update body sends `null`; delete match is exact (case and spaces)
+- [x] Build gate passes; ≥ 10 new tests
 
 **Tests**: unit
 **Gate**: build
