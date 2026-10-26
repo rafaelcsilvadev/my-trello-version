@@ -207,48 +207,48 @@ After logging in, the user lands on `/boards`, which is still the foundation pla
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| FBRD-01 | P1: Browse boards | - | Pending |
-| FBRD-02 | P1: Browse boards | - | Pending |
-| FBRD-03 | P1: Browse boards | - | Pending |
-| FBRD-04 | P1: Browse boards | - | Pending |
-| FBRD-05 | P1: Browse boards | - | Pending |
-| FBRD-06 | P1: Browse boards | - | Pending |
-| FBRD-07 | P1: Browse boards | - | Pending |
-| FBRD-08 | P1: Browse boards | - | Pending |
-| FBRD-09 | P1: Browse boards | - | Pending |
-| FBRD-10 | P1: Browse boards | - | Pending |
-| FBRD-11 | P1: Create a board | - | Pending |
-| FBRD-12 | P1: Create a board | - | Pending |
-| FBRD-13 | P1: Create a board | - | Pending |
-| FBRD-14 | P1: Create a board | - | Pending |
-| FBRD-15 | P1: Create a board | - | Pending |
-| FBRD-16 | P1: Create a board | - | Pending |
-| FBRD-17 | P1: Create a board | - | Pending |
-| FBRD-18 | P1: Create a board | - | Pending |
-| FBRD-19 | P1: Create a board | - | Pending |
-| FBRD-20 | P1: Create a board | - | Pending |
-| FBRD-21 | P1: Create a board | - | Pending |
-| FBRD-22 | P1: Edit a board | - | Pending |
-| FBRD-23 | P1: Edit a board | - | Pending |
-| FBRD-24 | P1: Edit a board | - | Pending |
-| FBRD-25 | P1: Edit a board | - | Pending |
-| FBRD-26 | P1: Edit a board | - | Pending |
-| FBRD-27 | P1: Archive and restore a board | - | Pending |
-| FBRD-28 | P1: Archive and restore a board | - | Pending |
-| FBRD-29 | P1: Archive and restore a board | - | Pending |
-| FBRD-30 | P1: Archive and restore a board | - | Pending |
-| FBRD-31 | P1: Delete an archived board | - | Pending |
-| FBRD-32 | P1: Delete an archived board | - | Pending |
-| FBRD-33 | P1: Delete an archived board | - | Pending |
-| FBRD-34 | P1: Delete an archived board | - | Pending |
-| FBRD-35 | P1: Delete an archived board | - | Pending |
-| FBRD-36 | P1: Delete an archived board | - | Pending |
-| FBRD-37 | P1: Save failures | - | Pending |
-| FBRD-38 | P1: Save failures | - | Pending |
-| FBRD-39 | P1: Save failures | - | Pending |
-| FBRD-40 | P1: Save failures | - | Pending |
-| FBRD-41 | P1: Save failures | - | Pending |
-| FBRD-42 | P1: Save failures | - | Pending |
+| FBRD-01 | P1: Browse boards | - | Verified |
+| FBRD-02 | P1: Browse boards | - | Verified |
+| FBRD-03 | P1: Browse boards | - | Verified |
+| FBRD-04 | P1: Browse boards | - | Verified |
+| FBRD-05 | P1: Browse boards | - | Verified |
+| FBRD-06 | P1: Browse boards | - | Verified |
+| FBRD-07 | P1: Browse boards | - | Verified |
+| FBRD-08 | P1: Browse boards | - | Verified |
+| FBRD-09 | P1: Browse boards | - | Verified |
+| FBRD-10 | P1: Browse boards | - | Verified |
+| FBRD-11 | P1: Create a board | - | Verified |
+| FBRD-12 | P1: Create a board | - | Verified |
+| FBRD-13 | P1: Create a board | - | Verified |
+| FBRD-14 | P1: Create a board | - | Verified |
+| FBRD-15 | P1: Create a board | - | Verified |
+| FBRD-16 | P1: Create a board | - | Verified |
+| FBRD-17 | P1: Create a board | - | Verified |
+| FBRD-18 | P1: Create a board | - | Verified |
+| FBRD-19 | P1: Create a board | - | Verified |
+| FBRD-20 | P1: Create a board | - | Verified |
+| FBRD-21 | P1: Create a board | - | Verified |
+| FBRD-22 | P1: Edit a board | - | Verified |
+| FBRD-23 | P1: Edit a board | - | Verified |
+| FBRD-24 | P1: Edit a board | - | Verified |
+| FBRD-25 | P1: Edit a board | - | Verified |
+| FBRD-26 | P1: Edit a board | - | Verified |
+| FBRD-27 | P1: Archive and restore a board | - | Verified |
+| FBRD-28 | P1: Archive and restore a board | - | Verified |
+| FBRD-29 | P1: Archive and restore a board | - | Verified |
+| FBRD-30 | P1: Archive and restore a board | - | Verified |
+| FBRD-31 | P1: Delete an archived board | - | Verified |
+| FBRD-32 | P1: Delete an archived board | - | Verified |
+| FBRD-33 | P1: Delete an archived board | - | Verified |
+| FBRD-34 | P1: Delete an archived board | - | Verified |
+| FBRD-35 | P1: Delete an archived board | - | Verified |
+| FBRD-36 | P1: Delete an archived board | - | Verified |
+| FBRD-37 | P1: Save failures | - | Verified |
+| FBRD-38 | P1: Save failures | - | Verified |
+| FBRD-39 | P1: Save failures | - | Verified |
+| FBRD-40 | P1: Save failures | - | Verified |
+| FBRD-41 | P1: Save failures | - | Verified |
+| FBRD-42 | P1: Save failures | - | Verified |
 
 **Coverage:** 42 total, 0 mapped to tasks, 42 unmapped (mapped at Tasks)
 

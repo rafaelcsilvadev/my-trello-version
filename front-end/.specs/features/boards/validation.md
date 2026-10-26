@@ -2,18 +2,73 @@
 
 **Date**: 2026-10-26
 **Spec**: `front-end/.specs/features/boards/spec.md`
-**Diff range**: `7b72e08..522bf47` (iteration 2). Iteration 1 covered `7b72e08..d165846` (51 non-merge commits, first feature commit `fdc0e30`; 55 files, +4942/-57). Scope: `front-end/` plus `README.md` / `README.PT.md`. No lockfile, `package.json` or CI file changed.
-**Verifier**: independent sub-agent (author ≠ verifier), iteration 2 of 3
+**Diff range**: `7b72e08..57943e8` (iteration 3). Iteration 2 covered `7b72e08..522bf47`; iteration 1 covered `7b72e08..d165846` (51 non-merge commits, first feature commit `fdc0e30`; 55 files, +4942/-57). Scope: `front-end/` plus `README.md` / `README.PT.md`. No lockfile, `package.json` or CI file changed.
+**Verifier**: independent sub-agent (author ≠ verifier), iteration 3 of 3
 
-## Validation: Boards - FAIL ❌ (iteration 2)
+## Validation: Boards - PASS ✅ (iteration 3)
+
+**Result (iteration 3)**: PASS ✅. Fix 4 (`9224d2a`, PR #180, test-only) kills N5: the pending test now renders two boards and asserts that only the edited card's menu is disabled. The gate is green: 519 unit/component tests (the fix changed one test, added none), 8 e2e in CI on `57943e8`. The sensor re-ran N5 and M40 and 4 new mutations on per-card pending scope; all 6 are killed. Cumulative sensor: 68/68 non-equivalent mutants killed, 3 equivalent. All 42 FBRD requirements are covered, spec-anchored and discriminating; `spec.md` traceability is set to Verified.
+
+See [Iteration 3](#iteration-3) for the evidence. Iterations 1 and 2 are kept below as history.
+
+### Iteration 2 result (history)
 
 **Result (iteration 2)**: FAIL ❌, one Minor gap left. The three test-only fix commits (`27ca400`, `4208d8a`, `96e2485`, PR #178) kill all 6 iteration-1 survivors (M40-M43, M48, M50). The gate is green: 519 unit/component tests, 8 e2e in CI on `522bf47`. Of 6 new mutations around the same wiring, 4 are killed, 1 is equivalent and 1 survives: N5 (`pendingIds.size > 0`) disables the menu of every card while any change is in flight, and no test notices, because the new pending test renders a single card. The spec asks for "that card's" menu and "one change per card at a time" (FBRD-42). Fix 4 below adds a second card to that test. Behavior is correct; the gap is a missing assertion.
 
-See [Iteration 2](#iteration-2) for the evidence. Everything from "Task Completion" down to "Next steps" in the iteration-1 summary is kept as history, with status updates marked "iteration 2".
+Everything from "Task Completion" down to "Next steps" in the iteration-1 summary is kept as history, with status updates marked "iteration 2".
 
 ### Iteration 1 result (history)
 
 **Result (iteration 1)**: FAIL ❌. The behavior is correct: all 42 FBRD requirements are implemented and have `file:line` evidence, and the gate is green (513 unit/component tests, +202 over the feature; 8 e2e in CI, incl. `boards.e2e-spec.ts`). The tests are not discriminating enough: 6 of 61 mutants survived (2 more are equivalent and not counted). Five survivors sit in `BoardsScreen` wiring that no screen test exercises, one sits in the form counter. The worst one (M43) would let a title-only edit silently wipe the board description, and no unit or e2e test would notice. Every gap is a missing test, not a code defect.
+
+---
+
+## Iteration 3
+
+Verifier run on 2026-10-26 against `57943e8` (branch `docs/boards-validation-pass`, equal to `main`). Paths are relative to `front-end/test/unit/features/boards/components/`.
+
+### Fix commit reviewed
+
+`9224d2a` (`git show --stat`: 1 file, +13/-8), test-only. No test deleted, no assertion weakened: the old single-card assertion is kept for the edited card and one assertion is added for the other card.
+
+| Fix | Test (`file:line`) | AC | Asserted value vs spec outcome | Verdict |
+| --- | ------------------ | -- | ------------------------------ | ------- |
+| Fix 4 | `boards-screen.spec.tsx:342-360` | FBRD-42 | Lists `[roadmap, travel]`, held `PATCH` for Roadmap → `cardMenu(/Roadmap 2027/).hasAttribute('disabled')` `toBe(true)` (`:356-358`, inside `waitFor`), then `cardMenu(/Travel/).hasAttribute('disabled')` `toBe(false)` (`:359`). Matches "that card's menu" and "one change per card at a time": the edited card is locked, the other stays usable | ✅ spec-anchored, drives the real view-model + MSW |
+
+**`cardMenu` helper** (`boards-screen.spec.tsx:80-86`): finds the `listitem` that contains a link matching the title and returns the `Board actions` button inside it. It does not weaken other tests: `openEditDialog` (`:88-93`, used by the tests at `:305`, `:327`, `:348`) now clicks `cardMenu(/Roadmap/)` instead of the only `Board actions` button. The single-board tests render only Roadmap, so the target is the same button; with two boards the helper picks Roadmap's menu, where `getByRole` would throw on two matches. `/Roadmap/` does not match `Travel`. If no item matches, `within(undefined)` throws, so a wrong title fails loudly instead of passing. The two tests at `:252` and `:285` still use `getByRole('button', { name: 'Board actions' })` on one-card screens, unchanged.
+
+### Gate (iteration 3)
+
+- **Build gate** (real tree, repo root): `pnpm --filter front-end lint && pnpm --filter front-end typecheck && pnpm --filter front-end test && pnpm --filter front-end build` → exit 0. oxlint + Prettier clean, `tsc` clean, **52 files / 519 tests passed**, 0 failed, 0 skipped; `vite build` OK (JS 630.11 kB, same 500 kB warning as observation 1).
+- **Test count**: 519 → 519 (Fix 4 rewrote one test). Feature delta stays +208 over the 311 baseline.
+- **E2E**: CI run `40405069344` on `main` at `57943e8` (`success`), job `front-end (test:e2e)` (`121861236339`) `success`, log: `8 passed (52.4s)`. All 12 jobs `success`. The run on `f9337f9` (merge of PR #180, `40405024029`) was `cancelled`, superseded by the next push.
+
+### Discrimination sensor (iteration 3)
+
+Temporary worktree `<scratchpad>/wt3`, detached at `57943e8`. No `pnpm` command ran in it; the real `node_modules`, `front-end/node_modules` and `packages/api-contract/node_modules` were symlinked, and Vitest ran from the worktree's `front-end/` with `node ./node_modules/vitest/vitest.mjs run` (full unit suite per mutant). Unmutated sanity run: 519/519 passed. A script applied one mutation at a time (target text had to occur exactly once), ran the suite, reverted with `git checkout -- <file>` and asserted a clean tracked tree before and after each one. Afterwards: `git worktree remove --force`, `git worktree prune`; the real tree's `git status --porcelain` equals the baseline (empty) and `find … -xtype l` on the three `node_modules` found no broken links.
+
+| # | File:line (`front-end/src/features/boards/…`) | Mutation | Failing tests | Killed? |
+| - | --------------------------------------------- | -------- | ------------- | ------- |
+| N5 (re-run) | `components/boards-screen.tsx:89` | `pendingIds.has(board.id)` → `pendingIds.size > 0` (every card locked while any change is in flight) | 1 (`disables only the menu of the card whose change is in flight`) | ✅ Killed |
+| M40 (re-run) | `components/boards-screen.tsx:89` | `isPending={pendingIds.has(board.id)}` → `false` | 1 (same test) | ✅ Killed |
+| P1 | `components/boards-screen.tsx:89` | Pending scope inverted (`!pendingIds.has(board.id)`: every other card locked, the edited one usable) | 5 (pending test, edit prefill, reopened edit, archive-last, delete from archived) | ✅ Killed |
+| P2 | `components/boards-screen.tsx:89` | Pending keyed by the wrong board (`pendingIds.has(query.data[0].id)`: every card follows the first card's state) | 1 (pending test, through Travel's menu) | ✅ Killed |
+| P3 | `api/mutations.ts:109` | `usePendingBoardIds` selects `board.title` instead of `board.id` | 4 (`mutations.spec` `holds the board id only while its change is pending`, two view-model change tests, pending screen test) | ✅ Killed |
+| P4 | `components/board-card.tsx:117` | `isDisabled={isPending}` dropped from `ActionMenu` | 2 (`board-card.spec` pending test, pending screen test) | ✅ Killed |
+
+Not mutated: the pending opacity (`board-card.tsx:82`) and the "Salvando…" spinner (`board-card.tsx:101-110`). The spec has no AC for them (iteration-1 Code Quality lists them as small extras), so a mutant there would not be a spec gap.
+
+**Iteration 3 sensor result**: 6/6 killed (2 re-runs, 4 new), 0 survived, 0 equivalent.
+
+**Cumulative sensor** (iterations 1-3): 68 non-equivalent mutations, 68 killed, 0 survived; 3 equivalent (E1, E2, E3) not counted. Earlier kills stand without a re-run: the fix commits only add or tighten tests in the suite that killed them.
+
+### Spec-anchored status changes (iteration 3)
+
+| AC | Iteration 2 | Iteration 3 evidence | Result |
+| -- | ----------- | -------------------- | ------ |
+| FBRD-42 | ⚠️ Weak (N5) | `boards-screen.spec.tsx:356-359` edited card's `Board actions` `disabled` `toBe(true)`, Travel's `toBe(false)` (N5, M40, P1-P4 killed); `board-card.spec.tsx:459-468` `isPending` → `disabled`; `mutations.spec.tsx:507-541` pending ids per board | ✅ |
+
+**Status (iteration 3)**: 42/42 ACs matched the spec outcome and are discriminating. Spec-precision gaps: 0.
 
 ---
 
@@ -219,6 +274,7 @@ Run in a temporary `git worktree` (`<scratchpad>/wt`, detached `d165846`). No `p
 **Sensor depth**: P0-full (data integrity: edit, archive, restore, delete; 61 manual mutations across validation boundaries, request bodies, every `saveFailureKind` branch, the archived query parameter, optimistic patch/rollback/settle invalidation, pending ids, toasts and their actions, confirmation flows, dialogs, ARIA wiring and the screen composition)
 **Result (iteration 1)**: 53/59 killed, 6 survived (2 equivalent mutants excluded) - FAIL ❌
 **Iteration 2**: M40-M43, M48, M50 now killed; new N1-N4 killed, N5 survived, N6 equivalent. Cumulative 63/64 killed - FAIL ❌ (N5). See [Iteration 2](#iteration-2).
+**Iteration 3**: N5 and M40 killed; new P1-P4 killed. Cumulative 68/68 killed, 3 equivalent - PASS ✅. See [Iteration 3](#iteration-3).
 
 ---
 
@@ -231,7 +287,7 @@ Run in a temporary `git worktree` (`<scratchpad>/wt`, detached `d165846`). No `p
 | No scope creep | ✅ No colors, ordering, search, pagination or "Desfazer"; delete only from Arquivados; no breadcrumb or shortcuts. Extras are small: a "Salvando…" indicator on pending cards (`board-card.tsx:101-110`) and an `updatedAt` fallback when `archivedAt` is missing (`board-card.tsx:44`) |
 | Matches patterns | ✅ Model/api/components/view-model layering (FE-AD-006); TanStack optimistic recipe (FE-AD-009); `shared/ui` wraps React Aria Components; decorative icons `aria-hidden`; texts from i18n keys in both locales (FE-AD-004); tests mirror `src/` (FE-AD-007); oxlint layer rule and Prettier clean |
 | Spec-anchored outcome check (asserted values match spec) | ✅ Exact PT/EN strings, request paths and bodies (`{ title }` without `description`, `description: null`), query strings, toast actions, `aria-selected` / `aria-invalid` / `disabled` |
-| Per-layer Coverage Expectation met (model 1:1 incl. 0/1/100/101 and 1000/1001; hooks; view-model; components; screen; page; one e2e journey) | ⚠️ Iteration 2: the screen wiring is now tested (M40-M43 killed). Remaining: pending state is checked with one card, so per-card scoping is untested (N5) |
+| Per-layer Coverage Expectation met (model 1:1 incl. 0/1/100/101 and 1000/1001; hooks; view-model; components; screen; page; one e2e journey) | ✅ Iteration 3: the screen wiring is tested (M40-M43 killed) and the pending state is checked with two cards, so per-card scoping is covered (N5, P1-P4 killed) |
 | Every test maps to a spec requirement - no unclaimed tests | ✅ Extras map to Done-when items or edge cases (e.g. `board-card.spec.tsx:136` `updatedAt` fallback, `:145` menu outside the link, `queries.spec.tsx:100` separate caches, `mutations.spec.tsx:258` settle waits for the last change) |
 | Documented guidelines followed: `front-end/.specs/STATE.md` (FE-AD-004..-009), root `.specs/STATE.md` | ✅ |
 
@@ -274,7 +330,7 @@ Run in a temporary `git worktree` (`<scratchpad>/wt`, detached `d165846`). No `p
 
 ## Fix Plans
 
-Status after iteration 2: Fix 1-3 ✅ resolved (`27ca400`, `4208d8a`, `96e2485`, PR #178; every target mutant killed). Fix 4 is new and open.
+Status after iteration 3: Fix 1-4 ✅ resolved. Fix 1-3 by `27ca400`, `4208d8a`, `96e2485` (PR #178); Fix 4 by `9224d2a` (PR #180). Every target mutant is killed. No open fix.
 
 ### Fix 1: Cover the BoardsScreen wiring (M40, M41, M42, M43) - ✅ Resolved in iteration 2
 
@@ -297,7 +353,7 @@ Status after iteration 2: Fix 1-3 ✅ resolved (`27ca400`, `4208d8a`, `96e2485`,
 - **Fix task**: In `board-card.spec.tsx:87-93`, assert the description element has the `line-clamp-2` class. Done when M48 is killed; gate green.
 - **Priority**: Cosmetic
 
-### Fix 4: Scope the pending menu to its own card (N5) - open
+### Fix 4: Scope the pending menu to its own card (N5) - ✅ Resolved in iteration 3
 
 - **Root cause**: `boards-screen.spec.tsx:334-355` renders one board, so `isPending={pendingIds.size > 0}` (every card locked while any change is in flight) passes. FBRD-42 disables "that card's" menu, and the spec allows one change per card at a time, so the other cards must stay usable.
 - **Fix task**: In that test, respond with two active boards (e.g. `[travel, roadmap]`), hold the `PATCH` for Roadmap, and assert Roadmap's `Board actions` button is disabled while Travel's is not (scope with `within(...)` on each list item / link).
@@ -312,15 +368,29 @@ Status after iteration 2: Fix 1-3 ✅ resolved (`27ca400`, `4208d8a`, `96e2485`,
 | ----------- | --------------- | ---------- |
 | FBRD-01..03, FBRD-05..15, FBRD-17, FBRD-19..22, FBRD-24..40 | Pending | ✅ Verified (iteration 1) |
 | FBRD-04, FBRD-16, FBRD-18, FBRD-23, FBRD-41 | ❌ Needs Fix (iteration 1) | ✅ Verified (iteration 2) |
-| FBRD-42 | ❌ Needs Fix (iteration 1) | ❌ Needs Fix (iteration 2: N5, Fix 4; behavior correct) |
+| FBRD-42 | ❌ Needs Fix (iteration 2: N5, Fix 4) | ✅ Verified (iteration 3) |
 
-`spec.md` keeps `Pending` in its traceability table until the feature reaches PASS; the Verifier sets the statuses there on the passing iteration.
+Iteration 3 is the passing iteration: `spec.md`'s traceability table now shows `Verified` for FBRD-01..FBRD-42.
 
 ---
 
 ## Summary
 
-### Iteration 2
+### Iteration 3
+
+**Overall**: ✅ Ready
+
+**Spec-anchored check**: 42/42 ACs matched the spec outcome and are discriminating, 0 spec-precision gaps
+**Sensor**: iteration 3: 6/6 killed (N5, M40 re-run; P1-P4 new); cumulative 68/68 killed, 3 equivalent
+**Gate**: 519 unit/component passed; 8 e2e passed in CI run `40405069344` on `57943e8`
+
+**What works now**: a change in flight locks only its own card's menu, and the screen test proves it with a second card that stays usable.
+
+**Issues found**: none. Observations 1-6 stay non-blocking.
+
+**Next steps**: commit this report and the `spec.md` status update as one docs commit; the boards feature is done.
+
+### Iteration 2 (history)
 
 **Overall**: ❌ Not Ready (one Minor test gap)
 
