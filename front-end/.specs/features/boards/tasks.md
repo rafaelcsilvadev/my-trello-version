@@ -200,8 +200,8 @@ T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Unit: button named by `label`; click opens `menu` with one `menuitem` per item in order; choosing an item calls its `onAction` and closes the menu; `isDisabled` disables the button
-- [ ] Build gate passes; ≥ 4 new tests
+- [x] Unit: button named by `label`; click opens `menu` with one `menuitem` per item in order; choosing an item calls its `onAction` and closes the menu; `isDisabled` disables the button
+- [x] Build gate passes; ≥ 4 new tests
 
 **Tests**: unit
 **Gate**: build
