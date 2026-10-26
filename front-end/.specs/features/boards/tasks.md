@@ -275,8 +275,8 @@ T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Unit: both locales; January and December; single-digit day; ISO built at local noon (design Risks)
-- [ ] Build gate passes; ≥ 4 new tests
+- [x] Unit: both locales; January and December; single-digit day; ISO built at local noon (design Risks)
+- [x] Build gate passes; ≥ 4 new tests
 
 **Tests**: unit
 **Gate**: build
