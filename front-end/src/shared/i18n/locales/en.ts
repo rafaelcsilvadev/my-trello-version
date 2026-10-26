@@ -101,6 +101,13 @@ export const en = {
       creating: 'Creating…',
       save: 'Save',
     },
+    delete: {
+      title: 'Delete the board {{name}} permanently?',
+      text: 'This deletes the board with all its columns, tasks and labels. It can’t be undone.',
+      typeToConfirm: 'Type the board name to confirm',
+      cancel: 'Cancel',
+      confirm: 'Delete permanently',
+    },
     errors: {
       nameRequired: 'Give the board a name',
       nameTooLong: 'Use up to 100 characters',

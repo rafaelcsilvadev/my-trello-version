@@ -103,6 +103,13 @@ export const ptBR = {
       creating: 'Criando…',
       save: 'Salvar',
     },
+    delete: {
+      title: 'Excluir o quadro {{name}} definitivamente?',
+      text: 'Isso apaga o quadro com todas as colunas, tarefas e etiquetas. Não dá para desfazer.',
+      typeToConfirm: 'Digite o nome do quadro para confirmar',
+      cancel: 'Cancelar',
+      confirm: 'Excluir definitivamente',
+    },
     errors: {
       nameRequired: 'Dê um nome ao quadro',
       nameTooLong: 'Use até 100 caracteres',
