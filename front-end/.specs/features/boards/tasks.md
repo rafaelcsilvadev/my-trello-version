@@ -350,8 +350,8 @@ T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Unit (MSW): active request has no query string; archived sends `archived=true`; data keeps API order; a `500` surfaces as `ApiError`
-- [ ] Build gate passes; ≥ 4 new tests
+- [x] Unit (MSW): active request has no query string; archived sends `archived=true`; data keeps API order; a `500` surfaces as `ApiError`
+- [x] Build gate passes; ≥ 4 new tests
 
 **Tests**: unit
 **Gate**: build
