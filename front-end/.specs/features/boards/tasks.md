@@ -375,8 +375,8 @@ T23 → T24 → T25
 
 **Done when**:
 
-- [ ] Unit (MSW): body sent as given; returns the created board; active list invalidated on success, not on failure
-- [ ] Build gate passes; ≥ 3 new tests
+- [x] Unit (MSW): body sent as given; returns the created board; active list invalidated on success, not on failure
+- [x] Build gate passes; ≥ 3 new tests
 
 **Tests**: unit
 **Gate**: build
