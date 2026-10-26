@@ -69,6 +69,8 @@ export const ptBR = {
     loadDetail: 'Verifique sua conexão e tente de novo.',
     retry: 'Tentar novamente',
     saveFail: 'Não foi possível salvar. Tente novamente.',
+    conflict: 'Este item foi arquivado. Recarregue para ver o estado atual.',
+    reload: 'Recarregar',
   },
   boards: {
     create: 'Criar quadro',
@@ -118,6 +120,10 @@ export const ptBR = {
     },
     toast: {
       created: 'Quadro criado',
+      saved: 'Quadro salvo',
+      archived: 'Quadro arquivado',
+      restored: 'Quadro restaurado',
+      deleted: 'Quadro excluído definitivamente',
     },
   },
   toast: {

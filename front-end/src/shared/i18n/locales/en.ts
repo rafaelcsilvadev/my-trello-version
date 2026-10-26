@@ -67,6 +67,8 @@ export const en = {
     loadDetail: 'Check your connection and try again.',
     retry: 'Try again',
     saveFail: 'Couldn’t save. Try again.',
+    conflict: 'This item was archived. Reload to see the current state.',
+    reload: 'Reload',
   },
   boards: {
     create: 'Create board',
@@ -116,6 +118,10 @@ export const en = {
     },
     toast: {
       created: 'Board created',
+      saved: 'Board saved',
+      archived: 'Board archived',
+      restored: 'Board restored',
+      deleted: 'Board permanently deleted',
     },
   },
   toast: {
