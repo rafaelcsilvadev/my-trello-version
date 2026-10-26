@@ -92,6 +92,16 @@ describe('BoardCard', () => {
     expect(link.textContent).toContain('Planejamento do trimestre');
   });
 
+  it('clamps the description to two lines', () => {
+    renderCard();
+
+    expect(
+      screen
+        .getByText('Planejamento do trimestre')
+        .classList.contains('line-clamp-2'),
+    ).toBe(true);
+  });
+
   it('hides the description when it is null', () => {
     renderCard({ board: { ...board, description: null } });
 
