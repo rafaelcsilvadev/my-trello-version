@@ -26,6 +26,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: M50 front-end/src/features/boards/components/board-form-dialog.tsx:110 (components)
 - last seen: 2026-10-26T20:51:23Z
 
+### L-003 - Test per-item state with at least two items and assert the untouched item stays unaffected
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `components` · harmful: 0
+- features: boards
+- evidence: N5 front-end/src/features/boards/components/boards-screen.tsx:89 (components)
+- last seen: 2026-10-26T21:23:45Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
