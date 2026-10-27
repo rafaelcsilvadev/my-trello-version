@@ -6,6 +6,7 @@ import { useSearchParams } from 'react-router';
 
 import type { ApiError } from '@/shared/api/api-error';
 import { saveFailureKind } from '@/shared/api/save-failure';
+import { useSaveFailureNotifier } from '@/shared/ui/toast/use-save-failure-notifier';
 import { useToast } from '@/shared/ui/toast/use-toast';
 
 import { boardKeys } from '../api/keys';
@@ -56,6 +57,10 @@ export function useBoardsViewModel({ onCreated }: BoardsViewModelOptions) {
   const archiveBoard = useArchiveBoard();
   const restoreBoard = useRestoreBoard();
   const deleteBoard = useDeleteBoard();
+  // The cache rollback is done by the mutation hooks; this only tells the user (FBRD-38–FBRD-40).
+  const { notify: notifyFailure, runChange } = useSaveFailureNotifier(
+    () => void queryClient.invalidateQueries({ queryKey: boardKeys.all }),
+  );
   const pendingIds = usePendingBoardIds();
   const [dialog, setDialog] = useState<BoardsDialog>({ kind: 'none' });
 
@@ -95,48 +100,6 @@ export function useBoardsViewModel({ onCreated }: BoardsViewModelOptions) {
         }
       },
     });
-  }
-
-  // The cache rollback is done by the mutation hooks; this only tells the user (FBRD-38–FBRD-40).
-  function notifyFailure(err: ApiError, retry: () => void) {
-    const reload = () =>
-      void queryClient.invalidateQueries({ queryKey: boardKeys.all });
-    switch (saveFailureKind(err)) {
-      case 'sessionExpired':
-        return;
-      case 'conflict':
-        toast.show({
-          message: t('errors.conflict'),
-          action: { label: t('errors.reload'), onClick: reload },
-        });
-        return;
-      case 'notFound':
-        toast.show({ message: t('errors.saveFail') });
-        reload();
-        return;
-      default:
-        toast.show({
-          message: t('errors.saveFail'),
-          action: { label: t('errors.retry'), onClick: retry },
-        });
-    }
-  }
-
-  // `mutateAsync`, not `mutate` with callbacks: those only run for the latest call,
-  // so a second change started meanwhile would swallow the first one's toast.
-  // Retries close over `variables`, not screen state, so they survive a tab switch.
-  function runChange<TVariables>(
-    mutateAsync: (variables: TVariables) => Promise<unknown>,
-    variables: TVariables,
-    successMessage: string,
-  ) {
-    mutateAsync(variables).then(
-      () => toast.show({ message: successMessage }),
-      (err: ApiError) =>
-        notifyFailure(err, () =>
-          runChange(mutateAsync, variables, successMessage),
-        ),
-    );
   }
 
   // The dialog closes before the request, since the cache patch already shows the change.
