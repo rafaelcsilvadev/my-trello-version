@@ -135,6 +135,7 @@ export const ptBR = {
       columnCreated: 'Coluna criada',
       columnRenamed: 'Coluna renomeada',
       columnArchived: 'Coluna arquivada',
+      cardCreated: 'Tarefa criada',
     },
   },
   toast: {

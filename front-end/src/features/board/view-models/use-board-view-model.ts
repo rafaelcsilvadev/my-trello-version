@@ -5,17 +5,22 @@ import { useTranslation } from 'react-i18next';
 import type { ApiError } from '@/shared/api/api-error';
 import { saveFailureKind } from '@/shared/api/save-failure';
 import { useSaveFailureNotifier } from '@/shared/ui/toast/use-save-failure-notifier';
+import { useShortcut } from '@/shared/keyboard/use-shortcut';
 import { useToast } from '@/shared/ui/toast/use-toast';
 
-import { useCreateList } from '../api/create-mutations';
+import { useCreateCard, useCreateList } from '../api/create-mutations';
 import { boardViewKeys } from '../api/keys';
-import { useArchiveList, useRenameList } from '../api/mutations';
+import {
+  useArchiveList,
+  useRenameList,
+  useToggleCardDone,
+} from '../api/mutations';
 import { useBoard, useCards, useLabels, useLists } from '../api/queries';
 import { toColumns } from '../model/columns';
 import { todayParts } from '../model/due-date';
 import { mapTitleServerError } from '../model/errors';
-import type { ItemFieldError, Label, List } from '../model/types';
-import { validateColumnName } from '../model/validation';
+import type { Card, ItemFieldError, Label, List } from '../model/types';
+import { validateCardTitle, validateColumnName } from '../model/validation';
 
 export type BoardStatus = 'loading' | 'ready' | 'error' | 'notFound';
 
@@ -27,9 +32,13 @@ export type ColumnRename = {
 };
 
 // A `400` on the title becomes a field message; anything else is left to the notifier.
-function titleFieldError(err: ApiError, raw: string): ItemFieldError | null {
+function titleFieldError(
+  err: ApiError,
+  raw: string,
+  kind: 'column' | 'card',
+): ItemFieldError | null {
   return saveFailureKind(err) === 'invalid'
-    ? mapTitleServerError(err, raw, 'column')
+    ? mapTitleServerError(err, raw, kind)
     : null;
 }
 
@@ -45,6 +54,8 @@ export function useBoardViewModel(boardId: string) {
   const createListMutation = useCreateList(boardId);
   const renameListMutation = useRenameList(boardId);
   const archiveListMutation = useArchiveList(boardId);
+  const createCardMutation = useCreateCard(boardId);
+  const toggleDoneMutation = useToggleCardDone(boardId);
   // The cache rollback is done by the mutation hooks; this only tells the user (FBV-53–FBV-55).
   const { notify, runChange } = useSaveFailureNotifier(
     () =>
@@ -53,6 +64,7 @@ export function useBoardViewModel(boardId: string) {
       }),
   );
   const [editing, setEditing] = useState<ColumnRename | null>(null);
+  const [addingCardListId, setAddingCardListId] = useState<string | null>(null);
   // Read once, so the due labels do not change while the board is open.
   const [today] = useState(() => todayParts());
 
@@ -80,7 +92,7 @@ export function useBoardViewModel(boardId: string) {
       await createListMutation.mutateAsync({ title: raw.trim() });
     } catch (error) {
       const err = error as ApiError;
-      const fieldError = titleFieldError(err, raw);
+      const fieldError = titleFieldError(err, raw, 'column');
       if (fieldError) return fieldError;
       notify(err, () => void createList(raw).catch(() => undefined));
       throw err;
@@ -101,7 +113,7 @@ export function useBoardViewModel(boardId: string) {
     renameListMutation.mutateAsync(variables).then(
       () => toast.show({ message: renamed }),
       (err: ApiError) => {
-        const fieldError = titleFieldError(err, raw);
+        const fieldError = titleFieldError(err, raw, 'column');
         if (fieldError) {
           setEditing({ listId: list.id, value: raw, error: fieldError });
           return;
@@ -114,15 +126,58 @@ export function useBoardViewModel(boardId: string) {
     return null;
   }
 
+  // Same contract as `createList`; the field stays open for the next card (FBV-25).
+  async function createCard(
+    listId: string,
+    raw: string,
+  ): Promise<ItemFieldError | null> {
+    const invalid = validateCardTitle(raw);
+    if (invalid) return invalid;
+    try {
+      await createCardMutation.mutateAsync({
+        listId,
+        body: { title: raw.trim() },
+      });
+    } catch (error) {
+      const err = error as ApiError;
+      const fieldError = titleFieldError(err, raw, 'card');
+      if (fieldError) return fieldError;
+      notify(err, () => void createCard(listId, raw).catch(() => undefined));
+      throw err;
+    }
+    toast.show({ message: t('board.toast.cardCreated') });
+    return null;
+  }
+
+  // No success toast: the checkbox already shows the change (FBV-31).
+  function toggleDone(card: Card) {
+    const variables = { id: card.id, done: !card.done };
+    const send = () => {
+      toggleDoneMutation
+        .mutateAsync(variables)
+        .catch((err: ApiError) => notify(err, send));
+    };
+    send();
+  }
+
+  const readOnly = board.data !== undefined && board.data.archivedAt !== null;
+
+  // FE-AD-011 guards live in the hook; this only adds the board's own (FBV-30, FBV-46).
+  useShortcut('n', () => setAddingCardListId(columns[0].list.id), {
+    enabled: status === 'ready' && !readOnly && columns.length > 0,
+  });
+
   return {
     state: {
       status,
       board: board.data,
-      readOnly: board.data !== undefined && board.data.archivedAt !== null,
+      readOnly,
       columns,
       labelsById,
+      addingCardListId,
       editing,
       isCreatingList: createListMutation.isPending,
+      isCreatingCard: createCardMutation.isPending,
       today,
     },
     actions: {
@@ -140,6 +195,10 @@ export function useBoardViewModel(boardId: string) {
           { id: listId },
           t('board.toast.columnArchived'),
         ),
+      openAddCard: (listId: string) => setAddingCardListId(listId),
+      closeAddCard: () => setAddingCardListId(null),
+      createCard,
+      toggleDone,
     },
   };
 }

@@ -639,8 +639,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit (MSW): create toasts "Tarefa criada"; invalid title sends nothing; toggle sends `{ done }`; `n` opens the first column; `n` ignored on an archived board and on a board with no columns; done failure → notifier
-- [ ] Build gate passes; ≥ 8 new tests
+- [x] Unit (MSW): create toasts "Tarefa criada"; invalid title sends nothing; toggle sends `{ done }`; `n` opens the first column; `n` ignored on an archived board and on a board with no columns; done failure → notifier
+- [x] Build gate passes; ≥ 8 new tests
 
 **Tests**: unit
 **Gate**: build
