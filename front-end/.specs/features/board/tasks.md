@@ -289,8 +289,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit: 0, 1, 100, 101 characters after trim; spaces-only is required; leading/trailing spaces do not count
-- [ ] Build gate passes; ≥ 8 new tests
+- [x] Unit: 0, 1, 100, 101 characters after trim; spaces-only is required; leading/trailing spaces do not count
+- [x] Build gate passes; ≥ 8 new tests
 
 **Tests**: unit
 **Gate**: build
