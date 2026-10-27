@@ -839,8 +839,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit: "Arquivada em 2 out, 2026 · 3 tarefas" (and "1 tarefa"); "Nenhuma coluna arquivada"; Restaurar and Excluir definitivamente call back; hidden on a read-only board; pending disables them
-- [ ] Build gate passes; ≥ 6 new tests
+- [x] Unit: "Arquivada em 2 out, 2026 · 3 tarefas" (and "1 tarefa"); "Nenhuma coluna arquivada"; Restaurar and Excluir definitivamente call back; hidden on a read-only board; pending disables them
+- [x] Build gate passes; ≥ 6 new tests
 
 **Tests**: unit
 **Gate**: build
