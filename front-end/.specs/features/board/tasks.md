@@ -314,8 +314,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit: column and card kinds; empty trimmed text → required, else too long; no `title` entry, non-400 or no `errors` → `null`
-- [ ] Build gate passes; ≥ 5 new tests
+- [x] Unit: column and card kinds; empty trimmed text → required, else too long; no `title` entry, non-400 or no `errors` → `null`
+- [x] Build gate passes; ≥ 5 new tests
 
 **Tests**: unit
 **Gate**: build
