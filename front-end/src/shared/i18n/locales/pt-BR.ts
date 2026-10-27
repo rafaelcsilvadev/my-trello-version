@@ -160,6 +160,12 @@ export const ptBR = {
       add: 'Adicionar',
       cardTitle: 'Título da tarefa',
     },
+    addColumn: {
+      label: 'Adicionar coluna',
+      emptyTitle: 'Adicione a primeira coluna',
+      emptyText:
+        'Colunas são as etapas do seu fluxo, como A fazer, Fazendo e Feito.',
+    },
     card: {
       done: 'Concluída',
       overdue: 'Atrasada',

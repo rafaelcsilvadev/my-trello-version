@@ -158,6 +158,12 @@ export const en = {
       add: 'Add',
       cardTitle: 'Task title',
     },
+    addColumn: {
+      label: 'Add column',
+      emptyTitle: 'Add the first column',
+      emptyText:
+        'Columns are the stages of your workflow, like To do, Doing and Done.',
+    },
     card: {
       done: 'Completed',
       overdue: 'Overdue',
