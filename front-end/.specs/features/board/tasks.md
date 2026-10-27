@@ -464,8 +464,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit (MSW): one request per archived list; counts map; `undefined` while pending; none when disabled
-- [ ] Build gate passes; ≥ 3 new tests
+- [x] Unit (MSW): one request per archived list; counts map; `undefined` while pending; none when disabled
+- [x] Build gate passes; ≥ 3 new tests
 
 **Tests**: unit
 **Gate**: build
