@@ -164,8 +164,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit: `ghost` and `sm` render their classes; existing variants and sizes unchanged
-- [ ] Build gate passes; ≥ 2 new tests
+- [x] Unit: `ghost` and `sm` render their classes; existing variants and sizes unchanged
+- [x] Build gate passes; ≥ 2 new tests
 
 **Tests**: unit
 **Gate**: build
