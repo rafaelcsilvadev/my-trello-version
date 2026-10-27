@@ -99,7 +99,7 @@ The archived queries never change `status`: while they load, the virtual column 
 - **`columns.ts`**
   - `toColumns(lists: List[], cards: Card[]): Column[]` – active lists by `position`, cards grouped by `listId` and sorted by `position` (FBV-02, FBV-03).
   - `toArchivedCards(cards: Card[], lists: List[]): ArchivedCardItem[]` – keeps API order (`archivedAt` desc) and resolves `fromTitle` from active ∪ archived lists (FBV-35).
-  - `toArchivedColumns(lists: List[], archivedCards: Card[], activeCounts: Map<string, number | undefined>): ArchivedColumnItem[]` – newest `archivedAt` first; `cardCount = active + archived`, `undefined` while a count is loading (FBV-37).
+  - `toArchivedColumns(lists: List[], cardCounts: Map<string, number | undefined>): ArchivedColumnItem[]` – newest `archivedAt` first; `cardCount` is the total from `useArchivedListCounts` (active + archived), `undefined` while it loads (FBV-37).
   - `deleteMessageKey(count: number): 'many' | 'one' | 'none'` (FBV-40).
 
 ### `api/`

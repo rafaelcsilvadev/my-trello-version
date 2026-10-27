@@ -20,22 +20,14 @@ export function toArchivedCards(
     .map((card) => ({ card, fromTitle: titles.get(card.listId) ?? '' }));
 }
 
+// `cardCounts` already holds the active and archived cards of each column (`useArchivedListCounts`).
 export function toArchivedColumns(
   lists: List[],
-  archivedCards: Card[],
-  activeCounts: Map<string, number | undefined>,
+  cardCounts: Map<string, number | undefined>,
 ): ArchivedColumnItem[] {
-  return [...lists].sort(newestFirst).map((list) => {
-    const active = activeCounts.get(list.id);
-    const archived = archivedCards.filter(
-      (card) => card.listId === list.id,
-    ).length;
-
-    return {
-      list,
-      cardCount: active === undefined ? undefined : active + archived,
-    };
-  });
+  return [...lists]
+    .sort(newestFirst)
+    .map((list) => ({ list, cardCount: cardCounts.get(list.id) }));
 }
 
 export function deleteMessageKey(count: number): 'many' | 'one' | 'none' {
