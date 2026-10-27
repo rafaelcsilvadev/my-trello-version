@@ -91,4 +91,26 @@ describe('Button', () => {
     expect(classList.contains('bg-brand')).toBe(false);
     expect(classList.contains('bg-surface-card')).toBe(false);
   });
+
+  it('applies the ghost variant classes', () => {
+    render(<Button variant="ghost">Adicionar tarefa</Button>);
+
+    const { classList } = screen.getByRole('button');
+    expect(classList.contains('bg-transparent')).toBe(true);
+    expect(classList.contains('text-text-secondary')).toBe(true);
+    expect(classList.contains('hover:bg-neutral-100')).toBe(true);
+    expect(classList.contains('hover:text-text-primary')).toBe(true);
+    expect(classList.contains('bg-brand')).toBe(false);
+    expect(classList.contains('shadow-xs')).toBe(false);
+  });
+
+  it('applies the sm size classes', () => {
+    render(<Button size="sm">Restaurar</Button>);
+
+    const { classList } = screen.getByRole('button');
+    expect(classList.contains('h-(--control-sm)')).toBe(true);
+    expect(classList.contains('px-2.5')).toBe(true);
+    expect(classList.contains('text-sm')).toBe(true);
+    expect(classList.contains('h-(--control-md)')).toBe(false);
+  });
 });
