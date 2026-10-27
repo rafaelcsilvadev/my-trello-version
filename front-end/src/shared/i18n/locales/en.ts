@@ -148,6 +148,16 @@ export const en = {
       boardRestored: 'Board restored',
       cardCreated: 'Task created',
     },
+    column: {
+      menu: 'Column actions',
+      rename: 'Rename',
+      archive: 'Archive',
+      dropHere: 'Drag cards here',
+      empty: 'No tasks',
+      addCard: 'Add task',
+      add: 'Add',
+      cardTitle: 'Task title',
+    },
     card: {
       done: 'Completed',
       overdue: 'Overdue',

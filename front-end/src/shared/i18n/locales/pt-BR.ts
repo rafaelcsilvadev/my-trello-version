@@ -150,6 +150,16 @@ export const ptBR = {
       boardRestored: 'Quadro restaurado',
       cardCreated: 'Tarefa criada',
     },
+    column: {
+      menu: 'Ações da coluna',
+      rename: 'Renomear',
+      archive: 'Arquivar',
+      dropHere: 'Arraste cards para cá',
+      empty: 'Nenhuma tarefa',
+      addCard: 'Adicionar tarefa',
+      add: 'Adicionar',
+      cardTitle: 'Título da tarefa',
+    },
     card: {
       done: 'Concluída',
       overdue: 'Atrasada',
