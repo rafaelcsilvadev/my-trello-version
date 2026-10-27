@@ -739,8 +739,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit: Enter and blur submit; Esc cancels without submit; error keeps the field open with the message
-- [ ] Build gate passes; ≥ 4 new tests
+- [x] Unit: Enter and blur submit; Esc cancels without submit; error keeps the field open with the message
+- [x] Build gate passes; ≥ 4 new tests
 
 **Tests**: unit
 **Gate**: build
