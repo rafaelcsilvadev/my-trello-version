@@ -177,6 +177,17 @@ export const en = {
       restore: 'Restore',
       deleteForever: 'Delete permanently',
     },
+    deleteColumn: {
+      title: 'Delete the column {{name}} permanently?',
+      textNoCards:
+        'This deletes the column, which has no tasks. It can’t be undone.',
+      textOneCard:
+        'This deletes the column and its 1 task. It can’t be undone.',
+      textCards:
+        'This deletes the column and its {{count}} tasks, active and archived. It can’t be undone.',
+      cancel: 'Cancel',
+      confirm: 'Delete permanently',
+    },
     card: {
       done: 'Completed',
       overdue: 'Overdue',
