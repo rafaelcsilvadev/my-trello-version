@@ -1,4 +1,4 @@
-import { QueryClientProvider } from '@tanstack/react-query';
+import { type QueryKey, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { delay, http, HttpResponse } from 'msw';
 import type { ReactNode } from 'react';
@@ -6,15 +6,23 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { boardViewKeys } from '@/features/board/api/keys';
 import {
+  useArchiveList,
+  useDeleteList,
   usePendingItemIds,
   useRenameList,
+  useRestoreList,
 } from '@/features/board/api/mutations';
+import type { Card, List } from '@/features/board/model/types';
 import { ApiProvider } from '@/shared/api/api-context';
 import { ApiError } from '@/shared/api/api-error';
 import { createApiClient } from '@/shared/api/client';
 import { createQueryClient } from '@/shared/api/query-client';
 
-import { boardId, listFixture } from '../../../../support/fixtures/board';
+import {
+  boardId,
+  cardFixture,
+  listFixture,
+} from '../../../../support/fixtures/board';
 import { server } from '../../../../support/msw/server';
 
 const baseUrl = 'http://api.test';
@@ -22,6 +30,14 @@ const listUrl = `${baseUrl}/api/v1/lists/:id`;
 const backlog = listFixture('l1', { title: 'Backlog' });
 const doing = listFixture('l2', { title: 'Doing', position: 1 });
 const listsKey = boardViewKeys.lists(boardId, false);
+const archivedListsKey = boardViewKeys.lists(boardId, true);
+const archivedCardsKey = boardViewKeys.cards(boardId, true);
+const archivedAt = '2026-10-20T12:00:00.000Z';
+const ideas = listFixture('l3', { title: 'Ideas', archivedAt });
+const old = listFixture('l4', { title: 'Old', position: 1, archivedAt });
+const ideaCard = cardFixture('c1', ideas.id, { archivedAt });
+const oldCard = cardFixture('c2', old.id, { archivedAt });
+const otherIdeaCard = cardFixture('c3', ideas.id, { archivedAt });
 
 const serverError = {
   statusCode: 500,
@@ -45,10 +61,27 @@ function setup() {
   return { wrapper, queryClient };
 }
 
-function titles(queryClient: ReturnType<typeof setup>['queryClient']) {
+type TestQueryClient = ReturnType<typeof setup>['queryClient'];
+
+function titles(queryClient: TestQueryClient, key: QueryKey = listsKey) {
+  return queryClient.getQueryData<List[]>(key)?.map((list) => list.title);
+}
+
+function cardIds(queryClient: TestQueryClient) {
   return queryClient
-    .getQueryData<(typeof backlog)[]>(listsKey)
-    ?.map((list) => list.title);
+    .getQueryData<Card[]>(archivedCardsKey)
+    ?.map((card) => card.id);
+}
+
+function setupArchived() {
+  const context = setup();
+  context.queryClient.setQueryData(archivedListsKey, [ideas, old]);
+  context.queryClient.setQueryData(archivedCardsKey, [
+    ideaCard,
+    oldCard,
+    otherIdeaCard,
+  ]);
+  return context;
 }
 
 describe('useRenameList', () => {
@@ -159,6 +192,199 @@ describe('useRenameList', () => {
     );
 
     expect(queryClient.getQueryData(listsKey)).toBeUndefined();
+  });
+});
+
+describe('useArchiveList', () => {
+  it('posts to the archive path of the list', async () => {
+    const ids: unknown[] = [];
+    server.use(
+      http.post(`${listUrl}/archive`, ({ params }) => {
+        ids.push(params.id);
+        return HttpResponse.json({ ...backlog, archivedAt });
+      }),
+    );
+    const { wrapper } = setup();
+    const { result } = renderHook(() => useArchiveList(boardId), { wrapper });
+
+    await act(() => result.current.mutateAsync({ id: backlog.id }));
+
+    expect(ids).toEqual([backlog.id]);
+  });
+
+  it('moves the list to the front of the archived lists before the response', async () => {
+    server.use(http.post(`${listUrl}/archive`, () => delay('infinite')));
+    const { wrapper, queryClient } = setupArchived();
+    const { result } = renderHook(() => useArchiveList(boardId), { wrapper });
+
+    act(() => result.current.mutate({ id: backlog.id }));
+
+    await waitFor(() => expect(titles(queryClient)).toEqual(['Doing']));
+    const archived = queryClient.getQueryData<List[]>(archivedListsKey);
+    expect(archived?.map((list) => list.title)).toEqual([
+      'Backlog',
+      'Ideas',
+      'Old',
+    ]);
+    expect(archived?.[0]?.archivedAt).not.toBeNull();
+  });
+
+  it('leaves the archived lists uncached when none were loaded', async () => {
+    server.use(http.post(`${listUrl}/archive`, () => delay('infinite')));
+    const { wrapper, queryClient } = setup();
+    const { result } = renderHook(() => useArchiveList(boardId), { wrapper });
+
+    act(() => result.current.mutate({ id: backlog.id }));
+
+    await waitFor(() => expect(titles(queryClient)).toEqual(['Doing']));
+    expect(queryClient.getQueryData(archivedListsKey)).toBeUndefined();
+  });
+
+  it('puts the list back at its old index on failure', async () => {
+    server.use(
+      http.post(`${listUrl}/archive`, () =>
+        HttpResponse.json(serverError, { status: 500 }),
+      ),
+    );
+    const { wrapper, queryClient } = setupArchived();
+    const { result } = renderHook(() => useArchiveList(boardId), { wrapper });
+
+    await act(() =>
+      expect(result.current.mutateAsync({ id: backlog.id })).rejects.toThrow(
+        ApiError,
+      ),
+    );
+
+    expect(titles(queryClient)).toEqual(['Backlog', 'Doing']);
+    expect(titles(queryClient, archivedListsKey)).toEqual(['Ideas', 'Old']);
+  });
+
+  it('does not duplicate a list a refetch already brought back', async () => {
+    let fail: (() => void) | undefined;
+    server.use(
+      http.post(`${listUrl}/archive`, async () => {
+        await new Promise<void>((resolve) => (fail = resolve));
+        return HttpResponse.json(serverError, { status: 500 });
+      }),
+    );
+    const { wrapper, queryClient } = setup();
+    const { result } = renderHook(() => useArchiveList(boardId), { wrapper });
+
+    act(() => result.current.mutate({ id: backlog.id }));
+    await waitFor(() => expect(fail).toBeDefined());
+    queryClient.setQueryData(listsKey, [backlog, doing]);
+    act(() => fail?.());
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(titles(queryClient)).toEqual(['Backlog', 'Doing']);
+  });
+});
+
+describe('useRestoreList', () => {
+  it('posts to the unarchive path of the list', async () => {
+    const ids: unknown[] = [];
+    server.use(
+      http.post(`${listUrl}/unarchive`, ({ params }) => {
+        ids.push(params.id);
+        return HttpResponse.json({ ...ideas, archivedAt: null });
+      }),
+    );
+    const { wrapper } = setupArchived();
+    const { result } = renderHook(() => useRestoreList(boardId), { wrapper });
+
+    await act(() => result.current.mutateAsync({ id: ideas.id }));
+
+    expect(ids).toEqual([ideas.id]);
+  });
+
+  it('appends the list to the active lists before the response', async () => {
+    server.use(http.post(`${listUrl}/unarchive`, () => delay('infinite')));
+    const { wrapper, queryClient } = setupArchived();
+    const { result } = renderHook(() => useRestoreList(boardId), { wrapper });
+
+    act(() => result.current.mutate({ id: ideas.id }));
+
+    await waitFor(() =>
+      expect(titles(queryClient)).toEqual(['Backlog', 'Doing', 'Ideas']),
+    );
+    expect(titles(queryClient, archivedListsKey)).toEqual(['Old']);
+    expect(queryClient.getQueryData<List[]>(listsKey)?.[2]).toMatchObject({
+      position: 2,
+      archivedAt: null,
+    });
+  });
+
+  it('puts the list back at its old index on failure', async () => {
+    server.use(
+      http.post(`${listUrl}/unarchive`, () =>
+        HttpResponse.json(serverError, { status: 500 }),
+      ),
+    );
+    const { wrapper, queryClient } = setupArchived();
+    const { result } = renderHook(() => useRestoreList(boardId), { wrapper });
+
+    await act(() =>
+      expect(result.current.mutateAsync({ id: ideas.id })).rejects.toThrow(
+        ApiError,
+      ),
+    );
+
+    expect(titles(queryClient)).toEqual(['Backlog', 'Doing']);
+    expect(titles(queryClient, archivedListsKey)).toEqual(['Ideas', 'Old']);
+  });
+});
+
+describe('useDeleteList', () => {
+  it('sends a delete for the list', async () => {
+    const ids: unknown[] = [];
+    server.use(
+      http.delete(listUrl, ({ params }) => {
+        ids.push(params.id);
+        return new HttpResponse(null, { status: 204 });
+      }),
+    );
+    const { wrapper } = setupArchived();
+    const { result } = renderHook(() => useDeleteList(boardId), { wrapper });
+
+    await act(() => result.current.mutateAsync({ id: ideas.id }));
+
+    expect(ids).toEqual([ideas.id]);
+  });
+
+  it('drops the list and its archived cards before the response', async () => {
+    server.use(http.delete(listUrl, () => delay('infinite')));
+    const { wrapper, queryClient } = setupArchived();
+    const { result } = renderHook(() => useDeleteList(boardId), { wrapper });
+
+    act(() => result.current.mutate({ id: ideas.id }));
+
+    await waitFor(() =>
+      expect(titles(queryClient, archivedListsKey)).toEqual(['Old']),
+    );
+    expect(cardIds(queryClient)).toEqual([oldCard.id]);
+  });
+
+  it('puts the list and its cards back at their old indexes on failure', async () => {
+    server.use(
+      http.delete(listUrl, () =>
+        HttpResponse.json(serverError, { status: 500 }),
+      ),
+    );
+    const { wrapper, queryClient } = setupArchived();
+    const { result } = renderHook(() => useDeleteList(boardId), { wrapper });
+
+    await act(() =>
+      expect(result.current.mutateAsync({ id: ideas.id })).rejects.toThrow(
+        ApiError,
+      ),
+    );
+
+    expect(titles(queryClient, archivedListsKey)).toEqual(['Ideas', 'Old']);
+    expect(cardIds(queryClient)).toEqual([
+      ideaCard.id,
+      oldCard.id,
+      otherIdeaCard.id,
+    ]);
   });
 });
 
