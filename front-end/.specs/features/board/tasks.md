@@ -564,8 +564,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit (MSW): body `{ "done": true }`; card patched before the response and reverted on failure; board `archivedAt` set to null and reverted on failure
-- [ ] Build gate passes; ≥ 5 new tests
+- [x] Unit (MSW): body `{ "done": true }`; card patched before the response and reverted on failure; board `archivedAt` set to null and reverted on failure
+- [x] Build gate passes; ≥ 5 new tests
 
 **Tests**: unit
 **Gate**: build
