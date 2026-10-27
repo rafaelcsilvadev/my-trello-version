@@ -132,10 +132,47 @@ function columnWrites(...responses: (() => Response | Promise<Response>)[]) {
   return changes;
 }
 
+// Records every card write, like `columnWrites`.
+function cardWrites(...responses: (() => Response | Promise<Response>)[]) {
+  const changes: ChangeRequest[] = [];
+  async function answer(request: Request, success: () => Response) {
+    const text = await request.text();
+    changes.push({
+      method: request.method,
+      path: new URL(request.url).pathname,
+      body: text ? JSON.parse(text) : undefined,
+    });
+    return (responses.shift() ?? success)();
+  }
+  server.use(
+    http.post(`${baseUrl}/api/v1/lists/:id/cards`, ({ request }) =>
+      answer(request, () =>
+        HttpResponse.json(cardFixture('c4', backlog.id, { position: 2 }), {
+          status: 201,
+        }),
+      ),
+    ),
+    http.patch(`${baseUrl}/api/v1/cards/:id`, ({ request }) =>
+      answer(request, () => HttpResponse.json(cardFixture('c3', doing.id))),
+    ),
+  );
+  return changes;
+}
+
 async function setupReady() {
   const view = setup();
   await waitFor(() => expect(view.result.current.state.status).toBe('ready'));
   return view;
+}
+
+function cardDone(result: ReturnType<typeof setup>['result'], id: string) {
+  return result.current.state.columns
+    .flatMap(({ cards }) => cards)
+    .find((card) => card.id === id)?.done;
+}
+
+function pressN() {
+  fireEvent.keyDown(document.body, { key: 'n' });
 }
 
 function columnTitles(result: ReturnType<typeof setup>['result']) {
@@ -534,5 +571,249 @@ describe('useBoardViewModel', () => {
         ).toEqual(actions);
       },
     );
+  });
+
+  describe('card actions', () => {
+    it('openAddCard opens the card field in that column and closeAddCard closes it', async () => {
+      boardServer();
+      const { result } = await setupReady();
+
+      expect(result.current.state.addingCardListId).toBeNull();
+      act(() => result.current.actions.openAddCard(backlog.id));
+      expect(result.current.state.addingCardListId).toBe(backlog.id);
+
+      act(() => result.current.actions.closeAddCard());
+      expect(result.current.state.addingCardListId).toBeNull();
+    });
+
+    it('createCard sends the trimmed title, toasts, keeps the field open and resolves null', async () => {
+      boardServer();
+      const changes = cardWrites();
+      const { result } = await setupReady();
+      act(() => result.current.actions.openAddCard(backlog.id));
+
+      let outcome: unknown;
+      await act(async () => {
+        outcome = await result.current.actions.createCard(
+          backlog.id,
+          '  Write tests  ',
+        );
+      });
+
+      expect(outcome).toBeNull();
+      expect(changes).toEqual([
+        {
+          method: 'POST',
+          path: `/api/v1/lists/${backlog.id}/cards`,
+          body: { title: 'Write tests' },
+        },
+      ]);
+      await screen.findByText('Tarefa criada');
+      expect(result.current.state.addingCardListId).toBe(backlog.id);
+    });
+
+    it.each([
+      ['   ', 'cardTitleRequired'],
+      ['x'.repeat(101), 'cardTitleTooLong'],
+    ])('createCard(%j) resolves %s and sends nothing', async (raw, error) => {
+      boardServer();
+      const changes = cardWrites();
+      const { result } = await setupReady();
+
+      let outcome: unknown;
+      await act(async () => {
+        outcome = await result.current.actions.createCard(backlog.id, raw);
+      });
+
+      expect(outcome).toBe(error);
+      expect(changes).toEqual([]);
+    });
+
+    it('createCard resolves the field error of a 400 with no toast', async () => {
+      boardServer();
+      cardWrites(() => problem(400, titleError));
+      const { result } = await setupReady();
+
+      let outcome: unknown;
+      await act(async () => {
+        outcome = await result.current.actions.createCard(backlog.id, 'Ship');
+      });
+
+      expect(outcome).toBe('cardTitleTooLong');
+      expect(screen.queryByText(saveFail)).toBeNull();
+    });
+
+    it('createCard rejects on 500 and its retry resends the same title', async () => {
+      boardServer();
+      const changes = cardWrites(() => problem(500));
+      const { result } = await setupReady();
+
+      await act(async () => {
+        await expect(
+          result.current.actions.createCard(backlog.id, ' Ship '),
+        ).rejects.toMatchObject({ status: 500 });
+      });
+      await screen.findByText(saveFail);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Tentar novamente' }));
+
+      await screen.findByText('Tarefa criada');
+      expect(changes.map(({ path, body }) => [path, body])).toEqual([
+        [`/api/v1/lists/${backlog.id}/cards`, { title: 'Ship' }],
+        [`/api/v1/lists/${backlog.id}/cards`, { title: 'Ship' }],
+      ]);
+    });
+
+    it('createCard rejects on 409 with the reload toast', async () => {
+      boardServer();
+      cardWrites(() => problem(409));
+      const { result } = await setupReady();
+
+      await act(async () => {
+        await expect(
+          result.current.actions.createCard(backlog.id, 'Ship'),
+        ).rejects.toMatchObject({ status: 409 });
+      });
+
+      await screen.findByText(conflict);
+    });
+
+    it('is creating a card while the create is in flight', async () => {
+      boardServer();
+      const held = gate();
+      cardWrites(async () => {
+        await held.wait();
+        return HttpResponse.json(cardFixture('c4', backlog.id), {
+          status: 201,
+        });
+      });
+      const { result } = await setupReady();
+
+      let pending!: Promise<unknown>;
+      act(() => {
+        pending = result.current.actions.createCard(backlog.id, 'Ship');
+      });
+      await waitFor(() =>
+        expect(result.current.state.isCreatingCard).toBe(true),
+      );
+
+      held.open();
+      await act(async () => {
+        await pending;
+      });
+      await waitFor(() =>
+        expect(result.current.state.isCreatingCard).toBe(false),
+      );
+    });
+
+    it('toggleDone shows the new state at once and sends { done }', async () => {
+      boardServer();
+      const held = gate();
+      const changes = cardWrites(async () => {
+        await held.wait();
+        return HttpResponse.json(cardFixture('c3', doing.id, { done: true }));
+      });
+      const { result } = await setupReady();
+      const card = result.current.state.columns[0].cards[0];
+
+      act(() => result.current.actions.toggleDone(card));
+
+      await waitFor(() => expect(cardDone(result, 'c3')).toBe(true));
+      held.open();
+      await waitFor(() =>
+        expect(changes).toEqual([
+          { method: 'PATCH', path: '/api/v1/cards/c3', body: { done: true } },
+        ]),
+      );
+    });
+
+    it.each([
+      [409, conflict, ['Recarregar']],
+      [500, saveFail, ['Tentar novamente']],
+    ])(
+      'toggleDone puts the card back on %i and toasts %j',
+      async (status, message, actions) => {
+        boardServer();
+        cardWrites(() => problem(status));
+        const { result } = await setupReady();
+        const card = result.current.state.columns[0].cards[0];
+
+        act(() => result.current.actions.toggleDone(card));
+
+        await screen.findByText(message);
+        await waitFor(() => expect(cardDone(result, 'c3')).toBe(false));
+        expect(
+          ['Recarregar', 'Tentar novamente'].filter(
+            (name) => screen.queryByRole('button', { name }) !== null,
+          ),
+        ).toEqual(actions);
+      },
+    );
+
+    it('the toggleDone retry resends the same done value', async () => {
+      boardServer();
+      const changes = cardWrites(() => problem(500));
+      const { result } = await setupReady();
+      const card = result.current.state.columns[0].cards[0];
+
+      act(() => result.current.actions.toggleDone(card));
+      await screen.findByText(saveFail);
+      fireEvent.click(screen.getByRole('button', { name: 'Tentar novamente' }));
+
+      await waitFor(() => expect(changes).toHaveLength(2));
+      expect(changes[1].body).toEqual({ done: true });
+    });
+  });
+
+  describe('n shortcut', () => {
+    it('opens the card field in the first column', async () => {
+      boardServer();
+      const { result } = await setupReady();
+
+      act(() => pressN());
+
+      expect(result.current.state.addingCardListId).toBe(doing.id);
+    });
+
+    it('does nothing on an archived board', async () => {
+      boardServer({
+        [boardUrl]: () =>
+          HttpResponse.json(
+            boardFixture({ archivedAt: '2026-10-24T12:00:00.000Z' }),
+          ),
+      });
+      const { result } = await setupReady();
+
+      act(() => pressN());
+
+      expect(result.current.state.addingCardListId).toBeNull();
+    });
+
+    it('does nothing on a board with no columns', async () => {
+      boardServer({ [listsUrl]: () => HttpResponse.json([]) });
+      const { result } = await setupReady();
+
+      act(() => pressN());
+
+      expect(result.current.state.addingCardListId).toBeNull();
+    });
+
+    it('does nothing while the board is loading', async () => {
+      const held = gate();
+      boardServer();
+      server.use(
+        http.get(listsUrl, async () => {
+          await held.wait();
+          return HttpResponse.json([backlog]);
+        }),
+      );
+      const { result } = setup();
+
+      act(() => pressN());
+
+      expect(result.current.state.addingCardListId).toBeNull();
+      held.open();
+      await waitFor(() => expect(result.current.state.status).toBe('ready'));
+    });
   });
 });

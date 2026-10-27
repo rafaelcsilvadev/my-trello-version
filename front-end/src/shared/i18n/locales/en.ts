@@ -133,6 +133,7 @@ export const en = {
       columnCreated: 'Column created',
       columnRenamed: 'Column renamed',
       columnArchived: 'Column archived',
+      cardCreated: 'Task created',
     },
   },
   toast: {
