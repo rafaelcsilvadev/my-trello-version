@@ -539,8 +539,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit (MSW): each request path; archive moves the list to `lists(true)` when cached; restore appends to `lists(false)`; delete drops the list and its archived cards; each revert re-inserts at the old index
-- [ ] Build gate passes; ≥ 8 new tests
+- [x] Unit (MSW): each request path; archive moves the list to `lists(true)` when cached; restore appends to `lists(false)`; delete drops the list and its archived cards; each revert re-inserts at the old index
+- [x] Build gate passes; ≥ 8 new tests
 
 **Tests**: unit
 **Gate**: build
