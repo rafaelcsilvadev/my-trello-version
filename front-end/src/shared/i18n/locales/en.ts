@@ -133,6 +133,8 @@ export const en = {
   },
   dates: {
     short: '{{month}} {{day}}, {{year}}',
+    dayMonth: '{{month}} {{day}}',
+    dayMonthYear: '{{month}} {{day}}, {{year}}',
     months: {
       jan: 'Jan',
       feb: 'Feb',
