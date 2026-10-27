@@ -1064,8 +1064,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit (MSW seed): "Product launch" renders its columns and cards; skeleton then board; 500 → error with retry; 404 → not found; creating a column and a card; archive then restore a column with Mostrar arquivadas; done toggle rolls back on 500; archived board banner restore
-- [ ] Build gate passes; ≥ 8 new tests
+- [x] Unit (MSW seed): "Product launch" renders its columns and cards; skeleton then board; 500 → error with retry; 404 → not found; creating a column and a card; archive then restore a column with Mostrar arquivadas; done toggle rolls back on 500; archived board banner restore
+- [x] Build gate passes; ≥ 8 new tests
 
 **Tests**: unit
 **Gate**: build
