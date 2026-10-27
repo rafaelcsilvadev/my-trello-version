@@ -143,6 +143,10 @@ export const ptBR = {
     toolbar: {
       showArchived: 'Mostrar arquivadas',
     },
+    pager: {
+      goTo: 'Ir para {{title}}',
+      position: '{{title}} · {{i}} de {{n}}',
+    },
     field: {
       cancel: 'Cancelar',
       columnName: 'Nome da coluna',

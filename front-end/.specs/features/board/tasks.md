@@ -964,8 +964,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit: one dot per title; current dot marked; text for index; click calls `onSelect(i)`; nothing with 0 columns
-- [ ] Build gate passes; ≥ 4 new tests
+- [x] Unit: one dot per title; current dot marked; text for index; click calls `onSelect(i)`; nothing with 0 columns
+- [x] Build gate passes; ≥ 4 new tests
 
 **Tests**: unit
 **Gate**: build
