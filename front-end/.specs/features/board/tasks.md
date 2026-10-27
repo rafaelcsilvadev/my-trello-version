@@ -264,8 +264,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit: both locales, same year and other year, January and December
-- [ ] Build gate passes; ≥ 4 new tests
+- [x] Unit: both locales, same year and other year, January and December
+- [x] Build gate passes; ≥ 4 new tests
 
 **Tests**: unit
 **Gate**: build

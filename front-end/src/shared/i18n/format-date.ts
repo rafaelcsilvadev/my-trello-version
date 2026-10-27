@@ -24,3 +24,19 @@ export function formatShortDate(iso: string, t: TFunction): string {
     year: date.getFullYear(),
   });
 }
+
+// month is 1-based (calendar month, as in "2026-10-12").
+export function formatDayMonth(
+  parts: { year: number; month: number; day: number },
+  t: TFunction,
+  currentYear: number,
+): string {
+  const values = {
+    day: parts.day,
+    month: t(`dates.months.${MONTH_KEYS[parts.month - 1]}`),
+    year: parts.year,
+  };
+  return parts.year === currentYear
+    ? t('dates.dayMonth', values)
+    : t('dates.dayMonthYear', values);
+}

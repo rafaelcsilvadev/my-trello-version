@@ -135,6 +135,8 @@ export const ptBR = {
   },
   dates: {
     short: '{{day}} {{month}}, {{year}}',
+    dayMonth: '{{day}} {{month}}',
+    dayMonthYear: '{{day}} {{month}}, {{year}}',
     months: {
       jan: 'jan',
       feb: 'fev',
