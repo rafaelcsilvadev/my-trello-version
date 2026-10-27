@@ -764,8 +764,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit: counter equals card count; click on the name and menu Renomear open the field; menu has exactly Renomear and Arquivar; empty text; add-card opens the field; read-only hides menu and add and makes the name plain text; pending disables the menu
-- [ ] Build gate passes; ≥ 8 new tests
+- [x] Unit: counter equals card count; click on the name and menu Renomear open the field; menu has exactly Renomear and Arquivar; empty text; add-card opens the field; read-only hides menu and add and makes the name plain text; pending disables the menu
+- [x] Build gate passes; ≥ 8 new tests
 
 **Tests**: unit
 **Gate**: build
