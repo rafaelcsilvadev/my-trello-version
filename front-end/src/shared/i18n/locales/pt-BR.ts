@@ -140,6 +140,9 @@ export const ptBR = {
       text: 'Quadro arquivado · somente leitura',
       restore: 'Restaurar',
     },
+    toolbar: {
+      showArchived: 'Mostrar arquivadas',
+    },
     field: {
       cancel: 'Cancelar',
       columnName: 'Nome da coluna',
