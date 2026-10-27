@@ -5,7 +5,6 @@ import type {
   BoardFieldError,
   BoardFieldErrors,
   BoardFormValues,
-  SaveFailureKind,
 } from './types';
 
 // The API only says which field failed, so the message is picked from the value the user sent.
@@ -38,19 +37,4 @@ export function mapBoardServerErrors(
     }
   }
   return Object.keys(errors).length > 0 ? errors : null;
-}
-
-export function saveFailureKind(err: ApiError): SaveFailureKind {
-  switch (err.status) {
-    case 401:
-      return 'sessionExpired';
-    case 404:
-      return 'notFound';
-    case 409:
-      return 'conflict';
-    case 400:
-      return err.errors && err.errors.length > 0 ? 'invalid' : 'retry';
-    default:
-      return 'retry';
-  }
 }
