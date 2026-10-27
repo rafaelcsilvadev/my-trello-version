@@ -36,7 +36,7 @@ graph TD
 | `useLabels(boardId)` | `['board', boardId, 'labels']` | `GET /api/v1/boards/{id}/labels` | always |
 | `useLists(boardId, true)` | `['board', boardId, 'lists', { archived: true }]` | `…/lists?archived=true` | `showArchived` |
 | `useCards(boardId, true)` | `['board', boardId, 'cards', { archived: true }]` | `…/cards?archived=true` | `showArchived` |
-| `useArchivedListCounts(boardId, lists)` | `['board', boardId, 'list-cards', listId]` per archived list (`useQueries`) | `GET /api/v1/lists/{listId}/cards` | `showArchived` |
+| `useArchivedListCounts(boardId, lists, enabled)` | `['board', boardId, 'list-cards', listId]` per archived list (`useQueries`), plus `cards(true)` | `GET /api/v1/lists/{listId}/cards` (active only) + the board's archived cards filtered by `listId` | `showArchived` |
 
 `boardViewKeys.all(boardId) = ['board', boardId]` is the prefix that **Recarregar**, the `404` refetch and the settle invalidation use (FBV-54, FBV-55).
 
@@ -105,7 +105,8 @@ The archived queries never change `status`: while they load, the virtual column 
 ### `api/`
 
 - **`keys.ts`** – `boardViewKeys` (`all`, `detail`, `lists`, `cards`, `labels`, `listCards`).
-- **`queries.ts`** – `useBoard`, `useLists`, `useCards`, `useLabels`, `useArchivedListCounts` (table above).
+- **`queries.ts`** – `useBoard`, `useLists`, `useCards`, `useLabels` (table above).
+- **`archived-counts.ts`** – `useArchivedListCounts`: count = active cards from the list endpoint + archived cards of `cards(true)` with that `listId`; `undefined` until both arrive (FBV-37).
 - **`mutations.ts`**
   - `useCreateList(boardId)` – not optimistic; on success appends the returned list to `lists(false)` with `setQueryData`, then invalidates it (FBV-14).
   - `useCreateCard(boardId)` – `POST /lists/{listId}/cards`; on success appends to `cards(false)`, then invalidates (FBV-25).
