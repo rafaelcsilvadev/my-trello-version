@@ -179,6 +179,17 @@ export const ptBR = {
       restore: 'Restaurar',
       deleteForever: 'Excluir definitivamente',
     },
+    deleteColumn: {
+      title: 'Excluir a coluna {{name}} definitivamente?',
+      textNoCards:
+        'Isso apaga a coluna, que não tem tarefas. Não dá para desfazer.',
+      textOneCard:
+        'Isso apaga a coluna e a 1 tarefa dela. Não dá para desfazer.',
+      textCards:
+        'Isso apaga a coluna e as {{count}} tarefas dela, ativas e arquivadas. Não dá para desfazer.',
+      cancel: 'Cancelar',
+      confirm: 'Excluir definitivamente',
+    },
     card: {
       done: 'Concluída',
       overdue: 'Atrasada',
