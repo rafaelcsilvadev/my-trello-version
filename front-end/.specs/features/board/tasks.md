@@ -339,8 +339,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit: today/tomorrow/yesterday/other date, month and year boundaries; overdue only when not done and before today; due today is not overdue; `parseDateOnly` gives the same day under `TZ=America/Sao_Paulo`
-- [ ] Build gate passes; ≥ 9 new tests
+- [x] Unit: today/tomorrow/yesterday/other date, month and year boundaries; overdue only when not done and before today; due today is not overdue; `parseDateOnly` gives the same day under `TZ=America/Sao_Paulo`
+- [x] Build gate passes; ≥ 9 new tests
 
 **Tests**: unit
 **Gate**: build
