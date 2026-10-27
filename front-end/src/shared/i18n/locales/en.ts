@@ -138,6 +138,9 @@ export const en = {
       text: 'Board archived · read-only',
       restore: 'Restore',
     },
+    toolbar: {
+      showArchived: 'Show archived',
+    },
     field: {
       cancel: 'Cancel',
       columnName: 'Column name',
