@@ -389,8 +389,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit: `fromTitle` from active and archived lists; newest `archivedAt` first; `cardCount` = active + archived, `undefined` while loading; message key for 0, 1, 2
-- [ ] Build gate passes; ≥ 6 new tests
+- [x] Unit: `fromTitle` from active and archived lists; newest `archivedAt` first; `cardCount` = active + archived, `undefined` while loading; message key for 0, 1, 2
+- [x] Build gate passes; ≥ 6 new tests
 
 **Tests**: unit
 **Gate**: build
