@@ -131,6 +131,7 @@ export const en = {
   board: {
     field: {
       cancel: 'Cancel',
+      columnName: 'Column name',
     },
     fieldErrors: {
       columnNameRequired: 'Give the column a name',
