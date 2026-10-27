@@ -414,8 +414,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit: start, middle, past half a column, end, overscroll, count 0
-- [ ] Build gate passes; ≥ 5 new tests
+- [x] Unit: start, middle, past half a column, end, overscroll, count 0
+- [x] Build gate passes; ≥ 5 new tests
 
 **Tests**: unit
 **Gate**: build
