@@ -8,7 +8,7 @@ import {
 import { useApi } from '@/shared/api/api-context';
 import { type ApiError, call } from '@/shared/api/api-error';
 
-import type { List } from '../model/types';
+import type { Card, List } from '../model/types';
 import { boardViewKeys } from './keys';
 
 // Shared by every optimistic board change, so each can see whether another is still pending.
@@ -62,6 +62,85 @@ export function useRenameList(boardId: string) {
   );
 }
 
+export function useArchiveList(boardId: string) {
+  const api = useApi();
+
+  return useOptimisticBoardViewChange<ItemVariables>(
+    boardId,
+    ({ id }) =>
+      call(
+        api.POST('/api/v1/lists/{id}/archive', { params: { path: { id } } }),
+      ),
+    ({ id }) => {
+      const active = removal<List>((list) => list.id === id);
+      return [
+        { key: boardViewKeys.lists(boardId, false), ...active },
+        {
+          key: boardViewKeys.lists(boardId, true),
+          apply: (lists: List[]) => {
+            const list = active.removed()[0];
+            return list
+              ? [{ ...list, archivedAt: new Date().toISOString() }, ...lists]
+              : lists;
+          },
+          revert: (lists: List[]) => lists.filter((list) => list.id !== id),
+        },
+      ];
+    },
+  );
+}
+
+export function useRestoreList(boardId: string) {
+  const api = useApi();
+
+  return useOptimisticBoardViewChange<ItemVariables>(
+    boardId,
+    ({ id }) =>
+      call(
+        api.POST('/api/v1/lists/{id}/unarchive', { params: { path: { id } } }),
+      ),
+    ({ id }) => {
+      const archived = removal<List>((list) => list.id === id);
+      return [
+        { key: boardViewKeys.lists(boardId, true), ...archived },
+        {
+          key: boardViewKeys.lists(boardId, false),
+          apply: (lists: List[]) => {
+            const list = archived.removed()[0];
+            return list
+              ? [
+                  ...lists,
+                  { ...list, archivedAt: null, position: lists.length },
+                ]
+              : lists;
+          },
+          revert: (lists: List[]) => lists.filter((list) => list.id !== id),
+        },
+      ];
+    },
+  );
+}
+
+export function useDeleteList(boardId: string) {
+  const api = useApi();
+
+  return useOptimisticBoardViewChange<ItemVariables>(
+    boardId,
+    ({ id }) =>
+      call(api.DELETE('/api/v1/lists/{id}', { params: { path: { id } } })),
+    ({ id }) => [
+      {
+        key: boardViewKeys.lists(boardId, true),
+        ...removal<List>((list) => list.id === id),
+      },
+      {
+        key: boardViewKeys.cards(boardId, true),
+        ...removal<Card>((card) => card.listId === id),
+      },
+    ],
+  );
+}
+
 // Ids of the lists and cards with a change in flight, so their controls can block a second one (FBV-58).
 export function usePendingItemIds(): Set<string> {
   const ids = useMutationState({
@@ -69,6 +148,30 @@ export function usePendingItemIds(): Set<string> {
     select: (mutation) => (mutation.state.variables as ItemVariables).id,
   });
   return new Set(ids);
+}
+
+// Removes the matching items and remembers their indexes, so `revert` puts
+// them back where they were unless a refetch already brought them back.
+function removal<T extends { id: string }>(matches: (item: T) => boolean) {
+  let removed: { index: number; item: T }[] = [];
+  return {
+    removed: () => removed.map(({ item }) => item),
+    apply: (items: T[]) => {
+      removed = items.flatMap((item, index) =>
+        matches(item) ? [{ index, item }] : [],
+      );
+      return items.filter((item) => !matches(item));
+    },
+    revert: (items: T[]) => {
+      const restored = [...items];
+      for (const { index, item } of removed) {
+        if (!restored.some(({ id }) => id === item.id)) {
+          restored.splice(index, 0, item);
+        }
+      }
+      return restored;
+    },
+  };
 }
 
 // TanStack Query optimistic recipe with per-item revert (FE-AD-010): patch the
