@@ -134,6 +134,10 @@ export const en = {
       labels: 'Board labels',
       back: 'Back',
     },
+    archivedBanner: {
+      text: 'Board archived · read-only',
+      restore: 'Restore',
+    },
     field: {
       cancel: 'Cancel',
       columnName: 'Column name',

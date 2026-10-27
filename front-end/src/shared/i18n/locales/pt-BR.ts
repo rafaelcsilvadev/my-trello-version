@@ -136,6 +136,10 @@ export const ptBR = {
       labels: 'Etiquetas do quadro',
       back: 'Voltar',
     },
+    archivedBanner: {
+      text: 'Quadro arquivado · somente leitura',
+      restore: 'Restaurar',
+    },
     field: {
       cancel: 'Cancelar',
       columnName: 'Nome da coluna',
