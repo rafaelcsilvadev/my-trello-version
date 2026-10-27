@@ -689,8 +689,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit: label chips with name and `bg-label-{color}`; due label and "Atrasada"; checklist "2/3" in success color when complete; done style; checkbox calls `onToggleDone`; archived mode shows "Arquivada em … · de: …" and a disabled checkbox; read-only disables the checkbox
-- [ ] Build gate passes; ≥ 9 new tests
+- [x] Unit: label chips with name and `bg-label-{color}`; due label and "Atrasada"; checklist "2/3" in success color when complete; done style; checkbox calls `onToggleDone`; archived mode shows "Arquivada em … · de: …" and a disabled checkbox; read-only disables the checkbox
+- [x] Build gate passes; ≥ 9 new tests
 
 **Tests**: unit
 **Gate**: build
