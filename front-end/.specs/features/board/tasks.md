@@ -614,8 +614,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit (MSW): create success toast "Coluna criada" and resolves `null`; invalid name sends nothing; `400` returns the field error with no toast; `500` on create toasts with retry resending the same title; unchanged rename sends nothing; rename/archive success toasts; `409`/`404`/`500` on archive → the three toasts
-- [ ] Build gate passes; ≥ 10 new tests
+- [x] Unit (MSW): create success toast "Coluna criada" and resolves `null`; invalid name sends nothing; `400` returns the field error with no toast; `500` on create toasts with retry resending the same title; unchanged rename sends nothing; rename/archive success toasts; `409`/`404`/`500` on archive → the three toasts
+- [x] Build gate passes; ≥ 10 new tests
 
 **Tests**: unit
 **Gate**: build
@@ -701,7 +701,7 @@ T42 → T43 → T44
 
 ### T25: Inline create field
 
-**What**: `InlineCreateField({ label, placeholder, isPending, onSubmit(raw) → Promise<ItemFieldError | null>, onClose })`: Enter submits, Esc closes, error under the field, clears and keeps focus on success.
+**What**: `InlineCreateField({ label, placeholder, isPending, onSubmit(raw) → Promise<ItemFieldError | null>, onClose })`: Enter submits, Esc closes, error under the field, clears and keeps focus on success; a rejected `onSubmit` keeps the text and re-enables submit.
 **Where**: `front-end/src/features/board/components/inline-create-field.tsx`
 **Depends on**: T24
 **Reuses**: `inputClasses`; prototype `:442-447, 504-508`
@@ -726,7 +726,7 @@ T42 → T43 → T44
 
 ### T26: Column rename field
 
-**What**: `ColumnRenameField({ initial, onSubmit(raw) → ItemFieldError | null, onCancel })`: Enter and blur submit, Esc cancels, stays open on error.
+**What**: `ColumnRenameField({ initial, initialError?, onSubmit(raw) → ItemFieldError | null, onCancel })`: Enter and blur submit, Esc cancels, stays open on error; `initialError` shows the message when the view model reopens it after a `400` (`editing.value`/`editing.error`).
 **Where**: `front-end/src/features/board/components/column-rename-field.tsx`
 **Depends on**: T25
 **Reuses**: prototype `:388, 408`

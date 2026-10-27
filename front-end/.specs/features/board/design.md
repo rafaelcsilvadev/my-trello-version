@@ -126,11 +126,12 @@ The archived queries never change `status`: while they load, the virtual column 
 ### `view-models/`
 
 - **`use-board-view-model.ts`** – `useBoardViewModel(boardId)` returns `{ state, actions }`:
-  - `state`: `status`, `board`, `readOnly`, `columns`, `labelsById`, `showArchived`, `archived` (`{ cards, columns, cardsStatus, columnsStatus }`), `addingCardListId`, `editingListId`, `deleteTarget`, `pendingIds`, `isCreatingList`, `isCreatingCard`, `today`.
-  - `actions`: `retryLoad`, `setShowArchived`, `createList(raw) → Promise<ItemFieldError | null>`, `startRename(listId)`, `submitRename(list, raw) → ItemFieldError | null`, `cancelRename`, `archiveList`, `restoreList`, `askDeleteList`, `confirmDeleteList`, `cancelDelete`, `openAddCard(listId)`, `closeAddCard`, `createCard(listId, raw) → Promise<ItemFieldError | null>`, `toggleDone(card)`, `restoreBoard`.
+  - `state`: `status`, `board`, `readOnly`, `columns`, `labelsById`, `showArchived`, `archived` (`{ cards, columns, cardsStatus, columnsStatus }`), `addingCardListId`, `editing` (`{ listId, value?, error? } | null`), `deleteTarget`, `pendingIds`, `isCreatingList`, `isCreatingCard`, `today`.
+  - `actions`: `retryLoad`, `setShowArchived`, `createList(raw) → Promise<ItemFieldError | null>`, `startRename(listId)`, `submitRename(list, raw) → ItemFieldError | null`, `cancelRename`, `archiveList(listId)`, `restoreList`, `askDeleteList`, `confirmDeleteList`, `cancelDelete`, `openAddCard(listId)`, `closeAddCard`, `createCard(listId, raw) → Promise<ItemFieldError | null>`, `toggleDone(card)`, `restoreBoard`.
   - Registers `useShortcut('n', () => openAddCard(columns[0].list.id), { enabled: status === 'ready' && !readOnly && columns.length > 0 })` (FBV-30, FBV-46).
-  - `showArchived`, `addingCardListId`, `editingListId`, `deleteTarget` are `useState`, so they reset whenever the board opens (FBV-33). `BoardPage` keys `BoardScreen` by `boardId` so moving between boards also resets them.
-  - Failures go through `useSaveFailureNotifier(() => invalidate(all(boardId)))` (FBV-53–FBV-55). Create failures keep the field text: the action returns the error to the field and only toasts for non-`400` (FBV-56).
+  - `showArchived`, `addingCardListId`, `editing`, `deleteTarget` are `useState`, so they reset whenever the board opens (FBV-33). `BoardPage` keys `BoardScreen` by `boardId` so moving between boards also resets them.
+  - Failures go through `useSaveFailureNotifier(() => invalidate(all(boardId)))` (FBV-53–FBV-55). Create failures keep the field text: `createList`/`createCard` resolve `null` on success, resolve the field message for a client error or a `400` on `title` (no toast), and reject after the notifier toasts any other failure, so the field keeps its text and re-enables (FBV-56). The toast retry swallows its own rejection.
+  - A rename closes the field before the request; a `400` on `title` reopens it through `editing = { listId, value: raw, error }` (FBV-57).
 
 ### `components/`
 
