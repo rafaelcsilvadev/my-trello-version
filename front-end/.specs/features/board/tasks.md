@@ -112,9 +112,9 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit: the existing `saveFailureKind` cases move to `test/unit/shared/api/save-failure.spec.ts` unchanged (401, 404, 409, 400 with/without `errors`, 0, 5xx)
-- [ ] `boards` imports the shared module; its tests pass unchanged
-- [ ] Build gate passes; test count unchanged
+- [x] Unit: the existing `saveFailureKind` cases move to `test/unit/shared/api/save-failure.spec.ts` unchanged (401, 404, 409, 400 with/without `errors`, 0, 5xx)
+- [x] `boards` imports the shared module; its tests pass unchanged
+- [x] Build gate passes; test count unchanged
 
 **Tests**: unit
 **Gate**: build

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
 
 import type { ApiError } from '@/shared/api/api-error';
+import { saveFailureKind } from '@/shared/api/save-failure';
 import { useToast } from '@/shared/ui/toast/use-toast';
 
 import { boardKeys } from '../api/keys';
@@ -17,7 +18,7 @@ import {
   useUpdateBoard,
 } from '../api/mutations';
 import { useBoards } from '../api/queries';
-import { mapBoardServerErrors, saveFailureKind } from '../model/errors';
+import { mapBoardServerErrors } from '../model/errors';
 import type {
   BoardFieldErrors,
   BoardFormValues,
