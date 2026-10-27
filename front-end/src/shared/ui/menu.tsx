@@ -14,13 +14,15 @@ const tones = {
   danger: 'text-red-600',
 };
 
+// An item either runs onAction or, with href, renders as a link.
 type ActionMenuItem = {
   id: string;
   label: string;
   icon: LucideIcon;
   tone?: 'danger';
-  onAction: () => void;
-};
+} & (
+  { onAction: () => void; href?: never } | { href: string; onAction?: never }
+);
 
 type ActionMenuProps = {
   label: string;
@@ -43,18 +45,21 @@ export function ActionMenu({ label, items, isDisabled }: ActionMenuProps) {
         className="w-47.5 rounded-lg border border-border-subtle bg-surface-card p-1.5 shadow-lg"
       >
         <Menu aria-label={label} className="flex flex-col outline-none">
-          {items.map(({ id, label: itemLabel, icon: Icon, tone, onAction }) => (
-            <MenuItem
-              key={id}
-              id={id}
-              textValue={itemLabel}
-              onAction={onAction}
-              className={`flex h-8.5 cursor-pointer items-center gap-2.5 whitespace-nowrap rounded-sm px-2.5 text-md outline-none hover:bg-neutral-100 data-focus-visible:outline-2 data-focus-visible:outline-border-focus ${tones[tone ?? 'default']}`}
-            >
-              <Icon size={16} aria-hidden />
-              <span>{itemLabel}</span>
-            </MenuItem>
-          ))}
+          {items.map(
+            ({ id, label: itemLabel, icon: Icon, tone, onAction, href }) => (
+              <MenuItem
+                key={id}
+                id={id}
+                textValue={itemLabel}
+                onAction={onAction}
+                href={href}
+                className={`flex h-8.5 cursor-pointer items-center gap-2.5 whitespace-nowrap rounded-sm px-2.5 text-md outline-none hover:bg-neutral-100 data-focus-visible:outline-2 data-focus-visible:outline-border-focus ${tones[tone ?? 'default']}`}
+              >
+                <Icon size={16} aria-hidden />
+                <span>{itemLabel}</span>
+              </MenuItem>
+            ),
+          )}
         </Menu>
       </Popover>
     </MenuTrigger>

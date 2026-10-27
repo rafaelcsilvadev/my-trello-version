@@ -1,4 +1,5 @@
 import { QueryClientProvider } from '@tanstack/react-query';
+import { RouterProvider as AriaRouterProvider } from 'react-aria-components';
 import { I18nextProvider } from 'react-i18next';
 import { RouterProvider } from 'react-router';
 
@@ -21,9 +22,12 @@ export function App({ services }: { services: AppServices }) {
             <ToastProvider>
               <ThemeController store={preferences} />
               <LanguageController store={preferences} i18n={i18n} />
-              <div className="min-h-screen bg-surface-page font-body text-text-primary">
-                <RouterProvider router={router} />
-              </div>
+              {/* React Aria links (e.g. menu items with href) navigate client-side. */}
+              <AriaRouterProvider navigate={(to) => void router.navigate(to)}>
+                <div className="min-h-screen bg-surface-page font-body text-text-primary">
+                  <RouterProvider router={router} />
+                </div>
+              </AriaRouterProvider>
             </ToastProvider>
           </SessionProvider>
         </ApiProvider>

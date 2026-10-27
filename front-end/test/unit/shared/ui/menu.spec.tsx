@@ -1,5 +1,5 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { Archive, Pencil, Trash2 } from 'lucide-react';
+import { Archive, Pencil, Tag, Trash2 } from 'lucide-react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { ActionMenu } from '@/shared/ui/menu';
@@ -78,6 +78,23 @@ describe('ActionMenu', () => {
     expect(
       screen.getByRole('menuitem', { name: 'Renomear' }).className,
     ).not.toContain('text-red-600');
+  });
+
+  it('renders an href item as a link to that href', () => {
+    render(
+      <ActionMenu
+        label="Ações do quadro"
+        items={[
+          { id: 'labels', label: 'Etiquetas', icon: Tag, href: '/b/1/labels' },
+        ]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Ações do quadro' }));
+
+    const item = screen.getByRole('menuitem', { name: 'Etiquetas' });
+    expect(item.tagName).toBe('A');
+    expect(item.getAttribute('href')).toBe('/b/1/labels');
   });
 
   it('disables the button and keeps the menu closed when isDisabled', () => {

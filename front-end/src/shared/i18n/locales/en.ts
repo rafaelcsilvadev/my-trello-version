@@ -129,6 +129,11 @@ export const en = {
     },
   },
   board: {
+    header: {
+      menu: 'Board actions',
+      labels: 'Board labels',
+      back: 'Back',
+    },
     field: {
       cancel: 'Cancel',
       columnName: 'Column name',

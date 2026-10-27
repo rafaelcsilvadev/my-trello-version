@@ -1,5 +1,6 @@
 import { useQueries } from '@tanstack/react-query';
-import { cleanup, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
+import { Tag } from 'lucide-react';
 import { http, HttpResponse } from 'msw';
 import { useEffect } from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -9,6 +10,7 @@ import { useApi } from '@/shared/api/api-context';
 import { apiOrigin } from '@/shared/config';
 import { useSession } from '@/shared/session/session-context';
 import type { SessionStore } from '@/shared/session/session-store';
+import { ActionMenu } from '@/shared/ui/menu';
 
 import { server } from '../../support/msw/server';
 import { renderApp } from '../../support/render-app';
@@ -130,6 +132,30 @@ describe('App composition root', () => {
     await screen.findByRole('heading', { level: 1, name: 'Probe' });
 
     expect(seen).toBe(session);
+  });
+
+  it('routes React Aria links through the app router', async () => {
+    const { router } = renderApp({
+      route: '/probe',
+      routes: [
+        {
+          path: '/probe',
+          element: (
+            <ActionMenu
+              label="Menu"
+              items={[{ id: 'go', label: 'Go', icon: Tag, href: '/login' }]}
+            />
+          ),
+        },
+      ],
+    });
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Menu' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Go' }));
+
+    await waitFor(() => {
+      expect(currentUrl(router)).toBe('/login');
+    });
   });
 
   it('applies the stored dark theme and pt-BR language on the first render', async () => {

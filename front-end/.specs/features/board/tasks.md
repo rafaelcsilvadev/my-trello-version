@@ -889,8 +889,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit: title; description only when not null; menu item links to `/b/{id}/labels`; back link "Voltar" to `/boards`
-- [ ] Build gate passes; ≥ 4 new tests
+- [x] Unit: title; description only when not null; menu item links to `/b/{id}/labels`; back link "Voltar" to `/boards`
+- [x] Build gate passes; ≥ 4 new tests
 
 **Tests**: unit
 **Gate**: build

@@ -131,6 +131,11 @@ export const ptBR = {
     },
   },
   board: {
+    header: {
+      menu: 'Ações do quadro',
+      labels: 'Etiquetas do quadro',
+      back: 'Voltar',
+    },
     field: {
       cancel: 'Cancelar',
       columnName: 'Nome da coluna',
