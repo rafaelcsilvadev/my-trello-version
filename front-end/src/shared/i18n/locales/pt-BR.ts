@@ -140,6 +140,17 @@ export const ptBR = {
       boardRestored: 'Quadro restaurado',
       cardCreated: 'Tarefa criada',
     },
+    card: {
+      done: 'Concluída',
+      overdue: 'Atrasada',
+      pending: 'Salvando…',
+      archived: 'Arquivada em {{date}} · de: {{column}}',
+      due: {
+        today: 'Hoje',
+        tomorrow: 'Amanhã',
+        yesterday: 'Ontem',
+      },
+    },
   },
   toast: {
     close: 'Fechar',
