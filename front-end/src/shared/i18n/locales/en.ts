@@ -168,6 +168,15 @@ export const en = {
       title: 'Archived',
       empty: 'No archived tasks',
     },
+    archivedColumns: {
+      title: 'Archived columns',
+      empty: 'No archived columns',
+      archivedOn: 'Archived {{date}}',
+      oneCard: '1 task',
+      cards: '{{count}} tasks',
+      restore: 'Restore',
+      deleteForever: 'Delete permanently',
+    },
     card: {
       done: 'Completed',
       overdue: 'Overdue',

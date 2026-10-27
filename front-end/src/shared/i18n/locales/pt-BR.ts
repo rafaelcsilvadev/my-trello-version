@@ -170,6 +170,15 @@ export const ptBR = {
       title: 'Arquivadas',
       empty: 'Nenhuma tarefa arquivada',
     },
+    archivedColumns: {
+      title: 'Colunas arquivadas',
+      empty: 'Nenhuma coluna arquivada',
+      archivedOn: 'Arquivada em {{date}}',
+      oneCard: '1 tarefa',
+      cards: '{{count}} tarefas',
+      restore: 'Restaurar',
+      deleteForever: 'Excluir definitivamente',
+    },
     card: {
       done: 'Concluída',
       overdue: 'Atrasada',
