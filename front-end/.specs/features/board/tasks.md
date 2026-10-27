@@ -914,8 +914,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit: text "Quadro arquivado · somente leitura"; Restaurar calls back; disabled while pending
-- [ ] Build gate passes; ≥ 3 new tests
+- [x] Unit: text "Quadro arquivado · somente leitura"; Restaurar calls back; disabled while pending
+- [x] Build gate passes; ≥ 3 new tests
 
 **Tests**: unit
 **Gate**: build
