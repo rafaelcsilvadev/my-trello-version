@@ -514,8 +514,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit (MSW): rename patches the title before the response; failure restores only that list's title while a second pending rename of another list stays; invalidation only after the last pending change; pending ids during flight
-- [ ] Build gate passes; ≥ 6 new tests
+- [x] Unit (MSW): rename patches the title before the response; failure restores only that list's title while a second pending rename of another list stays; invalidation only after the last pending change; pending ids during flight
+- [x] Build gate passes; ≥ 6 new tests
 
 **Tests**: unit
 **Gate**: build
