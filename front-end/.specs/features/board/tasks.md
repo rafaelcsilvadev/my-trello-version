@@ -138,9 +138,9 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit: each failure kind → toast text and action (Tentar novamente resends, Recarregar calls `reload`, 404 toasts without button and calls `reload`, 401 shows nothing); `runChange` toasts the success message
-- [ ] `boards` view-model tests pass unchanged
-- [ ] Build gate passes; ≥ 5 new tests
+- [x] Unit: each failure kind → toast text and action (Tentar novamente resends, Recarregar calls `reload`, 404 toasts without button and calls `reload`, 401 shows nothing); `runChange` toasts the success message
+- [x] `boards` view-model tests pass unchanged
+- [x] Build gate passes; ≥ 5 new tests
 
 **Tests**: unit
 **Gate**: build
