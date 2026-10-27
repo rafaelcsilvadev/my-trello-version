@@ -214,8 +214,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit: role `switch` with the label; on/off state; click and Space toggle
-- [ ] Build gate passes; ≥ 3 new tests
+- [x] Unit: role `switch` with the label; on/off state; click and Space toggle
+- [x] Build gate passes; ≥ 3 new tests
 
 **Tests**: unit
 **Gate**: build
