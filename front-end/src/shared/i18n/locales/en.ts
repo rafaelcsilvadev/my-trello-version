@@ -141,6 +141,10 @@ export const en = {
     toolbar: {
       showArchived: 'Show archived',
     },
+    pager: {
+      goTo: 'Go to {{title}}',
+      position: '{{title}} · {{i}} of {{n}}',
+    },
     field: {
       cancel: 'Cancel',
       columnName: 'Column name',
