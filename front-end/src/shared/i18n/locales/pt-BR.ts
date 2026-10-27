@@ -133,6 +133,7 @@ export const ptBR = {
   board: {
     field: {
       cancel: 'Cancelar',
+      columnName: 'Nome da coluna',
     },
     fieldErrors: {
       columnNameRequired: 'Dê um nome à coluna',
