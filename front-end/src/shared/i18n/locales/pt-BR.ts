@@ -136,6 +136,11 @@ export const ptBR = {
       labels: 'Etiquetas do quadro',
       back: 'Voltar',
     },
+    notFound: {
+      title: 'Quadro não encontrado',
+      detail: 'Ele pode ter sido excluído.',
+      back: 'Voltar para Meus quadros',
+    },
     archivedBanner: {
       text: 'Quadro arquivado · somente leitura',
       restore: 'Restaurar',

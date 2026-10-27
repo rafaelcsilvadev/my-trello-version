@@ -134,6 +134,11 @@ export const en = {
       labels: 'Board labels',
       back: 'Back',
     },
+    notFound: {
+      title: 'Board not found',
+      detail: 'It may have been deleted.',
+      back: 'Back to My boards',
+    },
     archivedBanner: {
       text: 'Board archived · read-only',
       restore: 'Restore',
