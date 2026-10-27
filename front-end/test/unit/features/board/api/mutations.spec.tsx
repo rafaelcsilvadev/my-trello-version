@@ -10,15 +10,18 @@ import {
   useDeleteList,
   usePendingItemIds,
   useRenameList,
+  useRestoreBoard,
   useRestoreList,
+  useToggleCardDone,
 } from '@/features/board/api/mutations';
-import type { Card, List } from '@/features/board/model/types';
+import type { Board, Card, List } from '@/features/board/model/types';
 import { ApiProvider } from '@/shared/api/api-context';
 import { ApiError } from '@/shared/api/api-error';
 import { createApiClient } from '@/shared/api/client';
 import { createQueryClient } from '@/shared/api/query-client';
 
 import {
+  boardFixture,
   boardId,
   cardFixture,
   listFixture,
@@ -38,6 +41,13 @@ const old = listFixture('l4', { title: 'Old', position: 1, archivedAt });
 const ideaCard = cardFixture('c1', ideas.id, { archivedAt });
 const oldCard = cardFixture('c2', old.id, { archivedAt });
 const otherIdeaCard = cardFixture('c3', ideas.id, { archivedAt });
+const cardUrl = `${baseUrl}/api/v1/cards/:id`;
+const cardsKey = boardViewKeys.cards(boardId, false);
+const todoCard = cardFixture('c4', backlog.id);
+const doneCard = cardFixture('c5', backlog.id, { position: 1, done: true });
+const boardUrl = `${baseUrl}/api/v1/boards/:id`;
+const detailKey = boardViewKeys.detail(boardId);
+const archivedBoard = boardFixture({ archivedAt });
 
 const serverError = {
   statusCode: 500,
@@ -385,6 +395,140 @@ describe('useDeleteList', () => {
       oldCard.id,
       otherIdeaCard.id,
     ]);
+  });
+});
+
+function doneFlags(queryClient: TestQueryClient) {
+  return queryClient.getQueryData<Card[]>(cardsKey)?.map((card) => card.done);
+}
+
+function setupCards() {
+  const context = setup();
+  context.queryClient.setQueryData(cardsKey, [todoCard, doneCard]);
+  return context;
+}
+
+function setupArchivedBoard() {
+  const context = setup();
+  context.queryClient.setQueryData(detailKey, archivedBoard);
+  return context;
+}
+
+function boardArchivedAt(queryClient: TestQueryClient) {
+  return queryClient.getQueryData<Board>(detailKey)?.archivedAt;
+}
+
+describe('useToggleCardDone', () => {
+  it('patches the card with the done flag', async () => {
+    const requests: { id: unknown; body: unknown }[] = [];
+    server.use(
+      http.patch(cardUrl, async ({ params, request }) => {
+        requests.push({ id: params.id, body: await request.json() });
+        return HttpResponse.json({ ...todoCard, done: true });
+      }),
+    );
+    const { wrapper } = setupCards();
+    const { result } = renderHook(() => useToggleCardDone(boardId), {
+      wrapper,
+    });
+
+    await act(() =>
+      result.current.mutateAsync({ id: todoCard.id, done: true }),
+    );
+
+    expect(requests).toEqual([{ id: todoCard.id, body: { done: true } }]);
+  });
+
+  it('marks the card done before the response arrives', async () => {
+    server.use(http.patch(cardUrl, () => delay('infinite')));
+    const { wrapper, queryClient } = setupCards();
+    const { result } = renderHook(() => useToggleCardDone(boardId), {
+      wrapper,
+    });
+
+    act(() => result.current.mutate({ id: todoCard.id, done: true }));
+
+    await waitFor(() => expect(doneFlags(queryClient)).toEqual([true, true]));
+  });
+
+  it('restores only the failed card while another toggle is pending', async () => {
+    let failFirst: (() => void) | undefined;
+    server.use(
+      http.patch(cardUrl, async ({ params }) => {
+        if (params.id === doneCard.id) return delay('infinite');
+        await new Promise<void>((resolve) => (failFirst = resolve));
+        return HttpResponse.json(serverError, { status: 500 });
+      }),
+    );
+    const { wrapper, queryClient } = setupCards();
+    const { result } = renderHook(
+      () => ({
+        first: useToggleCardDone(boardId),
+        second: useToggleCardDone(boardId),
+      }),
+      { wrapper },
+    );
+
+    act(() => result.current.first.mutate({ id: todoCard.id, done: true }));
+    act(() => result.current.second.mutate({ id: doneCard.id, done: false }));
+    await waitFor(() => expect(doneFlags(queryClient)).toEqual([true, false]));
+    await waitFor(() => expect(failFirst).toBeDefined());
+    act(() => failFirst?.());
+
+    await waitFor(() => expect(result.current.first.isError).toBe(true));
+    expect(doneFlags(queryClient)).toEqual([false, false]);
+  });
+});
+
+describe('useRestoreBoard', () => {
+  it('posts to the unarchive path of the board', async () => {
+    const ids: unknown[] = [];
+    server.use(
+      http.post(`${boardUrl}/unarchive`, ({ params }) => {
+        ids.push(params.id);
+        return HttpResponse.json({ ...archivedBoard, archivedAt: null });
+      }),
+    );
+    const { wrapper } = setupArchivedBoard();
+    const { result } = renderHook(() => useRestoreBoard(boardId), {
+      wrapper,
+    });
+
+    await act(() => result.current.mutateAsync({ id: boardId }));
+
+    expect(ids).toEqual([boardId]);
+  });
+
+  it('clears archivedAt before the response arrives', async () => {
+    server.use(http.post(`${boardUrl}/unarchive`, () => delay('infinite')));
+    const { wrapper, queryClient } = setupArchivedBoard();
+    const { result } = renderHook(() => useRestoreBoard(boardId), {
+      wrapper,
+    });
+
+    act(() => result.current.mutate({ id: boardId }));
+
+    await waitFor(() => expect(boardArchivedAt(queryClient)).toBeNull());
+  });
+
+  it('sets archivedAt back on failure', async () => {
+    server.use(
+      http.post(`${boardUrl}/unarchive`, () =>
+        HttpResponse.json(serverError, { status: 500 }),
+      ),
+    );
+    const { wrapper, queryClient } = setupArchivedBoard();
+    const { result } = renderHook(() => useRestoreBoard(boardId), {
+      wrapper,
+    });
+
+    await act(() =>
+      expect(result.current.mutateAsync({ id: boardId })).rejects.toThrow(
+        ApiError,
+      ),
+    );
+
+    expect(boardArchivedAt(queryClient)).toBe(archivedAt);
   });
 });
 

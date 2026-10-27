@@ -8,7 +8,7 @@ import {
 import { useApi } from '@/shared/api/api-context';
 import { type ApiError, call } from '@/shared/api/api-error';
 
-import type { Card, List } from '../model/types';
+import type { Board, Card, List } from '../model/types';
 import { boardViewKeys } from './keys';
 
 // Shared by every optimistic board change, so each can see whether another is still pending.
@@ -138,6 +138,71 @@ export function useDeleteList(boardId: string) {
         ...removal<Card>((card) => card.listId === id),
       },
     ],
+  );
+}
+
+export type ToggleCardDoneVariables = ItemVariables & { done: boolean };
+
+export function useToggleCardDone(boardId: string) {
+  const api = useApi();
+
+  return useOptimisticBoardViewChange<ToggleCardDoneVariables>(
+    boardId,
+    ({ id, done }) =>
+      call(
+        api.PATCH('/api/v1/cards/{id}', {
+          params: { path: { id } },
+          body: { done },
+        }),
+      ),
+    ({ id, done }) => {
+      let previous: boolean | undefined;
+      return [
+        {
+          key: boardViewKeys.cards(boardId, false),
+          apply: (cards: Card[]) =>
+            cards.map((card) => {
+              if (card.id !== id) return card;
+              previous = card.done;
+              return { ...card, done };
+            }),
+          revert: (cards: Card[]) =>
+            cards.map((card) =>
+              card.id === id && previous !== undefined
+                ? { ...card, done: previous }
+                : card,
+            ),
+        },
+      ];
+    },
+  );
+}
+
+// `id` is the board itself, so its Restore button shows as pending (FBV-58).
+export function useRestoreBoard(boardId: string) {
+  const api = useApi();
+
+  return useOptimisticBoardViewChange<ItemVariables>(
+    boardId,
+    ({ id }) =>
+      call(
+        api.POST('/api/v1/boards/{id}/unarchive', {
+          params: { path: { id } },
+        }),
+      ),
+    () => {
+      let previous: string | null = null;
+      return [
+        {
+          key: boardViewKeys.detail(boardId),
+          apply: (board: Board) => {
+            previous = board.archivedAt;
+            return { ...board, archivedAt: null };
+          },
+          revert: (board: Board) => ({ ...board, archivedAt: previous }),
+        },
+      ];
+    },
   );
 }
 
