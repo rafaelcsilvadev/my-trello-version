@@ -789,8 +789,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit: button opens the field; empty-board variant shows the title and the open field; submit forwards the text
-- [ ] Build gate passes; ≥ 3 new tests
+- [x] Unit: button opens the field; empty-board variant shows the title and the open field; submit forwards the text
+- [x] Build gate passes; ≥ 3 new tests
 
 **Tests**: unit
 **Gate**: build
