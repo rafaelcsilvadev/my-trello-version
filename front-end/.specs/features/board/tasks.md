@@ -364,8 +364,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit: order of lists and cards from unordered input; cards of unknown lists dropped; empty column
-- [ ] Build gate passes; ≥ 4 new tests
+- [x] Unit: order of lists and cards from unordered input; cards of unknown lists dropped; empty column
+- [x] Build gate passes; ≥ 4 new tests
 
 **Tests**: unit
 **Gate**: build
