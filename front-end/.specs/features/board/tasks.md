@@ -1039,8 +1039,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit: columns in given order; archived column and section only when `showArchived`, after the columns; add column last and hidden when read-only; empty board shows only the empty block; a scroll event updates the pager text (mocked `scrollLeft`/`clientWidth`); pager click calls `scrollTo`
-- [ ] Build gate passes; ≥ 6 new tests
+- [x] Unit: columns in given order; archived column and section only when `showArchived`, after the columns; add column last and hidden when read-only; empty board shows only the empty block; a scroll event updates the pager text (mocked `scrollLeft`/`clientWidth`); pager click calls `scrollTo`
+- [x] Build gate passes; ≥ 6 new tests
 
 **Tests**: unit
 **Gate**: build
