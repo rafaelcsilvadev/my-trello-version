@@ -864,8 +864,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit: text for 0, 1 and 3 cards; confirm calls `onConfirm`; cancel and Esc call `onCancel`
-- [ ] Build gate passes; ≥ 5 new tests
+- [x] Unit: text for 0, 1 and 3 cards; confirm calls `onConfirm`; cancel and Esc call `onCancel`
+- [x] Build gate passes; ≥ 5 new tests
 
 **Tests**: unit
 **Gate**: build
