@@ -138,6 +138,17 @@ export const en = {
       boardRestored: 'Board restored',
       cardCreated: 'Task created',
     },
+    card: {
+      done: 'Completed',
+      overdue: 'Overdue',
+      pending: 'Saving…',
+      archived: 'Archived {{date}} · from: {{column}}',
+      due: {
+        today: 'Today',
+        tomorrow: 'Tomorrow',
+        yesterday: 'Yesterday',
+      },
+    },
   },
   toast: {
     close: 'Close',
