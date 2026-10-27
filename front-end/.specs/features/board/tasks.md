@@ -814,8 +814,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit: title "Arquivadas" with count; tiles in given order with "de: …"; "Nenhuma tarefa arquivada"; no menu or create field; error shows retry
-- [ ] Build gate passes; ≥ 5 new tests
+- [x] Unit: title "Arquivadas" with count; tiles in given order with "de: …"; "Nenhuma tarefa arquivada"; no menu or create field; error shows retry
+- [x] Build gate passes; ≥ 5 new tests
 
 **Tests**: unit
 **Gate**: build
