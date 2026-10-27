@@ -589,8 +589,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit (MSW): `loading` → `ready` with columns; any 404 → `notFound`; 500 → `error` and `retryLoad` refetches only failed queries; archived board → `readOnly`
-- [ ] Build gate passes; ≥ 6 new tests
+- [x] Unit (MSW): `loading` → `ready` with columns; any 404 → `notFound`; 500 → `error` and `retryLoad` refetches only failed queries; archived board → `readOnly`
+- [x] Build gate passes; ≥ 6 new tests
 
 **Tests**: unit
 **Gate**: build
