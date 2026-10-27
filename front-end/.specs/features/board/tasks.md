@@ -189,8 +189,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit: role `checkbox` with the accessible name; checked state; click and Space call `onChange` with the new value; disabled blocks both
-- [ ] Build gate passes; ≥ 4 new tests
+- [x] Unit: role `checkbox` with the accessible name; checked state; click and Space call `onChange` with the new value; disabled blocks both
+- [x] Build gate passes; ≥ 4 new tests
 
 **Tests**: unit
 **Gate**: build
