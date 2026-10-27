@@ -131,6 +131,15 @@ export const ptBR = {
     },
   },
   board: {
+    field: {
+      cancel: 'Cancelar',
+    },
+    fieldErrors: {
+      columnNameRequired: 'Dê um nome à coluna',
+      columnNameTooLong: 'Use até 100 caracteres',
+      cardTitleRequired: 'Dê um título à tarefa',
+      cardTitleTooLong: 'Use até 100 caracteres',
+    },
     toast: {
       columnCreated: 'Coluna criada',
       columnRenamed: 'Coluna renomeada',

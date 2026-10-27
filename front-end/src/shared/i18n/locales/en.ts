@@ -129,6 +129,15 @@ export const en = {
     },
   },
   board: {
+    field: {
+      cancel: 'Cancel',
+    },
+    fieldErrors: {
+      columnNameRequired: 'Give the column a name',
+      columnNameTooLong: 'Use up to 100 characters',
+      cardTitleRequired: 'Give the task a title',
+      cardTitleTooLong: 'Use up to 100 characters',
+    },
     toast: {
       columnCreated: 'Column created',
       columnRenamed: 'Column renamed',
