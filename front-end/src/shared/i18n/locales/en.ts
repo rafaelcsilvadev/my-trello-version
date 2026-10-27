@@ -164,6 +164,10 @@ export const en = {
       emptyText:
         'Columns are the stages of your workflow, like To do, Doing and Done.',
     },
+    archivedCards: {
+      title: 'Archived',
+      empty: 'No archived tasks',
+    },
     card: {
       done: 'Completed',
       overdue: 'Overdue',

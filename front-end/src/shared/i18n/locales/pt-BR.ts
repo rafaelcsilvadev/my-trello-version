@@ -166,6 +166,10 @@ export const ptBR = {
       emptyText:
         'Colunas são as etapas do seu fluxo, como A fazer, Fazendo e Feito.',
     },
+    archivedCards: {
+      title: 'Arquivadas',
+      empty: 'Nenhuma tarefa arquivada',
+    },
     card: {
       done: 'Concluída',
       overdue: 'Atrasada',
