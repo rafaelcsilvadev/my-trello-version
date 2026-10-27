@@ -130,6 +130,13 @@ export const ptBR = {
       deleted: 'Quadro excluído definitivamente',
     },
   },
+  board: {
+    toast: {
+      columnCreated: 'Coluna criada',
+      columnRenamed: 'Coluna renomeada',
+      columnArchived: 'Coluna arquivada',
+    },
+  },
   toast: {
     close: 'Fechar',
   },

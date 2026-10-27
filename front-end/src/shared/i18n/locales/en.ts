@@ -128,6 +128,13 @@ export const en = {
       deleted: 'Board permanently deleted',
     },
   },
+  board: {
+    toast: {
+      columnCreated: 'Column created',
+      columnRenamed: 'Column renamed',
+      columnArchived: 'Column archived',
+    },
+  },
   toast: {
     close: 'Close',
   },
