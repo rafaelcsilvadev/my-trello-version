@@ -989,8 +989,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit: renders the busy region with three column placeholders
-- [ ] Build gate passes; ≥ 1 new test
+- [x] Unit: renders the busy region with three column placeholders
+- [x] Build gate passes; ≥ 1 new test
 
 **Tests**: unit
 **Gate**: build
