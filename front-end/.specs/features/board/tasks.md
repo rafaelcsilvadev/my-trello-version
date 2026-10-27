@@ -664,8 +664,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit (MSW): toggle off on mount and archived queries only after it turns on; restore toast "Coluna restaurada"; delete asks first and toasts "Coluna excluída definitivamente"; cancel sends nothing; restore board toast "Quadro restaurado" and `readOnly` false
-- [ ] Build gate passes; ≥ 7 new tests
+- [x] Unit (MSW): toggle off on mount and archived queries only after it turns on; restore toast "Coluna restaurada"; delete asks first and toasts "Coluna excluída definitivamente"; cancel sends nothing; restore board toast "Quadro restaurado" and `readOnly` false
+- [x] Build gate passes; ≥ 7 new tests
 
 **Tests**: unit
 **Gate**: build
