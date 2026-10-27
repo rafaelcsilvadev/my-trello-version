@@ -489,8 +489,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit (MSW): request path and body; cache untouched until `201`; item appended at the end after success; failure leaves the cache as it was
-- [ ] Build gate passes; ≥ 5 new tests
+- [x] Unit (MSW): request path and body; cache untouched until `201`; item appended at the end after success; failure leaves the cache as it was
+- [x] Build gate passes; ≥ 5 new tests
 
 **Tests**: unit
 **Gate**: build
