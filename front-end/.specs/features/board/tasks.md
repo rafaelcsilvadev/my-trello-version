@@ -439,8 +439,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit (MSW): each hook calls its path; `archived: true` sends `?archived=true`, false sends no query; disabled hooks send nothing; `404` surfaces as `ApiError` status 404
-- [ ] Build gate passes; ≥ 7 new tests
+- [x] Unit (MSW): each hook calls its path; `archived: true` sends `?archived=true`, false sends no query; disabled hooks send nothing; `404` surfaces as `ApiError` status 404
+- [x] Build gate passes; ≥ 7 new tests
 
 **Tests**: unit
 **Gate**: build
