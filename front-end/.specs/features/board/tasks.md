@@ -714,8 +714,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit: Enter calls `onSubmit` with the raw text; error result shows the message and keeps the text; success clears and keeps focus; Esc calls `onClose`; submit disabled and text kept while pending
-- [ ] Build gate passes; ≥ 6 new tests
+- [x] Unit: Enter calls `onSubmit` with the raw text; error result shows the message and keeps the text; success clears and keeps focus; Esc calls `onClose`; submit disabled and text kept while pending
+- [x] Build gate passes; ≥ 6 new tests
 
 **Tests**: unit
 **Gate**: build
