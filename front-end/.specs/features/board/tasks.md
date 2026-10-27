@@ -1014,8 +1014,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit: texts and link target
-- [ ] Build gate passes; ≥ 1 new test
+- [x] Unit: texts and link target
+- [x] Build gate passes; ≥ 1 new test
 
 **Tests**: unit
 **Gate**: build
