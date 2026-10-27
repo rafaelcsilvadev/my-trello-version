@@ -51,9 +51,19 @@ function problem(
   );
 }
 
+const archivedListsUrl = `${listsUrl}?archived=true`;
+const archivedCardsUrl = `${cardsUrl}?archived=true`;
+const listCardsUrl = `${baseUrl}/api/v1/lists/:listId/cards`;
+
+const oldStamp = '2026-10-02T12:00:00.000Z';
+const newStamp = '2026-10-20T12:00:00.000Z';
+const ideas = listFixture('l3', { title: 'Ideas', archivedAt: oldStamp });
+const later = listFixture('l4', { title: 'Later', archivedAt: newStamp });
+
 type Reply = () => Response;
 
 // Each endpoint answers with its seed unless a test overrides it; `requests` counts the hits.
+// The archived requests are keyed by their `?archived=true` URL.
 function boardServer(overrides: Partial<Record<string, Reply>> = {}) {
   const requests: Record<string, number> = {};
   const seed: Record<string, JsonBodyType> = {
@@ -65,14 +75,35 @@ function boardServer(overrides: Partial<Record<string, Reply>> = {}) {
       cardFixture('c3', doing.id),
     ],
     [labelsUrl]: [urgent],
+    [archivedListsUrl]: [ideas, later],
+    [archivedCardsUrl]: [
+      cardFixture('c7', ideas.id, { archivedAt: oldStamp }),
+      cardFixture('c8', backlog.id, { archivedAt: newStamp }),
+    ],
   };
+  function reply(url: string) {
+    requests[url] = (requests[url] ?? 0) + 1;
+    return overrides[url]?.() ?? HttpResponse.json(seed[url] ?? null);
+  }
   server.use(
-    ...Object.entries(seed).map(([url, body]) =>
-      http.get(url, () => {
-        requests[url] = (requests[url] ?? 0) + 1;
-        return overrides[url]?.() ?? HttpResponse.json(body);
-      }),
+    ...[boardUrl, listsUrl, cardsUrl, labelsUrl].map((url) =>
+      http.get(url, ({ request }) =>
+        reply(
+          new URL(request.url).searchParams.get('archived') === 'true'
+            ? `${url}?archived=true`
+            : url,
+        ),
+      ),
     ),
+    // The active cards of one list, used by the archived column counts.
+    http.get(listCardsUrl, ({ params }) => {
+      requests[listCardsUrl] = (requests[listCardsUrl] ?? 0) + 1;
+      return HttpResponse.json(
+        params.listId === ideas.id
+          ? [cardFixture('c5', ideas.id), cardFixture('c6', ideas.id)]
+          : [],
+      );
+    }),
   );
   return requests;
 }
@@ -127,6 +158,15 @@ function columnWrites(...responses: (() => Response | Promise<Response>)[]) {
     ),
     http.post(`${baseUrl}/api/v1/lists/:id/archive`, ({ request }) =>
       answer(request, () => HttpResponse.json(backlog)),
+    ),
+    http.post(`${baseUrl}/api/v1/lists/:id/unarchive`, ({ request }) =>
+      answer(request, () => HttpResponse.json(ideas)),
+    ),
+    http.delete(`${baseUrl}/api/v1/lists/:id`, ({ request }) =>
+      answer(request, () => new HttpResponse(null, { status: 204 })),
+    ),
+    http.post(`${boardUrl}/unarchive`, ({ request }) =>
+      answer(request, () => HttpResponse.json(boardFixture())),
     ),
   );
   return changes;
@@ -814,6 +854,217 @@ describe('useBoardViewModel', () => {
       expect(result.current.state.addingCardListId).toBeNull();
       held.open();
       await waitFor(() => expect(result.current.state.status).toBe('ready'));
+    });
+  });
+
+  describe('archived items', () => {
+    async function setupShowingArchived() {
+      const view = await setupReady();
+      act(() => view.result.current.actions.setShowArchived(true));
+      await waitFor(() =>
+        expect(view.result.current.state.archived.columnsStatus).toBe('ready'),
+      );
+      return view;
+    }
+
+    function archivedTitles(result: ReturnType<typeof setup>['result']) {
+      return result.current.state.archived.columns.map(
+        ({ list }) => list.title,
+      );
+    }
+
+    it('starts with archived items hidden and loads none of them', async () => {
+      const requests = boardServer();
+      const { result } = await setupReady();
+
+      expect(result.current.state.showArchived).toBe(false);
+      expect(requests[archivedListsUrl]).toBeUndefined();
+      expect(requests[archivedCardsUrl]).toBeUndefined();
+      expect(requests[listCardsUrl]).toBeUndefined();
+    });
+
+    it('loads the archived cards newest first with their column title once shown', async () => {
+      boardServer();
+      const { result } = await setupShowingArchived();
+
+      expect(result.current.state.showArchived).toBe(true);
+      expect(result.current.state.archived.cardsStatus).toBe('ready');
+      expect(
+        result.current.state.archived.cards.map(({ card, fromTitle }) => [
+          card.id,
+          fromTitle,
+        ]),
+      ).toEqual([
+        ['c8', 'Backlog'],
+        ['c7', 'Ideas'],
+      ]);
+    });
+
+    it('loads the archived columns newest first with their active and archived cards counted', async () => {
+      boardServer();
+      const { result } = await setupShowingArchived();
+
+      await waitFor(() =>
+        expect(
+          result.current.state.archived.columns.map(({ list, cardCount }) => [
+            list.title,
+            cardCount,
+          ]),
+        ).toEqual([
+          ['Later', 0],
+          ['Ideas', 3],
+        ]),
+      );
+    });
+
+    it('is error for the archived items without failing the board', async () => {
+      boardServer({ [archivedListsUrl]: () => problem(500) });
+      const { result } = await setupReady();
+
+      act(() => result.current.actions.setShowArchived(true));
+
+      await waitFor(() =>
+        expect(result.current.state.archived.columnsStatus).toBe('error'),
+      );
+      expect(result.current.state.archived.cardsStatus).toBe('error');
+      expect(result.current.state.status).toBe('ready');
+    });
+
+    it('restoreList moves the column to the end of the active ones and toasts', async () => {
+      boardServer();
+      const held = gate();
+      const changes = columnWrites(async () => {
+        await held.wait();
+        return HttpResponse.json(ideas);
+      });
+      const { result } = await setupShowingArchived();
+
+      act(() => result.current.actions.restoreList(ideas.id));
+
+      await waitFor(() =>
+        expect(columnTitles(result)).toEqual(['Doing', 'Backlog', 'Ideas']),
+      );
+      expect(archivedTitles(result)).toEqual(['Later']);
+      held.open();
+      await screen.findByText('Coluna restaurada');
+      expect(changes).toEqual([
+        {
+          method: 'POST',
+          path: `/api/v1/lists/${ideas.id}/unarchive`,
+          body: undefined,
+        },
+      ]);
+    });
+
+    it('askDeleteList opens the dialog with the column and its count and sends nothing', async () => {
+      boardServer();
+      const changes = columnWrites();
+      const { result } = await setupShowingArchived();
+
+      act(() => result.current.actions.askDeleteList(ideas.id));
+
+      await waitFor(() =>
+        expect(result.current.state.deleteTarget).toEqual({
+          list: ideas,
+          cardCount: 3,
+        }),
+      );
+      expect(changes).toEqual([]);
+    });
+
+    it('cancelDelete closes the dialog and sends nothing', async () => {
+      boardServer();
+      const changes = columnWrites();
+      const { result } = await setupShowingArchived();
+      act(() => result.current.actions.askDeleteList(ideas.id));
+
+      act(() => result.current.actions.cancelDelete());
+
+      expect(result.current.state.deleteTarget).toBeNull();
+      expect(changes).toEqual([]);
+    });
+
+    it('confirmDeleteList closes the dialog, removes the column at once and toasts', async () => {
+      boardServer();
+      const held = gate();
+      const changes = columnWrites(async () => {
+        await held.wait();
+        return new HttpResponse(null, { status: 204 });
+      });
+      const { result } = await setupShowingArchived();
+      act(() => result.current.actions.askDeleteList(ideas.id));
+
+      act(() => result.current.actions.confirmDeleteList());
+
+      expect(result.current.state.deleteTarget).toBeNull();
+      await waitFor(() => expect(archivedTitles(result)).toEqual(['Later']));
+      held.open();
+      await screen.findByText('Coluna excluída definitivamente');
+      expect(changes).toEqual([
+        {
+          method: 'DELETE',
+          path: `/api/v1/lists/${ideas.id}`,
+          body: undefined,
+        },
+      ]);
+    });
+
+    it('confirmDeleteList puts the column back and toasts on 500', async () => {
+      boardServer();
+      columnWrites(() => problem(500));
+      const { result } = await setupShowingArchived();
+      act(() => result.current.actions.askDeleteList(ideas.id));
+
+      act(() => result.current.actions.confirmDeleteList());
+
+      await screen.findByText(saveFail);
+      await waitFor(() =>
+        expect(archivedTitles(result)).toEqual(['Later', 'Ideas']),
+      );
+    });
+
+    it('marks the column with a change in flight as pending', async () => {
+      boardServer();
+      const held = gate();
+      columnWrites(async () => {
+        await held.wait();
+        return HttpResponse.json(ideas);
+      });
+      const { result } = await setupShowingArchived();
+
+      act(() => result.current.actions.restoreList(ideas.id));
+
+      await waitFor(() =>
+        expect([...result.current.state.pendingIds]).toEqual([ideas.id]),
+      );
+      held.open();
+      await waitFor(() => expect(result.current.state.pendingIds.size).toBe(0));
+    });
+  });
+
+  describe('board restore', () => {
+    it('restoreBoard ends read-only at once, sends the request and toasts', async () => {
+      boardServer({
+        [boardUrl]: () =>
+          HttpResponse.json(
+            boardFixture({ archivedAt: '2026-10-24T12:00:00.000Z' }),
+          ),
+      });
+      const changes = columnWrites();
+      const { result } = await setupReady();
+      expect(result.current.state.readOnly).toBe(true);
+
+      act(() => result.current.actions.restoreBoard());
+
+      await waitFor(() => expect(result.current.state.readOnly).toBe(false));
+      await screen.findByText('Quadro restaurado');
+      expect(changes).toEqual([
+        {
+          method: 'POST',
+          path: `/api/v1/boards/${boardId}/unarchive`,
+          body: undefined,
+        },
+      ]);
     });
   });
 });

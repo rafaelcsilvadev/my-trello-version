@@ -8,14 +8,20 @@ import { useSaveFailureNotifier } from '@/shared/ui/toast/use-save-failure-notif
 import { useShortcut } from '@/shared/keyboard/use-shortcut';
 import { useToast } from '@/shared/ui/toast/use-toast';
 
+import { useArchivedListCounts } from '../api/archived-counts';
 import { useCreateCard, useCreateList } from '../api/create-mutations';
 import { boardViewKeys } from '../api/keys';
 import {
   useArchiveList,
+  useDeleteList,
+  usePendingItemIds,
   useRenameList,
+  useRestoreBoard,
+  useRestoreList,
   useToggleCardDone,
 } from '../api/mutations';
 import { useBoard, useCards, useLabels, useLists } from '../api/queries';
+import { toArchivedCards, toArchivedColumns } from '../model/archived';
 import { toColumns } from '../model/columns';
 import { todayParts } from '../model/due-date';
 import { mapTitleServerError } from '../model/errors';
@@ -23,6 +29,16 @@ import type { Card, ItemFieldError, Label, List } from '../model/types';
 import { validateCardTitle, validateColumnName } from '../model/validation';
 
 export type BoardStatus = 'loading' | 'ready' | 'error' | 'notFound';
+
+export type ArchivedStatus = 'loading' | 'ready' | 'error';
+
+// The archived queries never change the board status (design: Screen status).
+function archivedStatus(
+  ...queries: { isError: boolean; isPending: boolean }[]
+): ArchivedStatus {
+  if (queries.some((q) => q.isError)) return 'error';
+  return queries.some((q) => q.isPending) ? 'loading' : 'ready';
+}
 
 // The column whose name is a field. `value` and `error` reopen it after a `400` (FBV-57).
 export type ColumnRename = {
@@ -48,6 +64,15 @@ export function useBoardViewModel(boardId: string) {
   const cards = useCards(boardId, false);
   const labels = useLabels(boardId);
   const queries = [board, lists, cards, labels];
+  // Off whenever the board opens, so nothing archived loads until it turns on (FBV-33).
+  const [showArchived, setShowArchived] = useState(false);
+  const archivedLists = useLists(boardId, true, { enabled: showArchived });
+  const archivedCards = useCards(boardId, true, { enabled: showArchived });
+  const archivedCounts = useArchivedListCounts(
+    boardId,
+    archivedLists.data ?? [],
+    showArchived,
+  );
   const { t } = useTranslation();
   const toast = useToast();
   const queryClient = useQueryClient();
@@ -56,6 +81,10 @@ export function useBoardViewModel(boardId: string) {
   const archiveListMutation = useArchiveList(boardId);
   const createCardMutation = useCreateCard(boardId);
   const toggleDoneMutation = useToggleCardDone(boardId);
+  const restoreListMutation = useRestoreList(boardId);
+  const deleteListMutation = useDeleteList(boardId);
+  const restoreBoardMutation = useRestoreBoard(boardId);
+  const pendingIds = usePendingItemIds();
   // The cache rollback is done by the mutation hooks; this only tells the user (FBV-53–FBV-55).
   const { notify, runChange } = useSaveFailureNotifier(
     () =>
@@ -65,6 +94,7 @@ export function useBoardViewModel(boardId: string) {
   );
   const [editing, setEditing] = useState<ColumnRename | null>(null);
   const [addingCardListId, setAddingCardListId] = useState<string | null>(null);
+  const [deleteListId, setDeleteListId] = useState<string | null>(null);
   // Read once, so the due labels do not change while the board is open.
   const [today] = useState(() => todayParts());
 
@@ -72,6 +102,22 @@ export function useBoardViewModel(boardId: string) {
     () => toColumns(lists.data ?? [], cards.data ?? []),
     [lists.data, cards.data],
   );
+  // A card of an archived column needs that column's title too (FBV-35).
+  const archivedCardItems = useMemo(
+    () =>
+      toArchivedCards(archivedCards.data ?? [], [
+        ...(lists.data ?? []),
+        ...(archivedLists.data ?? []),
+      ]),
+    [archivedCards.data, lists.data, archivedLists.data],
+  );
+  const archivedColumns = useMemo(
+    () => toArchivedColumns(archivedLists.data ?? [], archivedCounts),
+    [archivedLists.data, archivedCounts],
+  );
+  // Read from the section, so the dialog count fills in once it loads.
+  const deleteTarget =
+    archivedColumns.find(({ list }) => list.id === deleteListId) ?? null;
   const labelsById = useMemo(
     () => new Map<string, Label>(labels.data?.map((l) => [l.id, l]) ?? []),
     [labels.data],
@@ -167,6 +213,16 @@ export function useBoardViewModel(boardId: string) {
     enabled: status === 'ready' && !readOnly && columns.length > 0,
   });
 
+  function confirmDeleteList() {
+    if (!deleteListId) return;
+    setDeleteListId(null);
+    runChange(
+      deleteListMutation.mutateAsync,
+      { id: deleteListId },
+      t('board.toast.columnDeleted'),
+    );
+  }
+
   return {
     state: {
       status,
@@ -174,17 +230,28 @@ export function useBoardViewModel(boardId: string) {
       readOnly,
       columns,
       labelsById,
+      showArchived,
+      archived: {
+        cards: archivedCardItems,
+        columns: archivedColumns,
+        cardsStatus: archivedStatus(archivedCards, archivedLists),
+        columnsStatus: archivedStatus(archivedLists, archivedCards),
+      },
       addingCardListId,
       editing,
+      deleteTarget,
+      pendingIds,
       isCreatingList: createListMutation.isPending,
       isCreatingCard: createCardMutation.isPending,
       today,
     },
     actions: {
-      // Only the failed requests run again (FBV-10).
+      // Only the failed requests run again (FBV-10), the archived ones included.
       retryLoad: () => {
-        for (const query of queries) if (query.isError) void query.refetch();
+        for (const query of [...queries, archivedLists, archivedCards])
+          if (query.isError) void query.refetch();
       },
+      setShowArchived,
       createList,
       startRename: (listId: string) => setEditing({ listId }),
       submitRename,
@@ -199,6 +266,21 @@ export function useBoardViewModel(boardId: string) {
       closeAddCard: () => setAddingCardListId(null),
       createCard,
       toggleDone,
+      restoreList: (listId: string) =>
+        runChange(
+          restoreListMutation.mutateAsync,
+          { id: listId },
+          t('board.toast.columnRestored'),
+        ),
+      askDeleteList: (listId: string) => setDeleteListId(listId),
+      confirmDeleteList,
+      cancelDelete: () => setDeleteListId(null),
+      restoreBoard: () =>
+        runChange(
+          restoreBoardMutation.mutateAsync,
+          { id: boardId },
+          t('board.toast.boardRestored'),
+        ),
     },
   };
 }

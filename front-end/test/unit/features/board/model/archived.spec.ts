@@ -74,7 +74,6 @@ describe('toArchivedColumns', () => {
         list('new', '2026-10-03T12:00:00.000Z'),
         list('mid', '2026-10-02T12:00:00.000Z'),
       ],
-      [],
       new Map([
         ['old', 0],
         ['new', 0],
@@ -85,19 +84,14 @@ describe('toArchivedColumns', () => {
     expect(items.map((item) => item.list.id)).toEqual(['new', 'mid', 'old']);
   });
 
-  it('counts the active and archived cards of each column', () => {
+  it('takes the card count of each column as given', () => {
     const items = toArchivedColumns(
       [
         list('a', '2026-10-02T12:00:00.000Z'),
         list('b', '2026-10-01T12:00:00.000Z'),
       ],
-      [
-        card('a1', 'a', '2026-10-01T12:00:00.000Z'),
-        card('a2', 'a', '2026-10-01T12:00:00.000Z'),
-        card('x1', 'other', '2026-10-01T12:00:00.000Z'),
-      ],
       new Map([
-        ['a', 1],
+        ['a', 3],
         ['b', 0],
       ]),
     );
@@ -108,10 +102,9 @@ describe('toArchivedColumns', () => {
     ]);
   });
 
-  it('leaves the count undefined while the active count loads', () => {
+  it('leaves the count undefined while it loads', () => {
     const items = toArchivedColumns(
       [list('a', '2026-10-01T12:00:00.000Z')],
-      [card('a1', 'a', '2026-10-01T12:00:00.000Z')],
       new Map([['a', undefined]]),
     );
 
