@@ -76,6 +76,22 @@ Decisions for the web app. They must conform to the global decisions in the root
 - **Date**: 2026-10-26
 - **Status**: active
 
+### FE-AD-010
+- **Decision**: An optimistic change describes each cache patch as `{ key, apply, revert }`. `onMutate` runs `apply` on each query it touches; `onError` runs `revert` on the current cache, which puts back only that item (its old field values, or the item re-inserted at its old index). No whole-query snapshot is written back. Refines FE-AD-009.
+- **Reason**: Writing back a whole snapshot brings back items that an overlapping change already moved or removed (open item P1, boards T14). Board drag and drop (3b) makes overlapping changes common.
+- **Trade-off**: Each change carries a hand-written `revert` and a test for it. `boards` keeps the snapshot rollback until P1 is fixed.
+- **Scope**: front-end (features `board` onward; `boards` when P1 is fixed)
+- **Date**: 2026-10-27
+- **Status**: active
+
+### FE-AD-011
+- **Decision**: Single-key shortcuts go through `useShortcut(key, handler, { enabled })` in `src/shared/keyboard/use-shortcut.ts`. The hook ignores the key when Ctrl, Meta or Alt is held, when focus is in an `input`, `textarea`, `select` or `[contenteditable]`, and while an `[aria-modal="true"]` element is open.
+- **Reason**: `n` (board), `/` (board-filters) and `?` (settings) need the same guards; one hook keeps them consistent.
+- **Trade-off**: Shortcuts are global `keydown` listeners on `document`; a screen has to disable its own while it cannot act on them (e.g. an archived board).
+- **Scope**: front-end
+- **Date**: 2026-10-27
+- **Status**: active
+
 ## Open Items
 
 ### P1
