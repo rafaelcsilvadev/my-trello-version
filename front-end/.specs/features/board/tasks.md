@@ -239,8 +239,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit: the key calls the handler; ignored with Ctrl/Meta/Alt, inside `input`/`textarea`/`select`/`[contenteditable]`, while `[aria-modal="true"]` exists, and when `enabled` is false; the listener is removed on unmount
-- [ ] Build gate passes; ≥ 7 new tests
+- [x] Unit: the key calls the handler; ignored with Ctrl/Meta/Alt, inside `input`/`textarea`/`select`/`[contenteditable]`, while `[aria-modal="true"]` exists, and when `enabled` is false; the listener is removed on unmount
+- [x] Build gate passes; ≥ 7 new tests
 
 **Tests**: unit
 **Gate**: build
