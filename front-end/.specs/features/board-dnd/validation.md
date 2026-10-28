@@ -2,18 +2,21 @@
 
 **Date**: 2026-10-28
 **Spec**: `front-end/.specs/features/board-dnd/spec.md`
-**Diff range**: `0b16971..2bf46ee` (`0b16971` = merge of spec PR #241; 51 non-merge commits, T1–T24, PRs up to #265). Front-end surface: 37 files, +5101/−121 (`src/` 21 files, `test/` 16 files).
-**Verifier**: independent sub-agent (author ≠ verifier), iteration 1
+**Diff range**: `0b16971..2bf46ee` (`0b16971` = merge of spec PR #241; 51 non-merge commits, T1–T24, PRs up to #265). Iteration 2 adds `2bf46ee..251d375` (Fix 1, PR #267: one test commit `904e0e5`, +10 lines in `test/`, no `src/` change). Front-end surface: 37 files, +5101/−121 (`src/` 21 files, `test/` 16 files).
+**Verifier**: independent sub-agent (author ≠ verifier), iteration 2 (fresh context, not the Fix 1 author session)
 
-## Validation: Board Drag and Drop - FAIL ❌ (iteration 1)
+## Validation: Board Drag and Drop - PASS ✅ (iteration 2)
 
-**Result (iteration 1)**: FAIL ❌, one cosmetic test gap. The code meets all 43 FDND requirements. The build gate is green: 1150 unit/component tests (907 before the feature, +243), and 13 e2e passed in CI on `2bf46ee`. The sensor killed 28 of 28 behavior mutants. One spec-precise outcome has no assertion: the drop placeholder must be **dashed** (FDND-02), and no test checks the placeholder's style, only that it is there and where it sits. One test-only fix (Fix 1) closes it.
+**Result (iteration 2)**: PASS ✅. Fix 1 closes the only gap. `board-column.spec.tsx:646-654` now asserts the placeholder carries `border-dashed` and `border-border-focus`. Two scratch mutants on `board-column.tsx:160` (dashed → solid, focus token → plain border) both fail that test. Build gate on `251d375`: 1151 tests (+1), lint, typecheck and build green. No `src/` file changed since iteration 1, so the 28 earlier kills and the 13 CI e2e still hold. All 43 FDND requirements are verified.
+
+**Result (iteration 1, superseded)**: FAIL ❌, one cosmetic test gap. The code meets all 43 FDND requirements. The build gate is green: 1150 unit/component tests (907 before the feature, +243), and 13 e2e passed in CI on `2bf46ee`. The sensor killed 28 of 28 behavior mutants. One spec-precise outcome has no assertion: the drop placeholder must be **dashed** (FDND-02), and no test checks the placeholder's style, only that it is there and where it sits. One test-only fix (Fix 1) closes it.
 
 ## Iteration History
 
 | Iteration | Range | Gate | ACs | Sensor | Verdict |
 | --------- | ----- | ---- | --- | ------ | ------- |
 | 1 (2026-10-28) | `0b16971..2bf46ee` | ✅ 1150 unit, 13 e2e (CI `40756894400`) | 43/43 met, 1 weak (FDND-02 placeholder style) | 28/28 killed | ❌ FAIL, Fix 1 |
+| 2 (2026-10-28) | `2bf46ee..251d375` | ✅ 1151 unit (local); e2e unchanged (no `src/` change) | 43/43 met | 30/30 killed (M29, M30 new) | ✅ PASS |
 
 ---
 
@@ -34,7 +37,7 @@ Paths are relative to `front-end/test/`. `board/…` means `unit/features/board/
 | AC | Spec-defined outcome | `file:line` + assertion | Result |
 | -- | -------------------- | ----------------------- | ------ |
 | FDND-01 | Every active card of an active column is draggable on an active board | `tile.spec:263-267` `getAttribute('draggable')` `toBe('true')`; `:299-311` `setData('text/plain','c1')`, `effectAllowed` `'move'`, `onDragStart('c1')`; `:275-297` archived / read-only → no `[data-card-id]`, not draggable; `e2e:100-125` real mouse drag | ✅ |
-| FDND-02 | Source card dashed + translucent; dashed purple outline on the column under the pointer; **dashed** placeholder where the card lands | Source: `tile.spec:396-402` `border-dashed`, `opacity-45` (M24 sibling). Outline: `col.spec:617-624` `outline-dashed` + `outline-border-focus`, `:626-632` none on the other column (M24 killed). Placeholder spot: `col.spec:634-654` previous/next sibling text, `move.spec:484-559` `placeholder` `{listId, beforeCardId}` (M6 killed). Placeholder **style**: no assertion; `col.spec:521-523` only queries `[data-drop-placeholder]`, so dropping `border-dashed` from `board-column.tsx:160` would pass | ⚠️ Weak → Fix 1 |
+| FDND-02 | Source card dashed + translucent; dashed purple outline on the column under the pointer; **dashed** placeholder where the card lands | Source: `tile.spec:396-402` `border-dashed`, `opacity-45` (M24 sibling). Outline: `col.spec:617-624` `outline-dashed` + `outline-border-focus`, `:626-632` none on the other column (M24 killed). Placeholder spot: `col.spec:634-654` previous/next sibling text, `move.spec:484-559` `placeholder` `{listId, beforeCardId}` (M6 killed). Placeholder **style** (iteration 2): `col.spec:646-654` `classList.contains('border-dashed')` `toBe(true)` and `contains('border-border-focus')` `toBe(true)` (M29, M30 killed) | ✅ |
 | FDND-03 | Drop in another column → placed at the placeholder; `POST /cards/{id}/move` `{listId, position}` = index among the other cards | `bm.spec:261-279` cache `l2:1` and `moves` `toEqual([{path:'/api/v1/cards/c1/move', body:{listId:'l2', position:1}}])`; `screen.spec:468-498` same through DOM drag events; `move.spec:285-290`; `mut.spec:556-603` (M4 killed) | ✅ |
 | FDND-04 | Same column, new index → `{position}`, no `listId` | `bm.spec:281-292` `body:{ position: 1 }` (exact `toEqual`, so a `listId` key fails); `move.spec:275-283`; `mut.spec:604-620` | ✅ |
 | FDND-05 | Empty column → only card, `position 0` + `listId` | `col.spec:603-615` empty column → `onHover({listId, index:0})`; `move.spec:146-153`, `:263`, `:363-369`, `:526-537`, `:588-596`; `col.spec:656-664` placeholder replaces "Arraste cards para cá" | ✅ |
@@ -97,7 +100,7 @@ Paths are relative to `front-end/test/`. `board/…` means `unit/features/board/
 | FDND-42 | Archived board: no draggable card/column, no header handle, no card menu, no help line | `screen.spec:537-549` no help, no "Move to…", `[draggable="true"]` `null`; `col.spec:411-424` no handle; `tile.spec:479-483`; `vm.spec:1153-1166` `canMove` false, pick starts nothing | ✅ |
 | FDND-43 | Virtual column, its cards, archived section: not draggable/pickable, no drop | `cols.spec:463-489` no `[draggable]`, `[data-card-id]`, `[data-column-id]` in "Arquivadas" / "Colunas arquivadas", `dragOver` not prevented; `cols.spec:438-461` no column drop there (M17 killed); `tile.spec:275-297` archived mode | ✅ |
 
-**Status**: ❌ 42/43 strong, 1 weak (FDND-02 placeholder style). No spec-precision gaps: every FDND text, attribute and body is precise in the spec and asserted exactly.
+**Status**: ✅ 43/43 strong (FDND-02 closed in iteration 2 by Fix 1). No spec-precision gaps: every FDND text, attribute and body is precise in the spec and asserted exactly.
 
 ---
 
@@ -135,12 +138,14 @@ Temporary `git worktree` at `<job>/tmp/dnd-sensor` on `2bf46ee`, with `node_modu
 | M26 | `features/board/components/board-screen.tsx:43` | board-level Esc cancel removed | ✅ (screen) |
 | M27 | `features/board/view-models/use-board-move.ts:207` | `askMoveTo` ignores pending | ✅ (bm, vm) |
 | M28 | `features/board/components/card-tile.tsx:123` | pending card draggable | ✅ (tile) |
+| M29 | `features/board/components/board-column.tsx:160` | placeholder `border-dashed` → `border-solid` (iteration 2) | ✅ (col) |
+| M30 | `features/board/components/board-column.tsx:160` | placeholder `border-border-focus` → `border-border` (iteration 2) | ✅ (col) |
 
-Not run as a mutant, found by inspection: removing `border-dashed` from the placeholder (`board-column.tsx:160`) would survive, because no assertion reads the placeholder's classes. See Fix 1.
+Iteration 1 found by inspection that removing `border-dashed` from the placeholder would survive. Iteration 2 ran it as M29 (and the color twin M30) in a fresh worktree `<job>/tmp/dnd-sensor2` on `251d375`, `node_modules` symlinked, `node ./node_modules/vitest/vitest.mjs run test/unit/features/board/components/board-column.spec.tsx` (53 green unmutated). Each failed exactly one test: "draws the placeholder with a dashed focus border".
 
 **Sensor depth**: expanded lightweight (UI feature, not P0; large surface, so 28 mutants over model, mutations, view model, components)
-**Outcome**: 28/28 killed ✅
-**Isolation**: real-tree `git status --porcelain` was empty before and after; worktree removed and pruned; `find node_modules front-end/node_modules packages/api-contract/node_modules -maxdepth 2 -xtype l` → no broken symlinks; `front-end/node_modules/vitest/vitest.mjs` still resolves.
+**Outcome**: 30/30 killed ✅ (28 in iteration 1, 2 in iteration 2)
+**Isolation**: real-tree `git status --porcelain` was empty before and after; worktree removed and pruned; `find node_modules front-end/node_modules packages/api-contract/node_modules -maxdepth 2 -xtype l` → no broken symlinks; `front-end/node_modules/vitest/vitest.mjs` still resolves. Iteration 2: porcelain identical before and after, worktree removed and pruned, no broken symlinks.
 
 ---
 
@@ -158,7 +163,7 @@ Not performed; the orchestrator decides.
 | Surgical changes | ✅ Outside the feature: `byPosition` exported (`columns.ts`), two DTO aliases (`types.ts`), optional `description` on `shared/ui/dialog.tsx` (needed by FDND-30, tested in `dialog.spec.tsx:60-90`), `retryMessage` / `null` success in the notifier (T1, old callers unchanged), one `exact: true` in `board.e2e-spec.ts` (new "Mover para…" buttons made the old name ambiguous) |
 | No scope creep | ✅ No touch drag, no filter guard, no checklist reorder (all out of scope) |
 | Matches patterns | ✅ Moves reuse `useOptimisticBoardViewChange` (FE-AD-009/010) and `runChange`; texts in both locales (FE-AD-004); tests mirror `src/` (FE-AD-007) |
-| Spec-anchored outcome check (asserted values match spec) | ⚠️ All texts, bodies, roles and names are exact; placeholder style unasserted (Fix 1) |
+| Spec-anchored outcome check (asserted values match spec) | ✅ All texts, bodies, roles and names are exact; placeholder style asserted since Fix 1 |
 | Per-layer Coverage Expectation met (tasks.md matrix) | ✅ Model 1:1 with edges; mutations with exact body, optimistic patch, per-item revert, pending id, one invalidation (`mut.spec:693-730`); view model covers every guard, text and failure kind; e2e covers the four journeys with a reload |
 | Every test maps to a spec requirement - no unclaimed tests | ✅ Spot-checked `bm.spec`, `cols.spec`, `tile.spec`: each test cites or matches an FDND AC, an edge case, or a T-task Done-when (e.g. `move.spec:175` unknown column → design guard) |
 | Documented guidelines followed: `front-end/.specs/STATE.md` (FE-AD-004, -005, -007, -009, -010, -012) | ✅ |
@@ -179,11 +184,11 @@ Not performed; the orchestrator decides.
 ## Gate Check
 
 - **Gate command**: `pnpm --filter front-end lint && pnpm --filter front-end typecheck && pnpm --filter front-end test && pnpm --filter front-end build` (real tree, repo root)
-- **Result**: exit 0. Lint (`oxlint --deny-warnings` + Prettier "All matched files use Prettier code style!"), `tsc --noEmit` clean, **92 test files, 1150 passed, 0 failed, 0 skipped**, `vite build` OK
-- **E2E (CI, not run locally)**: run `40756894400` on `2bf46ee` (main), conclusion success, all 12 jobs green; job `front-end (test:e2e)` (`123058117765`): "Running 13 tests using 2 workers", **13 passed (1.1m)**. Board PASS had 9 e2e, so +4: the four `board-dnd.e2e-spec.ts` journeys
+- **Result**: exit 0. Lint (`oxlint --deny-warnings` + Prettier "All matched files use Prettier code style!"), `tsc --noEmit` clean, **92 test files, 1150 passed, 0 failed, 0 skipped**, `vite build` OK (iteration 1, `2bf46ee`). Iteration 2 on `251d375`: exit 0, **92 test files, 1151 passed, 0 failed, 0 skipped**, lint, typecheck and build OK
+- **E2E (CI, not run locally)**: run `40756894400` on `2bf46ee` (main), conclusion success, all 12 jobs green; job `front-end (test:e2e)` (`123058117765`): "Running 13 tests using 2 workers", **13 passed (1.1m)**. Board PASS had 9 e2e, so +4: the four `board-dnd.e2e-spec.ts` journeys. Iteration 2 did not re-run e2e: the only change is a unit test. CI run `40765121200` on `251d375` was still in progress when this report was written
 - **Test count before feature**: 907 (board validation iteration 4; no test or source commit between `45b0664` and `0b16971`)
-- **Test count after feature**: 1150
-- **Delta**: +243 new tests; 0 removed (`git diff 0b16971..2bf46ee -- front-end/test/unit` has no removed `it(`/`test(` line)
+- **Test count after feature**: 1151 (1150 + Fix 1)
+- **Delta**: +244 new tests; 0 removed (`git diff 0b16971..2bf46ee -- front-end/test/unit` has no removed `it(`/`test(` line)
 - **Skipped tests**: none
 - **Failures**: none
 
@@ -200,7 +205,7 @@ Not performed; the orchestrator decides.
 
 ## Fix Plans
 
-### Fix 1: Assert the dashed placeholder style (FDND-02)
+### Fix 1: Assert the dashed placeholder style (FDND-02) — ✅ done (PR #267, `904e0e5`), verified in iteration 2
 
 - **Root cause**: `col.spec:521-523` finds the placeholder by `[data-drop-placeholder]` and checks only where it sits. The spec says the placeholder is dashed, and `board-column.tsx:160` draws it with `border-2 border-dashed border-border-focus`, but nothing asserts that.
 - **Fix task**:
@@ -217,20 +222,20 @@ Not performed; the orchestrator decides.
 | Requirement | Previous Status | New Status |
 | ----------- | --------------- | ---------- |
 | FDND-01, FDND-03 – FDND-43 | Pending | ✅ Verified |
-| FDND-02 | Pending | ❌ Needs Fix (test gap only: placeholder style, Fix 1) |
+| FDND-02 | Needs Fix | ✅ Verified (iteration 2, Fix 1) |
 
 ---
 
 ## Summary
 
-**Overall**: ⚠️ Issues (one cosmetic test gap)
+**Overall**: ✅ Ready
 
-**Spec-anchored check**: 42/43 ACs matched the spec outcome with discriminating assertions; 1 weak (FDND-02); 0 spec-precision gaps
-**Sensor**: 28/28 mutations killed
-**Gate**: 1150 unit/component passed, 0 failed, 0 skipped; 13 e2e passed in CI `40756894400`
+**Spec-anchored check**: 43/43 ACs matched the spec outcome with discriminating assertions; 0 spec-precision gaps
+**Sensor**: 30/30 mutations killed
+**Gate**: 1151 unit/component passed, 0 failed, 0 skipped (`251d375`); 13 e2e passed in CI `40756894400` (same `src/`)
 
 **What works**: mouse card and column drags with the exact `MoveCardDto` / `MoveListDto` bodies; keyboard moves with exact PT-BR banners and live-region texts, focus kept, phone scroll; "Mover para…" dialog and toast; optimistic moves with per-item revert, card-specific retry text, `409` / `404` handling; pending, renaming, archived-board and virtual-column guards.
 
-**Issues found**: FDND-02 placeholder dashed style not asserted → Fix 1 (test only).
+**Issues found**: none open. Iteration 1's FDND-02 gap is closed by Fix 1.
 
-**Next steps**: Route Fix 1 to an implementer, then re-verify (iteration 2 of max 3).
+**Next steps**: none for this feature. Observations 1 and 3 (no `dragleave`, bundle split) stay as optional follow-ups.
