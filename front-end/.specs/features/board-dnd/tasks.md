@@ -651,7 +651,7 @@ T22 → T23 → T24
 **Done when**:
 
 - [x] E2E: the four journeys pass and survive a reload
-- [ ] Full gate passes locally and in CI
+- [x] Full gate passes locally and in CI
 
 **Tests**: e2e
 **Gate**: full
@@ -675,8 +675,8 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] README explains mouse, keyboard and "Mover para…" moves
-- [ ] Build gate passes; test count unchanged
+- [x] README explains mouse, keyboard and "Mover para…" moves
+- [x] Build gate passes; test count unchanged
 
 **Tests**: none
 **Gate**: build
