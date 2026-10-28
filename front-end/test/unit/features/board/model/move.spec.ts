@@ -9,11 +9,13 @@ import {
   dropSlot,
   placeCard,
   placeList,
+  previewColumns,
   stepCard,
   stepColumn,
 } from '@/features/board/model/move';
 import { toColumns } from '@/features/board/model/columns';
 import type { Card, Column, List } from '@/features/board/model/types';
+import type { MoveSession } from '@/features/board/model/move';
 
 function list(id: string, position: number): List {
   return {
@@ -432,5 +434,223 @@ describe('placeList', () => {
 
   it('returns the input for an unknown list', () => {
     expect(placeList(lists, 'nope', 0)).toBe(lists);
+  });
+});
+
+describe('previewColumns', () => {
+  const columns = board({ todo: ['t1', 't2', 't3'], doing: ['d1'], done: [] });
+
+  // The card ids of each column, in order.
+  function layout(preview: Column[]) {
+    return Object.fromEntries(
+      preview.map((column) => [
+        column.list.id,
+        column.cards.map((item) => item.id),
+      ]),
+    );
+  }
+
+  function cardSession(
+    input: 'mouse' | 'keyboard',
+    target: { listId: string; index: number } | null,
+  ): MoveSession {
+    return {
+      kind: 'card',
+      id: 't1',
+      input,
+      origin: { listId: 'todo', index: 0 },
+      target,
+    };
+  }
+
+  function columnSession(
+    input: 'mouse' | 'keyboard',
+    target: { index: number } | null,
+  ): MoveSession {
+    return { kind: 'column', id: 'todo', input, origin: { index: 0 }, target };
+  }
+
+  it('leaves the columns alone without a session', () => {
+    expect(previewColumns(columns, null)).toEqual({
+      columns,
+      sourceCardId: null,
+      placeholder: null,
+      targetListId: null,
+      liftedId: null,
+    });
+  });
+
+  describe('mouse card', () => {
+    it('keeps the card at its origin and puts the placeholder before the card it precedes', () => {
+      const preview = previewColumns(
+        columns,
+        cardSession('mouse', { listId: 'doing', index: 0 }),
+      );
+
+      expect(preview).toEqual({
+        columns,
+        sourceCardId: 't1',
+        placeholder: { listId: 'doing', beforeCardId: 'd1' },
+        targetListId: 'doing',
+        liftedId: null,
+      });
+    });
+
+    it('counts the placeholder index among the other cards of its own column', () => {
+      const preview = previewColumns(
+        columns,
+        cardSession('mouse', { listId: 'todo', index: 1 }),
+      );
+
+      expect(preview.placeholder).toEqual({
+        listId: 'todo',
+        beforeCardId: 't3',
+      });
+    });
+
+    it('puts the placeholder at the end of the column', () => {
+      expect(
+        previewColumns(
+          columns,
+          cardSession('mouse', { listId: 'doing', index: 1 }),
+        ).placeholder,
+      ).toEqual({ listId: 'doing', beforeCardId: null });
+      expect(
+        previewColumns(
+          columns,
+          cardSession('mouse', { listId: 'todo', index: 2 }),
+        ).placeholder,
+      ).toEqual({ listId: 'todo', beforeCardId: null });
+    });
+
+    it('puts the placeholder in an empty column', () => {
+      const preview = previewColumns(
+        columns,
+        cardSession('mouse', { listId: 'done', index: 0 }),
+      );
+
+      expect(preview.placeholder).toEqual({
+        listId: 'done',
+        beforeCardId: null,
+      });
+      expect(preview.targetListId).toBe('done');
+    });
+
+    it('shows no placeholder on the origin but still outlines the column', () => {
+      const preview = previewColumns(
+        columns,
+        cardSession('mouse', { listId: 'todo', index: 0 }),
+      );
+
+      expect(preview.placeholder).toBeNull();
+      expect(preview.targetListId).toBe('todo');
+      expect(preview.sourceCardId).toBe('t1');
+    });
+
+    it('shows only the source before the first drag over', () => {
+      expect(previewColumns(columns, cardSession('mouse', null))).toEqual({
+        columns,
+        sourceCardId: 't1',
+        placeholder: null,
+        targetListId: null,
+        liftedId: null,
+      });
+    });
+  });
+
+  describe('keyboard card', () => {
+    it('renders the card at its target in another column', () => {
+      const preview = previewColumns(
+        columns,
+        cardSession('keyboard', { listId: 'doing', index: 1 }),
+      );
+
+      expect(layout(preview.columns)).toEqual({
+        todo: ['t2', 't3'],
+        doing: ['d1', 't1'],
+        done: [],
+      });
+      expect(preview.liftedId).toBe('t1');
+      expect(preview.sourceCardId).toBeNull();
+      expect(preview.placeholder).toBeNull();
+      expect(preview.targetListId).toBeNull();
+    });
+
+    it('renders the card at its target in its own column', () => {
+      const preview = previewColumns(
+        columns,
+        cardSession('keyboard', { listId: 'todo', index: 2 }),
+      );
+
+      expect(layout(preview.columns).todo).toEqual(['t2', 't3', 't1']);
+    });
+
+    it('renders the card as the only card of an empty column', () => {
+      const preview = previewColumns(
+        columns,
+        cardSession('keyboard', { listId: 'done', index: 0 }),
+      );
+
+      expect(layout(preview.columns).done).toEqual(['t1']);
+      expect(preview.columns[2].cards[0].listId).toBe('done');
+    });
+
+    it('moves nothing without a target', () => {
+      const preview = previewColumns(columns, cardSession('keyboard', null));
+
+      expect(preview.columns).toEqual(columns);
+      expect(preview.liftedId).toBe('t1');
+    });
+
+    it('moves nothing for a card that is not on the board', () => {
+      const preview = previewColumns(columns, {
+        ...cardSession('keyboard', { listId: 'doing', index: 0 }),
+        id: 'gone',
+      });
+
+      expect(preview.columns).toEqual(columns);
+    });
+  });
+
+  describe('column', () => {
+    it.each(['mouse', 'keyboard'] as const)(
+      'renders the column at its target with the %s',
+      (input) => {
+        const preview = previewColumns(
+          columns,
+          columnSession(input, { index: 2 }),
+        );
+
+        expect(preview.columns.map((column) => column.list.id)).toEqual([
+          'doing',
+          'done',
+          'todo',
+        ]);
+        expect(preview.columns[2].cards.map((item) => item.id)).toEqual([
+          't1',
+          't2',
+          't3',
+        ]);
+        expect(preview.sourceCardId).toBeNull();
+        expect(preview.placeholder).toBeNull();
+        expect(preview.targetListId).toBeNull();
+      },
+    );
+
+    it('lifts only a keyboard column', () => {
+      expect(
+        previewColumns(columns, columnSession('keyboard', { index: 1 }))
+          .liftedId,
+      ).toBe('todo');
+      expect(
+        previewColumns(columns, columnSession('mouse', { index: 1 })).liftedId,
+      ).toBeNull();
+    });
+
+    it('moves nothing without a target', () => {
+      expect(
+        previewColumns(columns, columnSession('mouse', null)).columns,
+      ).toEqual(columns);
+    });
   });
 });

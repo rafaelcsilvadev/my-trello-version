@@ -155,3 +155,119 @@ export function placeList(lists: List[], id: string, index: number): List[] {
   group.splice(index, 0, moving);
   return renumber(lists, [group]);
 }
+
+export type MoveInput = 'mouse' | 'keyboard';
+
+// `target` stays `null` until the first drag over or keyboard step.
+export type MoveSession =
+  | {
+      kind: 'card';
+      id: string;
+      input: MoveInput;
+      origin: CardSpot;
+      target: CardSpot | null;
+    }
+  | {
+      kind: 'column';
+      id: string;
+      input: MoveInput;
+      origin: ColumnSpot;
+      target: ColumnSpot | null;
+    };
+
+// What the board renders while a session runs.
+export type ColumnsPreview = {
+  columns: Column[];
+  sourceCardId: string | null;
+  placeholder: { listId: string; beforeCardId: string | null } | null;
+  targetListId: string | null;
+  liftedId: string | null;
+};
+
+const noPreview = {
+  sourceCardId: null,
+  placeholder: null,
+  targetListId: null,
+  liftedId: null,
+};
+
+function previewCard(columns: Column[], id: string, at: CardSpot): Column[] {
+  const moving = columns
+    .flatMap((column) => column.cards)
+    .find((card) => card.id === id);
+  if (!moving) return columns;
+
+  return columns.map((column) => {
+    const cards = column.cards.filter((card) => card.id !== id);
+    if (column.list.id === at.listId) {
+      cards.splice(at.index, 0, { ...moving, listId: at.listId });
+    }
+    return { ...column, cards };
+  });
+}
+
+function previewColumn(columns: Column[], id: string, at: ColumnSpot) {
+  const moving = columns.find((column) => column.list.id === id);
+  if (!moving) return columns;
+
+  const others = columns.filter((column) => column !== moving);
+  others.splice(at.index, 0, moving);
+  return others;
+}
+
+// The dragged card itself is skipped, so `target.index` counts only the other cards.
+function placeholderAt(
+  columns: Column[],
+  id: string,
+  origin: CardSpot,
+  target: CardSpot,
+): ColumnsPreview['placeholder'] {
+  if (target.listId === origin.listId && target.index === origin.index) {
+    return null;
+  }
+  const others =
+    columns
+      .find((column) => column.list.id === target.listId)
+      ?.cards.filter((card) => card.id !== id) ?? [];
+  return {
+    listId: target.listId,
+    beforeCardId: others[target.index]?.id ?? null,
+  };
+}
+
+// A mouse card stays at its origin with a placeholder at the target; every other session renders the item at its target.
+export function previewColumns(
+  columns: Column[],
+  session: MoveSession | null,
+): ColumnsPreview {
+  if (!session) return { columns, ...noPreview };
+
+  const liftedId = session.input === 'keyboard' ? session.id : null;
+
+  if (session.kind === 'column') {
+    return {
+      ...noPreview,
+      columns: session.target
+        ? previewColumn(columns, session.id, session.target)
+        : columns,
+      liftedId,
+    };
+  }
+
+  const { id, origin, target } = session;
+  if (session.input === 'keyboard') {
+    return {
+      ...noPreview,
+      columns: target ? previewCard(columns, id, target) : columns,
+      liftedId,
+    };
+  }
+
+  return {
+    ...noPreview,
+    columns,
+    sourceCardId: id,
+    placeholder: target ? placeholderAt(columns, id, origin, target) : null,
+    targetListId: target?.listId ?? null,
+  };
+}
