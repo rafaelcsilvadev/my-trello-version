@@ -57,6 +57,38 @@ describe('Dialog', () => {
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
+  it('describes the dialog with the description when given', () => {
+    render(
+      <Dialog
+        isOpen
+        onOpenChange={() => {}}
+        title="Mover para…"
+        description="“Login”"
+      >
+        Corpo
+      </Dialog>,
+    );
+
+    expect(
+      screen.getByRole('dialog', {
+        name: 'Mover para…',
+        description: '“Login”',
+      }),
+    ).toBeTruthy();
+  });
+
+  it('has no description when none is given', () => {
+    render(
+      <Dialog isOpen onOpenChange={() => {}} title="Criar quadro">
+        Corpo
+      </Dialog>,
+    );
+
+    expect(screen.getByRole('dialog').hasAttribute('aria-describedby')).toBe(
+      false,
+    );
+  });
+
   it('renders the footer when given', () => {
     render(
       <Dialog
