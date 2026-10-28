@@ -61,7 +61,7 @@ test('manage columns, cards and archived items on a board', async ({
   await expect(doneBoxes.last()).not.toBeChecked();
 
   // FBV-19
-  await page.getByRole('button', { name: 'To do' }).click();
+  await page.getByRole('button', { name: 'To do', exact: true }).click();
   await page
     .getByRole('region', { name: 'To do' })
     .getByLabel('Column name')

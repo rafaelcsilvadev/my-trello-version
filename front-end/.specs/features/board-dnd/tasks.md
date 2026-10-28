@@ -625,8 +625,8 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] Unit (screen + MSW): keyboard pick → → ↓ Space moves a card, sends the body, announces each step and keeps focus; mouse drag events move a card across columns and both counters change; "Mover para…" moves a card and shows the toast; help line hidden while picked, on an archived board and with no columns; archived board shows no menu and nothing draggable
-- [ ] Build gate passes; test count only grows
+- [x] Unit (screen + MSW): keyboard pick → → ↓ Space moves a card, sends the body, announces each step and keeps focus; mouse drag events move a card across columns and both counters change; "Mover para…" moves a card and shows the toast; help line hidden while picked, on an archived board and with no columns; archived board shows no menu and nothing draggable
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
