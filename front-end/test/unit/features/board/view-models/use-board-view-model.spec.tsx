@@ -611,6 +611,38 @@ describe('useBoardViewModel', () => {
         ).toEqual(actions);
       },
     );
+
+    // The mutation's own settle refetch finishes before the toast shows, so the
+    // reload is the only refetch counted after it.
+    it('Recarregar refetches every board query after a 409', async () => {
+      const requests = boardServer();
+      columnWrites(() => problem(409));
+      const { result } = await setupReady();
+
+      act(() => result.current.actions.archiveList(backlog.id));
+      await screen.findByText(conflict);
+      const before = { ...requests };
+      fireEvent.click(screen.getByRole('button', { name: 'Recarregar' }));
+
+      for (const url of [boardUrl, listsUrl, cardsUrl, labelsUrl]) {
+        await waitFor(() => expect(requests[url]).toBe(before[url] + 1));
+      }
+    });
+
+    it('refetches every board query on its own after a 404', async () => {
+      const requests = boardServer();
+      columnWrites(() => problem(404));
+      const { result } = await setupReady();
+      const loaded = { ...requests };
+
+      act(() => result.current.actions.archiveList(backlog.id));
+      await screen.findByText(saveFail);
+
+      // One settle refetch plus the reload.
+      for (const url of [boardUrl, listsUrl, cardsUrl, labelsUrl]) {
+        await waitFor(() => expect(requests[url]).toBe(loaded[url] + 2));
+      }
+    });
   });
 
   describe('card actions', () => {
