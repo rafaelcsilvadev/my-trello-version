@@ -425,8 +425,8 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] Unit: renders the text with the icon hidden from assistive tech
-- [ ] Build gate passes; test count only grows
+- [x] Unit: renders the text with the icon hidden from assistive tech
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
