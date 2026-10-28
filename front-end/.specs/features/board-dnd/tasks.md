@@ -350,8 +350,8 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] Unit: another column → closes, sends `{ listId, position: <count there> }`, toast "Tarefa movida para {col}"; current column → closes, no request; `askMoveTo` ignored for a pending card; failure toast as T9
-- [ ] Build gate passes; test count only grows
+- [x] Unit: another column → closes, sends `{ listId, position: <count there> }`, toast "Tarefa movida para {col}"; current column → closes, no request; `askMoveTo` ignored for a pending card; failure toast as T9
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
