@@ -275,8 +275,8 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] Unit: `POST /api/v1/lists/{id}/move` with `{ position }`; active lists cache patched; per-item revert with an overlapping move; pending id
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `POST /api/v1/lists/{id}/move` with `{ position }`; active lists cache patched; per-item revert with an overlapping move; pending id
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
