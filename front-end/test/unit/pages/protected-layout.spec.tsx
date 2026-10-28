@@ -32,9 +32,9 @@ describe('ProtectedLayout', () => {
   });
 
   it('wraps every protected page in the top bar', async () => {
-    renderApp({ route: '/b/x', token: TOKEN });
+    renderApp({ route: '/b/x/labels', token: TOKEN });
 
-    await heading('Board');
+    await heading('Labels');
     expect(screen.getByRole('banner')).toBeTruthy();
     expect(screen.getByRole('link', { name: 'Settings' })).toBeTruthy();
   });

@@ -22,7 +22,6 @@ describe('routes', () => {
   describe('with a token', () => {
     it.each([
       ['/boards', '/boards', 'My boards'],
-      ['/b/x', '/b/x', 'Board'],
       ['/b/x/t/y', '/b/x/t/y', 'Card'],
       ['/b/x/labels', '/b/x/labels', 'Labels'],
       ['/settings', '/settings', 'Settings'],

@@ -29,6 +29,17 @@ function respondBoards(boards: Board[]) {
   server.use(http.get(boardsUrl, () => HttpResponse.json(boards)));
 }
 
+// The board screen the app lands on after leaving /boards.
+function respondBoard(board: Board) {
+  const url = `${boardsUrl}/${board.id}`;
+  server.use(
+    http.get(url, () => HttpResponse.json(board)),
+    http.get(`${url}/lists`, () => HttpResponse.json([])),
+    http.get(`${url}/cards`, () => HttpResponse.json([])),
+    http.get(`${url}/labels`, () => HttpResponse.json([])),
+  );
+}
+
 function respondCreate201() {
   server.use(
     http.post(boardsUrl, () => HttpResponse.json(created, { status: 201 })),
@@ -69,6 +80,7 @@ describe('BoardsPage', () => {
   it('lands on /b/{id} after creating a board', async () => {
     respondBoards([roadmap]);
     respondCreate201();
+    respondBoard(created);
     const { router } = renderApp({ route: '/boards', token: 'token' });
 
     fireEvent.click(
@@ -79,17 +91,18 @@ describe('BoardsPage', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'Create' }));
 
-    await heading('Board');
+    await heading('Travel');
     expect(router.state.location.pathname).toBe(`/b/${created.id}`);
   });
 
   it('lands on /b/{id} when a board card is clicked', async () => {
     respondBoards([roadmap]);
+    respondBoard(roadmap);
     const { router } = renderApp({ route: '/boards', token: 'token' });
 
     fireEvent.click(await screen.findByRole('link', { name: /Roadmap/ }));
 
-    await heading('Board');
+    await heading('Roadmap');
     expect(router.state.location.pathname).toBe(`/b/${roadmap.id}`);
   });
 });
