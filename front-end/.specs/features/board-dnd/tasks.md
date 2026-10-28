@@ -225,8 +225,8 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] Unit: no session → columns unchanged, all fields `null`; mouse card → columns unchanged, `sourceCardId`, `placeholder` before the right card or at the end, `targetListId`, no placeholder on the origin; keyboard card → card at the target, `liftedId`; column session (both inputs) → reordered columns; `target` `null` → nothing moved
-- [ ] Build gate passes; test count only grows
+- [x] Unit: no session → columns unchanged, all fields `null`; mouse card → columns unchanged, `sourceCardId`, `placeholder` before the right card or at the end, `targetListId`, no placeholder on the origin; keyboard card → card at the target, `liftedId`; column session (both inputs) → reordered columns; `target` `null` → nothing moved
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
