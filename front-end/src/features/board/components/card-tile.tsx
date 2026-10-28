@@ -79,7 +79,7 @@ export function CardTile({
             label={t('board.card.done')}
             isSelected={card.done}
             onChange={() => onToggleDone(card)}
-            isDisabled={isArchived || isReadOnly}
+            isDisabled={isArchived || isReadOnly || isPending}
           />
         </span>
         <div

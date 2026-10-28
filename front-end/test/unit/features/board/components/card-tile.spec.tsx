@@ -194,6 +194,15 @@ describe('CardTile', () => {
     expect(screen.getByText('Salvando…')).toBeTruthy();
   });
 
+  it('disables the checkbox while its change is pending', async () => {
+    const { onToggleDone } = renderTile({ isPending: true });
+
+    expect(doneCheckbox().disabled).toBe(true);
+    await userEvent.click(doneCheckbox());
+
+    expect(onToggleDone).not.toHaveBeenCalled();
+  });
+
   it('writes the texts in English', () => {
     renderTile({
       language: 'en',
