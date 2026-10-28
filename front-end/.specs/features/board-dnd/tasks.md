@@ -99,9 +99,9 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] Unit: retry branch shows `retryMessage` with Tentar novamente; `409` and `404` ignore it; `runChange` with `null` shows no toast on success and still notifies on failure; retry of `runChange` keeps the options
-- [ ] Existing callers and their tests pass unchanged
-- [ ] Build gate passes; test count only grows
+- [x] Unit: retry branch shows `retryMessage` with Tentar novamente; `409` and `404` ignore it; `runChange` with `null` shows no toast on success and still notifies on failure; retry of `runChange` keeps the options
+- [x] Existing callers and their tests pass unchanged
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
