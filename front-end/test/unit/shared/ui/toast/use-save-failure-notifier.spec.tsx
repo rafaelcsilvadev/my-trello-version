@@ -145,4 +145,107 @@ describe('useSaveFailureNotifier', () => {
     expect(mutateAsync).toHaveBeenCalledTimes(2);
     expect(mutateAsync).toHaveBeenNthCalledWith(2, { id: 'a' });
   });
+
+  it('shows the retry message with Tentar novamente when one is given', () => {
+    const { notifier } = setup();
+    const retry = vi.fn<() => void>();
+
+    act(() =>
+      notifier().notify(apiError(500), retry, {
+        retryMessage: 'Não foi possível mover o cartão.',
+      }),
+    );
+
+    expect(
+      within(region()).getByText('Não foi possível mover o cartão.'),
+    ).toBeTruthy();
+    fireEvent.click(button('Tentar novamente'));
+    expect(retry).toHaveBeenCalledTimes(1);
+  });
+
+  it('ignores the retry message for a conflict', () => {
+    const { notifier } = setup();
+
+    act(() =>
+      notifier().notify(apiError(409), vi.fn(), {
+        retryMessage: 'Não foi possível mover o cartão.',
+      }),
+    );
+
+    expect(
+      within(region()).getByText(
+        'Este item foi arquivado. Recarregue para ver o estado atual.',
+      ),
+    ).toBeTruthy();
+    expect(
+      within(region()).queryByText('Não foi possível mover o cartão.'),
+    ).toBeNull();
+  });
+
+  it('ignores the retry message when the item is gone', () => {
+    const { notifier } = setup();
+
+    act(() =>
+      notifier().notify(apiError(404), vi.fn(), {
+        retryMessage: 'Não foi possível mover o cartão.',
+      }),
+    );
+
+    expect(
+      within(region()).getByText('Não foi possível salvar. Tente novamente.'),
+    ).toBeTruthy();
+    expect(
+      within(region()).queryByText('Não foi possível mover o cartão.'),
+    ).toBeNull();
+  });
+
+  it('shows no toast when a change without a success message saves', async () => {
+    const { notifier } = setup();
+    const mutateAsync = vi
+      .fn<(variables: { id: string }) => Promise<void>>()
+      .mockResolvedValue(undefined);
+
+    act(() => notifier().runChange(mutateAsync, { id: 'a' }, null));
+
+    await waitFor(() => expect(mutateAsync).toHaveBeenCalledWith({ id: 'a' }));
+    await act(() => Promise.resolve());
+    expect(region().childElementCount).toBe(0);
+  });
+
+  it('still notifies when a change without a success message fails', async () => {
+    const { notifier } = setup();
+    const mutateAsync = vi
+      .fn<(variables: { id: string }) => Promise<void>>()
+      .mockRejectedValue(apiError(500));
+
+    act(() => notifier().runChange(mutateAsync, { id: 'a' }, null));
+
+    await waitFor(() => button('Tentar novamente'));
+    expect(
+      within(region()).getByText('Não foi possível salvar. Tente novamente.'),
+    ).toBeTruthy();
+  });
+
+  it('keeps the retry message when the retried change fails again', async () => {
+    const { notifier } = setup();
+    const mutateAsync = vi
+      .fn<(variables: { id: string }) => Promise<void>>()
+      .mockRejectedValue(apiError(500));
+    const options = { retryMessage: 'Não foi possível mover o cartão.' };
+
+    act(() => notifier().runChange(mutateAsync, { id: 'a' }, null, options));
+    await waitFor(() => button('Tentar novamente'));
+    fireEvent.click(button('Tentar novamente'));
+
+    await waitFor(() => expect(mutateAsync).toHaveBeenCalledTimes(2));
+    await waitFor(() =>
+      expect(
+        within(region()).getAllByText('Não foi possível mover o cartão.'),
+      ).toHaveLength(1),
+    );
+    expect(mutateAsync).toHaveBeenNthCalledWith(2, { id: 'a' });
+    expect(
+      within(region()).queryByText('Não foi possível salvar. Tente novamente.'),
+    ).toBeNull();
+  });
 });
