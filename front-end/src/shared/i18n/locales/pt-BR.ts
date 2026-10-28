@@ -131,6 +131,7 @@ export const ptBR = {
     },
   },
   board: {
+    breadcrumb: 'Trilha de navegação',
     header: {
       menu: 'Ações do quadro',
       labels: 'Etiquetas do quadro',

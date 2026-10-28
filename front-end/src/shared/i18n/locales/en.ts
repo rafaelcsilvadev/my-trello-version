@@ -129,6 +129,7 @@ export const en = {
     },
   },
   board: {
+    breadcrumb: 'Breadcrumb',
     header: {
       menu: 'Board actions',
       labels: 'Board labels',
