@@ -159,6 +159,8 @@ export const ptBR = {
       columnAnnounce: 'Coluna {{name}}, posição {{i}} de {{n}}',
       columnDropped: 'Coluna {{name}} solta na posição {{i}} de {{n}}',
       cancelled: 'Movimento cancelado',
+      keyboardHelp:
+        'Teclado: Espaço pega o card, a coluna ou o item em foco · setas movem · Espaço solta · Esc cancela',
     },
     pager: {
       goTo: 'Ir para {{title}}',
