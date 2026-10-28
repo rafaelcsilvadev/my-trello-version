@@ -8,7 +8,9 @@ import {
 import { useApi } from '@/shared/api/api-context';
 import { type ApiError, call } from '@/shared/api/api-error';
 
-import type { Board, Card, List } from '../model/types';
+import { byPosition } from '../model/columns';
+import { type CardSpot, placeCard } from '../model/move';
+import type { Board, Card, List, MoveCardDto } from '../model/types';
 import { boardViewKeys } from './keys';
 
 // Shared by every optimistic board change, so each can see whether another is still pending.
@@ -178,6 +180,47 @@ export function useToggleCardDone(boardId: string) {
   );
 }
 
+export type MoveCardVariables = ItemVariables & { body: MoveCardDto };
+
+// `listId` is absent when the card stays in its column (FDND-04).
+export function useMoveCard(boardId: string) {
+  const api = useApi();
+
+  return useOptimisticBoardViewChange<MoveCardVariables>(
+    boardId,
+    ({ id, body }) =>
+      call(
+        api.POST('/api/v1/cards/{id}/move', {
+          params: { path: { id } },
+          body,
+        }),
+      ),
+    ({ id, body }) => {
+      let previous: CardSpot | null = null;
+      return [
+        {
+          key: boardViewKeys.cards(boardId, false),
+          apply: (cards: Card[]) => {
+            previous = activeCardSpot(cards, id);
+            return previous
+              ? placeCard(
+                  cards,
+                  id,
+                  body.listId ?? previous.listId,
+                  body.position,
+                )
+              : cards;
+          },
+          revert: (cards: Card[]) =>
+            previous
+              ? placeCard(cards, id, previous.listId, previous.index)
+              : cards,
+        },
+      ];
+    },
+  );
+}
+
 // `id` is the board itself, so its Restore button shows as pending (FBV-58).
 export function useRestoreBoard(boardId: string) {
   const api = useApi();
@@ -213,6 +256,17 @@ export function usePendingItemIds(): Set<string> {
     select: (mutation) => (mutation.state.variables as ItemVariables).id,
   });
   return new Set(ids);
+}
+
+// Where an active card sits among the active cards of its list.
+function activeCardSpot(cards: Card[], id: string): CardSpot | null {
+  const card = cards.find((item) => item.id === id && item.archivedAt === null);
+  if (!card) return null;
+  const index = cards
+    .filter((item) => item.listId === card.listId && item.archivedAt === null)
+    .sort(byPosition)
+    .indexOf(card);
+  return { listId: card.listId, index };
 }
 
 // Removes the matching items and remembers their indexes, so `revert` puts
