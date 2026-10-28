@@ -157,6 +157,8 @@ export const en = {
       columnAnnounce: 'Column {{name}}, position {{i}} of {{n}}',
       columnDropped: 'Column {{name}} dropped at position {{i}} of {{n}}',
       cancelled: 'Move cancelled',
+      keyboardHelp:
+        'Keyboard: Space picks up the focused card, column or item · arrows move · Space drops · Esc cancels',
     },
     pager: {
       goTo: 'Go to {{title}}',

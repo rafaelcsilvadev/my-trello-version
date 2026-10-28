@@ -450,8 +450,8 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] Unit: exact PT-BR and EN texts; carries the `hidden md:flex` classes
-- [ ] Build gate passes; test count only grows
+- [x] Unit: exact PT-BR and EN texts; carries the `hidden md:flex` classes
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
