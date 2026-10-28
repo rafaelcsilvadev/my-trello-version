@@ -300,8 +300,8 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] Unit: `start` ignored when `!canMove`, when the item is pending, when a session runs, and for a column whose rename is open; drop sends the body of T4; drop without a target, on the origin or `cancel` sends nothing; card failure toast "Não foi possível mover a tarefa" + Tentar novamente resends the same body; column failure uses the default toast; `409` → conflict + Recarregar; `404` → refetch; no success toast
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `start` ignored when `!canMove`, when the item is pending, when a session runs, and for a column whose rename is open; drop sends the body of T4; drop without a target, on the origin or `cancel` sends nothing; card failure toast "Não foi possível mover a tarefa" + Tentar novamente resends the same body; column failure uses the default toast; `409` → conflict + Recarregar; `404` → refetch; no success toast
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
