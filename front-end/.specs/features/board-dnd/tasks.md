@@ -400,8 +400,8 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] Unit: role, `aria-live="assertive"`, `sr-only`, renders the given text, present with an empty text
-- [ ] Build gate passes; test count only grows
+- [x] Unit: role, `aria-live="assertive"`, `sr-only`, renders the given text, present with an empty text
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
