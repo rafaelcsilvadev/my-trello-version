@@ -1,5 +1,7 @@
 /* Dark theme overrides, from the prototype (design/Task List.dc.html:25-33). */
 [data-theme=dark] {
+  /* Native scrollbars and form controls follow this, not the tokens below. */
+  color-scheme: dark;
   --neutral-0: #1B1820; --neutral-25: #1F1C25; --neutral-50: #25212B; --neutral-100: #2C2833; --neutral-200: #36313E; --neutral-300: #474150;
   --neutral-400: #6A6275; --neutral-500: #938B9F; --neutral-600: #B7B0C1; --neutral-700: #D5D0DC; --neutral-800: #E9E6EE; --neutral-900: #F6F4F9;
   --purple-50: #2D1733; --purple-100: #3C1F45; --purple-200: #57306A; --purple-300: #7D4790; --purple-600: #E0AEE8; --purple-700: #D89EE1;

@@ -43,6 +43,8 @@ test('theme and language come from storage', async ({ page }) => {
   await page.goto('/nope');
 
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  // Native controls such as scrollbars follow color-scheme, not our tokens.
+  await expect(page.locator('html')).toHaveCSS('color-scheme', 'dark');
   await expect(page.locator('html')).toHaveAttribute('lang', 'pt-BR');
 });
 
