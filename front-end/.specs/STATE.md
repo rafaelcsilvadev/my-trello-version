@@ -110,6 +110,14 @@ Decisions for the web app. They must conform to the global decisions in the root
 - **Date**: 2026-10-26
 - **Status**: open
 
+### P2
+- **Item**: A failed background refetch replaces the whole board with the "Não foi possível carregar" block, even when the cache still holds the board. `useBoardViewModel` sets `status = 'error'` whenever any query `isError` (`use-board-view-model.ts:139`), and every failed write refetches all board queries. With the API unreachable, a failed move shows its toast and then the board disappears behind the load error, so the user loses the board they were editing.
+- **Likelihood**: medium; any network drop or API outage while the board is open, after a failed write or a window-focus refetch. Recovery is one click on **Tentar novamente** once the API is back.
+- **Decision**: fix in a future task. Show the load error only when there is no data to show (first load); a failed refetch with cached data keeps the board and relies on the write's toast.
+- **Source**: board-dnd manual UAT in Chrome (API container stopped during a card move)
+- **Date**: 2026-10-28
+- **Status**: open
+
 ## Handoff
 
 Auth: done. All 20 tasks merged, one PR each (T1–T20); README documents signing up and logging in. Validation: PASS (`features/auth/validation.md`, 27/27 FAUTH requirements verified, 33/33 mutants killed, 2 equivalent). Foundation: done and validated (`features/foundation/validation.md`). Boards: done. All 25 tasks merged, one PR each (T1–T25); README documents managing boards. Validation: PASS after 3 iterations (`features/boards/validation.md`, 42/42 FBRD requirements verified, 68/68 mutants killed, 3 equivalent); the fixes were test-only (PRs #178, #180). Board: done. All 44 tasks merged, one PR each (T1–T44); README documents using a board. Validation: PASS after 4 iterations (`features/board/validation.md`, 58/58 FBV requirements verified); the fixes were test-only except FBV-58 (PR #229). Board-dnd: done. All 24 tasks merged, one PR each (T1–T24); README documents moving cards and columns. Spec (`features/board-dnd/spec.md`, 43 FDND requirements), design (`features/board-dnd/design.md`, FE-AD-012) and tasks (PR #241) approved. Next: validate `board-dnd`.
