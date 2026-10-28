@@ -1,10 +1,17 @@
 import type { TFunction } from 'i18next';
-import { Calendar, Loader, SquareCheck, TriangleAlert } from 'lucide-react';
+import {
+  ArrowRightLeft,
+  Calendar,
+  Loader,
+  SquareCheck,
+  TriangleAlert,
+} from 'lucide-react';
 import type { DragEvent, KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { formatDayMonth, formatShortDate } from '@/shared/i18n/format-date';
 import { Checkbox } from '@/shared/ui/checkbox';
+import { ActionMenu } from '@/shared/ui/menu';
 
 import { dueLabel, isOverdue } from '../model/due-date';
 import type { ArrowKey } from '../model/move';
@@ -31,7 +38,7 @@ const ARROW_KEYS: ReadonlySet<string> = new Set<ArrowKey>([
   'ArrowRight',
 ]);
 
-// The card's part in a move session (FDND-01, FDND-09). Ignored on archived cards and read-only boards.
+// The card's part in a move session and its "Mover para…" menu (FDND-01, FDND-09, FDND-29). Ignored on archived cards and read-only boards.
 export type CardMove = {
   isSource: boolean;
   isLifted: boolean;
@@ -41,6 +48,7 @@ export type CardMove = {
   onStep: (key: ArrowKey) => void;
   onDrop: () => void;
   onCancel: () => void;
+  onMoveTo: (cardId: string) => void;
 };
 
 type CardTileProps = {
@@ -160,6 +168,22 @@ export function CardTile({
               aria-hidden
             />
             <span className="sr-only">{t('board.card.pending')}</span>
+          </span>
+        ) : null}
+        {movable ? (
+          <span className="-my-0.5 -mr-1 flex">
+            <ActionMenu
+              label={t('board.moveTo.title')}
+              isDisabled={isPending}
+              items={[
+                {
+                  id: 'move-to',
+                  label: t('board.moveTo.title'),
+                  icon: ArrowRightLeft,
+                  onAction: () => movable.onMoveTo(card.id),
+                },
+              ]}
+            />
           </span>
         ) : null}
       </div>
