@@ -207,49 +207,49 @@ The board screen (feature `board`, 3a) shows columns and cards in API order, but
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| FDND-01 | P1: Move cards with the mouse | - | Pending |
-| FDND-02 | P1: Move cards with the mouse | - | Pending |
-| FDND-03 | P1: Move cards with the mouse | - | Pending |
-| FDND-04 | P1: Move cards with the mouse | - | Pending |
-| FDND-05 | P1: Move cards with the mouse | - | Pending |
-| FDND-06 | P1: Move cards with the mouse | - | Pending |
-| FDND-07 | P1: Move cards with the mouse | - | Pending |
-| FDND-08 | P1: Move cards with the keyboard | - | Pending |
-| FDND-09 | P1: Move cards with the keyboard | - | Pending |
-| FDND-10 | P1: Move cards with the keyboard | - | Pending |
-| FDND-11 | P1: Move cards with the keyboard | - | Pending |
-| FDND-12 | P1: Move cards with the keyboard | - | Pending |
-| FDND-13 | P1: Move cards with the keyboard | - | Pending |
-| FDND-14 | P1: Move cards with the keyboard | - | Pending |
-| FDND-15 | P1: Move cards with the keyboard | - | Pending |
-| FDND-16 | P1: Move cards with the keyboard | - | Pending |
-| FDND-17 | P1: Move cards with the keyboard | - | Pending |
-| FDND-18 | P1: Move cards with the keyboard | - | Pending |
-| FDND-19 | P1: Reorder columns | - | Pending |
-| FDND-20 | P1: Reorder columns | - | Pending |
-| FDND-21 | P1: Reorder columns | - | Pending |
-| FDND-22 | P1: Reorder columns | - | Pending |
-| FDND-23 | P1: Reorder columns | - | Pending |
-| FDND-24 | P1: Reorder columns | - | Pending |
-| FDND-25 | P1: Reorder columns | - | Pending |
-| FDND-26 | P1: Reorder columns | - | Pending |
-| FDND-27 | P1: Reorder columns | - | Pending |
-| FDND-28 | P1: Reorder columns | - | Pending |
-| FDND-29 | P1: Move a card with "Mover para…" | - | Pending |
-| FDND-30 | P1: Move a card with "Mover para…" | - | Pending |
-| FDND-31 | P1: Move a card with "Mover para…" | - | Pending |
-| FDND-32 | P1: Move a card with "Mover para…" | - | Pending |
-| FDND-33 | P1: Move a card with "Mover para…" | - | Pending |
-| FDND-34 | P1: Move a card with "Mover para…" | - | Pending |
-| FDND-35 | P1: Failed and blocked moves | - | Pending |
-| FDND-36 | P1: Failed and blocked moves | - | Pending |
-| FDND-37 | P1: Failed and blocked moves | - | Pending |
-| FDND-38 | P1: Failed and blocked moves | - | Pending |
-| FDND-39 | P1: Failed and blocked moves | - | Pending |
-| FDND-40 | P1: Failed and blocked moves | - | Pending |
-| FDND-41 | P1: Failed and blocked moves | - | Pending |
-| FDND-42 | P1: Failed and blocked moves | - | Pending |
-| FDND-43 | P1: Failed and blocked moves | - | Pending |
+| FDND-01 | P1: Move cards with the mouse | - | Verified |
+| FDND-02 | P1: Move cards with the mouse | - | Needs Fix |
+| FDND-03 | P1: Move cards with the mouse | - | Verified |
+| FDND-04 | P1: Move cards with the mouse | - | Verified |
+| FDND-05 | P1: Move cards with the mouse | - | Verified |
+| FDND-06 | P1: Move cards with the mouse | - | Verified |
+| FDND-07 | P1: Move cards with the mouse | - | Verified |
+| FDND-08 | P1: Move cards with the keyboard | - | Verified |
+| FDND-09 | P1: Move cards with the keyboard | - | Verified |
+| FDND-10 | P1: Move cards with the keyboard | - | Verified |
+| FDND-11 | P1: Move cards with the keyboard | - | Verified |
+| FDND-12 | P1: Move cards with the keyboard | - | Verified |
+| FDND-13 | P1: Move cards with the keyboard | - | Verified |
+| FDND-14 | P1: Move cards with the keyboard | - | Verified |
+| FDND-15 | P1: Move cards with the keyboard | - | Verified |
+| FDND-16 | P1: Move cards with the keyboard | - | Verified |
+| FDND-17 | P1: Move cards with the keyboard | - | Verified |
+| FDND-18 | P1: Move cards with the keyboard | - | Verified |
+| FDND-19 | P1: Reorder columns | - | Verified |
+| FDND-20 | P1: Reorder columns | - | Verified |
+| FDND-21 | P1: Reorder columns | - | Verified |
+| FDND-22 | P1: Reorder columns | - | Verified |
+| FDND-23 | P1: Reorder columns | - | Verified |
+| FDND-24 | P1: Reorder columns | - | Verified |
+| FDND-25 | P1: Reorder columns | - | Verified |
+| FDND-26 | P1: Reorder columns | - | Verified |
+| FDND-27 | P1: Reorder columns | - | Verified |
+| FDND-28 | P1: Reorder columns | - | Verified |
+| FDND-29 | P1: Move a card with "Mover para…" | - | Verified |
+| FDND-30 | P1: Move a card with "Mover para…" | - | Verified |
+| FDND-31 | P1: Move a card with "Mover para…" | - | Verified |
+| FDND-32 | P1: Move a card with "Mover para…" | - | Verified |
+| FDND-33 | P1: Move a card with "Mover para…" | - | Verified |
+| FDND-34 | P1: Move a card with "Mover para…" | - | Verified |
+| FDND-35 | P1: Failed and blocked moves | - | Verified |
+| FDND-36 | P1: Failed and blocked moves | - | Verified |
+| FDND-37 | P1: Failed and blocked moves | - | Verified |
+| FDND-38 | P1: Failed and blocked moves | - | Verified |
+| FDND-39 | P1: Failed and blocked moves | - | Verified |
+| FDND-40 | P1: Failed and blocked moves | - | Verified |
+| FDND-41 | P1: Failed and blocked moves | - | Verified |
+| FDND-42 | P1: Failed and blocked moves | - | Verified |
+| FDND-43 | P1: Failed and blocked moves | - | Verified |
 
 **Coverage:** 43 total, 0 mapped to tasks, 43 unmapped ⚠️ (mapped at Tasks)
 
