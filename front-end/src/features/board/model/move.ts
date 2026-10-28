@@ -1,4 +1,5 @@
-import type { Column, MoveCardDto, MoveListDto } from './types';
+import { byPosition } from './columns';
+import type { Card, Column, List, MoveCardDto, MoveListDto } from './types';
 
 export type CardSpot = { listId: string; index: number };
 export type ColumnSpot = { index: number };
@@ -97,4 +98,60 @@ export function columnMoveBody(
 ): MoveListDto | null {
   if (origin.index === target.index) return null;
   return { position: target.index };
+}
+
+type Placeable = {
+  id: string;
+  position: number | null;
+  archivedAt: string | null;
+};
+
+// Numbers each group 0..n-1 and swaps its items into `items`, keeping their order there.
+function renumber<T extends Placeable>(items: T[], groups: T[][]): T[] {
+  const placed = new Map(
+    groups.flatMap((group) =>
+      group.map((item, position) => [item.id, { ...item, position }] as const),
+    ),
+  );
+  return items.map((item) => placed.get(item.id) ?? item);
+}
+
+// Archived cards keep their place; only the origin and target lists are renumbered.
+export function placeCard(
+  cards: Card[],
+  id: string,
+  listId: string,
+  index: number,
+): Card[] {
+  const moving = cards.find(
+    (card) => card.id === id && card.archivedAt === null,
+  );
+  if (!moving) return cards;
+
+  const othersIn = (groupId: string) =>
+    cards
+      .filter(
+        (card) =>
+          card.listId === groupId && card.archivedAt === null && card.id !== id,
+      )
+      .sort(byPosition);
+  const target = othersIn(listId);
+  target.splice(index, 0, { ...moving, listId });
+
+  const groups =
+    listId === moving.listId ? [target] : [othersIn(moving.listId), target];
+  return renumber(cards, groups);
+}
+
+export function placeList(lists: List[], id: string, index: number): List[] {
+  const moving = lists.find(
+    (list) => list.id === id && list.archivedAt === null,
+  );
+  if (!moving) return lists;
+
+  const group = lists
+    .filter((list) => list.archivedAt === null && list.id !== id)
+    .sort(byPosition);
+  group.splice(index, 0, moving);
+  return renumber(lists, [group]);
 }
