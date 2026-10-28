@@ -306,7 +306,7 @@ Opening a board from "Meus quadros" lands on `/b/{id}`, which is still the found
 | FBV-57 | P1: Save failures | - | Verified |
 | FBV-58 | P1: Save failures | - | Verified |
 
-**Coverage:** 58 total, all mapped to tasks (`tasks.md`). Validation iteration 1: 51 Verified, 7 Needs Fix. Iteration 2: 57 Verified, 1 Needs Fix (FBV-34: the archive-icon assertion does not discriminate, mutant S47b; see `validation.md`).
+**Coverage:** 58 total, all mapped to tasks (`tasks.md`). Validation iteration 1: 51 Verified, 7 Needs Fix. Iteration 2: 57 Verified, 1 Needs Fix (FBV-34: the archive-icon assertion does not discriminate, mutant S47b). Iteration 3: 57 Verified, 1 Needs Fix (FBV-34: S47b now killed, but the assertion accepts any icon, mutant N4; Fix 8, escalated to the user; see `validation.md`).
 
 ---
 
