@@ -92,6 +92,14 @@ Decisions for the web app. They must conform to the global decisions in the root
 - **Date**: 2026-10-27
 - **Status**: active
 
+### FE-AD-012
+- **Decision**: Drag and drop uses no library. The mouse uses native HTML5 drag events (`draggable`, `dragstart`, `dragover`, `drop`, `dragend`); the keyboard follows doc §6 (Space picks, arrows move, Space or Enter drops, Esc cancels) as a state machine over pure position functions in the feature's `model/`, with its own `role="status"` live region. Touch has no drag: touch users move items through menus ("Mover para…").
+- **Reason**: The doc's keyboard model is semantic (column and index), while libraries move by coordinates (`@dnd-kit`) or use another key model (React Aria: Enter, then Tab between targets); `@dnd-kit/core` has had no release since 2024-12. HTML5 drag matches the prototype and never starts from touch, so it cannot fight the phone snap scroll.
+- **Trade-off**: No drag animations beyond CSS; the native drag ghost image; every new draggable list (checklist in `card-detail`) writes its own keyboard handlers on the shared pattern.
+- **Scope**: front-end
+- **Date**: 2026-10-28
+- **Status**: active
+
 ## Open Items
 
 ### P1
@@ -104,4 +112,4 @@ Decisions for the web app. They must conform to the global decisions in the root
 
 ## Handoff
 
-Auth: done. All 20 tasks merged, one PR each (T1–T20); README documents signing up and logging in. Validation: PASS (`features/auth/validation.md`, 27/27 FAUTH requirements verified, 33/33 mutants killed, 2 equivalent). Foundation: done and validated (`features/foundation/validation.md`). Boards: done. All 25 tasks merged, one PR each (T1–T25); README documents managing boards. Validation: PASS after 3 iterations (`features/boards/validation.md`, 42/42 FBRD requirements verified, 68/68 mutants killed, 3 equivalent); the fixes were test-only (PRs #178, #180). Board: done. All 44 tasks merged, one PR each (T1–T44); README documents using a board. Next: validate `board` (Verifier), then specify `board-dnd`.
+Auth: done. All 20 tasks merged, one PR each (T1–T20); README documents signing up and logging in. Validation: PASS (`features/auth/validation.md`, 27/27 FAUTH requirements verified, 33/33 mutants killed, 2 equivalent). Foundation: done and validated (`features/foundation/validation.md`). Boards: done. All 25 tasks merged, one PR each (T1–T25); README documents managing boards. Validation: PASS after 3 iterations (`features/boards/validation.md`, 42/42 FBRD requirements verified, 68/68 mutants killed, 3 equivalent); the fixes were test-only (PRs #178, #180). Board: done. All 44 tasks merged, one PR each (T1–T44); README documents using a board. Validation: PASS after 4 iterations (`features/board/validation.md`, 58/58 FBV requirements verified); the fixes were test-only except FBV-58 (PR #229). Board-dnd: spec approved (`features/board-dnd/spec.md`, 43 FDND requirements); design approved (`features/board-dnd/design.md`, FE-AD-012); tasks written (`features/board-dnd/tasks.md`, T1–T24), awaiting approval. Next: Execute T1.
