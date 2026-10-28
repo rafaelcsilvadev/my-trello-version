@@ -83,7 +83,9 @@ describe('ArchivedCardsColumn', () => {
 
     expect(column().classList.contains('border-dashed')).toBe(true);
     expect(column().classList.contains('bg-transparent')).toBe(true);
-    expect(column().querySelector('svg')).toBeTruthy();
+    // Card checkboxes carry svgs too, so look in the header row only.
+    const header = screen.getByText('Arquivadas').parentElement;
+    expect(header?.querySelector('svg')).toBeTruthy();
   });
 
   it('shows the cards in the given order, each with its archive date and column', () => {
