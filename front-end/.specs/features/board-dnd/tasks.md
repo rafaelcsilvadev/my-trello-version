@@ -150,8 +150,8 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] Unit: pointer above / below the midpoint → `before` / `after` (exact midpoint fixed by test); `dropIndex` before the first, after the last, `null` hovered → end, empty column → 0
-- [ ] Build gate passes; test count only grows
+- [x] Unit: pointer above / below the midpoint → `before` / `after` (exact midpoint fixed by test); `dropIndex` before the first, after the last, `null` hovered → end, empty column → 0
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build

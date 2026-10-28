@@ -3,6 +3,7 @@ import type { Column } from './types';
 export type CardSpot = { listId: string; index: number };
 export type ColumnSpot = { index: number };
 export type ArrowKey = 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight';
+export type DropSlot = 'before' | 'after';
 
 export function cardSpot(columns: Column[], cardId: string): CardSpot | null {
   for (const column of columns) {
@@ -50,4 +51,30 @@ export function stepColumn(
 ): ColumnSpot {
   if (key === 'ArrowLeft') return { index: Math.max(0, at.index - 1) };
   return { index: Math.min(count - 1, at.index + 1) };
+}
+
+// The exact midpoint counts as `after`.
+export function dropSlot(
+  rect: { top: number; height: number },
+  clientY: number,
+): DropSlot {
+  return clientY < rect.top + rect.height / 2 ? 'before' : 'after';
+}
+
+export function columnDropSlot(
+  rect: { left: number; width: number },
+  clientX: number,
+): DropSlot {
+  return clientX < rect.left + rect.width / 2 ? 'before' : 'after';
+}
+
+// `otherIds` leaves out the moving item; an unknown or missing `hoveredId` means the end.
+export function dropIndex(
+  otherIds: string[],
+  hoveredId: string | null,
+  slot: DropSlot,
+): number {
+  const index = hoveredId === null ? -1 : otherIds.indexOf(hoveredId);
+  if (index === -1) return otherIds.length;
+  return slot === 'before' ? index : index + 1;
 }
