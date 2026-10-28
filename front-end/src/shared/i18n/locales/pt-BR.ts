@@ -162,6 +162,11 @@ export const ptBR = {
       keyboardHelp:
         'Teclado: Espaço pega o card, a coluna ou o item em foco · setas movem · Espaço solta · Esc cancela',
     },
+    moveTo: {
+      title: 'Mover para…',
+      current: 'Atual',
+      close: 'Fechar',
+    },
     pager: {
       goTo: 'Ir para {{title}}',
       position: '{{title}} · {{i}} de {{n}}',

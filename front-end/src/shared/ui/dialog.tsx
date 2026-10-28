@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useId, type ReactNode } from 'react';
 import {
   Dialog as AriaDialog,
   Heading,
@@ -11,6 +11,7 @@ type DialogProps = {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   title: string;
+  description?: string;
   children: ReactNode;
   footer?: ReactNode;
   role?: 'dialog' | 'alertdialog';
@@ -20,10 +21,13 @@ export function Dialog({
   isOpen,
   onOpenChange,
   title,
+  description,
   children,
   footer,
   role = 'dialog',
 }: DialogProps) {
+  const descriptionId = useId();
+
   return (
     <ModalOverlay
       isOpen={isOpen}
@@ -32,7 +36,11 @@ export function Dialog({
       className="fixed inset-0 z-100 flex items-center justify-center bg-surface-overlay p-6"
     >
       <Modal className="w-120 max-w-full overflow-hidden rounded-xl border border-border-subtle bg-surface-card shadow-lg">
-        <AriaDialog role={role} className="outline-none">
+        <AriaDialog
+          role={role}
+          aria-describedby={description ? descriptionId : undefined}
+          className="outline-none"
+        >
           <div className="px-5 pt-4.5">
             <Heading
               slot="title"
@@ -40,6 +48,14 @@ export function Dialog({
             >
               {title}
             </Heading>
+            {description && (
+              <p
+                id={descriptionId}
+                className="mt-1.5 mb-0 text-md text-text-secondary"
+              >
+                {description}
+              </p>
+            )}
           </div>
           <div className="px-5 py-4">{children}</div>
           {footer && (

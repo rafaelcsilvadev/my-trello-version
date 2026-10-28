@@ -160,6 +160,11 @@ export const en = {
       keyboardHelp:
         'Keyboard: Space picks up the focused card, column or item · arrows move · Space drops · Esc cancels',
     },
+    moveTo: {
+      title: 'Move to…',
+      current: 'Current',
+      close: 'Close',
+    },
     pager: {
       goTo: 'Go to {{title}}',
       position: '{{title}} · {{i}} of {{n}}',

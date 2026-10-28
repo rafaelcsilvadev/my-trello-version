@@ -475,8 +475,8 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] Unit: dialog name "Mover para…"; description “{title}”; options in board order; only the current shows "Atual"; choosing an option calls back with its id; Esc and the close button call close
-- [ ] Build gate passes; test count only grows
+- [x] Unit: dialog name "Mover para…"; description “{title}”; options in board order; only the current shows "Atual"; choosing an option calls back with its id; Esc and the close button call close
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
