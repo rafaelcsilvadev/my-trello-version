@@ -74,6 +74,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: S47b front-end/test/unit/features/board/components/archived-cards-column.spec.tsx:86 (archived-cards-column.tsx:36) (tests)
 - last seen: 2026-10-28T13:54:53Z
 
+### L-011 - When the spec names a specific icon, assert that icon's identity, not only that some svg is present
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `tests` · harmful: 0
+- features: board
+- evidence: N4 front-end/test/unit/features/board/components/archived-cards-column.spec.tsx:88 (archived-cards-column.tsx:36) (tests)
+- last seen: 2026-10-28T14:08:17Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
