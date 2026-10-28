@@ -525,8 +525,8 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] Unit: one item; choosing it calls `onMoveTo`; keys on the menu button never reach the card's pick; disabled while pending; no menu when archived or read-only
-- [ ] Build gate passes; test count only grows
+- [x] Unit: one item; choosing it calls `onMoveTo`; keys on the menu button never reach the card's pick; disabled while pending; no menu when archived or read-only
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build

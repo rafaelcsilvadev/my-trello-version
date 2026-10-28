@@ -42,6 +42,7 @@ function moveProps(overrides: Partial<CardMove> = {}): CardMove {
     onStep: vi.fn<CardMove['onStep']>(),
     onDrop: vi.fn<() => void>(),
     onCancel: vi.fn<() => void>(),
+    onMoveTo: vi.fn<(cardId: string) => void>(),
     ...overrides,
   };
 }
@@ -406,6 +407,85 @@ describe('CardTile', () => {
       const classes = cardButton().classList;
       expect(classes.contains('shadow-lg')).toBe(true);
       expect(classes.contains('border-border-focus')).toBe(true);
+    });
+  });
+
+  describe('menu', () => {
+    function menuButton<T extends HTMLElement = HTMLElement>() {
+      return screen.getByRole<T>('button', { name: 'Mover para…' });
+    }
+
+    it('has one item, "Mover para…"', async () => {
+      const user = userEvent.setup();
+      renderTile();
+
+      await user.click(menuButton());
+
+      const items = screen.getAllByRole('menuitem');
+      expect(items.map((item) => item.textContent)).toEqual(['Mover para…']);
+    });
+
+    it('calls onMoveTo with the card id when its item is chosen', async () => {
+      const user = userEvent.setup();
+      const { move } = renderTile();
+
+      await user.click(menuButton());
+      await user.click(screen.getByRole('menuitem', { name: 'Mover para…' }));
+
+      expect(move.onMoveTo).toHaveBeenCalledExactlyOnceWith('c1');
+      expect(move.onPick).not.toHaveBeenCalled();
+    });
+
+    it('does not pick the card on keys pressed on the menu button', async () => {
+      const user = userEvent.setup();
+      const { move } = renderTile();
+
+      menuButton().focus();
+      await user.keyboard(' ');
+      await user.keyboard('{Escape}');
+      await user.keyboard('{Enter}');
+      await user.keyboard('{Escape}');
+
+      expect(move.onPick).not.toHaveBeenCalled();
+      expect(move.onCancel).not.toHaveBeenCalled();
+      expect(move.onMoveTo).not.toHaveBeenCalled();
+    });
+
+    it('does not drop or cancel a picked card on keys pressed on the menu button', () => {
+      const { move } = renderTile({ move: { isLifted: true } });
+
+      fireEvent.keyDown(menuButton(), { key: 'Escape' });
+      fireEvent.keyDown(menuButton(), { key: 'ArrowDown' });
+
+      expect(move.onCancel).not.toHaveBeenCalled();
+      expect(move.onStep).not.toHaveBeenCalled();
+    });
+
+    it('is disabled while the card change is pending', () => {
+      renderTile({ isPending: true });
+
+      expect(menuButton<HTMLButtonElement>().disabled).toBe(true);
+    });
+
+    it('is absent on an archived card', () => {
+      renderTile({
+        mode: 'archived',
+        card: { archivedAt: localNoon(2026, 9, 1) },
+      });
+
+      expect(screen.queryByRole('button', { name: 'Mover para…' })).toBeNull();
+    });
+
+    it('is absent on a read-only board', () => {
+      renderTile({ isReadOnly: true });
+
+      expect(screen.queryByRole('button', { name: 'Mover para…' })).toBeNull();
+    });
+
+    it('is labelled in English', () => {
+      renderTile({ language: 'en' });
+
+      expect(screen.queryByRole('button', { name: 'Move to…' })).not.toBeNull();
     });
   });
 });
