@@ -134,6 +134,16 @@ describe('BoardColumns', () => {
     expect(regionNames()).toEqual(['A fazer', 'Fazendo', 'Feito']);
   });
 
+  // jsdom has no layout, so the phone snap is checked on its classes (FBV-48).
+  it('snaps the columns one by one on a phone and scrolls freely from md up', () => {
+    renderColumns();
+
+    const classes = scroller().classList;
+    expect(classes.contains('snap-x')).toBe(true);
+    expect(classes.contains('snap-mandatory')).toBe(true);
+    expect(classes.contains('md:snap-none')).toBe(true);
+  });
+
   it('shows the archived column and section after the columns only while showArchived is on', () => {
     renderColumns({ showArchived: true });
 
@@ -170,6 +180,16 @@ describe('BoardColumns', () => {
     expect(screen.queryByTestId('board-columns')).toBeNull();
     expect(screen.queryAllByRole('region')).toHaveLength(0);
     expect(screen.queryByRole('button', { name: /^Ir para/ })).toBeNull();
+  });
+
+  // Otherwise the last column, once archived, could not be restored.
+  it('shows the archived items and the add column on a board with no active columns while showArchived is on', () => {
+    renderColumns({ columns: [], showArchived: true });
+
+    expect(regionNames()).toEqual(['Arquivadas', 'Colunas arquivadas']);
+    expect(
+      screen.getByRole('button', { name: 'Adicionar coluna' }),
+    ).toBeTruthy();
   });
 
   it('shows the first column in the pager before any scroll', () => {

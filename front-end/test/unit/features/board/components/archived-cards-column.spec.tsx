@@ -78,6 +78,14 @@ describe('ArchivedCardsColumn', () => {
     expect(screen.getByText('2')).toBeTruthy();
   });
 
+  it('looks like a virtual column, with a dashed border, no fill and an icon', () => {
+    renderColumn();
+
+    expect(column().classList.contains('border-dashed')).toBe(true);
+    expect(column().classList.contains('bg-transparent')).toBe(true);
+    expect(column().querySelector('svg')).toBeTruthy();
+  });
+
   it('shows the cards in the given order, each with its archive date and column', () => {
     renderColumn();
 

@@ -496,7 +496,18 @@ describe('useBoardViewModel', () => {
 
       expect(outcome).toBeNull();
       expect(result.current.state.editing).toBeNull();
-      expect(changes).toEqual([]);
+      // A later rename flushes a stray request the unchanged one could have sent.
+      act(() => {
+        result.current.actions.submitRename(doing, 'Done');
+      });
+      await waitFor(() => expect(changes).toHaveLength(1));
+      expect(changes).toEqual([
+        {
+          method: 'PATCH',
+          path: `/api/v1/lists/${doing.id}`,
+          body: { title: 'Done' },
+        },
+      ]);
     });
 
     it('submitRename with an empty name keeps the field open and sends nothing', async () => {
