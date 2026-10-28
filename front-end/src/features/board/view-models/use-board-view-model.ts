@@ -28,6 +28,8 @@ import { mapTitleServerError } from '../model/errors';
 import type { Card, ItemFieldError, Label, List } from '../model/types';
 import { validateCardTitle, validateColumnName } from '../model/validation';
 
+import { useBoardMove } from './use-board-move';
+
 export type BoardStatus = 'loading' | 'ready' | 'error' | 'notFound';
 
 export type ArchivedStatus = 'loading' | 'ready' | 'error';
@@ -118,6 +120,14 @@ export function useBoardViewModel(boardId: string) {
   // Read from the section, so the dialog count fills in once it loads.
   const deleteTarget =
     archivedColumns.find(({ list }) => list.id === deleteListId) ?? null;
+  const readOnly = board.data !== undefined && board.data.archivedAt !== null;
+  const canMove = !readOnly;
+  const move = useBoardMove(boardId, {
+    columns,
+    canMove,
+    pendingIds,
+    renamingListId: editing?.listId ?? null,
+  });
   const labelsById = useMemo(
     () => new Map<string, Label>(labels.data?.map((l) => [l.id, l]) ?? []),
     [labels.data],
@@ -206,8 +216,6 @@ export function useBoardViewModel(boardId: string) {
     send();
   }
 
-  const readOnly = board.data !== undefined && board.data.archivedAt !== null;
-
   // FE-AD-011 guards live in the hook; this only adds the board's own (FBV-30, FBV-46).
   useShortcut('n', () => setAddingCardListId(columns[0].list.id), {
     enabled: status === 'ready' && !readOnly && columns.length > 0,
@@ -228,7 +236,10 @@ export function useBoardViewModel(boardId: string) {
       status,
       board: board.data,
       readOnly,
-      columns,
+      canMove,
+      // The preview, so the columns and their counters follow a running move (FDND-06).
+      columns: move.state.preview.columns,
+      move: move.state,
       labelsById,
       showArchived,
       archived: {
@@ -281,6 +292,7 @@ export function useBoardViewModel(boardId: string) {
           { id: boardId },
           t('board.toast.boardRestored'),
         ),
+      move: move.actions,
     },
   };
 }
