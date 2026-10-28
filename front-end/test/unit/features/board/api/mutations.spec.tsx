@@ -8,6 +8,7 @@ import { boardViewKeys } from '@/features/board/api/keys';
 import {
   useArchiveList,
   useDeleteList,
+  useMoveCard,
   usePendingItemIds,
   useRenameList,
   useRestoreBoard,
@@ -529,6 +530,201 @@ describe('useRestoreBoard', () => {
     );
 
     expect(boardArchivedAt(queryClient)).toBe(archivedAt);
+  });
+});
+
+const moveCardUrl = `${baseUrl}/api/v1/cards/:id/move`;
+const doingCard = cardFixture('c6', doing.id);
+
+function setupMoveCards() {
+  const context = setup();
+  context.queryClient.setQueryData(cardsKey, [todoCard, doneCard, doingCard]);
+  return context;
+}
+
+// `listId:position` per card id, so a test reads where every card sits.
+function cardSpots(queryClient: TestQueryClient) {
+  return Object.fromEntries(
+    queryClient
+      .getQueryData<Card[]>(cardsKey)
+      ?.map((card) => [card.id, `${card.listId}:${card.position}`]) ?? [],
+  );
+}
+
+describe('useMoveCard', () => {
+  it('posts the exact body to the move path of the card', async () => {
+    const requests: { id: unknown; body: unknown }[] = [];
+    server.use(
+      http.post(moveCardUrl, async ({ params, request }) => {
+        requests.push({ id: params.id, body: await request.json() });
+        return HttpResponse.json(todoCard);
+      }),
+    );
+    const { wrapper } = setupMoveCards();
+    const { result } = renderHook(() => useMoveCard(boardId), { wrapper });
+
+    await act(() =>
+      result.current.mutateAsync({
+        id: todoCard.id,
+        body: { listId: doing.id, position: 1 },
+      }),
+    );
+    await act(() =>
+      result.current.mutateAsync({ id: doneCard.id, body: { position: 0 } }),
+    );
+
+    expect(requests).toEqual([
+      { id: todoCard.id, body: { listId: doing.id, position: 1 } },
+      { id: doneCard.id, body: { position: 0 } },
+    ]);
+  });
+
+  it('places the card in the other column before the response arrives', async () => {
+    server.use(http.post(moveCardUrl, () => delay('infinite')));
+    const { wrapper, queryClient } = setupMoveCards();
+    const { result } = renderHook(() => useMoveCard(boardId), { wrapper });
+
+    act(() =>
+      result.current.mutate({
+        id: todoCard.id,
+        body: { listId: doing.id, position: 0 },
+      }),
+    );
+
+    await waitFor(() =>
+      expect(cardSpots(queryClient)).toEqual({
+        c4: 'l2:0',
+        c5: 'l1:0',
+        c6: 'l2:1',
+      }),
+    );
+  });
+
+  it('places the card at the new index of its own column without a listId', async () => {
+    server.use(http.post(moveCardUrl, () => delay('infinite')));
+    const { wrapper, queryClient } = setupMoveCards();
+    const { result } = renderHook(() => useMoveCard(boardId), { wrapper });
+
+    act(() =>
+      result.current.mutate({ id: todoCard.id, body: { position: 1 } }),
+    );
+
+    await waitFor(() =>
+      expect(cardSpots(queryClient)).toEqual({
+        c4: 'l1:1',
+        c5: 'l1:0',
+        c6: 'l2:0',
+      }),
+    );
+  });
+
+  it('puts back only the failed card while another move is pending', async () => {
+    let failFirst: (() => void) | undefined;
+    server.use(
+      http.post(moveCardUrl, async ({ params }) => {
+        if (params.id === doingCard.id) return delay('infinite');
+        await new Promise<void>((resolve) => (failFirst = resolve));
+        return HttpResponse.json(serverError, { status: 500 });
+      }),
+    );
+    const { wrapper, queryClient } = setupMoveCards();
+    const { result } = renderHook(
+      () => ({ first: useMoveCard(boardId), second: useMoveCard(boardId) }),
+      { wrapper },
+    );
+
+    act(() =>
+      result.current.first.mutate({
+        id: todoCard.id,
+        body: { listId: doing.id, position: 1 },
+      }),
+    );
+    act(() =>
+      result.current.second.mutate({
+        id: doingCard.id,
+        body: { listId: backlog.id, position: 0 },
+      }),
+    );
+    await waitFor(() =>
+      expect(cardSpots(queryClient)).toEqual({
+        c4: 'l2:0',
+        c5: 'l1:1',
+        c6: 'l1:0',
+      }),
+    );
+    await waitFor(() => expect(failFirst).toBeDefined());
+    act(() => failFirst?.());
+
+    await waitFor(() => expect(result.current.first.isError).toBe(true));
+    expect(cardSpots(queryClient)).toEqual({
+      c4: 'l1:0',
+      c5: 'l1:2',
+      c6: 'l1:1',
+    });
+  });
+
+  it('marks the card pending while the move is in flight', async () => {
+    let release: (() => void) | undefined;
+    server.use(
+      http.post(moveCardUrl, async () => {
+        await new Promise<void>((resolve) => (release = resolve));
+        return HttpResponse.json(todoCard);
+      }),
+    );
+    const { wrapper } = setupMoveCards();
+    const { result } = renderHook(
+      () => ({ move: useMoveCard(boardId), pending: usePendingItemIds() }),
+      { wrapper },
+    );
+
+    act(() =>
+      result.current.move.mutate({ id: todoCard.id, body: { position: 1 } }),
+    );
+
+    await waitFor(() =>
+      expect(result.current.pending).toEqual(new Set([todoCard.id])),
+    );
+    await waitFor(() => expect(release).toBeDefined());
+    act(() => release?.());
+    await waitFor(() => expect(result.current.pending).toEqual(new Set()));
+  });
+
+  it('invalidates the board once, after the last move settles', async () => {
+    let releaseSecond: (() => void) | undefined;
+    server.use(
+      http.post(moveCardUrl, async ({ params }) => {
+        if (params.id === doingCard.id) {
+          await new Promise<void>((resolve) => (releaseSecond = resolve));
+        }
+        return HttpResponse.json(todoCard);
+      }),
+    );
+    const { wrapper, queryClient } = setupMoveCards();
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
+    const { result } = renderHook(
+      () => ({ first: useMoveCard(boardId), second: useMoveCard(boardId) }),
+      { wrapper },
+    );
+
+    act(() =>
+      result.current.second.mutate({
+        id: doingCard.id,
+        body: { listId: backlog.id, position: 0 },
+      }),
+    );
+    await act(() =>
+      result.current.first.mutateAsync({
+        id: todoCard.id,
+        body: { position: 1 },
+      }),
+    );
+    await waitFor(() => expect(releaseSecond).toBeDefined());
+    expect(invalidate).not.toHaveBeenCalled();
+
+    act(() => releaseSecond?.());
+
+    await waitFor(() => expect(result.current.second.isSuccess).toBe(true));
+    expect(invalidate).toHaveBeenCalledTimes(1);
   });
 });
 
