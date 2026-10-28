@@ -118,11 +118,30 @@ test('manage columns, cards and archived items on a board', async ({
   await page.getByLabel('Column name').fill('Done');
   await page.keyboard.press('Enter');
   await page.keyboard.press('Escape');
-  await expect(page.getByRole('region', { name: 'Done' })).toBeVisible();
+  const done = page.getByRole('region', { name: 'Done' });
+  await expect(done).toBeVisible();
+  // A third column puts its card's checkbox well past the phone screen.
+  await page.getByRole('button', { name: 'Add column' }).click();
+  await page.getByLabel('Column name').fill('Later');
+  await page.keyboard.press('Enter');
+  await page.keyboard.press('Escape');
+  const later = page.getByRole('region', { name: 'Later' });
+  await later.getByRole('button', { name: 'Add task' }).click();
+  await later.getByLabel('Task title').fill('Pack bags');
+  await page.keyboard.press('Enter');
+  await expect(later.getByText('Pack bags')).toBeVisible();
+  await page.keyboard.press('Escape');
+  // Adding the task scrolled the board to Later; reload to start at Planning.
+  await page.reload();
   await page.setViewportSize(PHONE_VIEWPORT);
-  await expect(page.getByText('Planning · 1 of 2')).toBeVisible();
+  await expect(page.getByText('Planning · 1 of 3')).toBeVisible();
   await expect(planning).toBeInViewport({ ratio: 1 });
-  await expect(page.getByRole('region', { name: 'Done' })).not.toBeInViewport({
-    ratio: 0.5,
-  });
+  await expect(done).not.toBeInViewport({ ratio: 0.5 });
+  // The off-screen columns' checkboxes must not widen the page.
+  const overflow = await page.evaluate(
+    () =>
+      document.documentElement.scrollWidth -
+      document.documentElement.clientWidth,
+  );
+  expect(overflow).toBe(0);
 });
