@@ -645,6 +645,89 @@ describe('useBoardMove', () => {
     });
   });
 
+  describe('move to', () => {
+    it('opens the dialog for a card', () => {
+      const { result } = setup();
+
+      act(() => result.current.actions.askMoveTo(second.id));
+
+      expect(result.current.state.moveToCard).toEqual(second);
+    });
+
+    it.each([
+      [
+        'for a card with a change in flight',
+        { pendingIds: new Set([first.id]) },
+      ],
+      ['when the board cannot move', { canMove: false }],
+    ])('is ignored %s', (_, overrides) => {
+      const { result } = setup(overrides);
+
+      act(() => result.current.actions.askMoveTo(first.id));
+
+      expect(result.current.state.moveToCard).toBeNull();
+    });
+
+    it('sends the card to the end of another column and names it in a toast', async () => {
+      const moves = moveWrites();
+      const { result, queryClient } = setup();
+
+      act(() => result.current.actions.askMoveTo(third.id));
+      act(() => result.current.actions.moveTo(backlog.id));
+
+      expect(result.current.state.moveToCard).toBeNull();
+      await waitFor(() =>
+        expect(cardSpots(queryClient)[third.id]).toBe(`${backlog.id}:2`),
+      );
+      await waitFor(() =>
+        expect(moves).toEqual([
+          {
+            path: `/api/v1/cards/${third.id}/move`,
+            body: { listId: backlog.id, position: 2 },
+          },
+        ]),
+      );
+      await screen.findByText('Tarefa movida para Backlog');
+    });
+
+    it('closes with no request for the current column', async () => {
+      const moves = moveWrites();
+      const { result } = setup();
+
+      act(() => result.current.actions.askMoveTo(first.id));
+      act(() => result.current.actions.moveTo(backlog.id));
+      await act(() => Promise.resolve());
+
+      expect(result.current.state.moveToCard).toBeNull();
+      expect(moves).toEqual([]);
+    });
+
+    it('closes with no move', async () => {
+      const moves = moveWrites();
+      const { result } = setup();
+
+      act(() => result.current.actions.askMoveTo(first.id));
+      act(() => result.current.actions.closeMoveTo());
+      await act(() => Promise.resolve());
+
+      expect(result.current.state.moveToCard).toBeNull();
+      expect(moves).toEqual([]);
+    });
+
+    it('shows the card failure toast and retries the same body', async () => {
+      const moves = moveWrites(() => problem(500));
+      const { result } = setup();
+
+      act(() => result.current.actions.askMoveTo(first.id));
+      act(() => result.current.actions.moveTo(doing.id));
+
+      await screen.findByText(moveFailed);
+      fireEvent.click(screen.getByRole('button', { name: 'Tentar novamente' }));
+      await waitFor(() => expect(moves).toHaveLength(2));
+      expect(moves[1]).toEqual(moves[0]);
+    });
+  });
+
   describe('failures', () => {
     it('puts the card back and offers to send the same move again', async () => {
       const moves = moveWrites(() => problem(500));

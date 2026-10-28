@@ -126,6 +126,7 @@ export function useBoardMove(
   );
   const [session, setSession] = useState<MoveSession | null>(null);
   const [announcement, setAnnouncement] = useState('');
+  const [moveToCardId, setMoveToCardId] = useState<string | null>(null);
 
   function moveText(current: MoveSession, text: MoveText) {
     return current.kind === 'card'
@@ -196,11 +197,47 @@ export function useBoardMove(
       setAnnouncement(t('board.move.cancelled'));
   }
 
+  const moveToCard =
+    columns
+      .flatMap((column) => column.cards)
+      .find((card) => card.id === moveToCardId) ?? null;
+
+  // FDND-40.
+  function askMoveTo(cardId: string) {
+    if (canMove && !pendingIds.has(cardId)) setMoveToCardId(cardId);
+  }
+
+  function closeMoveTo() {
+    setMoveToCardId(null);
+  }
+
+  // The card goes to the end of the chosen column; its own column sends nothing (FDND-31, FDND-32).
+  function moveTo(listId: string) {
+    setMoveToCardId(null);
+    const column = columns.find((item) => item.list.id === listId);
+    if (!moveToCard || !column || moveToCard.listId === listId) return;
+    runChange(
+      moveCardMutation.mutateAsync,
+      { id: moveToCard.id, body: { listId, position: column.cards.length } },
+      t('board.toast.cardMoved', { col: column.list.title }),
+      { retryMessage: t('board.toast.moveFailed') },
+    );
+  }
+
   const banner =
     session?.input === 'keyboard' ? moveText(session, 'banner') : null;
 
   return {
-    state: { session, preview, announcement, banner },
-    actions: { start, hover, step, drop, cancel },
+    state: { session, preview, announcement, banner, moveToCard },
+    actions: {
+      start,
+      hover,
+      step,
+      drop,
+      cancel,
+      askMoveTo,
+      moveTo,
+      closeMoveTo,
+    },
   };
 }

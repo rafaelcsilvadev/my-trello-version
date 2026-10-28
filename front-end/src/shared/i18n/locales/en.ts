@@ -180,6 +180,7 @@ export const en = {
       columnDeleted: 'Column permanently deleted',
       boardRestored: 'Board restored',
       cardCreated: 'Task created',
+      cardMoved: 'Task moved to {{col}}',
       moveFailed: 'Couldn’t move the task',
     },
     column: {
