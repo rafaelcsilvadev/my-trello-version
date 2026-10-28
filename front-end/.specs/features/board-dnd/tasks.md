@@ -325,8 +325,8 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] Unit: exact PT-BR texts for card pick, step, drop ("Tarefa {title} solta em {col}, posição {i} de {n}") and cancel ("Movimento cancelado"); column pick, step, drop; banner texts for card and column and `null` after drop or cancel; `{n}` counts the moved card; drop on the origin announces but sends nothing; a second `start` while picked is ignored
-- [ ] Build gate passes; test count only grows
+- [x] Unit: exact PT-BR texts for card pick, step, drop ("Tarefa {title} solta em {col}, posição {i} de {n}") and cancel ("Movimento cancelado"); column pick, step, drop; banner texts for card and column and `null` after drop or cancel; `{n}` counts the moved card; drop on the origin announces but sends nothing; a second `start` while picked is ignored
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
