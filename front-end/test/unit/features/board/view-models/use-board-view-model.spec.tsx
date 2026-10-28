@@ -799,6 +799,30 @@ describe('useBoardViewModel', () => {
       );
     });
 
+    it('toggleDone on a done card shows it not done at once and sends { done: false }', async () => {
+      boardServer({
+        [cardsUrl]: () =>
+          HttpResponse.json([cardFixture('c3', doing.id, { done: true })]),
+      });
+      const held = gate();
+      const changes = cardWrites(async () => {
+        await held.wait();
+        return HttpResponse.json(cardFixture('c3', doing.id));
+      });
+      const { result } = await setupReady();
+      const card = result.current.state.columns[0].cards[0];
+
+      act(() => result.current.actions.toggleDone(card));
+
+      await waitFor(() => expect(cardDone(result, 'c3')).toBe(false));
+      held.open();
+      await waitFor(() =>
+        expect(changes).toEqual([
+          { method: 'PATCH', path: '/api/v1/cards/c3', body: { done: false } },
+        ]),
+      );
+    });
+
     it.each([
       [409, conflict, ['Recarregar']],
       [500, saveFail, ['Tentar novamente']],
