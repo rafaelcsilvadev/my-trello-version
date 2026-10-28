@@ -1,13 +1,15 @@
 # Board Validation
 
-**Date**: 2026-10-28 (iterations 2 and 3); iteration 1 on 2026-10-27
+**Date**: 2026-10-28 (iterations 2, 3 and 4); iteration 1 on 2026-10-27
 **Spec**: `front-end/.specs/features/board/spec.md`
-**Diff range**: iteration 3 re-verifies `f0916ca..b98287b` (PR #237 `1f24395`, test only: `archived-cards-column.spec.tsx` +3/-1; PR #236 docs only; no file under `front-end/src` changed). Iteration 2: `3f65ae5..f0916ca`. Feature range from iteration 1: `7fdd07e..3f65ae5` (95 non-merge commits, first feature commit `acc936f`).
-**Verifier**: independent sub-agent (author ≠ verifier), iteration 3 of 3 (last before escalating to the user)
+**Diff range**: iteration 4 re-verifies `3f5c74e..45b0664` (PR #239 `6439ba5`, merged as `45b0664`; test only: `archived-cards-column.spec.tsx` +1/-1, `'svg'` → `'svg.lucide-archive'`; no file under `front-end/src` changed). Iteration 3 re-verified `f0916ca..b98287b` (PR #237 `1f24395`, test only: `archived-cards-column.spec.tsx` +3/-1; PR #236 docs only; no file under `front-end/src` changed). Iteration 2: `3f65ae5..f0916ca`. Feature range from iteration 1: `7fdd07e..3f65ae5` (95 non-merge commits, first feature commit `acc936f`).
+**Verifier**: independent sub-agent (author ≠ verifier), iteration 4: a re-verify after the user chose to land Fix 8 following the iteration-3 escalation
 
-## Validation: Board - FAIL ❌ (iteration 3, escalated to the user)
+## Validation: Board - PASS ✅ (iteration 4)
 
-**Result (iteration 3)**: FAIL ❌, one cosmetic test gap left, escalated because this was the last of 3 iterations. Fix 7 works: S47b (remove `<Archive>`) is now killed, and so are two new placement mutants (icon moved out of the header, header title dropped) and the regression sample (S43, S47, F1a, S10). The gate is green: 907 unit/component tests, 9 e2e in CI on `b98287b`. All 58 FBV requirements behave as specified. One new mutant survives: **N4**, swapping the `Archive` glyph for `Inbox` in the header, because `archived-cards-column.spec.tsx:88` asserts only that *some* svg is in the header, while FBV-34 names an *archive* icon. A one-token test change (`'svg'` → `'svg.lucide-archive'`) kills N4. The Verifier proved that in the scratch worktree (Fix 8). Behavior is complete; only the strength of the assertion on the icon's identity is short.
+**Result (iteration 4)**: PASS ✅. Fix 8 (#239) works: `archived-cards-column.spec.tsx:88` now asserts `header?.querySelector('svg.lucide-archive')`, so the header must draw the lucide `Archive` glyph. N4 (`Archive` → `Inbox`) is killed, and so is a new near-miss glyph N4b (`Archive` → `ArchiveX`, class `lucide-archive-x`). The FBV-34 regression sample (S47b, N2, N3, S47) stays killed: 6/6. The gate is green: 86 files / 907 unit/component tests, lint, typecheck and build in the real tree on `45b0664`; 9 e2e in CI run `40704542083`. All 58 FBV requirements are met with discriminating evidence. Spec-precision gaps: 0.
+
+**Result (iteration 3, history)**: FAIL ❌, one cosmetic test gap left, escalated because this was the last of 3 iterations. Fix 7 works: S47b (remove `<Archive>`) is now killed, and so are two new placement mutants (icon moved out of the header, header title dropped) and the regression sample (S43, S47, F1a, S10). The gate is green: 907 unit/component tests, 9 e2e in CI on `b98287b`. All 58 FBV requirements behave as specified. One new mutant survives: **N4**, swapping the `Archive` glyph for `Inbox` in the header, because `archived-cards-column.spec.tsx:88` asserts only that *some* svg is in the header, while FBV-34 names an *archive* icon. A one-token test change (`'svg'` → `'svg.lucide-archive'`) kills N4. The Verifier proved that in the scratch worktree (Fix 8). Behavior is complete; only the strength of the assertion on the icon's identity is short.
 
 ## Iteration History
 
@@ -16,8 +18,15 @@
 | 1 (2026-10-27) | `7fdd07e..3f65ae5` | ✅ 896 unit, 9 e2e (CI `40610579326`) | 57/58 met (FBV-58 ❌), 6 weak | 41/48 killed | ❌ FAIL, Fixes 1-6 |
 | 2 (2026-10-28) | `3f65ae5..f0916ca` | ✅ 907 unit, 9 e2e (CI `40699259671`) | 58/58 met, 1 weak (FBV-34 icon) | 10/11 board-scope killed (+1 e2e-only, not run) | ❌ FAIL, Fix 7 |
 | 3 (2026-10-28) | `f0916ca..b98287b` | ✅ 907 unit, 9 e2e (CI `40701824685`) | 58/58 met, 1 weak (FBV-34 icon identity) | 7/8 killed | ❌ FAIL, Fix 8, escalated |
+| 4 (2026-10-28) | `3f5c74e..45b0664` | ✅ 907 unit, 9 e2e (CI `40704542083`) | 58/58 met, 0 weak | 6/6 killed | ✅ PASS |
 
-### Iteration-2 fix, re-verified
+### Iteration-3 fix, re-verified in iteration 4
+
+| Fix | PR / commit | Change | Evidence on `45b0664` | Status |
+| --- | ----------- | ------ | --------------------- | ------ |
+| 8 Archive glyph in the header (N4) | #239 `6439ba5` (merge `45b0664`) | test only, one line | `archived-cards-column.spec.tsx:87` `const header = screen.getByText('Arquivadas').parentElement`; `:88` `expect(header?.querySelector('svg.lucide-archive')).toBeTruthy()`. The header row is `archived-cards-column.tsx:35-43`, icon `<Archive size={16} aria-hidden />` at `:36` (import `:1`). N4 and N4b killed; S47b, N2, N3, S47 still killed | ✅ Done when met |
+
+### Iteration-2 fix, re-verified in iteration 3 (history)
 
 | Fix | PR / commit | Change | Evidence on `b98287b` | Status |
 | --- | ----------- | ------ | --------------------- | ------ |
@@ -109,7 +118,7 @@ Paths are relative to `front-end/test/`. `board/…` means `unit/features/board/
 | AC | Spec-defined outcome | `file:line` + assertion | Result |
 | -- | -------------------- | ----------------------- | ------ |
 | FBV-33 | Switch **Mostrar arquivadas**, off whenever the board opens | `board/components/board-toolbar.spec.tsx:27-61` role `switch` named PT/EN, `checked` follows the prop, `onChange` once; `vm.spec:943-951` off and no archived request; `unit/pages/board-page.spec.tsx:52-66` off again after moving to another board; `e2e:81-82` | ✅ |
-| FBV-34 | Virtual column "Arquivadas" after the active columns: dashed border, transparent background, archive icon, no menu, no create field | `board-columns.spec.tsx:147-157` region order `[…columns, 'Arquivadas', 'Colunas arquivadas']`; `:186-193` `columns: []` + `showArchived` → regions `toEqual(['Arquivadas','Colunas arquivadas'])` and "Adicionar coluna" (S43 killed); `archived-cards-column.spec.tsx:74-79` name, count; `:81-89` `border-dashed` and `bg-transparent` `toBe(true)` (S47 killed); `:110-115` no button, no textbox. **Icon (iter 3)**: `:87-88` `screen.getByText('Arquivadas').parentElement` → `header?.querySelector('svg')` `toBeTruthy()`; the header row (`archived-cards-column.tsx:35-43`) holds no checkbox, so removing `<Archive>` (S47b), moving it below the header (N2) or dropping the header title (N3) all fail the test. The assertion accepts any svg: swapping `Archive` for `Inbox` (N4) passes every test, while the spec names an archive icon | ⚠️ Weak (N4, icon identity) |
+| FBV-34 | Virtual column "Arquivadas" after the active columns: dashed border, transparent background, archive icon, no menu, no create field | `board-columns.spec.tsx:147-157` region order `[…columns, 'Arquivadas', 'Colunas arquivadas']`; `:186-193` `columns: []` + `showArchived` → regions `toEqual(['Arquivadas','Colunas arquivadas'])` and "Adicionar coluna" (S43 killed); `archived-cards-column.spec.tsx:74-79` name, count; `:81-89` `border-dashed` and `bg-transparent` `toBe(true)` (S47 killed); `:110-115` no button, no textbox. **Icon (iter 3)**: `:87-88` `screen.getByText('Arquivadas').parentElement` → `header?.querySelector('svg')` `toBeTruthy()`; the header row (`archived-cards-column.tsx:35-43`) holds no checkbox, so removing `<Archive>` (S47b), moving it below the header (N2) or dropping the header title (N3) all fail the test. **Iter 4 (Fix 8)**: `:88` now reads `header?.querySelector('svg.lucide-archive')` `toBeTruthy()`, which only the lucide `Archive` svg satisfies; swapping the glyph for `Inbox` (N4) or `ArchiveX` (N4b) fails the test | ✅ (iter 4) |
 | FBV-35 | Archived cards incl. archived columns', newest `archivedAt` first, "Arquivada em 2 out, 2026 · de: {column}" | `vm.spec:953-968` `toEqual([['c8','Backlog'],['c7','Ideas']])` (Ideas is archived); `board/model/archived.spec.ts:40-67` title from active ∪ archived lists, newest first (S27 killed); `archived-cards-column.spec.tsx:91-100` exact text `'Arquivada em 2 out, 2026 · de: To do'` | ✅ |
 | FBV-36 | No archived cards → "Nenhuma tarefa arquivada" | `archived-cards-column.spec.tsx:117-122` | ✅ |
 | FBV-37 | Archived columns section after the virtual column, newest first, "Arquivada em 2 out, 2026 · 3 tarefas", count = active + archived | `vm.spec:970-985` `toEqual([['Later',0],['Ideas',3]])`; `board/api/archived-counts.spec.tsx:73-93` 2 active + 1 archived → `3` (S26 killed); `archived.spec.ts:70-85` newest first; `board/components/archived-columns-section.spec.tsx:90-101` `'Arquivada em 2 out, 2026·3 tarefas'`, `'·1 tarefa'`; `:103-116` `'0 tarefas'` | ✅ |
@@ -150,14 +159,34 @@ Paths are relative to `front-end/test/`. `board/…` means `unit/features/board/
 | FBV-57 | Create / rename `400` `errors[].field = title` → "Dê um nome…/Dê um título…" when empty else "Use até 100 caracteres", submitted text, no toast | `board/model/errors.spec.ts:27-61` blank → required, filled → too long, title found among fields, other statuses → `null`; `vm.spec:400-412`, `:715-727` create → field error, no toast; `:558-576` rename reopens `{ value: 'Ideas', error: 'columnNameTooLong' }`, no toast (S12 killed); `board-column.spec.tsx:160-170`, `column-rename-field.spec.tsx:124-130` reopened field shows text + message (S31 killed) | ✅ |
 | FBV-58 | While a change to a column or card is in flight: that item's menu (…) **and checkbox** disabled | Menu: `board-column.spec.tsx:211-218` `disabled` `true` (S21 killed); `archived-columns-section.spec.tsx:141-160`; `archived-board-banner.spec.tsx:53-63`; `mutations.spec.tsx:536-560` pending ids (S8 killed). Checkbox: code `card-tile.tsx:82` `isDisabled={isArchived \|\| isReadOnly \|\| isPending}`; `card-tile.spec.tsx:197-204` `doneCheckbox().disabled` `toBe(true)`, click → `onToggleDone` `not.toHaveBeenCalled()` (F1a killed); `board-column.spec.tsx:220-229` two cards, `pendingIds: ['c2']` → `first.disabled` `toBe(false)`, `second.disabled` `toBe(true)` (L-003; F1a and F1b killed) | ✅ (iter 2) |
 
-**Status (iteration 3)**: ⚠️ One weak AC. 58/58 ACs have `file:line` evidence and behave as the spec says. 57/58 are fully discriminating; FBV-34's icon clause now catches a missing or misplaced icon but not a wrong glyph (N4). Spec-precision gaps: 0. `f0916ca..b98287b` changed one test file and no source, so only the `archived-cards-column.spec.tsx` citations moved (+2 lines after `:86`; FBV-34, FBV-35, FBV-36, FBV-43 re-mapped and re-read on `b98287b`). Every other row keeps its iteration-2 evidence, and the regression sample (S10, S43, S47, F1a) confirms FBV-34, FBV-54, FBV-55 and FBV-58 still discriminate.
+**Status (iteration 4)**: ✅ All ACs covered. 58/58 ACs have `file:line` evidence, behave as the spec says and are discriminating. Spec-precision gaps: 0. `3f5c74e..45b0664` changed one line of one test file and no source, so every citation keeps its line number; only FBV-34's icon clause changed (`archived-cards-column.spec.tsx:88`, re-read on `45b0664`).
+
+**Status (iteration 3, history)**: ⚠️ One weak AC. 58/58 ACs have `file:line` evidence and behave as the spec says. 57/58 are fully discriminating; FBV-34's icon clause now catches a missing or misplaced icon but not a wrong glyph (N4). Spec-precision gaps: 0. `f0916ca..b98287b` changed one test file and no source, so only the `archived-cards-column.spec.tsx` citations moved (+2 lines after `:86`; FBV-34, FBV-35, FBV-36, FBV-43 re-mapped and re-read on `b98287b`). Every other row keeps its iteration-2 evidence, and the regression sample (S10, S43, S47, F1a) confirms FBV-34, FBV-54, FBV-55 and FBV-58 still discriminate.
 
 
 ---
 
 ## Discrimination Sensor
 
-### Iteration 3
+### Iteration 4
+
+Same method as iteration 3, in a temporary `git worktree` (`<scratchpad>/board-sensor-4`, detached `45b0664`). No `pnpm` command ran in the worktree: the real `node_modules`, `front-end/node_modules` and `packages/api-contract/node_modules` were symlinked in and Vitest ran directly (`./node_modules/.bin/vitest run`, full unit suite per mutant). Unmutated sanity run: 86 files / 907 tests passed. A script applied each mutation alone (each target text had to occur exactly once), ran the suite, reverted with `git checkout -- .` and checked a clean tracked tree before the next. Cleanup: symlinks removed, `git worktree remove --force`, `git worktree prune`; `git worktree list` shows only the main tree; real-tree `git status --porcelain` before and after was identical (empty); `find node_modules front-end/node_modules packages/api-contract/node_modules -maxdepth 2 -xtype l` printed nothing.
+
+Paths are relative to `front-end/src/features/board/`. Line numbers are those of `45b0664` (unchanged since `b98287b`).
+
+| # | File:line | Mutation | Failing tests | Killed? |
+| - | --------- | -------- | ------------- | ------- |
+| N4 | `components/archived-cards-column.tsx:1,36` | `Archive` glyph swapped for lucide `Inbox` (still one svg in the header) | 1 (`looks like a virtual column, with a dashed border, no fill and an icon`) | ✅ Killed (survived in iteration 3) |
+| N4b | `components/archived-cards-column.tsx:1,36` | `Archive` swapped for the near-miss `ArchiveX` (class `lucide-archive-x`) | 1 (same test) | ✅ Killed |
+| S47b | `components/archived-cards-column.tsx:36` | remove `<Archive size={16} aria-hidden />` | 1 (same test) | ✅ Killed |
+| N2 | `components/archived-cards-column.tsx:36` → `:43` | icon moved out of the header row, to just above the cards | 1 (same test) | ✅ Killed |
+| N3 | `components/archived-cards-column.tsx:37` | header title `{title}` dropped (the region keeps its `aria-label`) | 2 (`… an icon`, `shows a region named "Arquivadas" …`) | ✅ Killed |
+| S47 | `components/archived-cards-column.tsx:33` | `border-2 border-dashed border-border-default bg-transparent` → `bg-surface-sunken` | 1 (same test) | ✅ Killed |
+
+**Sensor depth**: targeted re-run (the iteration-3 survivor N4, one new near-miss glyph, 4 FBV-34 regression mutants). The other board mutants were not re-run: no source file and no other test changed in `3f5c74e..45b0664`.
+**Result**: 6/6 killed, 0 survived - PASS ✅
+
+### Iteration 3 (history)
 
 Same method as iteration 2, in a temporary `git worktree` (`<scratchpad>/board-sensor-3`, detached `b98287b`). No `pnpm` command ran in the worktree: the real `node_modules`, `front-end/node_modules` and `packages/api-contract/node_modules` were symlinked in and Vitest ran directly (`node ./node_modules/vitest/vitest.mjs run`, full unit suite per mutant). Unmutated sanity run: 86 files / 907 tests passed. A script applied each mutation alone (each target text had to occur exactly once), ran the suite, reverted with `git checkout -- .` and asserted a clean tracked tree before the next. Cleanup: symlinks removed, `git worktree remove --force`, `git worktree prune`; `git worktree list` shows only the main tree; real-tree `git status --porcelain` before and after was identical (empty); `find node_modules front-end/node_modules packages/api-contract/node_modules -maxdepth 2 -xtype l` printed nothing.
 
@@ -168,7 +197,7 @@ Paths are relative to `front-end/src/features/board/`. Line numbers are those of
 | S47b | `components/archived-cards-column.tsx:36` | remove `<Archive size={16} aria-hidden />` | 1 (`looks like a virtual column, with a dashed border, no fill and an icon`) | ✅ Killed |
 | N2 | `components/archived-cards-column.tsx:36` → `:43` | icon moved out of the header row, to just above the cards | 1 (same test) | ✅ Killed |
 | N3 | `components/archived-cards-column.tsx:37` | header title `{title}` dropped (the region keeps its `aria-label`) | 2 (`… an icon`, `shows a region named "Arquivadas" …`) | ✅ Killed |
-| N4 | `components/archived-cards-column.tsx:1,36` | `Archive` glyph swapped for lucide `Inbox` (still one svg in the header) | 0 | ❌ Survived → Fix 8 |
+| N4 | `components/archived-cards-column.tsx:1,36` | `Archive` glyph swapped for lucide `Inbox` (still one svg in the header) | 0 | ❌ Survived → Fix 8 (killed in iteration 4) |
 | S43 | `components/board-columns.tsx:121` | `columns.length === 0 && !showArchived` → `columns.length === 0` | 1 | ✅ Killed |
 | S47 | `components/archived-cards-column.tsx:33` | `border-2 border-dashed border-border-default bg-transparent` → `bg-surface-sunken` | 1 | ✅ Killed |
 | F1a | `components/card-tile.tsx:82` | checkbox ignores `isPending` | 2 (`card-tile` pending, `board-column` per-item) | ✅ Killed |
@@ -177,7 +206,7 @@ Paths are relative to `front-end/src/features/board/`. Line numbers are those of
 **Fix 8 probe (scratch only)**: in the same worktree, `archived-cards-column.spec.tsx:88` was changed to `header?.querySelector('svg.lucide-archive')` (lucide-react puts `lucide-archive` on the `Archive` svg). Unmutated: 9/9 tests in the file pass. With N4: `… an icon` fails (1 failed, 8 passed). The probe was reverted before cleanup and is not in the real tree.
 
 **Sensor depth**: targeted re-run (the iteration-2 survivor S47b, 3 new FBV-34 mutants, 4 regression mutants).
-**Result**: 7/8 killed, 1 survived (N4) - FAIL ❌
+**Iteration 3 sensor outcome (history)**: 7/8 killed, 1 survived (N4) - FAIL ❌
 
 ### Iteration 2 (history)
 
@@ -198,7 +227,7 @@ Same method on `f0916ca` (907/907 unmutated). Paths are relative to `front-end/s
 | F1b | `components/card-tile.tsx:82` | checkbox disabled for every card (`isDisabled={true}`) | 2 (`board-column` per-item `first.disabled false`, `card-tile` toggle) | ✅ Killed |
 | N1 | `shared/ui/checkbox.tsx:26` | drop `relative` (#232) | 0 in the unit suite. Designed killer is `e2e:141-146`, which needs a real layout; not run by the Verifier (e2e runs in CI only) | ⏭️ Not counted (e2e-only) |
 
-**Iteration 2 result**: 10/11 board-scope mutants killed, 1 survived (S47b), N1 not counted - FAIL ❌
+**Iteration 2 sensor outcome (history)**: 10/11 board-scope mutants killed, 1 survived (S47b), N1 not counted - FAIL ❌
 
 ### Iteration 1 (history)
 
@@ -255,7 +284,7 @@ Same worktree method on `3f65ae5` (896/896 unmutated). 41/48 killed; S9, S10, S1
 | S47 | `components/archived-cards-column.tsx:33` | virtual column without dashed border and transparent background | 0 | ❌ Survived |
 | S48 | `components/card-tile.tsx:69` | every label chip dot is red | 1 | ✅ Killed |
 
-**Iteration 1 result**: 41/48 killed, 7 survived, 0 equivalent - FAIL ❌
+**Iteration 1 sensor outcome (history)**: 41/48 killed, 7 survived, 0 equivalent - FAIL ❌
 
 ---
 
@@ -264,11 +293,11 @@ Same worktree method on `3f65ae5` (896/896 unmutated). 41/48 killed; S9, S10, S1
 | Principle | Status |
 | --------- | ------ |
 | Minimum code | ✅ Pure `model/` mappers (largest 51 lines), one optimistic helper for six hooks (`mutations.ts:245-278`), one shared notifier for both features |
-| Surgical changes | ✅ Iteration 3: Fix 7 changes one test (3 lines: a comment, the header lookup, the scoped `svg` query). Iteration 2: Fix 1 is a one-token code change (`card-tile.tsx:82`); Fixes 2-6 touch only tests. Iteration 1: Outside `features/board`: `save-failure.ts` and `use-save-failure-notifier.ts` moved out of `boards` (refactor commit, `boards` tests repointed, `boards/model/errors.spec.ts` −37 lines moved to `shared/api/save-failure.spec.ts`); `button.tsx` (`ghost`, `sm`), `menu.tsx` (link items), new `checkbox.tsx`, `switch.tsx`, `use-shortcut.ts`, `formatDayMonth`; `routes.tsx` / `board-page.tsx` / `protected-layout.tsx` wiring; `app.tsx`; READMEs, ROADMAP, STATE |
+| Surgical changes | ✅ Iteration 4: Fix 8 changes one token in one test (`'svg'` → `'svg.lucide-archive'`). Iteration 3: Fix 7 changes one test (3 lines: a comment, the header lookup, the scoped `svg` query). Iteration 2: Fix 1 is a one-token code change (`card-tile.tsx:82`); Fixes 2-6 touch only tests. Iteration 1: Outside `features/board`: `save-failure.ts` and `use-save-failure-notifier.ts` moved out of `boards` (refactor commit, `boards` tests repointed, `boards/model/errors.spec.ts` −37 lines moved to `shared/api/save-failure.spec.ts`); `button.tsx` (`ghost`, `sm`), `menu.tsx` (link items), new `checkbox.tsx`, `switch.tsx`, `use-shortcut.ts`, `formatDayMonth`; `routes.tsx` / `board-page.tsx` / `protected-layout.tsx` wiring; `app.tsx`; READMEs, ROADMAP, STATE |
 | No scope creep | ✅ No drag and drop, filters, card menu, card links or "Desfazer". Small extras: "Salvando…" spinners on pending items, a local `LoadError` in the archived column and section (design), `board.column.empty` text for an empty read-only column |
 | Matches patterns | ✅ FE-AD-006 layering, FE-AD-009 optimistic recipe with FE-AD-010 per-item `apply`/`revert`, FE-AD-011 shortcut guards, React Aria primitives in `shared/ui`, decorative icons `aria-hidden`, i18n keys in both locales, tests mirror `src/` (FE-AD-007); lint/format clean |
 | Spec-anchored outcome check (asserted values match spec) | ✅ Exact PT/EN texts, request paths and bodies, cache contents before the response, `disabled` / `aria-invalid` / `aria-current` / `aria-live` |
-| Per-layer Coverage Expectation met | ✅ (iter 2) The view model now exercises Recarregar and the `404` refetch through the real reload callback (`vm.spec:628-656`), toggles both ways (`:792-836`), and the FBV-58 checkbox is covered with two cards (L-003). Iteration 3: the archive-icon query is now scoped to the header (S47b, N2, N3 killed) but does not check the glyph (N4, Fix 8) |
+| Per-layer Coverage Expectation met | ✅ (iter 2) The view model now exercises Recarregar and the `404` refetch through the real reload callback (`vm.spec:628-656`), toggles both ways (`:792-836`), and the FBV-58 checkbox is covered with two cards (L-003). Iteration 3: the archive-icon query is now scoped to the header (S47b, N2, N3 killed) but does not check the glyph (N4, Fix 8). Iteration 4: Fix 8 checks the glyph; N4 and N4b killed |
 | Every test maps to a spec requirement - no unclaimed tests | ✅ Extras map to design or Done-when items (e.g. `archived-counts.spec.tsx:95-124` undefined while loading, `queries.spec.tsx:188` separate caches, `mutations.spec.tsx:188,242` uncached queries untouched, `card-tile.spec.tsx:191` spinner) |
 | Documented guidelines followed: `front-end/.specs/STATE.md` (FE-AD-004..-011), root `.specs/STATE.md` | ✅ |
 
@@ -289,13 +318,16 @@ Same worktree method on `3f65ae5` (896/896 unmutated). 41/48 killed; S9, S10, S1
 
 ## Gate Check
 
-- **Gate command**: `pnpm --filter front-end lint && pnpm --filter front-end typecheck && pnpm --filter front-end test && pnpm --filter front-end build` (real tree, repo root, `b98287b`)
-- **Result (iteration 3)**: exit 0. oxlint `--deny-warnings` + Prettier clean, `tsc --noEmit` clean, **86 test files / 907 tests passed**, 0 failed, 0 skipped; `vite build` OK (JS 680.99 kB, gzip 209.02 kB; same > 500 kB chunk warning, observation 1)
+- **Gate command**: `pnpm --filter front-end lint && pnpm --filter front-end typecheck && pnpm --filter front-end test && pnpm --filter front-end build` (real tree, repo root)
+- **Result (iteration 4, `45b0664`)**: tests run directly with `cd front-end && ./node_modules/.bin/vitest run`: **86 test files / 907 tests passed**, 0 failed, 0 skipped. `pnpm --filter front-end lint && … typecheck && … build` exit 0 (oxlint + Prettier clean, `tsc --noEmit` clean, `vite build` OK, JS 680.99 kB, gzip 209.02 kB, same > 500 kB chunk warning, observation 1). Real-tree `git status --porcelain` stayed empty.
+- **Full gate (iteration 4)**: CI run `40704542083` on `main` at `45b0664` (push of the PR #239 merge): `completed` / `success`, all 12 jobs `success`, including `front-end (test:e2e)` (job `122872986906`, 9 passed) and `back-end (test:e2e)`.
+- **Result (iteration 3, `b98287b`)**: exit 0. oxlint `--deny-warnings` + Prettier clean, `tsc --noEmit` clean, **86 test files / 907 tests passed**, 0 failed, 0 skipped; `vite build` OK (JS 680.99 kB, gzip 209.02 kB; same > 500 kB chunk warning, observation 1)
 - **Full gate**: not run locally. CI run `40701824685` on `main` at `b98287b` (push of PR #237 merge): `completed` / `success`, all 12 jobs `success`, including `front-end (test:e2e)` (job `122864084511`) and `back-end (test:e2e)`. The previous `main` run `40701754316` (`8e82697`, PR #236 docs merge) was `cancelled` by the newer push, not failed. PR #237's own run `40701336582` (`1f24395`) was also all `success`.
 - **Iteration 2**: same command on `f0916ca`, exit 0, 907 passed; CI run `40699259671` all `success`.
 - **Test count before feature**: 520 unit/component + 8 e2e (`7fdd07e`)
 - **Test count at iteration 1**: 896 unit/component + 9 e2e (`3f65ae5`)
 - **Test count at iteration 2**: 907 unit/component + 9 e2e (`f0916ca`)
+- **Test count at iteration 4**: 907 unit/component + 9 e2e (`45b0664`). Delta since iteration 3: 0; no test added or removed. One assertion got stronger: `archived-cards-column.spec.tsx:88` `'svg'` → `'svg.lucide-archive'`
 - **Test count at iteration 3**: 907 unit/component + 9 e2e (`b98287b`). Delta since iteration 2: 0; no test added or removed. One assertion changed and got stronger: `archived-cards-column.spec.tsx:86` `column().querySelector('svg')` → `:87-88` the same query on the title's header row
 - **Delta since iteration 1**: +11 unit/component (board: +1 `card-tile`, +1 `board-column`, +2 `board-columns`, +1 `archived-cards-column`, +3 `vm.spec`; other: +2 `board-form-dialog`, +1 `text-field`). e2e count unchanged; `board.e2e-spec.ts` gained steps (third column, reload, overflow check). No test removed. One assertion changed: `vm.spec:499` `expect(changes).toEqual([])` replaced by a stronger flush-then-`toEqual` check; `text-field.spec.tsx` dropped "hint still in the description" for the error case, matching the #234 behavior change (the hint is hidden while the error shows)
 - **Skipped tests**: none
@@ -315,13 +347,13 @@ Same worktree method on `3f65ae5` (896/896 unmutated). 41/48 killed; S9, S10, S1
 
 ## Fix Plans
 
-### Fix 8: Assert the header icon is the archive glyph (N4; FBV-34) - test only
+### Fix 8: Assert the header icon is the archive glyph (N4; FBV-34) - test only (done, #239)
 
 - **Root cause**: `archived-cards-column.spec.tsx:88` checks `header?.querySelector('svg')`, which any icon satisfies. FBV-34 names an archive icon, so a wrong glyph (N4: `Archive` → `Inbox`) passes every test.
 - **Fix task**: in `front-end/test/unit/features/board/components/archived-cards-column.spec.tsx:88`, query `header?.querySelector('svg.lucide-archive')` (the class lucide-react sets on the `Archive` svg). One line.
 - **Verified in scratch**: with this change the file passes 9/9 on `b98287b` and fails 1 with N4 applied (see Discrimination Sensor, iteration 3).
 - **Done when**: the test fails with N4 and with S47b, passes on `main`; build gate green.
-- **Priority**: Cosmetic. Escalated to the user: iteration 3 of 3 is spent. The user decides whether to land Fix 8 and re-verify, or to accept FBV-34 as is.
+- **Priority**: Cosmetic. Escalated to the user after iteration 3 of 3; the user chose to land it. Landed as PR #239 (`6439ba5`) and verified in iteration 4: N4 and N4b killed, S47b still killed.
 
 ### Fix 7: Make the archive-icon assertion see only the column header (S47b; FBV-34) - test only (done, #237)
 
@@ -338,15 +370,15 @@ Fixes 1-6 (FBV-58 checkbox; S10 refetch; S13 un-tick; S9 unchanged rename; S43 e
 
 ## Requirement Traceability Update
 
-| Requirement | Status (iter 1) | Status (iter 2) | New Status (iter 3) |
-| ----------- | --------------- | --------------- | ------------------- |
-| FBV-01..18, FBV-20..30, FBV-32, FBV-33, FBV-35..47, FBV-49..53, FBV-56, FBV-57 | ✅ Verified | ✅ Verified | ✅ Verified (no source change; `archived-cards-column.spec.tsx` line maps re-read) |
-| FBV-58 | ❌ Needs Fix | ✅ Verified | ✅ Verified (F1a killed again) |
-| FBV-54, FBV-55 | ❌ Needs Fix | ✅ Verified | ✅ Verified (S10 killed again) |
-| FBV-31 | ❌ Needs Fix | ✅ Verified | ✅ Verified |
-| FBV-19 | ❌ Needs Fix | ✅ Verified | ✅ Verified |
-| FBV-48 | ❌ Needs Fix | ✅ Verified | ✅ Verified |
-| FBV-34 | ❌ Needs Fix | ❌ Needs Fix (S47b) | ❌ Needs Fix (S47b, N2, N3, S43, S47 killed; N4 wrong glyph survives, Fix 8, escalated) |
+| Requirement | Status (iter 1) | Status (iter 2) | Status (iter 3) | New Status (iter 4) |
+| ----------- | --------------- | --------------- | --------------- | ------------------- |
+| FBV-01..18, FBV-20..30, FBV-32, FBV-33, FBV-35..47, FBV-49..53, FBV-56, FBV-57 | ✅ Verified | ✅ Verified | ✅ Verified (no source change; `archived-cards-column.spec.tsx` line maps re-read) | ✅ Verified (no source change) |
+| FBV-58 | ❌ Needs Fix | ✅ Verified | ✅ Verified (F1a killed again) | ✅ Verified (no source change) |
+| FBV-54, FBV-55 | ❌ Needs Fix | ✅ Verified | ✅ Verified (S10 killed again) | ✅ Verified (no source change) |
+| FBV-31 | ❌ Needs Fix | ✅ Verified | ✅ Verified | ✅ Verified (no source change) |
+| FBV-19 | ❌ Needs Fix | ✅ Verified | ✅ Verified | ✅ Verified (no source change) |
+| FBV-48 | ❌ Needs Fix | ✅ Verified | ✅ Verified | ✅ Verified (no source change) |
+| FBV-34 | ❌ Needs Fix | ❌ Needs Fix (S47b) | ❌ Needs Fix (N4 survived, Fix 8, escalated) | ✅ Verified (Fix 8 #239: N4, N4b, S47b, N2, N3, S47 killed) |
 
 `spec.md`'s traceability table is updated to match.
 
@@ -354,14 +386,14 @@ Fixes 1-6 (FBV-58 checkbox; S10 refetch; S13 un-tick; S9 unchanged rename; S43 e
 
 ## Summary
 
-**Overall**: ❌ Not Ready (one cosmetic test gap; behavior is complete). Escalated to the user after iteration 3 of 3.
+**Overall**: ✅ Ready.
 
-**Spec-anchored check**: 58/58 ACs have evidence and behave as specified; 57/58 fully discriminating; FBV-34's icon clause does not check which glyph is drawn. Spec-precision gaps: 0
-**Sensor**: iteration 3: 7/8 killed, 1 survived (N4). Iteration 2: 10/11 (+N1 e2e-only). Iteration 1: 41/48
-**Gate**: 907 unit/component passed; 9 e2e passed in CI run `40701824685` on `b98287b`
+**Spec-anchored check**: 58/58 ACs matched the spec outcome with discriminating evidence. Spec-precision gaps: 0
+**Sensor**: iteration 4: 6/6 killed. Iteration 3: 7/8 (N4 survived). Iteration 2: 10/11 (+N1 e2e-only). Iteration 1: 41/48
+**Gate**: 907 unit/component passed, lint, typecheck and build clean on `45b0664`; 9 e2e passed in CI run `40704542083`
 
-**What works**: everything from iterations 1 and 2. Fix 7 (#237) makes the archive-icon test fail when the icon is removed (S47b), moved out of the header (N2) or the header title is dropped (N3). The regression sample (S10, S43, S47, F1a) stays killed.
+**What works**: everything from iterations 1-3. Fix 8 (#239) makes the FBV-34 icon test check the glyph itself: a wrong icon (N4 `Inbox`, N4b `ArchiveX`), a missing icon (S47b), a misplaced icon (N2) or a dropped header title (N3) all fail it.
 
-**Issues found**: the archive-icon assertion accepts any svg, so a wrong glyph passes (N4, Fix 8).
+**Issues found**: none. Observations 1-5 stay non-blocking.
 
-**Next steps**: the user decides. Either land Fix 8 (one line, `'svg'` → `'svg.lucide-archive'`, already proven in scratch) as a small `test(front-end)` PR and run one more re-verify, or accept FBV-34 as is and close the feature.
+**Next steps**: close the board feature. Commit this report and the `spec.md` traceability update as a small `docs(front-end)` change.
