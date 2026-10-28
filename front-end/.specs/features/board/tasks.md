@@ -1089,8 +1089,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit (MSW): link "Meus quadros" to `/boards` and the board title; nothing while loading or on error
-- [ ] Build gate passes; ≥ 2 new tests
+- [x] Unit (MSW): link "Meus quadros" to `/boards` and the board title; nothing while loading or on error
+- [x] Build gate passes; ≥ 2 new tests
 
 **Tests**: unit
 **Gate**: build
