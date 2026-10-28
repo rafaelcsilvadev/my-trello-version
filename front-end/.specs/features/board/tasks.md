@@ -1189,8 +1189,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] README explains columns, cards, done, archived items and the read-only archived board
-- [ ] Build gate passes; test count unchanged
+- [x] README explains columns, cards, done, archived items and the read-only archived board
+- [x] Build gate passes; test count unchanged
 
 **Tests**: none
 **Gate**: build

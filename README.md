@@ -4,7 +4,7 @@
 
 **English** | [Português](README.PT.md)
 
-> 🚧 **Work in progress.** The back-end API is feature-complete (features 0 to 6). The web front-end has its foundation in place (no screens yet). The mobile app has not started yet.
+> 🚧 **Work in progress.** The back-end API is feature-complete (features 0 to 6). The web front-end has sign-up, log-in, the boards list and the board view; drag and drop, card detail, labels and settings come next. The mobile app has not started yet.
 
 A personal take on Trello: each user signs up and manages only their own boards, lists and cards.
 
@@ -29,7 +29,7 @@ The project has two goals:
 
 MVP = features 0 to 4. Full roadmap in [`back-end/.specs/ROADMAP.md`](back-end/.specs/ROADMAP.md).
 
-Web front-end: `foundation` (app shell, routes and auth guard, typed API client, theme, PT-BR/EN i18n, toasts, Docker service, CI) `auth` (sign-up, log-in, rate-limit notice, log-out) and `boards` (active/archived tabs, create, edit, archive, restore, delete) are done. The board view comes next, one feature at a time. Roadmap in [`front-end/.specs/ROADMAP.md`](front-end/.specs/ROADMAP.md).
+Web front-end: `foundation` (app shell, routes and auth guard, typed API client, theme, PT-BR/EN i18n, toasts, Docker service, CI) `auth` (sign-up, log-in, rate-limit notice, log-out) `boards` (active/archived tabs, create, edit, archive, restore, delete) and `board` (columns and cards, done flag, archived items, read-only archived board, phone layout) are done. Drag and drop comes next, one feature at a time. Roadmap in [`front-end/.specs/ROADMAP.md`](front-end/.specs/ROADMAP.md).
 
 ---
 
@@ -161,10 +161,22 @@ In the web app:
 
 Managing boards on `/boards`:
 
-- **Create board** opens a form with a name (up to 100 characters) and an optional description (up to 1000). Saving takes you to the new board at `/b/{id}`; the board view itself is still a placeholder.
+- **Create board** opens a form with a name (up to 100 characters) and an optional description (up to 1000). Saving takes you to the new board at `/b/{id}`.
 - Each board card has a **Board actions** menu. On the **Active** tab it offers **Edit** (same form, pre-filled) and **Archive**.
 - Archived boards move to the **Archived** tab, where the menu offers **Restore** (back to **Active**) and **Delete permanently**.
 - **Delete permanently** removes the board with all its columns, tasks and labels. It cannot be undone, so the button only unlocks after you type the board's name.
+
+Using a board on `/b/{id}`:
+
+- A new board has no columns, so it opens with **Add the first column**. Type a name (up to 100 characters) and press Enter; the field stays open for the next one. **Add column** after the last column does the same later.
+- Click a column name (or pick **Rename** in its **Column actions** menu) to rename it; Enter or leaving the field saves, Esc cancels. **Archive** in the same menu hides the column.
+- **Add task** in a column footer opens a title field (up to 100 characters); Enter adds the task at the end and keeps the field open, Esc closes it. Press `n` anywhere outside a text field to open it in the first column.
+- Tick **Completed** on a task to mark it done; it shows struck through.
+- Turn on **Show archived** in the toolbar to see, after the active columns, an **Archived** column with every archived task (with the date and the column it came from) and the **Archived columns** section. There, **Restore** puts a column back at the end and **Delete permanently** removes it with all its tasks after a confirmation that says how many tasks go with it. The switch is off every time a board opens.
+- An archived board (opened from the **Archived** tab) is read-only: a banner reads "Board archived · read-only", the add controls and column menus are hidden and the checkboxes are disabled. **Restore** in the banner makes it editable again.
+- On a phone, the board shows one column per screen. Swipe between them, or tap a dot under the header; the text next to the dots reads "{column} · 1 of 3". The back arrow returns to `/boards`.
+
+Changes show at once and are saved in the background. If saving fails, the change is undone and a toast offers **Try again**.
 
 A page opened without a session sends you to `/login` and back to it after logging in. The API limits log-in attempts per IP; when the limit is hit, the form asks you to wait a minute.
 

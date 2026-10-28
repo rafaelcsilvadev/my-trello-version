@@ -4,7 +4,7 @@
 
 [English](README.md) | **Português**
 
-> 🚧 **Projeto em andamento.** A API do back-end está com todas as features prontas (0 a 6). O front-end (web) já tem a base pronta (ainda sem telas). O mobile ainda não começou.
+> 🚧 **Projeto em andamento.** A API do back-end está com todas as features prontas (0 a 6). O front-end (web) já tem cadastro, login, a lista de quadros e a visão do quadro; arrastar e soltar, detalhe da tarefa, etiquetas e configurações vêm a seguir. O mobile ainda não começou.
 
 Uma versão pessoal do Trello: cada usuário se cadastra e gerencia só os próprios quadros, listas e cartões.
 
@@ -29,7 +29,7 @@ O projeto tem dois objetivos:
 
 MVP = features 0 a 4. Roadmap completo em [`back-end/.specs/ROADMAP.md`](back-end/.specs/ROADMAP.md).
 
-Front-end (web): `foundation` (estrutura do app, rotas e guard de autenticação, cliente tipado da API, tema, i18n PT-BR/EN, toasts, serviço Docker, CI) `auth` (cadastro, login, aviso de rate limit, logout) e `boards` (abas de ativos/arquivados, criar, editar, arquivar, restaurar, excluir) concluídas. A visão do quadro vem a seguir, uma feature por vez. Roadmap em [`front-end/.specs/ROADMAP.md`](front-end/.specs/ROADMAP.md).
+Front-end (web): `foundation` (estrutura do app, rotas e guard de autenticação, cliente tipado da API, tema, i18n PT-BR/EN, toasts, serviço Docker, CI) `auth` (cadastro, login, aviso de rate limit, logout) `boards` (abas de ativos/arquivados, criar, editar, arquivar, restaurar, excluir) e `board` (colunas e tarefas, marcar como concluída, itens arquivados, quadro arquivado somente leitura, layout de celular) concluídas. Arrastar e soltar vem a seguir, uma feature por vez. Roadmap em [`front-end/.specs/ROADMAP.md`](front-end/.specs/ROADMAP.md).
 
 ---
 
@@ -161,10 +161,22 @@ No app web:
 
 Gerenciando quadros em `/boards`:
 
-- **Criar quadro** abre um formulário com nome (até 100 caracteres) e descrição opcional (até 1000). Ao salvar, você vai para o novo quadro em `/b/{id}`; a visão do quadro ainda é um placeholder.
+- **Criar quadro** abre um formulário com nome (até 100 caracteres) e descrição opcional (até 1000). Ao salvar, você vai para o novo quadro em `/b/{id}`.
 - Cada cartão de quadro tem o menu **Ações do quadro**. Na aba **Ativos**, ele oferece **Editar** (o mesmo formulário, preenchido) e **Arquivar**.
 - Quadros arquivados vão para a aba **Arquivados**, onde o menu oferece **Restaurar** (volta para **Ativos**) e **Excluir definitivamente**.
 - **Excluir definitivamente** apaga o quadro com todas as colunas, tarefas e etiquetas. Não dá para desfazer, então o botão só libera depois que você digita o nome do quadro.
+
+Usando um quadro em `/b/{id}`:
+
+- Um quadro novo não tem colunas, então abre com **Adicione a primeira coluna**. Digite um nome (até 100 caracteres) e aperte Enter; o campo fica aberto para a próxima. **Adicionar coluna**, depois da última coluna, faz o mesmo depois.
+- Clique no nome de uma coluna (ou escolha **Renomear** no menu **Ações da coluna**) para renomeá-la; Enter ou sair do campo salva, Esc cancela. **Arquivar**, no mesmo menu, esconde a coluna.
+- **Adicionar tarefa**, no rodapé de uma coluna, abre um campo de título (até 100 caracteres); Enter adiciona a tarefa no fim e mantém o campo aberto, Esc fecha. Aperte `n` fora de um campo de texto para abri-lo na primeira coluna.
+- Marque **Concluída** em uma tarefa para concluí-la; ela aparece riscada.
+- Ligue **Mostrar arquivadas** na barra de ferramentas para ver, depois das colunas ativas, a coluna **Arquivadas** com todas as tarefas arquivadas (com a data e a coluna de origem) e a seção **Colunas arquivadas**. Ali, **Restaurar** devolve a coluna para o fim e **Excluir definitivamente** apaga a coluna com todas as tarefas, depois de uma confirmação que diz quantas tarefas vão junto. A chave começa desligada sempre que o quadro abre.
+- Um quadro arquivado (aberto pela aba **Arquivados**) é somente leitura: um aviso diz "Quadro arquivado · somente leitura", os controles de adicionar e os menus de coluna somem e as caixas de seleção ficam desabilitadas. **Restaurar**, no aviso, libera a edição de novo.
+- No celular, o quadro mostra uma coluna por tela. Deslize entre elas, ou toque em um ponto abaixo do cabeçalho; o texto ao lado dos pontos diz "{coluna} · 1 de 3". A seta de voltar leva a `/boards`.
+
+As mudanças aparecem na hora e são salvas em segundo plano. Se salvar falhar, a mudança é desfeita e um toast oferece **Tentar novamente**.
 
 Uma página aberta sem sessão manda para `/login` e volta para ela depois do login. A API limita tentativas de login por IP; quando o limite estoura, o formulário pede para esperar um minuto.
 
