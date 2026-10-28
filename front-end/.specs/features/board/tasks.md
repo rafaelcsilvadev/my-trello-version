@@ -1164,8 +1164,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] E2E passes locally against `docker compose`
-- [ ] Full gate passes
+- [x] E2E passes locally against `docker compose`
+- [x] Full gate passes
 
 **Tests**: e2e
 **Gate**: full
