@@ -36,6 +36,23 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
   const passwordRef = useRef<HTMLInputElement>(null);
   const confirmPasswordRef = useRef<HTMLInputElement>(null);
 
+  // Returns whether any field is invalid; the first one takes the focus.
+  function showFieldErrors(errors: SignUpFieldErrors): boolean {
+    setFieldErrors(errors);
+    const invalid = firstInvalidField(errors);
+    if (!invalid) {
+      return false;
+    }
+    const refs = {
+      name: nameRef,
+      email: emailRef,
+      password: passwordRef,
+      confirmPassword: confirmPasswordRef,
+    };
+    refs[invalid].current?.focus();
+    return true;
+  }
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (signUp.isPending) {
@@ -43,17 +60,7 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
     }
     setAlert(null);
     const values = { name, email, password, confirmPassword };
-    const errors = validateSignUp(values);
-    setFieldErrors(errors);
-    const invalid = firstInvalidField(errors);
-    if (invalid) {
-      const refs = {
-        name: nameRef,
-        email: emailRef,
-        password: passwordRef,
-        confirmPassword: confirmPasswordRef,
-      };
-      refs[invalid].current?.focus();
+    if (showFieldErrors(validateSignUp(values))) {
       return;
     }
     signUp.mutate(
@@ -63,7 +70,7 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
         onError: (err) => {
           const serverErrors = mapSignUpServerErrors(err, values);
           if (serverErrors) {
-            setFieldErrors(serverErrors);
+            showFieldErrors(serverErrors);
           } else {
             setAlert(formAlertFor(err, 'signUp'));
           }
