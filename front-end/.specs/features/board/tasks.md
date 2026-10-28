@@ -1114,8 +1114,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit (`renderApp`): `/b/{id}` renders the board; navigating to another board resets **Mostrar arquivadas**
-- [ ] Build gate passes; ≥ 2 new tests
+- [x] Unit (`renderApp`): `/b/{id}` renders the board; navigating to another board resets **Mostrar arquivadas**
+- [x] Build gate passes; ≥ 2 new tests
 
 **Tests**: unit
 **Gate**: build
