@@ -1,6 +1,11 @@
 import { cleanup, screen, within } from '@testing-library/react';
+import { http, HttpResponse } from 'msw';
 import { afterEach, describe, expect, it } from 'vitest';
 
+import { apiOrigin } from '@/shared/config';
+
+import { boardFixture, boardId } from '../../support/fixtures/board';
+import { server } from '../../support/msw/server';
 import { renderApp } from '../../support/render-app';
 
 const TOKEN = 'token-123';
@@ -57,5 +62,35 @@ describe('ProtectedLayout', () => {
 
     await screen.findByRole('heading', { level: 1 });
     expect(screen.queryByRole('banner')).toBeNull();
+  });
+
+  it('shows the board breadcrumb in the top bar on /b/{id}', async () => {
+    const url = `${apiOrigin}/api/v1/boards/${boardId}`;
+    server.use(
+      http.get(url, () => HttpResponse.json(boardFixture())),
+      http.get(`${url}/lists`, () => HttpResponse.json([])),
+      http.get(`${url}/cards`, () => HttpResponse.json([])),
+      http.get(`${url}/labels`, () => HttpResponse.json([])),
+    );
+    renderApp({ route: `/b/${boardId}`, token: TOKEN });
+
+    const banner = within(await screen.findByRole('banner'));
+    const breadcrumb = within(
+      await banner.findByRole('navigation', { name: 'Breadcrumb' }),
+    );
+    expect(
+      breadcrumb.getByRole('link', { name: 'My boards' }).getAttribute('href'),
+    ).toBe('/boards');
+    expect(breadcrumb.getByText('Product launch')).toBeTruthy();
+  });
+
+  it.each([
+    ['/boards', 'My boards'],
+    ['/settings', 'Settings'],
+  ])('shows no breadcrumb on %s', async (route, title) => {
+    renderApp({ route, token: TOKEN });
+
+    await heading(title);
+    expect(screen.queryByRole('navigation', { name: 'Breadcrumb' })).toBeNull();
   });
 });

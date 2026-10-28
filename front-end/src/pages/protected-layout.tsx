@@ -2,6 +2,7 @@ import { Settings } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link, Outlet, useMatch } from 'react-router';
 
+import { BoardBreadcrumb } from '@/features/board';
 import { Logo } from '@/shared/ui/logo';
 
 // Port of the prototype top bar (design/Task List.dc.html:160-193).
@@ -11,6 +12,7 @@ export function ProtectedLayout() {
   const { t } = useTranslation();
   // useMatch also treats a trailing slash as the same route.
   const onSettings = useMatch('/settings') !== null;
+  const boardId = useMatch('/b/:boardId/*')?.params.boardId;
 
   return (
     <>
@@ -18,6 +20,7 @@ export function ProtectedLayout() {
         <Link to="/boards" className={`rounded-sm p-1 ${linkFocus}`}>
           <Logo />
         </Link>
+        {boardId && <BoardBreadcrumb boardId={boardId} />}
         <div className="flex-1" />
         {!onSettings && (
           <Link
