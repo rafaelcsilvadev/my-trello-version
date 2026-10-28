@@ -155,6 +155,27 @@ describe('BoardFormDialog', () => {
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
+  it('focuses the name when both fields are invalid', () => {
+    renderDialog();
+    type(descriptionInput(), 'a'.repeat(1001));
+    descriptionInput().focus();
+
+    submit();
+
+    expect(document.activeElement).toBe(nameInput());
+  });
+
+  it('focuses the description when only the description is invalid', () => {
+    renderDialog();
+    type(nameInput(), 'Viagem');
+    type(descriptionInput(), 'a'.repeat(1001));
+    nameInput().focus();
+
+    submit();
+
+    expect(document.activeElement).toBe(descriptionInput());
+  });
+
   it('updates the counter as the description is typed', () => {
     renderDialog();
 

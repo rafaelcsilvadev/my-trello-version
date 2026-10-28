@@ -1,4 +1,4 @@
-import { type FormEvent, useState } from 'react';
+import { type FormEvent, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/shared/ui/button';
@@ -66,6 +66,8 @@ function BoardForm({
   const [name, setName] = useState(initialValues.name);
   const [description, setDescription] = useState(initialValues.description);
   const [fieldErrors, setFieldErrors] = useState<BoardFieldErrors>({});
+  const nameRef = useRef<HTMLInputElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const errors = { ...serverErrors, ...fieldErrors };
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -78,7 +80,10 @@ function BoardForm({
     setFieldErrors(validation);
     if (Object.keys(validation).length === 0) {
       onSubmit(values);
+      return;
     }
+    // The first invalid field, in form order, takes the focus.
+    (validation.name ? nameRef : descriptionRef).current?.focus();
   }
 
   function errorFor(field: BoardField) {
@@ -101,6 +106,7 @@ function BoardForm({
         value={name}
         onChange={setName}
         error={errorFor('name')}
+        inputRef={nameRef}
       />
       <TextAreaField
         label={`${t('boards.form.description')} ${t('boards.form.optional')}`}
@@ -109,6 +115,7 @@ function BoardForm({
         onChange={setDescription}
         counter={t('boards.form.counter', { length: description.length })}
         error={errorFor('description')}
+        inputRef={descriptionRef}
       />
       <div className="mt-1 flex flex-wrap justify-end gap-2">
         <Button variant="secondary" onPress={onClose}>
