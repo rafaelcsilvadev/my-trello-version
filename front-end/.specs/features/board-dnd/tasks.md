@@ -600,8 +600,8 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] Unit: column `dragover` left / right half → hover index; focus stays on a card that moved to another column (`document.activeElement`); scroll called for the target column; the virtual column and archived section have no drag handlers and ignore drops
-- [ ] Build gate passes; test count only grows
+- [x] Unit: column `dragover` left / right half → hover index; focus stays on a card that moved to another column (`document.activeElement`); scroll called for the target column; the virtual column and archived section have no drag handlers and ignore drops
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
