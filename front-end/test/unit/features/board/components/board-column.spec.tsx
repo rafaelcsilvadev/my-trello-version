@@ -1,12 +1,20 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import {
+  cleanup,
+  createEvent,
+  fireEvent,
+  render,
+  screen,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { I18nextProvider } from 'react-i18next';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   BoardColumn,
+  type ColumnCardDrop,
   type ColumnMove,
 } from '@/features/board/components/board-column';
+import type { CardSpot } from '@/features/board/model/move';
 import type {
   Card,
   Column,
@@ -39,6 +47,7 @@ type RenderOptions = {
   isAddingCard?: boolean;
   language?: Language;
   move?: Partial<ColumnMove>;
+  cardDrop?: Partial<ColumnCardDrop>;
 };
 
 function moveProps(overrides: Partial<ColumnMove> = {}): ColumnMove {
@@ -51,6 +60,19 @@ function moveProps(overrides: Partial<ColumnMove> = {}): ColumnMove {
     onStep: vi.fn<ColumnMove['onStep']>(),
     onDrop: vi.fn<() => void>(),
     onCancel: vi.fn<() => void>(),
+    ...overrides,
+  };
+}
+
+function cardDropProps(
+  overrides: Partial<ColumnCardDrop> = {},
+): ColumnCardDrop {
+  return {
+    cardId: 'other',
+    targetIndex: null,
+    placeholder: null,
+    onHover: vi.fn<(spot: CardSpot) => void>(),
+    onDrop: vi.fn<() => void>(),
     ...overrides,
   };
 }
@@ -73,8 +95,10 @@ function renderColumn({
   isAddingCard = false,
   language = 'pt-BR',
   move: moveOverrides,
+  cardDrop: cardDropOverrides,
 }: RenderOptions = {}) {
   const move = moveProps(moveOverrides);
+  const cardDrop = cardDropOverrides && cardDropProps(cardDropOverrides);
   const column: Column = { list, cards };
   const callbacks = {
     onStartRename: vi.fn<() => void>(),
@@ -100,11 +124,12 @@ function renderColumn({
         isAddingCard={isAddingCard}
         isCreatingCard={false}
         move={move}
+        cardDrop={cardDrop}
         {...callbacks}
       />
     </I18nextProvider>,
   );
-  return { ...callbacks, move };
+  return { ...callbacks, move, cardDrop };
 }
 
 function column(name = 'To do') {
@@ -437,6 +462,195 @@ describe('BoardColumn', () => {
       const classes = column().classList;
       expect(classes.contains('shadow-lg')).toBe(true);
       expect(classes.contains('outline-border-focus')).toBe(true);
+    });
+  });
+  describe('dropping cards', () => {
+    // jsdom has no layout: each card tile is 100px tall, stacked from the top.
+    beforeEach(() => {
+      vi.spyOn(
+        HTMLElement.prototype,
+        'getBoundingClientRect',
+      ).mockImplementation(function (this: HTMLElement) {
+        const index = ['Write release notes', 'Review PR'].findIndex((title) =>
+          this.textContent?.includes(title),
+        );
+        return DOMRect.fromRect({ y: index * 100, height: 100, width: 280 });
+      });
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    // jsdom has no DragEvent, so the plain event it builds drops `clientY`.
+    function dragOver(clientY: number) {
+      const event = createEvent.dragOver(column(), {
+        dataTransfer: dataTransferStub(),
+      });
+      Object.defineProperty(event, 'clientY', { value: clientY });
+      return fireEvent(column(), event);
+    }
+
+    function placeholder() {
+      return column().querySelector('[data-drop-placeholder]');
+    }
+
+    it('targets the slot before a card when the pointer is above its middle', () => {
+      const { cardDrop } = renderColumn({ cardDrop: {} });
+
+      const allowed = !dragOver(140);
+
+      expect(allowed).toBe(true);
+      expect(cardDrop?.onHover).toHaveBeenCalledExactlyOnceWith({
+        listId: 'list-1',
+        index: 1,
+      });
+    });
+
+    it('targets the slot after a card when the pointer is below its middle', () => {
+      const { cardDrop } = renderColumn({ cardDrop: {} });
+
+      dragOver(60);
+
+      expect(cardDrop?.onHover).toHaveBeenCalledExactlyOnceWith({
+        listId: 'list-1',
+        index: 1,
+      });
+    });
+
+    it('targets the first slot above the first card', () => {
+      const { cardDrop } = renderColumn({ cardDrop: {} });
+
+      dragOver(10);
+
+      expect(cardDrop?.onHover).toHaveBeenCalledExactlyOnceWith({
+        listId: 'list-1',
+        index: 0,
+      });
+    });
+
+    it('targets the end over the empty space below the cards', () => {
+      const { cardDrop } = renderColumn({ cardDrop: {} });
+
+      dragOver(450);
+
+      expect(cardDrop?.onHover).toHaveBeenCalledExactlyOnceWith({
+        listId: 'list-1',
+        index: 2,
+      });
+    });
+
+    // The index counts only the other cards (FDND-04).
+    it('leaves the dragged card out of the slot count in its own column', () => {
+      const { cardDrop } = renderColumn({ cardDrop: { cardId: 'c1' } });
+
+      dragOver(450);
+
+      expect(cardDrop?.onHover).toHaveBeenCalledExactlyOnceWith({
+        listId: 'list-1',
+        index: 1,
+      });
+    });
+
+    it('does not repeat the target it already has', () => {
+      const { cardDrop } = renderColumn({ cardDrop: { targetIndex: 2 } });
+
+      const allowed = !dragOver(450);
+
+      expect(allowed).toBe(true);
+      expect(cardDrop?.onHover).not.toHaveBeenCalled();
+    });
+
+    it('drops the card and keeps the browser from opening its text', () => {
+      const { cardDrop } = renderColumn({ cardDrop: { targetIndex: 1 } });
+
+      const handled = !fireEvent.drop(column(), {
+        dataTransfer: dataTransferStub(),
+      });
+
+      expect(handled).toBe(true);
+      expect(cardDrop?.onDrop).toHaveBeenCalledOnce();
+    });
+
+    // FDND-05
+    it('accepts a card on an empty column at its first slot', () => {
+      const { cardDrop } = renderColumn({ cards: [], cardDrop: {} });
+
+      const allowed = !dragOver(40);
+      fireEvent.drop(column(), { dataTransfer: dataTransferStub() });
+
+      expect(allowed).toBe(true);
+      expect(cardDrop?.onHover).toHaveBeenCalledExactlyOnceWith({
+        listId: 'list-1',
+        index: 0,
+      });
+      expect(cardDrop?.onDrop).toHaveBeenCalledOnce();
+    });
+
+    it('shows the dashed purple outline only while it is the target', () => {
+      renderColumn({ cardDrop: { targetIndex: 0 } });
+
+      const classes = column().classList;
+      expect(classes.contains('outline-dashed')).toBe(true);
+      expect(classes.contains('outline-border-focus')).toBe(true);
+      expect(classes.contains('bg-surface-selected')).toBe(true);
+    });
+
+    it('has no outline while the card is over another column', () => {
+      renderColumn({ cardDrop: { targetIndex: null } });
+
+      const classes = column().classList;
+      expect(classes.contains('outline-dashed')).toBe(false);
+      expect(classes.contains('bg-surface-selected')).toBe(false);
+    });
+
+    it('shows the placeholder before the card it precedes', () => {
+      renderColumn({
+        cardDrop: { targetIndex: 1, placeholder: { beforeCardId: 'c2' } },
+      });
+
+      const gap = placeholder();
+      expect(gap?.previousElementSibling?.textContent).toContain(
+        'Write release notes',
+      );
+      expect(gap?.nextElementSibling?.textContent).toContain('Review PR');
+    });
+
+    it('shows the placeholder at the end', () => {
+      renderColumn({
+        cardDrop: { targetIndex: 2, placeholder: { beforeCardId: null } },
+      });
+
+      const gap = placeholder();
+      expect(gap?.previousElementSibling?.textContent).toContain('Review PR');
+      expect(gap?.nextElementSibling).toBeNull();
+    });
+
+    it('swaps "Arraste cards para cá" for the placeholder on an empty column', () => {
+      renderColumn({
+        cards: [],
+        cardDrop: { targetIndex: 0, placeholder: { beforeCardId: null } },
+      });
+
+      expect(placeholder()).not.toBeNull();
+      expect(screen.queryByText('Arraste cards para cá')).toBeNull();
+    });
+
+    it('lets no card land when no card is dragged', () => {
+      renderColumn();
+
+      const allowed = !dragOver(40);
+
+      expect(allowed).toBe(false);
+    });
+
+    it('lets no card land on a read-only board', () => {
+      const { cardDrop } = renderColumn({ isReadOnly: true, cardDrop: {} });
+
+      const allowed = !dragOver(40);
+
+      expect(allowed).toBe(false);
+      expect(cardDrop?.onHover).not.toHaveBeenCalled();
     });
   });
 });

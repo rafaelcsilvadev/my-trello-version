@@ -1,11 +1,11 @@
 import { Archive, Loader, Pencil, Plus } from 'lucide-react';
-import type { DragEvent, KeyboardEvent } from 'react';
+import { type DragEvent, Fragment, type KeyboardEvent, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/shared/ui/button';
 import { ActionMenu } from '@/shared/ui/menu';
 
-import type { ArrowKey } from '../model/move';
+import { type ArrowKey, type CardSpot, dropSlot } from '../model/move';
 import type {
   Card,
   Column,
@@ -30,6 +30,17 @@ export type ColumnMove = {
   onCancel: () => void;
 };
 
+// The column's part while a card is dragged with the mouse (FDND-02 to FDND-05). Ignored on read-only boards.
+export type ColumnCardDrop = {
+  // The dragged card, left out of the slot count.
+  cardId: string;
+  // This column's target slot, or `null` while the card is over another column.
+  targetIndex: number | null;
+  placeholder: { beforeCardId: string | null } | null;
+  onHover: (spot: CardSpot) => void;
+  onDrop: () => void;
+};
+
 type BoardColumnProps = {
   column: Column;
   labels: ReadonlyMap<string, Label>;
@@ -49,6 +60,7 @@ type BoardColumnProps = {
   onCreateCard: (raw: string) => Promise<ItemFieldError | null>;
   onToggleDone: (card: Card) => void;
   move?: ColumnMove;
+  cardDrop?: ColumnCardDrop;
 };
 
 // Port of the prototype column (design/Task List.dc.html:385-452).
@@ -70,12 +82,15 @@ export function BoardColumn({
   onCreateCard,
   onToggleDone,
   move,
+  cardDrop,
 }: BoardColumnProps) {
   const { t } = useTranslation();
   const isPending = pendingIds.has(list.id);
   // An archived board keeps its names, adds and menus out of reach (FBV-45).
   const canEdit = !isReadOnly;
   const movable = canEdit ? move : undefined;
+  const droppable = canEdit ? cardDrop : undefined;
+  const cardList = useRef<HTMLDivElement>(null);
   // A column being renamed or saved stays put (FDND-27, FDND-40).
   const canLift = !isPending && rename === null;
 
@@ -109,10 +124,48 @@ export function BoardColumn({
     movable?.onDragStart(list.id);
   }
 
+  // The slot is the count of other tiles the pointer is below the middle of, so the gaps between tiles and the placeholder keep it.
+  function onDragOver(event: DragEvent<HTMLElement>) {
+    if (!droppable) return;
+    event.preventDefault();
+    const tiles = Array.from(cardList.current?.children ?? []).filter(
+      (tile) =>
+        tile instanceof HTMLElement && !('dropPlaceholder' in tile.dataset),
+    );
+    const index = cards.filter(
+      (card, i) =>
+        card.id !== droppable.cardId &&
+        tiles[i] !== undefined &&
+        dropSlot(tiles[i].getBoundingClientRect(), event.clientY) === 'after',
+    ).length;
+    if (index !== droppable.targetIndex) {
+      droppable.onHover({ listId: list.id, index });
+    }
+  }
+
+  function onDrop(event: DragEvent<HTMLElement>) {
+    if (!droppable) return;
+    event.preventDefault();
+    droppable.onDrop();
+  }
+
+  const placeholder = droppable?.placeholder ?? null;
+  const gap = (
+    <div
+      data-drop-placeholder
+      aria-hidden
+      className="h-14 flex-none rounded-md border-2 border-dashed border-border-focus bg-brand-soft"
+    />
+  );
+
   return (
+    // A mouse drop target only: keyboard moves go through the card and header handles (FDND-08, FDND-21).
+    // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <section
       aria-label={list.title}
-      className={`flex w-11/12 flex-none snap-start flex-col gap-2 rounded-lg bg-surface-sunken p-2 transition md:w-71 ${columnState(movable)}`}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
+      className={`flex w-11/12 flex-none snap-start flex-col gap-2 rounded-lg p-2 transition md:w-71 ${columnState(movable, droppable)}`}
     >
       <div
         {...(movable
@@ -187,20 +240,23 @@ export function BoardColumn({
           />
         ) : null}
       </div>
-      <div className="flex flex-col gap-2">
+      <div ref={cardList} className="flex flex-col gap-2">
         {cards.map((card) => (
-          <CardTile
-            key={card.id}
-            card={card}
-            labels={labels}
-            today={today}
-            mode="active"
-            isPending={pendingIds.has(card.id)}
-            isReadOnly={isReadOnly}
-            onToggleDone={onToggleDone}
-          />
+          <Fragment key={card.id}>
+            {placeholder?.beforeCardId === card.id ? gap : null}
+            <CardTile
+              card={card}
+              labels={labels}
+              today={today}
+              mode="active"
+              isPending={pendingIds.has(card.id)}
+              isReadOnly={isReadOnly}
+              onToggleDone={onToggleDone}
+            />
+          </Fragment>
         ))}
-        {cards.length === 0 ? (
+        {placeholder?.beforeCardId === null ? gap : null}
+        {cards.length === 0 && placeholder === null ? (
           <div className="rounded-md border border-dashed border-border-default px-3 py-4.5 text-center text-sm text-text-tertiary">
             {t(isReadOnly ? 'board.column.empty' : 'board.column.dropHere')}
           </div>
@@ -226,9 +282,14 @@ export function BoardColumn({
 }
 
 // Prototype column classes (design/Task List.dc.html:1090).
-function columnState(move: ColumnMove | undefined): string {
+function columnState(
+  move: ColumnMove | undefined,
+  cardDrop: ColumnCardDrop | undefined,
+): string {
   if (move?.isLifted)
-    return 'shadow-lg outline-2 -outline-offset-2 outline-border-focus -translate-y-0.75';
-  if (move?.isSource) return 'opacity-50';
-  return '';
+    return 'bg-surface-sunken shadow-lg outline-2 -outline-offset-2 outline-border-focus -translate-y-0.75';
+  if (move?.isSource) return 'bg-surface-sunken opacity-50';
+  if (cardDrop && cardDrop.targetIndex !== null)
+    return 'bg-surface-selected outline-2 outline-dashed -outline-offset-2 outline-border-focus';
+  return 'bg-surface-sunken';
 }

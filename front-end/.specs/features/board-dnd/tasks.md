@@ -575,8 +575,8 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] Unit: `dragover` above / below a card's midpoint calls hover with the right index; over empty space → end; `drop` calls drop and prevents default; outline class only when targeted; placeholder before the given card or at the end; empty column still accepts a drop
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `dragover` above / below a card's midpoint calls hover with the right index; over empty space → end; `drop` calls drop and prevents default; outline class only when targeted; placeholder before the given card or at the end; empty column still accepts a drop
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
