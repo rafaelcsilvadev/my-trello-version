@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 4,
+  "next_id": 10,
   "lessons": [
     {
       "id": "L-001",
@@ -58,6 +58,114 @@
       ],
       "created": "2026-10-26T21:23:45Z",
       "last_seen": "2026-10-26T21:23:45Z"
+    },
+    {
+      "id": "L-004",
+      "key": "ac_gap::when a component receives a pending flag test every control the spec locks while pending not only the pending indicator",
+      "text": "When a component receives a pending flag, test every control the spec locks while pending, not only the pending indicator",
+      "signal": "ac_gap",
+      "scope": "components",
+      "status": "candidate",
+      "features": [
+        "board"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "FBV-58 front-end/src/features/board/components/card-tile.tsx:82 (components)"
+      ],
+      "created": "2026-10-28T01:03:59Z",
+      "last_seen": "2026-10-28T01:03:59Z"
+    },
+    {
+      "id": "L-005",
+      "key": "surviving_mutant::test a callback a feature passes into a shared hook through the feature itself asserting its effect not only with a spy in the shared hook test",
+      "text": "Test a callback a feature passes into a shared hook through the feature itself, asserting its effect, not only with a spy in the shared hook test",
+      "signal": "surviving_mutant",
+      "scope": "view-models",
+      "status": "candidate",
+      "features": [
+        "board"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "S10 front-end/src/features/board/view-models/use-board-view-model.ts:90 (view-models)"
+      ],
+      "created": "2026-10-28T01:03:59Z",
+      "last_seen": "2026-10-28T01:03:59Z"
+    },
+    {
+      "id": "L-006",
+      "key": "surviving_mutant::test a toggle in both directions",
+      "text": "Test a toggle in both directions",
+      "signal": "surviving_mutant",
+      "scope": "view-models",
+      "status": "candidate",
+      "features": [
+        "board"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "S13 front-end/src/features/board/view-models/use-board-view-model.ts:200 (view-models)"
+      ],
+      "created": "2026-10-28T01:03:59Z",
+      "last_seen": "2026-10-28T01:03:59Z"
+    },
+    {
+      "id": "L-007",
+      "key": "surviving_mutant::assert that a request was not sent only after a later request has arrived never right after the action",
+      "text": "Assert that a request was not sent only after a later request has arrived, never right after the action",
+      "signal": "surviving_mutant",
+      "scope": "tests",
+      "status": "candidate",
+      "features": [
+        "board"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "S9 front-end/test/unit/features/board/view-models/use-board-view-model.spec.tsx:486-500 (tests)"
+      ],
+      "created": "2026-10-28T01:03:59Z",
+      "last_seen": "2026-10-28T01:03:59Z"
+    },
+    {
+      "id": "L-008",
+      "key": "surviving_mutant::test the empty collection branch together with every toggle that adds content to it",
+      "text": "Test the empty-collection branch together with every toggle that adds content to it",
+      "signal": "surviving_mutant",
+      "scope": "components",
+      "status": "candidate",
+      "features": [
+        "board"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "S43 front-end/src/features/board/components/board-columns.tsx:121 (components)"
+      ],
+      "created": "2026-10-28T01:03:59Z",
+      "last_seen": "2026-10-28T01:03:59Z"
+    },
+    {
+      "id": "L-009",
+      "key": "surviving_mutant::assert the layout and style classes the spec names when jsdom cannot observe the layout",
+      "text": "Assert the layout and style classes the spec names when jsdom cannot observe the layout",
+      "signal": "surviving_mutant",
+      "scope": "components",
+      "status": "candidate",
+      "features": [
+        "board"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "S45 S46 S47 front-end/src/features/board/components/board-columns.tsx:137 board-column.tsx:66 archived-cards-column.tsx:33 (components)"
+      ],
+      "created": "2026-10-28T01:03:59Z",
+      "last_seen": "2026-10-28T01:03:59Z"
     }
   ]
 }

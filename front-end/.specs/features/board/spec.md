@@ -247,66 +247,66 @@ Opening a board from "Meus quadros" lands on `/b/{id}`, which is still the found
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| FBV-01 | P1: View a board | - | Pending |
-| FBV-02 | P1: View a board | - | Pending |
-| FBV-03 | P1: View a board | - | Pending |
-| FBV-04 | P1: View a board | - | Pending |
-| FBV-05 | P1: View a board | - | Pending |
-| FBV-06 | P1: View a board | - | Pending |
-| FBV-07 | P1: View a board | - | Pending |
-| FBV-08 | P1: View a board | - | Pending |
-| FBV-09 | P1: View a board | - | Pending |
-| FBV-10 | P1: View a board | - | Pending |
-| FBV-11 | P1: View a board | - | Pending |
-| FBV-12 | P1: View a board | - | Pending |
-| FBV-13 | P1: Manage columns | - | Pending |
-| FBV-14 | P1: Manage columns | - | Pending |
-| FBV-15 | P1: Manage columns | - | Pending |
-| FBV-16 | P1: Manage columns | - | Pending |
-| FBV-17 | P1: Manage columns | - | Pending |
-| FBV-18 | P1: Manage columns | - | Pending |
-| FBV-19 | P1: Manage columns | - | Pending |
-| FBV-20 | P1: Manage columns | - | Pending |
-| FBV-21 | P1: Manage columns | - | Pending |
-| FBV-22 | P1: Manage columns | - | Pending |
-| FBV-23 | P1: Manage columns | - | Pending |
-| FBV-24 | P1: Create cards and mark them done | - | Pending |
-| FBV-25 | P1: Create cards and mark them done | - | Pending |
-| FBV-26 | P1: Create cards and mark them done | - | Pending |
-| FBV-27 | P1: Create cards and mark them done | - | Pending |
-| FBV-28 | P1: Create cards and mark them done | - | Pending |
-| FBV-29 | P1: Create cards and mark them done | - | Pending |
-| FBV-30 | P1: Create cards and mark them done | - | Pending |
-| FBV-31 | P1: Create cards and mark them done | - | Pending |
-| FBV-32 | P1: Create cards and mark them done | - | Pending |
-| FBV-33 | P1: See and manage archived items | - | Pending |
-| FBV-34 | P1: See and manage archived items | - | Pending |
-| FBV-35 | P1: See and manage archived items | - | Pending |
-| FBV-36 | P1: See and manage archived items | - | Pending |
-| FBV-37 | P1: See and manage archived items | - | Pending |
-| FBV-38 | P1: See and manage archived items | - | Pending |
-| FBV-39 | P1: See and manage archived items | - | Pending |
-| FBV-40 | P1: See and manage archived items | - | Pending |
-| FBV-41 | P1: See and manage archived items | - | Pending |
-| FBV-42 | P1: See and manage archived items | - | Pending |
-| FBV-43 | P1: See and manage archived items | - | Pending |
-| FBV-44 | P1: Archived board is read-only | - | Pending |
-| FBV-45 | P1: Archived board is read-only | - | Pending |
-| FBV-46 | P1: Archived board is read-only | - | Pending |
-| FBV-47 | P1: Archived board is read-only | - | Pending |
-| FBV-48 | P1: Phone layout | - | Pending |
-| FBV-49 | P1: Phone layout | - | Pending |
-| FBV-50 | P1: Phone layout | - | Pending |
-| FBV-51 | P1: Phone layout | - | Pending |
-| FBV-52 | P1: Save failures | - | Pending |
-| FBV-53 | P1: Save failures | - | Pending |
-| FBV-54 | P1: Save failures | - | Pending |
-| FBV-55 | P1: Save failures | - | Pending |
-| FBV-56 | P1: Save failures | - | Pending |
-| FBV-57 | P1: Save failures | - | Pending |
-| FBV-58 | P1: Save failures | - | Pending |
+| FBV-01 | P1: View a board | - | Verified |
+| FBV-02 | P1: View a board | - | Verified |
+| FBV-03 | P1: View a board | - | Verified |
+| FBV-04 | P1: View a board | - | Verified |
+| FBV-05 | P1: View a board | - | Verified |
+| FBV-06 | P1: View a board | - | Verified |
+| FBV-07 | P1: View a board | - | Verified |
+| FBV-08 | P1: View a board | - | Verified |
+| FBV-09 | P1: View a board | - | Verified |
+| FBV-10 | P1: View a board | - | Verified |
+| FBV-11 | P1: View a board | - | Verified |
+| FBV-12 | P1: View a board | - | Verified |
+| FBV-13 | P1: Manage columns | - | Verified |
+| FBV-14 | P1: Manage columns | - | Verified |
+| FBV-15 | P1: Manage columns | - | Verified |
+| FBV-16 | P1: Manage columns | - | Verified |
+| FBV-17 | P1: Manage columns | - | Verified |
+| FBV-18 | P1: Manage columns | - | Verified |
+| FBV-19 | P1: Manage columns | - | Needs Fix |
+| FBV-20 | P1: Manage columns | - | Verified |
+| FBV-21 | P1: Manage columns | - | Verified |
+| FBV-22 | P1: Manage columns | - | Verified |
+| FBV-23 | P1: Manage columns | - | Verified |
+| FBV-24 | P1: Create cards and mark them done | - | Verified |
+| FBV-25 | P1: Create cards and mark them done | - | Verified |
+| FBV-26 | P1: Create cards and mark them done | - | Verified |
+| FBV-27 | P1: Create cards and mark them done | - | Verified |
+| FBV-28 | P1: Create cards and mark them done | - | Verified |
+| FBV-29 | P1: Create cards and mark them done | - | Verified |
+| FBV-30 | P1: Create cards and mark them done | - | Verified |
+| FBV-31 | P1: Create cards and mark them done | - | Needs Fix |
+| FBV-32 | P1: Create cards and mark them done | - | Verified |
+| FBV-33 | P1: See and manage archived items | - | Verified |
+| FBV-34 | P1: See and manage archived items | - | Needs Fix |
+| FBV-35 | P1: See and manage archived items | - | Verified |
+| FBV-36 | P1: See and manage archived items | - | Verified |
+| FBV-37 | P1: See and manage archived items | - | Verified |
+| FBV-38 | P1: See and manage archived items | - | Verified |
+| FBV-39 | P1: See and manage archived items | - | Verified |
+| FBV-40 | P1: See and manage archived items | - | Verified |
+| FBV-41 | P1: See and manage archived items | - | Verified |
+| FBV-42 | P1: See and manage archived items | - | Verified |
+| FBV-43 | P1: See and manage archived items | - | Verified |
+| FBV-44 | P1: Archived board is read-only | - | Verified |
+| FBV-45 | P1: Archived board is read-only | - | Verified |
+| FBV-46 | P1: Archived board is read-only | - | Verified |
+| FBV-47 | P1: Archived board is read-only | - | Verified |
+| FBV-48 | P1: Phone layout | - | Needs Fix |
+| FBV-49 | P1: Phone layout | - | Verified |
+| FBV-50 | P1: Phone layout | - | Verified |
+| FBV-51 | P1: Phone layout | - | Verified |
+| FBV-52 | P1: Save failures | - | Verified |
+| FBV-53 | P1: Save failures | - | Verified |
+| FBV-54 | P1: Save failures | - | Needs Fix |
+| FBV-55 | P1: Save failures | - | Needs Fix |
+| FBV-56 | P1: Save failures | - | Verified |
+| FBV-57 | P1: Save failures | - | Verified |
+| FBV-58 | P1: Save failures | - | Needs Fix |
 
-**Coverage:** 58 total, 0 mapped to tasks, 58 unmapped (Design pending).
+**Coverage:** 58 total, all mapped to tasks (`tasks.md`). Validation iteration 1: 51 Verified, 7 Needs Fix (FBV-19, FBV-31, FBV-34, FBV-48, FBV-54, FBV-55, FBV-58; see `validation.md`).
 
 ---
 
