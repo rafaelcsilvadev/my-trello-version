@@ -10,7 +10,7 @@ Implement these tasks with the `tlc-spec-driven` skill: **activate it by name an
 
 **Spec**: `front-end/.specs/features/board-dnd/spec.md`
 **Design**: `front-end/.specs/features/board-dnd/design.md`
-**Status**: Draft
+**Status**: Approved
 
 Skill scripts for this app run with `--root front-end`. `pnpm` commands run at the repository root with `--filter front-end` unless stated. Every React Aria Components, TanStack Query and `lucide-react` API is checked against the installed package's types before use. Each task that adds UI text adds its keys to `src/shared/i18n/locales/en.ts` and `pt-BR.ts` in the same commit (texts from `design/i18n.js`, FE-AD-004). Tests live in `front-end/test/unit/` mirroring `src/` (FE-AD-007). Optimistic hooks follow FE-AD-009 and FE-AD-010; drag and drop follows FE-AD-012. MSW fixtures extend `front-end/test/support/fixtures/board.ts`. jsdom has no `DataTransfer`: drag tests pass a stub `dataTransfer` (`setData`, `getData`, `effectAllowed`, `dropEffect`) and stub `getBoundingClientRect` where a slot depends on the pointer.
 
