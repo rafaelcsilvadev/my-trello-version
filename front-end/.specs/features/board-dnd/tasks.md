@@ -125,8 +125,8 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] Unit: ↑ at index 0 and ↓ at the last index stay; ← on the first and → on the last column stay; ← → keep the index, capped at the number of other cards in the target (including an empty target → 0); one-column board stays; `stepColumn` stops at both ends
-- [ ] Build gate passes; test count only grows
+- [x] Unit: ↑ at index 0 and ↓ at the last index stay; ← on the first and → on the last column stay; ← → keep the index, capped at the number of other cards in the target (including an empty target → 0); one-column board stays; `stepColumn` stops at both ends
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
