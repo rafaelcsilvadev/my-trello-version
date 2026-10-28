@@ -9,6 +9,7 @@ import {
   useArchiveList,
   useDeleteList,
   useMoveCard,
+  useMoveList,
   usePendingItemIds,
   useRenameList,
   useRestoreBoard,
@@ -727,6 +728,113 @@ describe('useMoveCard', () => {
     expect(invalidate).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('useMoveList', () => {
+  it('posts the position to the move path of the list', async () => {
+    const requests: { id: unknown; body: unknown }[] = [];
+    server.use(
+      http.post(moveListUrl, async ({ params, request }) => {
+        requests.push({ id: params.id, body: await request.json() });
+        return HttpResponse.json(backlog);
+      }),
+    );
+    const { wrapper } = setupMoveLists();
+    const { result } = renderHook(() => useMoveList(boardId), { wrapper });
+
+    await act(() =>
+      result.current.mutateAsync({ id: backlog.id, body: { position: 2 } }),
+    );
+
+    expect(requests).toEqual([{ id: backlog.id, body: { position: 2 } }]);
+  });
+
+  it('places the list at the new index before the response arrives', async () => {
+    server.use(http.post(moveListUrl, () => delay('infinite')));
+    const { wrapper, queryClient } = setupMoveLists();
+    const { result } = renderHook(() => useMoveList(boardId), { wrapper });
+
+    act(() => result.current.mutate({ id: backlog.id, body: { position: 2 } }));
+
+    await waitFor(() =>
+      expect(listSpots(queryClient)).toEqual({ l1: 2, l2: 0, l5: 1 }),
+    );
+  });
+
+  it('puts back only the failed list while another move is pending', async () => {
+    let failFirst: (() => void) | undefined;
+    server.use(
+      http.post(moveListUrl, async ({ params }) => {
+        if (params.id === finished.id) return delay('infinite');
+        await new Promise<void>((resolve) => (failFirst = resolve));
+        return HttpResponse.json(serverError, { status: 500 });
+      }),
+    );
+    const { wrapper, queryClient } = setupMoveLists();
+    const { result } = renderHook(
+      () => ({ first: useMoveList(boardId), second: useMoveList(boardId) }),
+      { wrapper },
+    );
+
+    act(() =>
+      result.current.first.mutate({ id: backlog.id, body: { position: 2 } }),
+    );
+    act(() =>
+      result.current.second.mutate({ id: finished.id, body: { position: 0 } }),
+    );
+    await waitFor(() =>
+      expect(listSpots(queryClient)).toEqual({ l1: 2, l2: 1, l5: 0 }),
+    );
+    await waitFor(() => expect(failFirst).toBeDefined());
+    act(() => failFirst?.());
+
+    await waitFor(() => expect(result.current.first.isError).toBe(true));
+    expect(listSpots(queryClient)).toEqual({ l1: 0, l2: 2, l5: 1 });
+  });
+
+  it('marks the list pending while the move is in flight', async () => {
+    let release: (() => void) | undefined;
+    server.use(
+      http.post(moveListUrl, async () => {
+        await new Promise<void>((resolve) => (release = resolve));
+        return HttpResponse.json(backlog);
+      }),
+    );
+    const { wrapper } = setupMoveLists();
+    const { result } = renderHook(
+      () => ({ move: useMoveList(boardId), pending: usePendingItemIds() }),
+      { wrapper },
+    );
+
+    act(() =>
+      result.current.move.mutate({ id: backlog.id, body: { position: 1 } }),
+    );
+
+    await waitFor(() =>
+      expect(result.current.pending).toEqual(new Set([backlog.id])),
+    );
+    await waitFor(() => expect(release).toBeDefined());
+    act(() => release?.());
+    await waitFor(() => expect(result.current.pending).toEqual(new Set()));
+  });
+});
+
+const moveListUrl = `${baseUrl}/api/v1/lists/:id/move`;
+const finished = listFixture('l5', { title: 'Done', position: 2 });
+
+function setupMoveLists() {
+  const context = setup();
+  context.queryClient.setQueryData(listsKey, [backlog, doing, finished]);
+  return context;
+}
+
+// Position per list id, so a test reads where every column sits.
+function listSpots(queryClient: TestQueryClient) {
+  return Object.fromEntries(
+    queryClient
+      .getQueryData<List[]>(listsKey)
+      ?.map((list) => [list.id, list.position]) ?? [],
+  );
+}
 
 describe('usePendingItemIds', () => {
   it('lists the ids with a change in flight and drops them once settled', async () => {

@@ -9,8 +9,14 @@ import { useApi } from '@/shared/api/api-context';
 import { type ApiError, call } from '@/shared/api/api-error';
 
 import { byPosition } from '../model/columns';
-import { type CardSpot, placeCard } from '../model/move';
-import type { Board, Card, List, MoveCardDto } from '../model/types';
+import { type CardSpot, placeCard, placeList } from '../model/move';
+import type {
+  Board,
+  Card,
+  List,
+  MoveCardDto,
+  MoveListDto,
+} from '../model/types';
 import { boardViewKeys } from './keys';
 
 // Shared by every optimistic board change, so each can see whether another is still pending.
@@ -221,6 +227,39 @@ export function useMoveCard(boardId: string) {
   );
 }
 
+export type MoveListVariables = ItemVariables & { body: MoveListDto };
+
+export function useMoveList(boardId: string) {
+  const api = useApi();
+
+  return useOptimisticBoardViewChange<MoveListVariables>(
+    boardId,
+    ({ id, body }) =>
+      call(
+        api.POST('/api/v1/lists/{id}/move', {
+          params: { path: { id } },
+          body,
+        }),
+      ),
+    ({ id, body }) => {
+      let previous = -1;
+      return [
+        {
+          key: boardViewKeys.lists(boardId, false),
+          apply: (lists: List[]) => {
+            previous = activeListIndex(lists, id);
+            return previous === -1
+              ? lists
+              : placeList(lists, id, body.position);
+          },
+          revert: (lists: List[]) =>
+            previous === -1 ? lists : placeList(lists, id, previous),
+        },
+      ];
+    },
+  );
+}
+
 // `id` is the board itself, so its Restore button shows as pending (FBV-58).
 export function useRestoreBoard(boardId: string) {
   const api = useApi();
@@ -329,4 +368,12 @@ function useOptimisticBoardViewChange<TVariables extends ItemVariables>(
           })
         : undefined,
   });
+}
+
+// Where an active list sits among the active lists.
+function activeListIndex(lists: List[], id: string): number {
+  return lists
+    .filter((list) => list.archivedAt === null)
+    .sort(byPosition)
+    .findIndex((list) => list.id === id);
 }
