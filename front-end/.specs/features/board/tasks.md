@@ -1139,8 +1139,8 @@ T42 → T43 → T44
 
 **Done when**:
 
-- [ ] Unit (`renderApp`): breadcrumb on `/b/{id}`, absent on `/boards` and `/settings`
-- [ ] Build gate passes; ≥ 2 new tests
+- [x] Unit (`renderApp`): breadcrumb on `/b/{id}`, absent on `/boards` and `/settings`
+- [x] Build gate passes; ≥ 2 new tests
 
 **Tests**: unit
 **Gate**: build
