@@ -200,8 +200,8 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] Unit: within one list (up, down, to the end); across lists (both renumbered, `listId` changed); into an empty list; unknown id returns the input; `toColumns` of the result gives the expected order and counts
-- [ ] Build gate passes; test count only grows
+- [x] Unit: within one list (up, down, to the end); across lists (both renumbered, `listId` changed); into an empty list; unknown id returns the input; `toColumns` of the result gives the expected order and counts
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
