@@ -208,7 +208,7 @@ The board screen (feature `board`, 3a) shows columns and cards in API order, but
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
 | FDND-01 | P1: Move cards with the mouse | - | Verified |
-| FDND-02 | P1: Move cards with the mouse | - | Needs Fix |
+| FDND-02 | P1: Move cards with the mouse | - | Verified |
 | FDND-03 | P1: Move cards with the mouse | - | Verified |
 | FDND-04 | P1: Move cards with the mouse | - | Verified |
 | FDND-05 | P1: Move cards with the mouse | - | Verified |
