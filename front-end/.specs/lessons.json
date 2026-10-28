@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 10,
+  "next_id": 11,
   "lessons": [
     {
       "id": "L-001",
@@ -166,6 +166,24 @@
       ],
       "created": "2026-10-28T01:03:59Z",
       "last_seen": "2026-10-28T01:03:59Z"
+    },
+    {
+      "id": "L-010",
+      "key": "surviving_mutant::scope an element query to the part of the component that owns it so a matching child elsewhere cannot satisfy the assertion",
+      "text": "Scope an element query to the part of the component that owns it, so a matching child elsewhere cannot satisfy the assertion",
+      "signal": "surviving_mutant",
+      "scope": "tests",
+      "status": "candidate",
+      "features": [
+        "board"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "S47b front-end/test/unit/features/board/components/archived-cards-column.spec.tsx:86 (archived-cards-column.tsx:36) (tests)"
+      ],
+      "created": "2026-10-28T13:54:53Z",
+      "last_seen": "2026-10-28T13:54:53Z"
     }
   ]
 }

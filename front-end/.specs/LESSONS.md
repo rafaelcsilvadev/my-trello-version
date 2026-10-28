@@ -68,6 +68,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: S45 S46 S47 front-end/src/features/board/components/board-columns.tsx:137 board-column.tsx:66 archived-cards-column.tsx:33 (components)
 - last seen: 2026-10-28T01:03:59Z
 
+### L-010 - Scope an element query to the part of the component that owns it, so a matching child elsewhere cannot satisfy the assertion
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `tests` · harmful: 0
+- features: board
+- evidence: S47b front-end/test/unit/features/board/components/archived-cards-column.spec.tsx:86 (archived-cards-column.tsx:36) (tests)
+- last seen: 2026-10-28T13:54:53Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
