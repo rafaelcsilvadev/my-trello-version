@@ -1,4 +1,4 @@
-import type { Column } from './types';
+import type { Column, MoveCardDto, MoveListDto } from './types';
 
 export type CardSpot = { listId: string; index: number };
 export type ColumnSpot = { index: number };
@@ -77,4 +77,24 @@ export function dropIndex(
   const index = hoveredId === null ? -1 : otherIds.indexOf(hoveredId);
   if (index === -1) return otherIds.length;
   return slot === 'before' ? index : index + 1;
+}
+
+// `null` means nothing to send; `listId` only goes out when the card changes column.
+export function cardMoveBody(
+  origin: CardSpot,
+  target: CardSpot,
+): MoveCardDto | null {
+  if (origin.listId !== target.listId) {
+    return { listId: target.listId, position: target.index };
+  }
+  if (origin.index === target.index) return null;
+  return { position: target.index };
+}
+
+export function columnMoveBody(
+  origin: ColumnSpot,
+  target: ColumnSpot,
+): MoveListDto | null {
+  if (origin.index === target.index) return null;
+  return { position: target.index };
 }
