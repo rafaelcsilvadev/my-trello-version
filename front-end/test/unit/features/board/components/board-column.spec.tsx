@@ -643,6 +643,16 @@ describe('BoardColumn', () => {
       expect(gap?.nextElementSibling?.textContent).toContain('Review PR');
     });
 
+    it('draws the placeholder with a dashed focus border', () => {
+      renderColumn({
+        cardDrop: { targetIndex: 1, placeholder: { beforeCardId: 'c2' } },
+      });
+
+      const classes = placeholder()?.classList;
+      expect(classes?.contains('border-dashed')).toBe(true);
+      expect(classes?.contains('border-border-focus')).toBe(true);
+    });
+
     it('shows the placeholder at the end', () => {
       renderColumn({
         cardDrop: { targetIndex: 2, placeholder: { beforeCardId: null } },
