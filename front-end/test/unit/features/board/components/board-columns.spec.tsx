@@ -134,6 +134,16 @@ describe('BoardColumns', () => {
     expect(regionNames()).toEqual(['A fazer', 'Fazendo', 'Feito']);
   });
 
+  // jsdom has no layout, so the phone snap is checked on its classes (FBV-48).
+  it('snaps the columns one by one on a phone and scrolls freely from md up', () => {
+    renderColumns();
+
+    const classes = scroller().classList;
+    expect(classes.contains('snap-x')).toBe(true);
+    expect(classes.contains('snap-mandatory')).toBe(true);
+    expect(classes.contains('md:snap-none')).toBe(true);
+  });
+
   it('shows the archived column and section after the columns only while showArchived is on', () => {
     renderColumns({ showArchived: true });
 

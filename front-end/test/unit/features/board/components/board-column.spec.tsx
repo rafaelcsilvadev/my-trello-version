@@ -96,6 +96,14 @@ describe('BoardColumn', () => {
     expect(screen.getByText('2')).toBeTruthy();
   });
 
+  // The 11/12 width leaves a peek of the next column on a phone (FBV-48).
+  it('snaps to its start and leaves room to peek the next column on a phone', () => {
+    renderColumn();
+
+    expect(column().classList.contains('snap-start')).toBe(true);
+    expect(column().classList.contains('w-11/12')).toBe(true);
+  });
+
   it('shows "Arraste cards para cá" and a zero counter when it has no cards', () => {
     renderColumn({ cards: [] });
 
