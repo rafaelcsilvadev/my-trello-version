@@ -1134,4 +1134,83 @@ describe('useBoardViewModel', () => {
       ]);
     });
   });
+
+  describe('moves', () => {
+    function columnCards(result: ReturnType<typeof setup>['result']) {
+      return result.current.state.columns.map(({ list, cards }) => [
+        list.title,
+        cards.map((card) => card.id),
+      ]);
+    }
+
+    it('can move on an active board', async () => {
+      boardServer();
+      const { result } = await setupReady();
+
+      expect(result.current.state.canMove).toBe(true);
+    });
+
+    it('cannot move on an archived board, so a pick starts nothing', async () => {
+      boardServer({
+        [boardUrl]: () =>
+          HttpResponse.json(
+            boardFixture({ archivedAt: '2026-10-24T12:00:00.000Z' }),
+          ),
+      });
+      const { result } = await setupReady();
+
+      act(() => result.current.actions.move.start('card', 'c3', 'keyboard'));
+
+      expect(result.current.state.canMove).toBe(false);
+      expect(result.current.state.move.session).toBeNull();
+    });
+
+    it('shows a keyboard session preview in the columns', async () => {
+      boardServer();
+      const { result } = await setupReady();
+
+      act(() => result.current.actions.move.start('card', 'c2', 'keyboard'));
+      act(() => result.current.actions.move.step('ArrowDown'));
+
+      expect(columnCards(result)).toEqual([
+        ['Doing', ['c3']],
+        ['Backlog', ['c1', 'c2']],
+      ]);
+      expect(result.current.state.move.banner).not.toBeNull();
+    });
+
+    it('moves the card counters with a cross-column move, before and after the drop', async () => {
+      boardServer();
+      const held = gate();
+      server.use(
+        http.post(`${baseUrl}/api/v1/cards/:id/move`, async () => {
+          await held.wait();
+          return HttpResponse.json(
+            cardFixture('c3', backlog.id, { position: 0 }),
+          );
+        }),
+      );
+      const { result } = await setupReady();
+
+      act(() => result.current.actions.move.start('card', 'c3', 'keyboard'));
+      act(() => result.current.actions.move.step('ArrowRight'));
+
+      expect(columnCards(result)).toEqual([
+        ['Doing', []],
+        ['Backlog', ['c3', 'c2', 'c1']],
+      ]);
+
+      act(() => result.current.actions.move.drop());
+
+      expect(result.current.state.move.session).toBeNull();
+      await waitFor(() =>
+        expect(result.current.state.pendingIds.has('c3')).toBe(true),
+      );
+      expect(columnCards(result)).toEqual([
+        ['Doing', []],
+        ['Backlog', ['c3', 'c2', 'c1']],
+      ]);
+      held.open();
+    });
+  });
 });

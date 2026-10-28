@@ -375,8 +375,8 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] Unit: `canMove` false on an archived board; `state.columns` reflects an active session preview; counters follow a cross-column move; existing view-model tests pass unchanged
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `canMove` false on an archived board; `state.columns` reflects an active session preview; counters follow a cross-column move; existing view-model tests pass unchanged
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
