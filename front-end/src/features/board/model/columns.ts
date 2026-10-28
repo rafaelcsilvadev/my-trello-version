@@ -1,7 +1,7 @@
 import type { Card, Column, List } from './types';
 
 // The API nulls `position` only on archived items; any that slip through go last.
-function byPosition(
+export function byPosition(
   a: { position: number | null },
   b: { position: number | null },
 ) {

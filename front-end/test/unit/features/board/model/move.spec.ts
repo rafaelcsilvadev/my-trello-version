@@ -7,9 +7,12 @@ import {
   columnDropSlot,
   dropIndex,
   dropSlot,
+  placeCard,
+  placeList,
   stepCard,
   stepColumn,
 } from '@/features/board/model/move';
+import { toColumns } from '@/features/board/model/columns';
 import type { Card, Column, List } from '@/features/board/model/types';
 
 function list(id: string, position: number): List {
@@ -293,5 +296,141 @@ describe('columnMoveBody', () => {
     expect(columnMoveBody({ index: 1 }, { index: 3 })).toStrictEqual({
       position: 3,
     });
+  });
+});
+
+function archived<T extends Card | List>(item: T): T {
+  return { ...item, position: null, archivedAt: '2026-10-02T12:00:00.000Z' };
+}
+
+// Each column as `id:position` entries, in screen order.
+function layoutOf(lists: List[], cards: Card[]) {
+  return Object.fromEntries(
+    toColumns(lists, cards).map(({ list, cards }) => [
+      list.id,
+      cards.map((item) => `${item.id}:${item.position}`),
+    ]),
+  );
+}
+
+describe('placeCard', () => {
+  const lists = [list('l1', 0), list('l2', 1), list('l3', 2)];
+  const cards = [
+    card('a', 'l1', 0),
+    card('b', 'l1', 1),
+    card('c', 'l1', 2),
+    card('d', 'l2', 0),
+    card('e', 'l2', 1),
+  ];
+
+  it('moves a card up within its list', () => {
+    expect(layoutOf(lists, placeCard(cards, 'c', 'l1', 0))).toStrictEqual({
+      l1: ['c:0', 'a:1', 'b:2'],
+      l2: ['d:0', 'e:1'],
+      l3: [],
+    });
+  });
+
+  it('moves a card down within its list', () => {
+    expect(layoutOf(lists, placeCard(cards, 'a', 'l1', 1))).toStrictEqual({
+      l1: ['b:0', 'a:1', 'c:2'],
+      l2: ['d:0', 'e:1'],
+      l3: [],
+    });
+  });
+
+  it('moves a card to the end of its list', () => {
+    expect(layoutOf(lists, placeCard(cards, 'a', 'l1', 2))).toStrictEqual({
+      l1: ['b:0', 'c:1', 'a:2'],
+      l2: ['d:0', 'e:1'],
+      l3: [],
+    });
+  });
+
+  it('moves a card to another list and renumbers both', () => {
+    const placed = placeCard(cards, 'b', 'l2', 1);
+
+    expect(layoutOf(lists, placed)).toStrictEqual({
+      l1: ['a:0', 'c:1'],
+      l2: ['d:0', 'b:1', 'e:2'],
+      l3: [],
+    });
+    expect(placed.find((item) => item.id === 'b')?.listId).toBe('l2');
+  });
+
+  it('moves a card into an empty list', () => {
+    expect(layoutOf(lists, placeCard(cards, 'e', 'l3', 0))).toStrictEqual({
+      l1: ['a:0', 'b:1', 'c:2'],
+      l2: ['d:0'],
+      l3: ['e:0'],
+    });
+  });
+
+  it('keeps the counts of every column', () => {
+    const counts = toColumns(lists, placeCard(cards, 'a', 'l3', 0)).map(
+      (column) => column.cards.length,
+    );
+
+    expect(counts).toStrictEqual([2, 2, 1]);
+  });
+
+  it('leaves untouched lists and archived cards as they were', () => {
+    const old = archived(card('x', 'l1', 0));
+    const input = [...cards, old];
+    const placed = placeCard(input, 'a', 'l1', 2);
+
+    expect(placed.find((item) => item.id === 'x')).toBe(old);
+    expect(placed.find((item) => item.id === 'd')).toBe(input[3]);
+    expect(placed.find((item) => item.id === 'e')).toBe(input[4]);
+  });
+
+  it('returns the input for an unknown card', () => {
+    expect(placeCard(cards, 'nope', 'l2', 0)).toBe(cards);
+  });
+
+  it('returns the input for an archived card', () => {
+    const input = [...cards, archived(card('x', 'l1', 0))];
+
+    expect(placeCard(input, 'x', 'l2', 0)).toBe(input);
+  });
+});
+
+describe('placeList', () => {
+  const lists = [list('l1', 0), list('l2', 1), list('l3', 2)];
+
+  function order(placed: List[]) {
+    return toColumns(placed, []).map(
+      ({ list }) => `${list.id}:${list.position}`,
+    );
+  }
+
+  it('moves a list to the right', () => {
+    expect(order(placeList(lists, 'l1', 2))).toStrictEqual([
+      'l2:0',
+      'l3:1',
+      'l1:2',
+    ]);
+  });
+
+  it('moves a list to the left', () => {
+    expect(order(placeList(lists, 'l3', 0))).toStrictEqual([
+      'l3:0',
+      'l1:1',
+      'l2:2',
+    ]);
+  });
+
+  it('leaves archived lists as they were', () => {
+    const old = archived(list('x', 0));
+    const placed = placeList([...lists, old], 'l2', 0);
+
+    expect(placed.find((item) => item.id === 'x')).toBe(old);
+    expect(
+      order(placed.filter((item) => item.archivedAt === null)),
+    ).toStrictEqual(['l2:0', 'l1:1', 'l3:2']);
+  });
+
+  it('returns the input for an unknown list', () => {
+    expect(placeList(lists, 'nope', 0)).toBe(lists);
   });
 });
