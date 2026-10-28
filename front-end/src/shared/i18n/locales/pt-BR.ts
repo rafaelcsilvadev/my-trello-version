@@ -156,6 +156,7 @@ export const ptBR = {
       cardDropped: 'Tarefa {{title}} solta em {{col}}, posição {{i}} de {{n}}',
       columnBanner:
         'Movendo a coluna “{{name}}”: posição {{i}} de {{n}}. ← → movem, Espaço solta, Esc cancela.',
+      columnHandle: 'Coluna {{name}}. Espaço para mover',
       columnAnnounce: 'Coluna {{name}}, posição {{i}} de {{n}}',
       columnDropped: 'Coluna {{name}} solta na posição {{i}} de {{n}}',
       cancelled: 'Movimento cancelado',

@@ -550,8 +550,8 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] Unit: name and focusability; Space on the header picks; Space on the name button starts the rename and does not pick; not draggable or pickable while renaming or pending; read-only board has no handle
-- [ ] Build gate passes; test count only grows
+- [x] Unit: name and focusability; Space on the header picks; Space on the name button starts the rename and does not pick; not draggable or pickable while renaming or pending; read-only board has no handle
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build

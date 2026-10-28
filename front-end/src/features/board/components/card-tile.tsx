@@ -31,7 +31,7 @@ const LABEL_CLASSES: Record<Label['color'], { chip: string; dot: string }> = {
   black: { chip: 'bg-label-black/18', dot: 'bg-label-black' },
 };
 
-const ARROW_KEYS: ReadonlySet<string> = new Set<ArrowKey>([
+export const ARROW_KEYS: ReadonlySet<string> = new Set<ArrowKey>([
   'ArrowUp',
   'ArrowDown',
   'ArrowLeft',

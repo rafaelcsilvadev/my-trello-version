@@ -1,8 +1,12 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { I18nextProvider } from 'react-i18next';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { BoardColumn } from '@/features/board/components/board-column';
+import {
+  BoardColumn,
+  type ColumnMove,
+} from '@/features/board/components/board-column';
 import type {
   Card,
   Column,
@@ -34,7 +38,32 @@ type RenderOptions = {
   rename?: ColumnRename | null;
   isAddingCard?: boolean;
   language?: Language;
+  move?: Partial<ColumnMove>;
 };
+
+function moveProps(overrides: Partial<ColumnMove> = {}): ColumnMove {
+  return {
+    isSource: false,
+    isLifted: false,
+    onDragStart: vi.fn<(listId: string) => void>(),
+    onDragEnd: vi.fn<() => void>(),
+    onPick: vi.fn<(listId: string) => void>(),
+    onStep: vi.fn<ColumnMove['onStep']>(),
+    onDrop: vi.fn<() => void>(),
+    onCancel: vi.fn<() => void>(),
+    ...overrides,
+  };
+}
+
+// jsdom has no DataTransfer.
+function dataTransferStub() {
+  return {
+    effectAllowed: 'none',
+    dropEffect: 'none',
+    setData: vi.fn<(format: string, data: string) => void>(),
+    getData: vi.fn<(format: string) => string>(() => ''),
+  };
+}
 
 function renderColumn({
   cards = twoCards,
@@ -43,7 +72,9 @@ function renderColumn({
   rename = null,
   isAddingCard = false,
   language = 'pt-BR',
+  move: moveOverrides,
 }: RenderOptions = {}) {
+  const move = moveProps(moveOverrides);
   const column: Column = { list, cards };
   const callbacks = {
     onStartRename: vi.fn<() => void>(),
@@ -68,11 +99,12 @@ function renderColumn({
         rename={rename}
         isAddingCard={isAddingCard}
         isCreatingCard={false}
+        move={move}
         {...callbacks}
       />
     </I18nextProvider>,
   );
-  return callbacks;
+  return { ...callbacks, move };
 }
 
 function column(name = 'To do') {
@@ -234,5 +266,177 @@ describe('BoardColumn', () => {
     expect(screen.getByText('Drag cards here')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Add task' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Column actions' })).toBeTruthy();
+  });
+
+  describe('moving', () => {
+    function handle() {
+      return screen.getByRole('button', {
+        name: 'Coluna To do. Espaço para mover',
+      });
+    }
+
+    it('makes the header a focusable handle named after the column with its id', () => {
+      renderColumn();
+
+      const header = handle();
+      expect(header.tabIndex).toBe(0);
+      expect(header.dataset.columnId).toBe('list-1');
+      expect(header.getAttribute('draggable')).toBe('true');
+      expect(
+        header.classList.contains('focus-visible:outline-border-focus'),
+      ).toBe(true);
+    });
+
+    it('names the handle in English', () => {
+      renderColumn({ language: 'en' });
+
+      expect(
+        screen.getByRole('button', { name: 'Column To do. Space to move' }),
+      ).toBeTruthy();
+    });
+
+    it('sets the column id as text data and starts a mouse move on dragstart', () => {
+      const { move } = renderColumn();
+      const dataTransfer = dataTransferStub();
+
+      fireEvent.dragStart(handle(), { dataTransfer });
+
+      expect(dataTransfer.setData).toHaveBeenCalledExactlyOnceWith(
+        'text/plain',
+        'list-1',
+      );
+      expect(dataTransfer.effectAllowed).toBe('move');
+      expect(move.onDragStart).toHaveBeenCalledExactlyOnceWith('list-1');
+    });
+
+    it('ends the mouse move on dragend', () => {
+      const { move } = renderColumn();
+
+      fireEvent.dragEnd(handle());
+
+      expect(move.onDragEnd).toHaveBeenCalledOnce();
+    });
+
+    it('picks the column on Space on the header', () => {
+      const { move } = renderColumn();
+
+      const notPrevented = fireEvent.keyDown(handle(), { key: ' ' });
+
+      expect(move.onPick).toHaveBeenCalledExactlyOnceWith('list-1');
+      expect(notPrevented).toBe(false);
+    });
+
+    it('starts the rename and does not pick on Space on the name button', async () => {
+      const { move, onStartRename } = renderColumn();
+
+      screen.getByRole('button', { name: 'To do' }).focus();
+      await userEvent.keyboard(' ');
+
+      expect(onStartRename).toHaveBeenCalledOnce();
+      expect(move.onPick).not.toHaveBeenCalled();
+    });
+
+    it('is neither draggable nor pickable while its name is a field', () => {
+      const { move } = renderColumn({ rename: { listId: 'list-1' } });
+
+      expect(handle().getAttribute('draggable')).toBe('false');
+      fireEvent.keyDown(handle(), { key: ' ' });
+      fireEvent.dragStart(handle(), { dataTransfer: dataTransferStub() });
+      expect(move.onPick).not.toHaveBeenCalled();
+      expect(move.onDragStart).not.toHaveBeenCalled();
+    });
+
+    it('is neither draggable nor pickable while its change is pending', () => {
+      const { move } = renderColumn({ pendingIds: ['list-1'] });
+
+      expect(handle().getAttribute('draggable')).toBe('false');
+      fireEvent.keyDown(handle(), { key: ' ' });
+      fireEvent.dragStart(handle(), { dataTransfer: dataTransferStub() });
+      expect(move.onPick).not.toHaveBeenCalled();
+      expect(move.onDragStart).not.toHaveBeenCalled();
+    });
+
+    it('has no handle on a read-only board', () => {
+      const { move } = renderColumn({ isReadOnly: true });
+
+      expect(
+        screen.queryByRole('button', {
+          name: 'Coluna To do. Espaço para mover',
+        }),
+      ).toBeNull();
+      expect(document.querySelector('[draggable]')).toBeNull();
+      expect(document.querySelector('[data-column-id]')).toBeNull();
+      expect(document.querySelector('[tabindex="0"]')).toBeNull();
+      fireEvent.keyDown(screen.getByText('To do'), { key: ' ' });
+      expect(move.onPick).not.toHaveBeenCalled();
+    });
+
+    it('ignores arrows, Enter and Esc while it is not picked', () => {
+      const { move } = renderColumn();
+
+      for (const key of ['ArrowRight', 'Enter', 'Escape']) {
+        fireEvent.keyDown(handle(), { key });
+      }
+
+      expect(move.onStep).not.toHaveBeenCalled();
+      expect(move.onDrop).not.toHaveBeenCalled();
+      expect(move.onCancel).not.toHaveBeenCalled();
+    });
+
+    it.each(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'] as const)(
+      'steps with %s while picked',
+      (key) => {
+        const { move } = renderColumn({ move: { isLifted: true } });
+
+        const notPrevented = fireEvent.keyDown(handle(), { key });
+
+        expect(move.onStep).toHaveBeenCalledExactlyOnceWith(key);
+        expect(notPrevented).toBe(false);
+      },
+    );
+
+    it.each([' ', 'Enter'])('drops with "%s" while picked', (key) => {
+      const { move } = renderColumn({ move: { isLifted: true } });
+
+      fireEvent.keyDown(handle(), { key });
+
+      expect(move.onDrop).toHaveBeenCalledOnce();
+      expect(move.onPick).not.toHaveBeenCalled();
+    });
+
+    it('cancels with Esc while picked', () => {
+      const { move } = renderColumn({ move: { isLifted: true } });
+
+      fireEvent.keyDown(handle(), { key: 'Escape' });
+
+      expect(move.onCancel).toHaveBeenCalledOnce();
+    });
+
+    it('ignores keys pressed on the menu button while picked', () => {
+      const { move } = renderColumn({ move: { isLifted: true } });
+
+      fireEvent.keyDown(
+        screen.getByRole('button', { name: 'Ações da coluna' }),
+        {
+          key: 'ArrowRight',
+        },
+      );
+
+      expect(move.onStep).not.toHaveBeenCalled();
+    });
+
+    it('shows a translucent drag source', () => {
+      renderColumn({ move: { isSource: true } });
+
+      expect(column().classList.contains('opacity-50')).toBe(true);
+    });
+
+    it('shows a lifted column', () => {
+      renderColumn({ move: { isLifted: true } });
+
+      const classes = column().classList;
+      expect(classes.contains('shadow-lg')).toBe(true);
+      expect(classes.contains('outline-border-focus')).toBe(true);
+    });
   });
 });
