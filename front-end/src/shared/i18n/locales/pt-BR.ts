@@ -149,6 +149,17 @@ export const ptBR = {
     toolbar: {
       showArchived: 'Mostrar arquivadas',
     },
+    move: {
+      cardBanner:
+        'Movendo “{{title}}”: {{col}}, posição {{i}} de {{n}}. Setas movem, Espaço solta, Esc cancela.',
+      cardAnnounce: 'Tarefa {{title}}, coluna {{col}}, posição {{i}} de {{n}}',
+      cardDropped: 'Tarefa {{title}} solta em {{col}}, posição {{i}} de {{n}}',
+      columnBanner:
+        'Movendo a coluna “{{name}}”: posição {{i}} de {{n}}. ← → movem, Espaço solta, Esc cancela.',
+      columnAnnounce: 'Coluna {{name}}, posição {{i}} de {{n}}',
+      columnDropped: 'Coluna {{name}} solta na posição {{i}} de {{n}}',
+      cancelled: 'Movimento cancelado',
+    },
     pager: {
       goTo: 'Ir para {{title}}',
       position: '{{title}} · {{i}} de {{n}}',

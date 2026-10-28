@@ -7,6 +7,7 @@ import { useSaveFailureNotifier } from '@/shared/ui/toast/use-save-failure-notif
 import { boardViewKeys } from '../api/keys';
 import { useMoveCard, useMoveList } from '../api/mutations';
 import {
+  type ArrowKey,
   type CardSpot,
   cardMoveBody,
   cardSpot,
@@ -15,6 +16,8 @@ import {
   type MoveInput,
   type MoveSession,
   previewColumns,
+  stepCard,
+  stepColumn,
 } from '../model/move';
 import type { Column } from '../model/types';
 
@@ -53,6 +56,59 @@ function withTarget(
   return 'listId' in target ? session : { ...session, target };
 }
 
+function stepSession(
+  columns: Column[],
+  session: MoveSession,
+  key: ArrowKey,
+): MoveSession {
+  if (session.kind === 'card') {
+    const at = session.target ?? session.origin;
+    return { ...session, target: stepCard(columns, session.id, at, key) };
+  }
+  if (key === 'ArrowUp' || key === 'ArrowDown') return session;
+  const at = session.target ?? session.origin;
+  return { ...session, target: stepColumn(columns.length, at, key) };
+}
+
+type MoveText = 'banner' | 'announce' | 'dropped';
+type CardSession = Extract<MoveSession, { kind: 'card' }>;
+type ColumnSession = Extract<MoveSession, { kind: 'column' }>;
+
+const cardTexts = {
+  banner: 'board.move.cardBanner',
+  announce: 'board.move.cardAnnounce',
+  dropped: 'board.move.cardDropped',
+} as const;
+
+const columnTexts = {
+  banner: 'board.move.columnBanner',
+  announce: 'board.move.columnAnnounce',
+  dropped: 'board.move.columnDropped',
+} as const;
+
+// The texts name the item's current spot: positions count from 1 and `n` includes the item.
+function cardValues(columns: Column[], session: CardSession) {
+  const at = session.target ?? session.origin;
+  const column = columns.find((item) => item.list.id === at.listId);
+  const card = columns
+    .flatMap((item) => item.cards)
+    .find((item) => item.id === session.id);
+  const others =
+    column?.cards.filter((item) => item.id !== session.id).length ?? 0;
+  return {
+    title: card?.title ?? '',
+    col: column?.list.title ?? '',
+    i: at.index + 1,
+    n: others + 1,
+  };
+}
+
+function columnValues(columns: Column[], session: ColumnSession) {
+  const at = session.target ?? session.origin;
+  const column = columns.find((item) => item.list.id === session.id);
+  return { name: column?.list.title ?? '', i: at.index + 1, n: columns.length };
+}
+
 // One move session shared by the mouse and the keyboard; dropping sends one optimistic move.
 export function useBoardMove(
   boardId: string,
@@ -69,6 +125,20 @@ export function useBoardMove(
       }),
   );
   const [session, setSession] = useState<MoveSession | null>(null);
+  const [announcement, setAnnouncement] = useState('');
+
+  function moveText(current: MoveSession, text: MoveText) {
+    return current.kind === 'card'
+      ? t(cardTexts[text], cardValues(columns, current))
+      : t(columnTexts[text], columnValues(columns, current));
+  }
+
+  // Only a keyboard session talks: the mouse shows the move on its own.
+  function announce(current: MoveSession | null, text: MoveText) {
+    if (current?.input === 'keyboard') {
+      setAnnouncement(moveText(current, text));
+    }
+  }
 
   const preview = useMemo(
     () => previewColumns(columns, session),
@@ -79,7 +149,17 @@ export function useBoardMove(
   function start(kind: MoveSession['kind'], id: string, input: MoveInput) {
     if (!canMove || session || pendingIds.has(id)) return;
     if (kind === 'column' && id === renamingListId) return;
-    setSession(sessionAt(columns, kind, id, input));
+    const next = sessionAt(columns, kind, id, input);
+    setSession(next);
+    announce(next, 'announce');
+  }
+
+  // FDND-10, FDND-11, FDND-12, FDND-23.
+  function step(key: ArrowKey) {
+    if (session?.input !== 'keyboard') return;
+    const next = stepSession(columns, session, key);
+    setSession(next);
+    announce(next, 'announce');
   }
 
   function hover(target: CardSpot | ColumnSpot) {
@@ -89,6 +169,7 @@ export function useBoardMove(
   // No success toast: the board already shows the move. A `null` body means the same spot (FDND-07, FDND-28).
   function drop() {
     setSession(null);
+    announce(session, 'dropped');
     if (!session?.target) return;
     if (session.kind === 'card') {
       const body = cardMoveBody(session.origin, session.target);
@@ -108,13 +189,18 @@ export function useBoardMove(
     }
   }
 
+  // FDND-14, FDND-25.
+  function cancel() {
+    setSession(null);
+    if (session?.input === 'keyboard')
+      setAnnouncement(t('board.move.cancelled'));
+  }
+
+  const banner =
+    session?.input === 'keyboard' ? moveText(session, 'banner') : null;
+
   return {
-    state: { session, preview },
-    actions: {
-      start,
-      hover,
-      drop,
-      cancel: () => setSession(null),
-    },
+    state: { session, preview, announcement, banner },
+    actions: { start, hover, step, drop, cancel },
   };
 }

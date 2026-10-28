@@ -14,6 +14,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { boardViewKeys } from '@/features/board/api/keys';
 import { toColumns } from '@/features/board/model/columns';
+import type { ArrowKey } from '@/features/board/model/move';
 import type { Card } from '@/features/board/model/types';
 import {
   type BoardMoveOptions,
@@ -384,6 +385,263 @@ describe('useBoardMove', () => {
         targetListId: null,
         liftedId: null,
       });
+    });
+  });
+
+  describe('keyboard', () => {
+    function pick(result: Result, kind: 'card' | 'column', id: string) {
+      act(() => result.current.actions.start(kind, id, 'keyboard'));
+    }
+
+    function step(result: Result, ...keys: ArrowKey[]) {
+      for (const key of keys) act(() => result.current.actions.step(key));
+    }
+
+    it('starts with no announcement and no banner', () => {
+      const { result } = setup();
+
+      expect(result.current.state.announcement).toBe('');
+      expect(result.current.state.banner).toBeNull();
+    });
+
+    it('announces a picked card and shows its banner', () => {
+      const { result } = setup();
+
+      pick(result, 'card', second.id);
+
+      expect(result.current.state.announcement).toBe(
+        'Tarefa Card c2, coluna Backlog, posição 2 de 2',
+      );
+      expect(result.current.state.banner).toBe(
+        'Movendo “Card c2”: Backlog, posição 2 de 2. Setas movem, Espaço solta, Esc cancela.',
+      );
+      expect(result.current.state.preview.liftedId).toBe(second.id);
+    });
+
+    it('moves a picked card up in its column', () => {
+      const { result } = setup();
+
+      pick(result, 'card', second.id);
+      step(result, 'ArrowUp');
+
+      expect(result.current.state.session?.target).toEqual({
+        listId: backlog.id,
+        index: 0,
+      });
+      expect(result.current.state.announcement).toBe(
+        'Tarefa Card c2, coluna Backlog, posição 1 de 2',
+      );
+      expect(result.current.state.banner).toBe(
+        'Movendo “Card c2”: Backlog, posição 1 de 2. Setas movem, Espaço solta, Esc cancela.',
+      );
+      expect(
+        result.current.state.preview.columns[0].cards.map((card) => card.id),
+      ).toEqual([second.id, first.id]);
+    });
+
+    it('counts the moved card in the column it enters', () => {
+      const { result } = setup();
+
+      pick(result, 'card', first.id);
+      step(result, 'ArrowRight');
+
+      expect(result.current.state.session?.target).toEqual({
+        listId: doing.id,
+        index: 0,
+      });
+      expect(result.current.state.announcement).toBe(
+        'Tarefa Card c1, coluna Doing, posição 1 de 2',
+      );
+    });
+
+    it('keeps a card in place at the first column and position', () => {
+      const { result } = setup();
+
+      pick(result, 'card', first.id);
+      step(result, 'ArrowLeft', 'ArrowUp');
+
+      expect(result.current.state.session?.target).toEqual({
+        listId: backlog.id,
+        index: 0,
+      });
+      expect(result.current.state.announcement).toBe(
+        'Tarefa Card c1, coluna Backlog, posição 1 de 2',
+      );
+    });
+
+    it('drops a card, announces its spot and sends the move', async () => {
+      const moves = moveWrites();
+      const { result } = setup();
+
+      pick(result, 'card', first.id);
+      step(result, 'ArrowRight', 'ArrowDown');
+      act(() => result.current.actions.drop());
+
+      expect(result.current.state.session).toBeNull();
+      expect(result.current.state.banner).toBeNull();
+      expect(result.current.state.announcement).toBe(
+        'Tarefa Card c1 solta em Doing, posição 2 de 2',
+      );
+      await waitFor(() =>
+        expect(moves).toEqual([
+          {
+            path: `/api/v1/cards/${first.id}/move`,
+            body: { listId: doing.id, position: 1 },
+          },
+        ]),
+      );
+    });
+
+    it('announces a drop on the origin but sends nothing', async () => {
+      const moves = moveWrites();
+      const { result } = setup();
+
+      pick(result, 'card', second.id);
+      step(result, 'ArrowUp', 'ArrowDown');
+      act(() => result.current.actions.drop());
+      await act(() => Promise.resolve());
+
+      expect(result.current.state.announcement).toBe(
+        'Tarefa Card c2 solta em Backlog, posição 2 de 2',
+      );
+      expect(moves).toEqual([]);
+    });
+
+    it('announces a drop without a step but sends nothing', async () => {
+      const moves = moveWrites();
+      const { result } = setup();
+
+      pick(result, 'card', third.id);
+      act(() => result.current.actions.drop());
+      await act(() => Promise.resolve());
+
+      expect(result.current.state.announcement).toBe(
+        'Tarefa Card c3 solta em Doing, posição 1 de 1',
+      );
+      expect(moves).toEqual([]);
+    });
+
+    it('cancels a card move without a request', async () => {
+      const moves = moveWrites();
+      const { result, initialProps } = setup();
+
+      pick(result, 'card', first.id);
+      step(result, 'ArrowRight');
+      act(() => result.current.actions.cancel());
+      await act(() => Promise.resolve());
+
+      expect(result.current.state.session).toBeNull();
+      expect(result.current.state.banner).toBeNull();
+      expect(result.current.state.announcement).toBe('Movimento cancelado');
+      expect(result.current.state.preview.columns).toBe(initialProps.columns);
+      expect(moves).toEqual([]);
+    });
+
+    it('announces a picked column and shows its banner', () => {
+      const { result } = setup();
+
+      pick(result, 'column', doing.id);
+
+      expect(result.current.state.announcement).toBe(
+        'Coluna Doing, posição 2 de 2',
+      );
+      expect(result.current.state.banner).toBe(
+        'Movendo a coluna “Doing”: posição 2 de 2. ← → movem, Espaço solta, Esc cancela.',
+      );
+    });
+
+    it('moves a picked column left and ignores up and down', () => {
+      const { result } = setup();
+
+      pick(result, 'column', doing.id);
+      step(result, 'ArrowLeft', 'ArrowLeft', 'ArrowUp', 'ArrowDown');
+
+      expect(result.current.state.session?.target).toEqual({ index: 0 });
+      expect(result.current.state.announcement).toBe(
+        'Coluna Doing, posição 1 de 2',
+      );
+      expect(result.current.state.banner).toBe(
+        'Movendo a coluna “Doing”: posição 1 de 2. ← → movem, Espaço solta, Esc cancela.',
+      );
+      expect(
+        result.current.state.preview.columns.map((column) => column.list.id),
+      ).toEqual([doing.id, backlog.id]);
+    });
+
+    it('keeps a column in place at the last position', () => {
+      const { result } = setup();
+
+      pick(result, 'column', doing.id);
+      step(result, 'ArrowRight');
+
+      expect(result.current.state.session?.target).toEqual({ index: 1 });
+    });
+
+    it('drops a column, announces its spot and sends the move', async () => {
+      const moves = moveWrites();
+      const { result } = setup();
+
+      pick(result, 'column', doing.id);
+      step(result, 'ArrowLeft');
+      act(() => result.current.actions.drop());
+
+      expect(result.current.state.banner).toBeNull();
+      expect(result.current.state.announcement).toBe(
+        'Coluna Doing solta na posição 1 de 2',
+      );
+      await waitFor(() =>
+        expect(moves).toEqual([
+          { path: `/api/v1/lists/${doing.id}/move`, body: { position: 0 } },
+        ]),
+      );
+    });
+
+    it('cancels a column move without a request', async () => {
+      const moves = moveWrites();
+      const { result } = setup();
+
+      pick(result, 'column', doing.id);
+      step(result, 'ArrowLeft');
+      act(() => result.current.actions.cancel());
+      await act(() => Promise.resolve());
+
+      expect(result.current.state.banner).toBeNull();
+      expect(result.current.state.announcement).toBe('Movimento cancelado');
+      expect(moves).toEqual([]);
+    });
+
+    it('ignores a second pick while one runs', () => {
+      const { result } = setup();
+
+      pick(result, 'card', first.id);
+      pick(result, 'card', third.id);
+      pick(result, 'column', doing.id);
+
+      expect(result.current.state.session).toMatchObject({ id: first.id });
+      expect(result.current.state.announcement).toBe(
+        'Tarefa Card c1, coluna Backlog, posição 1 de 2',
+      );
+    });
+
+    it('ignores steps without a keyboard session', () => {
+      const { result } = setup();
+
+      step(result, 'ArrowDown');
+      act(() => result.current.actions.start('card', first.id, 'mouse'));
+      step(result, 'ArrowDown');
+
+      expect(result.current.state.session?.target).toBeNull();
+    });
+
+    it('keeps a mouse session silent and without a banner', () => {
+      const { result } = setup();
+
+      act(() => result.current.actions.start('card', first.id, 'mouse'));
+      act(() => result.current.actions.hover({ listId: doing.id, index: 0 }));
+
+      expect(result.current.state.banner).toBeNull();
+      act(() => result.current.actions.cancel());
+      expect(result.current.state.announcement).toBe('');
     });
   });
 
