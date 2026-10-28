@@ -4,7 +4,7 @@
 
 [English](README.md) | **Português**
 
-> 🚧 **Projeto em andamento.** A API do back-end está com todas as features prontas (0 a 6). O front-end (web) já tem a base pronta (ainda sem telas). O mobile ainda não começou.
+> 🚧 **Projeto em andamento.** A API do back-end está com todas as features prontas (0 a 6). O front-end (web) já tem cadastro, login, a lista de quadros e a visão do quadro; arrastar e soltar, detalhe da tarefa, etiquetas e configurações vêm a seguir. O mobile ainda não começou.
 
 Uma versão pessoal do Trello: cada usuário se cadastra e gerencia só os próprios quadros, listas e cartões.
 
