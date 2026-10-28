@@ -1,9 +1,9 @@
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { I18nextProvider } from 'react-i18next';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { CardTile } from '@/features/board/components/card-tile';
+import { CardTile, type CardMove } from '@/features/board/components/card-tile';
 import type { Card, DateParts, Label } from '@/features/board/model/types';
 import { createI18n } from '@/shared/i18n/i18n';
 import type { Language } from '@/shared/preferences/preferences-store';
@@ -29,7 +29,32 @@ type RenderOptions = {
   isPending?: boolean;
   isReadOnly?: boolean;
   language?: Language;
+  move?: Partial<CardMove>;
 };
+
+function moveProps(overrides: Partial<CardMove> = {}): CardMove {
+  return {
+    isSource: false,
+    isLifted: false,
+    onDragStart: vi.fn<(cardId: string) => void>(),
+    onDragEnd: vi.fn<() => void>(),
+    onPick: vi.fn<(cardId: string) => void>(),
+    onStep: vi.fn<CardMove['onStep']>(),
+    onDrop: vi.fn<() => void>(),
+    onCancel: vi.fn<() => void>(),
+    ...overrides,
+  };
+}
+
+// jsdom has no DataTransfer.
+function dataTransferStub() {
+  return {
+    effectAllowed: 'none',
+    dropEffect: 'none',
+    setData: vi.fn<(format: string, data: string) => void>(),
+    getData: vi.fn<(format: string) => string>(() => ''),
+  };
+}
 
 function renderTile({
   card = {},
@@ -38,7 +63,9 @@ function renderTile({
   isPending = false,
   isReadOnly = false,
   language = 'pt-BR',
+  move: moveOverrides,
 }: RenderOptions = {}) {
+  const move = moveProps(moveOverrides);
   const onToggleDone = vi.fn<(card: Card) => void>();
   const tileCard = cardFixture('c1', 'list-1', {
     title: 'Write release notes',
@@ -55,10 +82,11 @@ function renderTile({
         isPending={isPending}
         isReadOnly={isReadOnly}
         onToggleDone={onToggleDone}
+        move={move}
       />
     </I18nextProvider>,
   );
-  return { onToggleDone, tileCard };
+  return { onToggleDone, tileCard, move };
 }
 
 function doneCheckbox() {
@@ -213,5 +241,171 @@ describe('CardTile', () => {
 
     expect(screen.getByRole('checkbox', { name: 'Completed' })).toBeTruthy();
     expect(screen.getByText('Archived Oct 2, 2026 · from: To do')).toBeTruthy();
+  });
+
+  describe('moving', () => {
+    function cardButton() {
+      return screen.getByRole('button', { name: 'Write release notes' });
+    }
+
+    it('is a focusable button named by its title with the card id', () => {
+      renderTile();
+
+      const card = cardButton();
+      expect(card.tabIndex).toBe(0);
+      expect(card.dataset.cardId).toBe('c1');
+      expect(
+        card.classList.contains('focus-visible:outline-border-focus'),
+      ).toBe(true);
+    });
+
+    it('is draggable when it can move', () => {
+      renderTile();
+
+      expect(cardButton().getAttribute('draggable')).toBe('true');
+    });
+
+    it('is not draggable while its change is pending', () => {
+      renderTile({ isPending: true });
+
+      expect(cardButton().getAttribute('draggable')).toBe('false');
+    });
+
+    it.each([
+      { mode: 'archived' as const, isReadOnly: false },
+      { mode: 'active' as const, isReadOnly: true },
+    ])(
+      'is neither focusable nor draggable when $mode and read-only is $isReadOnly',
+      ({ mode, isReadOnly }) => {
+        const { move } = renderTile({ mode, isReadOnly, fromTitle: 'To do' });
+
+        expect(
+          screen.queryByRole('button', { name: 'Write release notes' }),
+        ).toBeNull();
+        const tile = screen
+          .getByText('Write release notes')
+          .closest('[draggable]');
+        expect(tile).toBeNull();
+        expect(document.querySelector('[tabindex="0"]')).toBeNull();
+        expect(document.querySelector('[data-card-id]')).toBeNull();
+        fireEvent.keyDown(screen.getByText('Write release notes'), {
+          key: ' ',
+        });
+        expect(move.onPick).not.toHaveBeenCalled();
+      },
+    );
+
+    it('sets the card id as text data and starts a mouse move on dragstart', () => {
+      const { move } = renderTile();
+      const dataTransfer = dataTransferStub();
+
+      fireEvent.dragStart(cardButton(), { dataTransfer });
+
+      expect(dataTransfer.setData).toHaveBeenCalledExactlyOnceWith(
+        'text/plain',
+        'c1',
+      );
+      expect(dataTransfer.effectAllowed).toBe('move');
+      expect(move.onDragStart).toHaveBeenCalledExactlyOnceWith('c1');
+    });
+
+    it('ends the mouse move on dragend', () => {
+      const { move } = renderTile();
+
+      fireEvent.dragEnd(cardButton());
+
+      expect(move.onDragEnd).toHaveBeenCalledOnce();
+    });
+
+    it('picks the card on Space', () => {
+      const { move } = renderTile();
+
+      fireEvent.keyDown(cardButton(), { key: ' ' });
+
+      expect(move.onPick).toHaveBeenCalledExactlyOnceWith('c1');
+    });
+
+    it('does not pick a pending card on Space', () => {
+      const { move } = renderTile({ isPending: true });
+
+      fireEvent.keyDown(cardButton(), { key: ' ' });
+
+      expect(move.onPick).not.toHaveBeenCalled();
+    });
+
+    it('ignores arrows, Enter and Esc while it is not picked', () => {
+      const { move } = renderTile();
+
+      for (const key of ['ArrowDown', 'ArrowRight', 'Enter', 'Escape']) {
+        fireEvent.keyDown(cardButton(), { key });
+      }
+
+      expect(move.onStep).not.toHaveBeenCalled();
+      expect(move.onDrop).not.toHaveBeenCalled();
+      expect(move.onCancel).not.toHaveBeenCalled();
+    });
+
+    it.each(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'] as const)(
+      'steps with %s while picked',
+      (key) => {
+        const { move } = renderTile({ move: { isLifted: true } });
+
+        const notPrevented = fireEvent.keyDown(cardButton(), { key });
+
+        expect(move.onStep).toHaveBeenCalledExactlyOnceWith(key);
+        expect(notPrevented).toBe(false);
+      },
+    );
+
+    it.each([' ', 'Enter'])('drops with "%s" while picked', (key) => {
+      const { move } = renderTile({ move: { isLifted: true } });
+
+      fireEvent.keyDown(cardButton(), { key });
+
+      expect(move.onDrop).toHaveBeenCalledOnce();
+      expect(move.onPick).not.toHaveBeenCalled();
+    });
+
+    it('cancels with Esc while picked', () => {
+      const { move } = renderTile({ move: { isLifted: true } });
+
+      fireEvent.keyDown(cardButton(), { key: 'Escape' });
+
+      expect(move.onCancel).toHaveBeenCalledOnce();
+    });
+
+    it('toggles done and does not pick on Space on the checkbox', async () => {
+      const { move, onToggleDone, tileCard } = renderTile();
+
+      doneCheckbox().focus();
+      await userEvent.keyboard(' ');
+
+      expect(onToggleDone).toHaveBeenCalledExactlyOnceWith(tileCard);
+      expect(move.onPick).not.toHaveBeenCalled();
+    });
+
+    it('ignores the arrows from the checkbox while picked', () => {
+      const { move } = renderTile({ move: { isLifted: true } });
+
+      fireEvent.keyDown(doneCheckbox(), { key: 'ArrowDown' });
+
+      expect(move.onStep).not.toHaveBeenCalled();
+    });
+
+    it('shows a dashed, translucent drag source', () => {
+      renderTile({ move: { isSource: true } });
+
+      const classes = cardButton().classList;
+      expect(classes.contains('border-dashed')).toBe(true);
+      expect(classes.contains('opacity-45')).toBe(true);
+    });
+
+    it('shows a lifted card', () => {
+      renderTile({ move: { isLifted: true } });
+
+      const classes = cardButton().classList;
+      expect(classes.contains('shadow-lg')).toBe(true);
+      expect(classes.contains('border-border-focus')).toBe(true);
+    });
   });
 });

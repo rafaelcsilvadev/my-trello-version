@@ -1,11 +1,13 @@
 import type { TFunction } from 'i18next';
 import { Calendar, Loader, SquareCheck, TriangleAlert } from 'lucide-react';
+import type { DragEvent, KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { formatDayMonth, formatShortDate } from '@/shared/i18n/format-date';
 import { Checkbox } from '@/shared/ui/checkbox';
 
 import { dueLabel, isOverdue } from '../model/due-date';
+import type { ArrowKey } from '../model/move';
 import type { Card, DateParts, Label } from '../model/types';
 
 // Full class names, so Tailwind finds them in the source (it cannot see `bg-label-${color}`).
@@ -22,6 +24,25 @@ const LABEL_CLASSES: Record<Label['color'], { chip: string; dot: string }> = {
   black: { chip: 'bg-label-black/18', dot: 'bg-label-black' },
 };
 
+const ARROW_KEYS: ReadonlySet<string> = new Set<ArrowKey>([
+  'ArrowUp',
+  'ArrowDown',
+  'ArrowLeft',
+  'ArrowRight',
+]);
+
+// The card's part in a move session (FDND-01, FDND-09). Ignored on archived cards and read-only boards.
+export type CardMove = {
+  isSource: boolean;
+  isLifted: boolean;
+  onDragStart: (cardId: string) => void;
+  onDragEnd: () => void;
+  onPick: (cardId: string) => void;
+  onStep: (key: ArrowKey) => void;
+  onDrop: () => void;
+  onCancel: () => void;
+};
+
 type CardTileProps = {
   card: Card;
   labels: ReadonlyMap<string, Label>;
@@ -31,6 +52,7 @@ type CardTileProps = {
   isPending: boolean;
   isReadOnly: boolean;
   onToggleDone: (card: Card) => void;
+  move?: CardMove;
 };
 
 // Port of the prototype card tile (design/Task List.dc.html:412-427, 464-473).
@@ -43,6 +65,7 @@ export function CardTile({
   isPending,
   isReadOnly,
   onToggleDone,
+  move,
 }: CardTileProps) {
   const { t } = useTranslation();
   const isArchived = mode === 'archived';
@@ -53,10 +76,49 @@ export function CardTile({
       : dueText(card.dueDate, today, t);
   const overdue = !isArchived && isOverdue(card, today);
   const { total, done } = card.checklist;
+  const movable = !isArchived && !isReadOnly ? move : undefined;
+
+  // Only keys pressed on the card itself, so the checkbox keeps Space (FDND-16).
+  function onKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (!movable || event.target !== event.currentTarget) return;
+    if (!movable.isLifted) {
+      if (event.key !== ' ' || isPending) return;
+      event.preventDefault();
+      movable.onPick(card.id);
+    } else if (ARROW_KEYS.has(event.key)) {
+      event.preventDefault();
+      movable.onStep(event.key as ArrowKey);
+    } else if (event.key === ' ' || event.key === 'Enter') {
+      event.preventDefault();
+      movable.onDrop();
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      movable.onCancel();
+    }
+  }
+
+  // Firefox starts a drag only with data set.
+  function onDragStart(event: DragEvent<HTMLDivElement>) {
+    event.dataTransfer.setData('text/plain', card.id);
+    event.dataTransfer.effectAllowed = 'move';
+    movable?.onDragStart(card.id);
+  }
 
   return (
     <div
-      className={`flex flex-none flex-col gap-2 rounded-md border border-border-subtle bg-surface-card py-2.5 pr-2.5 pl-3 ${isArchived ? 'opacity-75' : ''}`}
+      {...(movable
+        ? {
+            role: 'button',
+            tabIndex: 0,
+            'aria-label': card.title,
+            'data-card-id': card.id,
+            draggable: !isPending,
+            onDragStart,
+            onDragEnd: movable.onDragEnd,
+            onKeyDown,
+          }
+        : {})}
+      className={`flex flex-none flex-col gap-2 rounded-md border bg-surface-card py-2.5 pr-2.5 pl-3 ${tileState(isArchived, movable)}`}
     >
       {cardLabels.length > 0 ? (
         <div className="flex flex-wrap gap-1">
@@ -137,6 +199,19 @@ export function CardTile({
       ) : null}
     </div>
   );
+}
+
+// Prototype card classes (design/Task List.dc.html:1073-1075).
+function tileState(isArchived: boolean, move: CardMove | undefined): string {
+  if (isArchived) return 'border-border-subtle opacity-75';
+  if (!move) return 'border-border-subtle';
+  const focus =
+    'cursor-pointer transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus';
+  if (move.isSource)
+    return `${focus} border-dashed border-purple-300 shadow-xs opacity-45`;
+  if (move.isLifted)
+    return `${focus} border-border-focus shadow-lg ring-3 ring-border-focus/22 -translate-y-0.5 -rotate-1`;
+  return `${focus} border-border-subtle shadow-xs hover:border-border-default hover:shadow-md`;
 }
 
 function dueColor(isDone: boolean, overdue: boolean): string {
