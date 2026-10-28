@@ -1,9 +1,11 @@
 import { Archive, Loader, Pencil, Plus } from 'lucide-react';
+import type { DragEvent, KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/shared/ui/button';
 import { ActionMenu } from '@/shared/ui/menu';
 
+import type { ArrowKey } from '../model/move';
 import type {
   Card,
   Column,
@@ -12,9 +14,21 @@ import type {
   Label,
 } from '../model/types';
 import type { ColumnRename } from '../view-models/use-board-view-model';
-import { CardTile } from './card-tile';
+import { ARROW_KEYS, CardTile } from './card-tile';
 import { ColumnRenameField } from './column-rename-field';
 import { InlineCreateField } from './inline-create-field';
+
+// The column's part in a move session, through its header (FDND-19, FDND-22). Ignored on read-only boards.
+export type ColumnMove = {
+  isSource: boolean;
+  isLifted: boolean;
+  onDragStart: (listId: string) => void;
+  onDragEnd: () => void;
+  onPick: (listId: string) => void;
+  onStep: (key: ArrowKey) => void;
+  onDrop: () => void;
+  onCancel: () => void;
+};
 
 type BoardColumnProps = {
   column: Column;
@@ -34,9 +48,10 @@ type BoardColumnProps = {
   onCloseAddCard: () => void;
   onCreateCard: (raw: string) => Promise<ItemFieldError | null>;
   onToggleDone: (card: Card) => void;
+  move?: ColumnMove;
 };
 
-// Port of the prototype column (design/Task List.dc.html:385-452), without drag and drop (feature 3b).
+// Port of the prototype column (design/Task List.dc.html:385-452).
 export function BoardColumn({
   column: { list, cards },
   labels,
@@ -54,18 +69,66 @@ export function BoardColumn({
   onCloseAddCard,
   onCreateCard,
   onToggleDone,
+  move,
 }: BoardColumnProps) {
   const { t } = useTranslation();
   const isPending = pendingIds.has(list.id);
   // An archived board keeps its names, adds and menus out of reach (FBV-45).
   const canEdit = !isReadOnly;
+  const movable = canEdit ? move : undefined;
+  // A column being renamed or saved stays put (FDND-27, FDND-40).
+  const canLift = !isPending && rename === null;
+
+  // Only keys pressed on the header itself, so the name and menu buttons keep Space (FDND-26).
+  function onKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (!movable || event.target !== event.currentTarget) return;
+    if (!movable.isLifted) {
+      if (event.key !== ' ' || !canLift) return;
+      event.preventDefault();
+      movable.onPick(list.id);
+    } else if (ARROW_KEYS.has(event.key)) {
+      event.preventDefault();
+      movable.onStep(event.key as ArrowKey);
+    } else if (event.key === ' ' || event.key === 'Enter') {
+      event.preventDefault();
+      movable.onDrop();
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      movable.onCancel();
+    }
+  }
+
+  // Firefox starts a drag only with data set.
+  function onDragStart(event: DragEvent<HTMLDivElement>) {
+    if (!canLift) {
+      event.preventDefault();
+      return;
+    }
+    event.dataTransfer.setData('text/plain', list.id);
+    event.dataTransfer.effectAllowed = 'move';
+    movable?.onDragStart(list.id);
+  }
 
   return (
     <section
       aria-label={list.title}
-      className="flex w-11/12 flex-none snap-start flex-col gap-2 rounded-lg bg-surface-sunken p-2 md:w-71"
+      className={`flex w-11/12 flex-none snap-start flex-col gap-2 rounded-lg bg-surface-sunken p-2 transition md:w-71 ${columnState(movable)}`}
     >
-      <div className="relative flex min-h-8 items-center gap-1.5 pl-1">
+      <div
+        {...(movable
+          ? {
+              role: 'button',
+              tabIndex: 0,
+              'aria-label': t('board.move.columnHandle', { name: list.title }),
+              'data-column-id': list.id,
+              draggable: canLift,
+              onDragStart,
+              onDragEnd: movable.onDragEnd,
+              onKeyDown,
+            }
+          : {})}
+        className={`relative flex min-h-8 items-center gap-1.5 pl-1 ${movable ? `rounded-sm focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-border-focus ${canLift ? 'cursor-grab' : 'cursor-default'}` : ''}`}
+      >
         {rename !== null && canEdit ? (
           <ColumnRenameField
             initial={rename.value ?? list.title}
@@ -160,4 +223,12 @@ export function BoardColumn({
       ) : null}
     </section>
   );
+}
+
+// Prototype column classes (design/Task List.dc.html:1090).
+function columnState(move: ColumnMove | undefined): string {
+  if (move?.isLifted)
+    return 'shadow-lg outline-2 -outline-offset-2 outline-border-focus -translate-y-0.75';
+  if (move?.isSource) return 'opacity-50';
+  return '';
 }
