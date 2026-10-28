@@ -172,6 +172,16 @@ describe('BoardColumns', () => {
     expect(screen.queryByRole('button', { name: /^Ir para/ })).toBeNull();
   });
 
+  // Otherwise the last column, once archived, could not be restored.
+  it('shows the archived items and the add column on a board with no active columns while showArchived is on', () => {
+    renderColumns({ columns: [], showArchived: true });
+
+    expect(regionNames()).toEqual(['Arquivadas', 'Colunas arquivadas']);
+    expect(
+      screen.getByRole('button', { name: 'Adicionar coluna' }),
+    ).toBeTruthy();
+  });
+
   it('shows the first column in the pager before any scroll', () => {
     renderColumns();
 
