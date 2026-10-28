@@ -8,6 +8,8 @@ export type CreateListDto = Schemas['CreateListDto'];
 export type UpdateListDto = Schemas['UpdateListDto'];
 export type CreateCardDto = Schemas['CreateCardDto'];
 export type UpdateCardDto = Schemas['UpdateCardDto'];
+export type MoveCardDto = Schemas['MoveCardDto'];
+export type MoveListDto = Schemas['MoveListDto'];
 
 // One active column on screen.
 export type Column = { list: List; cards: Card[] };

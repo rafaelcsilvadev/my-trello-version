@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  cardMoveBody,
   cardSpot,
+  columnMoveBody,
   columnDropSlot,
   dropIndex,
   dropSlot,
@@ -255,5 +257,41 @@ describe('dropIndex', () => {
 
   it('lands at 0 in an empty column', () => {
     expect(dropIndex([], null, 'after')).toBe(0);
+  });
+});
+
+describe('cardMoveBody', () => {
+  it('is null on the same spot', () => {
+    expect(
+      cardMoveBody({ listId: 'l1', index: 2 }, { listId: 'l1', index: 2 }),
+    ).toBeNull();
+  });
+
+  it('sends only the position within the same column', () => {
+    const body = cardMoveBody(
+      { listId: 'l1', index: 2 },
+      { listId: 'l1', index: 0 },
+    );
+
+    expect(body).toStrictEqual({ position: 0 });
+    expect(body).not.toHaveProperty('listId');
+  });
+
+  it('sends the list and the position to another column', () => {
+    expect(
+      cardMoveBody({ listId: 'l1', index: 2 }, { listId: 'l2', index: 2 }),
+    ).toStrictEqual({ listId: 'l2', position: 2 });
+  });
+});
+
+describe('columnMoveBody', () => {
+  it('is null on the same spot', () => {
+    expect(columnMoveBody({ index: 1 }, { index: 1 })).toBeNull();
+  });
+
+  it('sends the new position', () => {
+    expect(columnMoveBody({ index: 1 }, { index: 3 })).toStrictEqual({
+      position: 3,
+    });
   });
 });
