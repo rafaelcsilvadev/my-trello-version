@@ -500,8 +500,8 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] Unit: focusable with name; `draggable` true only when it can move and is not pending; `dragstart` sets `text/plain` data and calls back; Space on the card calls pick, arrows/Enter/Esc call their callbacks only while picked; Space on the checkbox toggles done and does not pick; archived and read-only cards are neither focusable nor draggable; source and lifted classes
-- [ ] Build gate passes; test count only grows
+- [x] Unit: focusable with name; `draggable` true only when it can move and is not pending; `dragstart` sets `text/plain` data and calls back; Space on the card calls pick, arrows/Enter/Esc call their callbacks only while picked; Space on the checkbox toggles done and does not pick; archived and read-only cards are neither focusable nor draggable; source and lifted classes
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
