@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 11,
+  "next_id": 12,
   "lessons": [
     {
       "id": "L-001",
@@ -184,6 +184,24 @@
       ],
       "created": "2026-10-28T13:54:53Z",
       "last_seen": "2026-10-28T13:54:53Z"
+    },
+    {
+      "id": "L-011",
+      "key": "surviving_mutant::when the spec names a specific icon assert that icon s identity not only that some svg is present",
+      "text": "When the spec names a specific icon, assert that icon's identity, not only that some svg is present",
+      "signal": "surviving_mutant",
+      "scope": "tests",
+      "status": "candidate",
+      "features": [
+        "board"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "N4 front-end/test/unit/features/board/components/archived-cards-column.spec.tsx:88 (archived-cards-column.tsx:36) (tests)"
+      ],
+      "created": "2026-10-28T14:08:17Z",
+      "last_seen": "2026-10-28T14:08:17Z"
     }
   ]
 }
