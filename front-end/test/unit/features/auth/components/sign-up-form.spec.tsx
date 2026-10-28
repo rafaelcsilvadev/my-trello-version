@@ -293,6 +293,7 @@ describe('SignUpForm', () => {
       expect(fieldError(emailInput())).toBe('Este e-mail já está cadastrado'),
     );
     expect(emailInput().getAttribute('aria-invalid')).toBe('true');
+    expect(document.activeElement).toBe(emailInput());
     expect(screen.queryByRole('alert')).toBeNull();
     expect(emailInput().value).toBe('ana@example.com');
     expect(onSuccess).not.toHaveBeenCalled();
@@ -318,6 +319,7 @@ describe('SignUpForm', () => {
     );
     expect(fieldError(emailInput())).toBe('Informe um e-mail válido');
     expect(fieldError(passwordInput())).toBe('Use de 8 a 72 caracteres');
+    expect(document.activeElement).toBe(nameInput());
     expect(screen.queryByRole('alert')).toBeNull();
     expect(onSuccess).not.toHaveBeenCalled();
   });

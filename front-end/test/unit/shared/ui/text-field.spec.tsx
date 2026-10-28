@@ -70,7 +70,23 @@ describe('TextField', () => {
     expect(describedByText(input)).toContain(
       'A senha deve ter de 8 a 72 caracteres',
     );
-    expect(describedByText(input)).toContain('Use de 8 a 72 caracteres');
+  });
+
+  it('hides the hint while an error is shown', () => {
+    render(
+      <TextField
+        label="Senha"
+        value=""
+        onChange={() => {}}
+        hint="Use de 8 a 72 caracteres"
+        error="Use de 8 a 72 caracteres"
+      />,
+    );
+
+    expect(screen.getAllByText('Use de 8 a 72 caracteres')).toHaveLength(1);
+    expect(describedByText(screen.getByLabelText('Senha'))).toBe(
+      'Use de 8 a 72 caracteres',
+    );
   });
 
   it('has no aria-invalid and no error text without an error', () => {
