@@ -650,7 +650,7 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] E2E: the four journeys pass and survive a reload
+- [x] E2E: the four journeys pass and survive a reload
 - [ ] Full gate passes locally and in CI
 
 **Tests**: e2e
