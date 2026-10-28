@@ -14,6 +14,7 @@ import {
   type ColumnCardDrop,
   type ColumnMove,
 } from '@/features/board/components/board-column';
+import type { CardMove } from '@/features/board/components/card-tile';
 import type { CardSpot } from '@/features/board/model/move';
 import type {
   Card,
@@ -48,6 +49,7 @@ type RenderOptions = {
   language?: Language;
   move?: Partial<ColumnMove>;
   cardDrop?: Partial<ColumnCardDrop>;
+  cardMove?: (cardId: string) => CardMove;
 };
 
 function moveProps(overrides: Partial<ColumnMove> = {}): ColumnMove {
@@ -96,6 +98,7 @@ function renderColumn({
   language = 'pt-BR',
   move: moveOverrides,
   cardDrop: cardDropOverrides,
+  cardMove,
 }: RenderOptions = {}) {
   const move = moveProps(moveOverrides);
   const cardDrop = cardDropOverrides && cardDropProps(cardDropOverrides);
@@ -125,6 +128,7 @@ function renderColumn({
         isCreatingCard={false}
         move={move}
         cardDrop={cardDrop}
+        cardMove={cardMove}
         {...callbacks}
       />
     </I18nextProvider>,
@@ -332,6 +336,29 @@ describe('BoardColumn', () => {
       );
       expect(dataTransfer.effectAllowed).toBe('move');
       expect(move.onDragStart).toHaveBeenCalledExactlyOnceWith('list-1');
+    });
+
+    it('gives each card its own move', () => {
+      const onPick = vi.fn<(cardId: string) => void>();
+      const cardMove = vi.fn<(cardId: string) => CardMove>((cardId) => ({
+        isSource: false,
+        isLifted: cardId === 'c2',
+        onDragStart: vi.fn<(id: string) => void>(),
+        onDragEnd: vi.fn<() => void>(),
+        onPick,
+        onStep: vi.fn<CardMove['onStep']>(),
+        onDrop: vi.fn<() => void>(),
+        onCancel: vi.fn<() => void>(),
+        onMoveTo: vi.fn<(id: string) => void>(),
+      }));
+      renderColumn({ cardMove });
+
+      const card = screen.getByRole('button', { name: 'Write release notes' });
+      fireEvent.keyDown(card, { key: ' ' });
+
+      expect(card.dataset.cardId).toBe('c1');
+      expect(onPick).toHaveBeenCalledExactlyOnceWith('c1');
+      expect(cardMove).toHaveBeenCalledWith('c2');
     });
 
     it('ends the mouse move on dragend', () => {

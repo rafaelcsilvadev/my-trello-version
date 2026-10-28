@@ -1,17 +1,25 @@
 import {
   cleanup,
+  createEvent,
   fireEvent,
   render,
   screen,
   within,
 } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   type BoardColumnsArchived,
+  type BoardColumnsMove,
   BoardColumns,
 } from '@/features/board/components/board-columns';
+import {
+  type CardSpot,
+  type ColumnSpot,
+  type MoveSession,
+  previewColumns,
+} from '@/features/board/model/move';
 import type {
   Card,
   Column,
@@ -54,13 +62,24 @@ type RenderOptions = {
   columns?: Column[];
   isReadOnly?: boolean;
   showArchived?: boolean;
+  archivedItems?: BoardColumnsArchived;
+  session?: MoveSession | null;
 };
 
-function renderColumns({
-  columns = threeColumns,
-  isReadOnly = false,
-  showArchived = false,
-}: RenderOptions = {}) {
+function moveProps(): BoardColumnsMove {
+  return {
+    session: null,
+    preview: previewColumns([], null),
+    onStart: vi.fn<BoardColumnsMove['onStart']>(),
+    onHover: vi.fn<BoardColumnsMove['onHover']>(),
+    onStep: vi.fn<BoardColumnsMove['onStep']>(),
+    onDrop: vi.fn<() => void>(),
+    onCancel: vi.fn<() => void>(),
+    onMoveTo: vi.fn<(cardId: string) => void>(),
+  };
+}
+
+function renderColumns(options: RenderOptions = {}) {
   const callbacks = {
     onStartRename: vi.fn<(listId: string) => void>(),
     onSubmitRename: vi.fn<(list: List, raw: string) => ItemFieldError | null>(
@@ -81,25 +100,44 @@ function renderColumns({
     onDeleteList: vi.fn<(listId: string) => void>(),
     onRetryArchived: vi.fn<() => void>(),
   };
-  render(
-    <I18nextProvider i18n={createI18n('pt-BR')}>
-      <BoardColumns
-        columns={columns}
-        labels={new Map<string, Label>()}
-        today={today}
-        isReadOnly={isReadOnly}
-        pendingIds={new Set<string>()}
-        editing={null}
-        addingCardListId={null}
-        isCreatingList={false}
-        isCreatingCard={false}
-        showArchived={showArchived}
-        archived={archived}
-        {...callbacks}
-      />
-    </I18nextProvider>,
-  );
-  return callbacks;
+  const move = moveProps();
+
+  // `columns` are the base columns; the session's preview is rendered, as the board screen does.
+  function element({
+    columns = threeColumns,
+    isReadOnly = false,
+    showArchived = false,
+    archivedItems = archived,
+    session = null,
+  }: RenderOptions) {
+    const preview = previewColumns(columns, session);
+    return (
+      <I18nextProvider i18n={createI18n('pt-BR')}>
+        <BoardColumns
+          columns={preview.columns}
+          labels={new Map<string, Label>()}
+          today={today}
+          isReadOnly={isReadOnly}
+          pendingIds={new Set<string>()}
+          editing={null}
+          addingCardListId={null}
+          isCreatingList={false}
+          isCreatingCard={false}
+          showArchived={showArchived}
+          archived={archivedItems}
+          move={{ ...move, session, preview }}
+          {...callbacks}
+        />
+      </I18nextProvider>
+    );
+  }
+
+  const { rerender } = render(element(options));
+  return {
+    ...callbacks,
+    move,
+    rerender: (next: RenderOptions) => rerender(element(next)),
+  };
 }
 
 function regionNames() {
@@ -225,5 +263,329 @@ describe('BoardColumns', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Fazendo' }));
 
     expect(onStartRename).toHaveBeenCalledWith('list-2');
+  });
+  describe('moving', () => {
+    const c1 = threeColumns[0].cards[0];
+
+    // c1 already sits in Fazendo, as after the move is saved.
+    const movedColumns: Column[] = [
+      { ...threeColumns[0], cards: [] },
+      { ...threeColumns[1], cards: [{ ...c1, listId: 'list-2' }] },
+      threeColumns[2],
+    ];
+
+    const keyboardCard = (target: CardSpot | null = null): MoveSession => ({
+      kind: 'card',
+      id: 'c1',
+      input: 'keyboard',
+      origin: { listId: 'list-1', index: 0 },
+      target,
+    });
+
+    const mouseColumn = (target: ColumnSpot | null = null): MoveSession => ({
+      kind: 'column',
+      id: 'list-1',
+      input: 'mouse',
+      origin: { index: 0 },
+      target,
+    });
+
+    function cardTile(id = 'c1') {
+      return document.querySelector<HTMLElement>(`[data-card-id="${id}"]`);
+    }
+
+    function header(id: string) {
+      return document.querySelector<HTMLElement>(`[data-column-id="${id}"]`);
+    }
+
+    // jsdom has no scrollTo; the scrolling tests spy on their own.
+    beforeEach(() => {
+      Element.prototype.scrollTo = () => {};
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+      Reflect.deleteProperty(Element.prototype, 'scrollTo');
+    });
+
+    it('picks a card with Space on it', () => {
+      const { move } = renderColumns();
+
+      fireEvent.keyDown(cardTile()!, { key: ' ' });
+
+      expect(move.onStart).toHaveBeenCalledExactlyOnceWith(
+        'card',
+        'c1',
+        'keyboard',
+      );
+    });
+
+    it('starts a column drag from its header', () => {
+      const { move } = renderColumns();
+
+      fireEvent.dragStart(header('list-2')!, {
+        dataTransfer: { setData: vi.fn<() => void>() },
+      });
+
+      expect(move.onStart).toHaveBeenCalledExactlyOnceWith(
+        'column',
+        'list-2',
+        'mouse',
+      );
+    });
+
+    it('asks to move a card through its menu', () => {
+      const { move } = renderColumns();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Mover para…' }));
+      fireEvent.click(screen.getByRole('menuitem', { name: 'Mover para…' }));
+
+      expect(move.onMoveTo).toHaveBeenCalledExactlyOnceWith('c1');
+    });
+
+    it('lets a dragged card land on another column', () => {
+      const { move } = renderColumns({
+        session: { ...keyboardCard(), input: 'mouse' },
+      });
+
+      fireEvent.dragOver(screen.getByRole('region', { name: 'Fazendo' }));
+
+      expect(move.onHover).toHaveBeenCalledExactlyOnceWith({
+        listId: 'list-2',
+        index: 0,
+      });
+    });
+
+    describe('dropping columns', () => {
+      // jsdom has no layout: the columns sit side by side, 300px wide.
+      beforeEach(() => {
+        vi.spyOn(
+          HTMLElement.prototype,
+          'getBoundingClientRect',
+        ).mockImplementation(function (this: HTMLElement) {
+          const index = ['A fazer', 'Fazendo', 'Feito'].indexOf(
+            this.getAttribute('aria-label') ?? '',
+          );
+          return DOMRect.fromRect({ x: index * 300, width: 300, height: 500 });
+        });
+      });
+
+      // jsdom has no DragEvent, so the plain event it builds drops `clientX`.
+      function dragOver(region: string, clientX: number) {
+        const target = screen.getByRole('region', { name: region });
+        const event = createEvent.dragOver(target, {
+          dataTransfer: { dropEffect: 'none' },
+        });
+        Object.defineProperty(event, 'clientX', { value: clientX });
+        return !fireEvent(target, event);
+      }
+
+      it('targets the slot before a column when the pointer is on its left half', () => {
+        const { move } = renderColumns({ session: mouseColumn() });
+
+        const allowed = dragOver('Feito', 700);
+
+        expect(allowed).toBe(true);
+        expect(move.onHover).toHaveBeenCalledExactlyOnceWith({ index: 1 });
+      });
+
+      it('targets the slot after a column when the pointer is on its right half', () => {
+        const { move } = renderColumns({ session: mouseColumn() });
+
+        dragOver('Feito', 800);
+
+        expect(move.onHover).toHaveBeenCalledExactlyOnceWith({ index: 2 });
+      });
+
+      it('targets the first slot left of every other column', () => {
+        const { move } = renderColumns({ session: mouseColumn({ index: 2 }) });
+
+        dragOver('Fazendo', 10);
+
+        expect(move.onHover).toHaveBeenCalledExactlyOnceWith({ index: 0 });
+      });
+
+      it('does not repeat the target it already has', () => {
+        const { move } = renderColumns({ session: mouseColumn({ index: 2 }) });
+
+        const allowed = dragOver('A fazer', 800);
+
+        expect(allowed).toBe(true);
+        expect(move.onHover).not.toHaveBeenCalled();
+      });
+
+      it('drops the column and keeps the browser from opening its text', () => {
+        const { move } = renderColumns({ session: mouseColumn({ index: 1 }) });
+
+        const handled = !fireEvent.drop(scroller(), { dataTransfer: {} });
+
+        expect(handled).toBe(true);
+        expect(move.onDrop).toHaveBeenCalledOnce();
+      });
+
+      it('lets no column land without a column drag', () => {
+        const { move } = renderColumns({ session: keyboardCard() });
+
+        const allowed = dragOver('A fazer', 10);
+        fireEvent.drop(scroller(), { dataTransfer: {} });
+
+        expect(allowed).toBe(false);
+        expect(move.onHover).not.toHaveBeenCalled();
+        expect(move.onDrop).not.toHaveBeenCalled();
+      });
+
+      // FDND-43
+      it('lets no column land on the archived column or section', () => {
+        const { move } = renderColumns({
+          showArchived: true,
+          session: mouseColumn(),
+        });
+
+        const allowed = [
+          dragOver('Arquivadas', 950),
+          dragOver('Colunas arquivadas', 1250),
+        ];
+        fireEvent.drop(screen.getByRole('region', { name: 'Arquivadas' }), {
+          dataTransfer: {},
+        });
+        fireEvent.drop(
+          screen.getByRole('region', { name: 'Colunas arquivadas' }),
+          { dataTransfer: {} },
+        );
+
+        expect(allowed).toEqual([false, false]);
+        expect(move.onHover).not.toHaveBeenCalled();
+        expect(move.onDrop).not.toHaveBeenCalled();
+      });
+    });
+
+    // FDND-43
+    it('keeps the archived column and section out of every drag', () => {
+      renderColumns({
+        showArchived: true,
+        archivedItems: {
+          ...archived,
+          cards: [
+            {
+              card: cardFixture('c9', 'list-1', {
+                title: 'Old card',
+                archivedAt: '2026-10-02T12:00:00.000Z',
+              }),
+              fromTitle: 'A fazer',
+            },
+          ],
+        },
+        session: { ...keyboardCard(), input: 'mouse' },
+      });
+
+      for (const name of ['Arquivadas', 'Colunas arquivadas']) {
+        const region = screen.getByRole('region', { name });
+        expect(region.querySelector('[draggable]')).toBeNull();
+        expect(region.querySelector('[data-card-id]')).toBeNull();
+        expect(region.querySelector('[data-column-id]')).toBeNull();
+        expect(fireEvent.dragOver(region)).toBe(true);
+      }
+    });
+
+    // FDND-15: the card remounts under its new column.
+    it('keeps focus on a picked card that moves to another column', () => {
+      const { rerender } = renderColumns({ session: keyboardCard() });
+      cardTile()!.focus();
+
+      rerender({
+        session: keyboardCard({ listId: 'list-2', index: 0 }),
+      });
+
+      expect(document.activeElement).toBe(cardTile());
+      expect(
+        within(screen.getByRole('region', { name: 'Fazendo' })).getByRole(
+          'button',
+          { name: 'Write release notes' },
+        ),
+      ).toBe(document.activeElement);
+    });
+
+    it('keeps focus on a dropped card while its move is saved', () => {
+      const { rerender } = renderColumns({
+        session: keyboardCard({ listId: 'list-2', index: 0 }),
+      });
+      cardTile()!.focus();
+
+      // The preview ends before the optimistic patch lands.
+      rerender({ session: null });
+      expect(document.activeElement).toBe(cardTile());
+
+      rerender({ columns: movedColumns, session: null });
+      expect(document.activeElement).toBe(cardTile());
+    });
+
+    it('leaves focus where the user put it after the session', () => {
+      const { rerender } = renderColumns({ session: keyboardCard() });
+      cardTile()!.focus();
+      rerender({ session: null });
+      const name = screen.getByRole('button', { name: 'Feito' });
+      name.focus();
+
+      rerender({ columns: movedColumns, session: null });
+
+      expect(document.activeElement).toBe(name);
+    });
+
+    describe('scrolling on a phone', () => {
+      function mockScroll() {
+        mockLayout(0);
+        const scrollTo = vi.fn<(options: ScrollToOptions) => void>();
+        Object.defineProperty(scroller(), 'scrollTo', { value: scrollTo });
+        return scrollTo;
+      }
+
+      // FDND-18
+      it('scrolls the column a picked card moves to into view', () => {
+        const { rerender } = renderColumns({ session: keyboardCard() });
+        const scrollTo = mockScroll();
+
+        rerender({ session: keyboardCard({ listId: 'list-2', index: 0 }) });
+        rerender({ session: keyboardCard({ listId: 'list-1', index: 0 }) });
+
+        expect(scrollTo.mock.calls).toEqual([
+          [{ left: 312, behavior: 'smooth' }],
+          [{ left: 0, behavior: 'smooth' }],
+        ]);
+      });
+
+      it('does not scroll while the picked card stays in its column', () => {
+        const { rerender } = renderColumns({ session: keyboardCard() });
+        const scrollTo = mockScroll();
+
+        rerender({ session: keyboardCard({ listId: 'list-1', index: 0 }) });
+
+        expect(scrollTo).not.toHaveBeenCalled();
+      });
+
+      it('does not scroll for a card dragged with the mouse', () => {
+        const mouseCard = (target: CardSpot | null): MoveSession => ({
+          ...keyboardCard(target),
+          input: 'mouse',
+        });
+        const { rerender } = renderColumns({ session: mouseCard(null) });
+        const scrollTo = mockScroll();
+
+        rerender({ session: mouseCard({ listId: 'list-2', index: 0 }) });
+
+        expect(scrollTo).not.toHaveBeenCalled();
+      });
+
+      it('does not scroll from md up, where the columns sit side by side', () => {
+        vi.spyOn(window, 'matchMedia').mockReturnValue({
+          matches: true,
+        } as MediaQueryList);
+        const { rerender } = renderColumns({ session: keyboardCard() });
+        const scrollTo = mockScroll();
+
+        rerender({ session: keyboardCard({ listId: 'list-2', index: 0 }) });
+
+        expect(scrollTo).not.toHaveBeenCalled();
+      });
+    });
   });
 });

@@ -14,7 +14,7 @@ import type {
   Label,
 } from '../model/types';
 import type { ColumnRename } from '../view-models/use-board-view-model';
-import { ARROW_KEYS, CardTile } from './card-tile';
+import { ARROW_KEYS, type CardMove, CardTile } from './card-tile';
 import { ColumnRenameField } from './column-rename-field';
 import { InlineCreateField } from './inline-create-field';
 
@@ -61,6 +61,8 @@ type BoardColumnProps = {
   onToggleDone: (card: Card) => void;
   move?: ColumnMove;
   cardDrop?: ColumnCardDrop;
+  // Each card's part in a move session, by card id.
+  cardMove?: (cardId: string) => CardMove;
 };
 
 // Port of the prototype column (design/Task List.dc.html:385-452).
@@ -83,6 +85,7 @@ export function BoardColumn({
   onToggleDone,
   move,
   cardDrop,
+  cardMove,
 }: BoardColumnProps) {
   const { t } = useTranslation();
   const isPending = pendingIds.has(list.id);
@@ -252,6 +255,7 @@ export function BoardColumn({
               isPending={pendingIds.has(card.id)}
               isReadOnly={isReadOnly}
               onToggleDone={onToggleDone}
+              move={cardMove?.(card.id)}
             />
           </Fragment>
         ))}
