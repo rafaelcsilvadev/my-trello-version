@@ -250,8 +250,8 @@ T22 → T23 → T24
 
 **Done when**:
 
-- [ ] Unit: `POST /api/v1/cards/{id}/move` with the exact body; active cards cache patched before the response; on failure the card returns to its old list and index while a second move still pending keeps its own place; the id is in `usePendingItemIds` while pending; one invalidation after the last change
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `POST /api/v1/cards/{id}/move` with the exact body; active cards cache patched before the response; on failure the card returns to its old list and index while a second move still pending keeps its own place; the id is in `usePendingItemIds` while pending; one invalidation after the last change
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
