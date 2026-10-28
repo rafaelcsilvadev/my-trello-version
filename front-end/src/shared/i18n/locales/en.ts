@@ -169,6 +169,7 @@ export const en = {
       columnDeleted: 'Column permanently deleted',
       boardRestored: 'Board restored',
       cardCreated: 'Task created',
+      moveFailed: 'Couldn’t move the task',
     },
     column: {
       menu: 'Column actions',

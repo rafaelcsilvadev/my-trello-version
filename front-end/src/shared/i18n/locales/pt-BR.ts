@@ -171,6 +171,7 @@ export const ptBR = {
       columnDeleted: 'Coluna excluída definitivamente',
       boardRestored: 'Quadro restaurado',
       cardCreated: 'Tarefa criada',
+      moveFailed: 'Não foi possível mover a tarefa',
     },
     column: {
       menu: 'Ações da coluna',
