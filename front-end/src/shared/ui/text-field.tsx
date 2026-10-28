@@ -52,7 +52,8 @@ export function TextField({
         placeholder={placeholder}
         className={inputClasses}
       />
-      {hint && (
+      {/* The error replaces the hint: the design reuses the hint text as the error. */}
+      {hint && error === undefined && (
         <Text slot="description" className="text-xs text-text-tertiary">
           {hint}
         </Text>
