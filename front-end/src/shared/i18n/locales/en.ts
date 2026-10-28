@@ -147,6 +147,17 @@ export const en = {
     toolbar: {
       showArchived: 'Show archived',
     },
+    move: {
+      cardBanner:
+        'Moving “{{title}}”: {{col}}, position {{i}} of {{n}}. Arrows move, Space drops, Esc cancels.',
+      cardAnnounce: 'Task {{title}}, column {{col}}, position {{i}} of {{n}}',
+      cardDropped: 'Task {{title}} dropped in {{col}}, position {{i}} of {{n}}',
+      columnBanner:
+        'Moving the column “{{name}}”: position {{i}} of {{n}}. ← → move, Space drops, Esc cancels.',
+      columnAnnounce: 'Column {{name}}, position {{i}} of {{n}}',
+      columnDropped: 'Column {{name}} dropped at position {{i}} of {{n}}',
+      cancelled: 'Move cancelled',
+    },
     pager: {
       goTo: 'Go to {{title}}',
       position: '{{title}} · {{i}} of {{n}}',
