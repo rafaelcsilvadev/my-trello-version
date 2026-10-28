@@ -1,3 +1,5 @@
+import type { KeyboardEvent } from 'react';
+
 import { LoadError } from '@/shared/ui/load-error';
 
 import { useBoardViewModel } from '../view-models/use-board-view-model';
@@ -8,6 +10,10 @@ import { BoardNotFound } from './board-not-found';
 import { BoardSkeleton } from './board-skeleton';
 import { BoardToolbar } from './board-toolbar';
 import { DeleteColumnDialog } from './delete-column-dialog';
+import { KeyboardHelp } from './keyboard-help';
+import { MoveAnnouncer } from './move-announcer';
+import { MoveBanner } from './move-banner';
+import { MoveToDialog } from './move-to-dialog';
 
 type BoardScreenProps = {
   boardId: string;
@@ -28,10 +34,21 @@ export function BoardScreen({ boardId }: BoardScreenProps) {
 
   // `ready` means every always-on query has data.
   const board = state.board!;
-  const { deleteTarget } = state;
+  const { deleteTarget, move, canMove } = state;
+  const moveActions = actions.move;
+  const keyboardSession = move.session?.input === 'keyboard';
+
+  // Focus may leave the picked item, so Esc anywhere on the board cancels; the item handles its own (FDND-14).
+  function onKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key === 'Escape' && keyboardSession && !event.defaultPrevented) {
+      moveActions.cancel();
+    }
+  }
 
   return (
-    <div className="flex min-w-0 flex-col gap-3.5">
+    // Catches the Esc that bubbles from any focusable child; it adds no key of its own.
+    // oxlint-disable-next-line jsx-a11y/no-static-element-interactions
+    <div className="flex min-w-0 flex-col gap-3.5" onKeyDown={onKeyDown}>
       <BoardHeader board={board} />
       {state.readOnly ? (
         <ArchivedBoardBanner
@@ -43,6 +60,8 @@ export function BoardScreen({ boardId }: BoardScreenProps) {
         showArchived={state.showArchived}
         onShowArchivedChange={actions.setShowArchived}
       />
+      {canMove ? <MoveAnnouncer text={move.announcement} /> : null}
+      {move.banner !== null ? <MoveBanner text={move.banner} /> : null}
       <BoardColumns
         columns={state.columns}
         labels={state.labelsById}
@@ -67,7 +86,24 @@ export function BoardScreen({ boardId }: BoardScreenProps) {
         onRestoreList={actions.restoreList}
         onDeleteList={actions.askDeleteList}
         onRetryArchived={actions.retryLoad}
+        move={
+          canMove
+            ? {
+                session: move.session,
+                preview: move.preview,
+                onStart: moveActions.start,
+                onHover: moveActions.hover,
+                onStep: moveActions.step,
+                onDrop: moveActions.drop,
+                onCancel: moveActions.cancel,
+                onMoveTo: moveActions.askMoveTo,
+              }
+            : undefined
+        }
       />
+      {canMove && state.columns.length > 0 && !keyboardSession ? (
+        <KeyboardHelp />
+      ) : null}
       {/* Opens once the count loads, so the text never claims a wrong loss (FBV-40). */}
       {deleteTarget?.cardCount !== undefined ? (
         <DeleteColumnDialog
@@ -75,6 +111,14 @@ export function BoardScreen({ boardId }: BoardScreenProps) {
           cardCount={deleteTarget.cardCount}
           onConfirm={actions.confirmDeleteList}
           onCancel={actions.cancelDelete}
+        />
+      ) : null}
+      {move.moveToCard ? (
+        <MoveToDialog
+          card={move.moveToCard}
+          lists={state.columns.map((column) => column.list)}
+          onChoose={moveActions.moveTo}
+          onClose={moveActions.closeMoveTo}
         />
       ) : null}
     </div>

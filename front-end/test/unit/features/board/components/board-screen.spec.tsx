@@ -6,7 +6,7 @@ import {
   within,
 } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { BoardScreen } from '@/features/board';
 import type { Board, Card, List } from '@/features/board/model/types';
@@ -118,6 +118,49 @@ function renderScreen() {
 function column(name: string) {
   return screen.getByRole('region', { name });
 }
+
+type MoveRequest = { path: string; body: unknown };
+
+// Records every card move and applies it to `seed`, so a refetch sees it.
+function recordMoves(seed: Seed) {
+  const moves: MoveRequest[] = [];
+  server.use(
+    http.post(
+      `${apiOrigin}/api/v1/cards/:id/move`,
+      async ({ request, params }) => {
+        const body = (await request.json()) as {
+          listId?: string;
+          position: number;
+        };
+        moves.push({ path: new URL(request.url).pathname, body });
+        const card = seed.cards.find((c) => c.id === params.id)!;
+        card.listId = body.listId ?? card.listId;
+        card.position = body.position;
+        return HttpResponse.json(card);
+      },
+    ),
+  );
+  return moves;
+}
+
+function card(title: string) {
+  return screen.getByRole('button', { name: title });
+}
+
+// The live region carries the move texts (FDND-09).
+function announcement() {
+  return screen
+    .getAllByRole('status')
+    .map((s) => s.textContent)
+    .join('|');
+}
+
+function counter(name: string) {
+  return within(column(name)).getByText(/^\d+$/).textContent;
+}
+
+const keyboardHelp =
+  'Keyboard: Space picks up the focused card, column or item · arrows move · Space drops · Esc cancels';
 
 describe('BoardScreen', () => {
   afterEach(() => {
@@ -333,5 +376,175 @@ describe('BoardScreen', () => {
       expect(screen.queryByText('Board archived · read-only')).toBeNull(),
     );
     expect(screen.getByRole('button', { name: 'Add column' })).toBeTruthy();
+  });
+
+  describe('moves', () => {
+    // jsdom has no scrollTo; a keyboard move scrolls the phone layout.
+    beforeEach(() => {
+      Element.prototype.scrollTo = () => {};
+    });
+
+    afterEach(() => {
+      Reflect.deleteProperty(Element.prototype, 'scrollTo');
+    });
+
+    it('moves a card with the keyboard, announcing each step and keeping focus', async () => {
+      const seed = boardApi();
+      seed.lists.push(listFixture('l3', { title: 'Done', position: 2 }));
+      seed.cards.push(cardFixture('c3', 'l3', { title: 'Print badges' }));
+      const moves = recordMoves(seed);
+      renderScreen();
+      await screen.findByRole('region', { name: 'Done' });
+
+      card('Write the brief').focus();
+      fireEvent.keyDown(card('Write the brief'), { key: ' ' });
+      expect(announcement()).toContain(
+        'Task Write the brief, column Backlog, position 1 of 1',
+      );
+      expect(
+        screen.getByText(
+          'Moving “Write the brief”: Backlog, position 1 of 1. Arrows move, Space drops, Esc cancels.',
+        ),
+      ).toBeTruthy();
+      expect(screen.queryByText(keyboardHelp)).toBeNull();
+
+      fireEvent.keyDown(card('Write the brief'), { key: 'ArrowRight' });
+      expect(announcement()).toContain(
+        'Task Write the brief, column Doing, position 1 of 2',
+      );
+      fireEvent.keyDown(card('Write the brief'), { key: 'ArrowRight' });
+      expect(announcement()).toContain(
+        'Task Write the brief, column Done, position 1 of 2',
+      );
+      fireEvent.keyDown(card('Write the brief'), { key: 'ArrowDown' });
+      expect(announcement()).toContain(
+        'Task Write the brief, column Done, position 2 of 2',
+      );
+      expect(document.activeElement).toBe(card('Write the brief'));
+
+      fireEvent.keyDown(card('Write the brief'), { key: ' ' });
+
+      expect(announcement()).toContain(
+        'Task Write the brief dropped in Done, position 2 of 2',
+      );
+      await waitFor(() =>
+        expect(moves).toEqual([
+          {
+            path: '/api/v1/cards/c1/move',
+            body: { listId: 'l3', position: 1 },
+          },
+        ]),
+      );
+      expect(
+        within(column('Done')).getByRole('button', { name: 'Write the brief' }),
+      ).toBe(document.activeElement);
+      expect(screen.getByText(keyboardHelp)).toBeTruthy();
+    });
+
+    it('cancels a keyboard move on Esc anywhere on the board', async () => {
+      const seed = boardApi();
+      const moves = recordMoves(seed);
+      renderScreen();
+      await screen.findByRole('region', { name: 'Doing' });
+
+      card('Write the brief').focus();
+      fireEvent.keyDown(card('Write the brief'), { key: ' ' });
+      fireEvent.keyDown(card('Write the brief'), { key: 'ArrowRight' });
+      fireEvent.keyDown(
+        screen.getByRole('heading', { level: 1, name: 'Product launch' }),
+        { key: 'Escape' },
+      );
+
+      expect(announcement()).toContain('Move cancelled');
+      expect(screen.queryByText(/^Moving “Write the brief”/)).toBeNull();
+      expect(
+        within(column('Backlog')).getByRole('button', {
+          name: 'Write the brief',
+        }),
+      ).toBeTruthy();
+      expect(moves).toEqual([]);
+    });
+
+    it('moves a card across columns with the mouse and updates both counters', async () => {
+      const seed = boardApi();
+      const moves = recordMoves(seed);
+      renderScreen();
+      await screen.findByRole('region', { name: 'Doing' });
+      expect([counter('Backlog'), counter('Doing')]).toEqual(['1', '1']);
+
+      fireEvent.dragStart(card('Write the brief'), {
+        dataTransfer: { setData: vi.fn<() => void>() },
+      });
+      // jsdom rects are empty, so the pointer is below every tile.
+      fireEvent.dragOver(column('Doing'), { clientY: 100 });
+      fireEvent.drop(column('Doing'), { dataTransfer: {} });
+
+      await waitFor(() =>
+        expect([counter('Backlog'), counter('Doing')]).toEqual(['0', '2']),
+      );
+      expect(
+        within(column('Doing')).getByRole('button', {
+          name: 'Write the brief',
+        }),
+      ).toBeTruthy();
+      await waitFor(() =>
+        expect(moves).toEqual([
+          {
+            path: '/api/v1/cards/c1/move',
+            body: { listId: 'l2', position: 1 },
+          },
+        ]),
+      );
+    });
+
+    it('moves a card with Move to… and shows the toast', async () => {
+      const seed = boardApi();
+      const moves = recordMoves(seed);
+      renderScreen();
+      await screen.findByRole('region', { name: 'Doing' });
+
+      fireEvent.click(
+        within(column('Backlog')).getByRole('button', { name: 'Move to…' }),
+      );
+      fireEvent.click(
+        await screen.findByRole('menuitem', { name: 'Move to…' }),
+      );
+      const dialog = await screen.findByRole('dialog');
+      fireEvent.click(within(dialog).getByRole('button', { name: 'Doing' }));
+
+      expect(await screen.findByText('Task moved to Doing')).toBeTruthy();
+      expect(screen.queryByRole('dialog')).toBeNull();
+      expect(
+        within(column('Doing')).getByRole('button', {
+          name: 'Write the brief',
+        }),
+      ).toBeTruthy();
+      expect(moves).toEqual([
+        { path: '/api/v1/cards/c1/move', body: { listId: 'l2', position: 1 } },
+      ]);
+    });
+
+    it('shows the keyboard help on an active board with columns only', async () => {
+      const seed = boardApi();
+      seed.lists = [];
+      seed.cards = [];
+      renderScreen();
+
+      await screen.findByRole('button', { name: 'Add column' });
+      expect(screen.queryByText(keyboardHelp)).toBeNull();
+    });
+
+    it('renders nothing movable on an archived board', async () => {
+      boardApi(boardFixture({ archivedAt: archivedStamp }));
+      renderScreen();
+      await screen.findByText('Board archived · read-only');
+
+      expect(screen.queryByText(keyboardHelp)).toBeNull();
+      expect(screen.queryByRole('button', { name: 'Move to…' })).toBeNull();
+      expect(document.querySelector('[draggable="true"]')).toBeNull();
+      expect(
+        within(column('Backlog')).getByText('Write the brief'),
+      ).toBeTruthy();
+    });
   });
 });
