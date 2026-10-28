@@ -213,6 +213,11 @@ describe('BoardColumn', () => {
     renderColumn({ pendingIds: ['c2'] });
 
     expect(screen.getAllByText('Salvando…')).toHaveLength(1);
+    const [first, second] = screen.getAllByRole<HTMLInputElement>('checkbox', {
+      name: 'Concluída',
+    });
+    expect(first.disabled).toBe(false);
+    expect(second.disabled).toBe(true);
   });
 
   it('uses English labels', () => {
