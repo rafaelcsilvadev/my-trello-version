@@ -265,7 +265,7 @@ Opening a board from "Meus quadros" lands on `/b/{id}`, which is still the found
 | FBV-16 | P1: Manage columns | - | Verified |
 | FBV-17 | P1: Manage columns | - | Verified |
 | FBV-18 | P1: Manage columns | - | Verified |
-| FBV-19 | P1: Manage columns | - | Needs Fix |
+| FBV-19 | P1: Manage columns | - | Verified |
 | FBV-20 | P1: Manage columns | - | Verified |
 | FBV-21 | P1: Manage columns | - | Verified |
 | FBV-22 | P1: Manage columns | - | Verified |
@@ -277,7 +277,7 @@ Opening a board from "Meus quadros" lands on `/b/{id}`, which is still the found
 | FBV-28 | P1: Create cards and mark them done | - | Verified |
 | FBV-29 | P1: Create cards and mark them done | - | Verified |
 | FBV-30 | P1: Create cards and mark them done | - | Verified |
-| FBV-31 | P1: Create cards and mark them done | - | Needs Fix |
+| FBV-31 | P1: Create cards and mark them done | - | Verified |
 | FBV-32 | P1: Create cards and mark them done | - | Verified |
 | FBV-33 | P1: See and manage archived items | - | Verified |
 | FBV-34 | P1: See and manage archived items | - | Needs Fix |
@@ -294,19 +294,19 @@ Opening a board from "Meus quadros" lands on `/b/{id}`, which is still the found
 | FBV-45 | P1: Archived board is read-only | - | Verified |
 | FBV-46 | P1: Archived board is read-only | - | Verified |
 | FBV-47 | P1: Archived board is read-only | - | Verified |
-| FBV-48 | P1: Phone layout | - | Needs Fix |
+| FBV-48 | P1: Phone layout | - | Verified |
 | FBV-49 | P1: Phone layout | - | Verified |
 | FBV-50 | P1: Phone layout | - | Verified |
 | FBV-51 | P1: Phone layout | - | Verified |
 | FBV-52 | P1: Save failures | - | Verified |
 | FBV-53 | P1: Save failures | - | Verified |
-| FBV-54 | P1: Save failures | - | Needs Fix |
-| FBV-55 | P1: Save failures | - | Needs Fix |
+| FBV-54 | P1: Save failures | - | Verified |
+| FBV-55 | P1: Save failures | - | Verified |
 | FBV-56 | P1: Save failures | - | Verified |
 | FBV-57 | P1: Save failures | - | Verified |
-| FBV-58 | P1: Save failures | - | Needs Fix |
+| FBV-58 | P1: Save failures | - | Verified |
 
-**Coverage:** 58 total, all mapped to tasks (`tasks.md`). Validation iteration 1: 51 Verified, 7 Needs Fix (FBV-19, FBV-31, FBV-34, FBV-48, FBV-54, FBV-55, FBV-58; see `validation.md`).
+**Coverage:** 58 total, all mapped to tasks (`tasks.md`). Validation iteration 1: 51 Verified, 7 Needs Fix. Iteration 2: 57 Verified, 1 Needs Fix (FBV-34: the archive-icon assertion does not discriminate, mutant S47b; see `validation.md`).
 
 ---
 
