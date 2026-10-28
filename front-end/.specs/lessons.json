@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 12,
+  "next_id": 13,
   "lessons": [
     {
       "id": "L-001",
@@ -202,6 +202,24 @@
       ],
       "created": "2026-10-28T14:08:17Z",
       "last_seen": "2026-10-28T14:08:17Z"
+    },
+    {
+      "id": "L-012",
+      "key": "ac_gap::when a spec names a visual style dashed highlighted icon assert the class or glyph that draws it not just that the element exists",
+      "text": "When a spec names a visual style (dashed, highlighted, icon), assert the class or glyph that draws it, not just that the element exists.",
+      "signal": "ac_gap",
+      "scope": "front-end/components",
+      "status": "candidate",
+      "features": [
+        "board-dnd"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "FDND-02 board-column.spec.tsx:521 (front-end/components)"
+      ],
+      "created": "2026-10-28T19:58:36Z",
+      "last_seen": "2026-10-28T19:58:36Z"
     }
   ]
 }

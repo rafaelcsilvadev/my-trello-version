@@ -80,6 +80,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: N4 front-end/test/unit/features/board/components/archived-cards-column.spec.tsx:88 (archived-cards-column.tsx:36) (tests)
 - last seen: 2026-10-28T14:08:17Z
 
+### L-012 - When a spec names a visual style (dashed, highlighted, icon), assert the class or glyph that draws it, not just that the element exists.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `front-end/components` · harmful: 0
+- features: board-dnd
+- evidence: FDND-02 board-column.spec.tsx:521 (front-end/components)
+- last seen: 2026-10-28T19:58:36Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
