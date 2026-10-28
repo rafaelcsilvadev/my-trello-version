@@ -4,7 +4,7 @@
 
 **English** | [Português](README.PT.md)
 
-> 🚧 **Work in progress.** The back-end API is feature-complete (features 0 to 6). The web front-end has sign-up, log-in, the boards list and the board view; drag and drop, card detail, labels and settings come next. The mobile app has not started yet.
+> 🚧 **Work in progress.** The back-end API is feature-complete (features 0 to 6). The web front-end has sign-up, log-in, the boards list, the board view and drag and drop; board filters, card detail, labels and settings come next. The mobile app has not started yet.
 
 A personal take on Trello: each user signs up and manages only their own boards, lists and cards.
 
@@ -29,7 +29,7 @@ The project has two goals:
 
 MVP = features 0 to 4. Full roadmap in [`back-end/.specs/ROADMAP.md`](back-end/.specs/ROADMAP.md).
 
-Web front-end: `foundation` (app shell, routes and auth guard, typed API client, theme, PT-BR/EN i18n, toasts, Docker service, CI) `auth` (sign-up, log-in, rate-limit notice, log-out) `boards` (active/archived tabs, create, edit, archive, restore, delete) and `board` (columns and cards, done flag, archived items, read-only archived board, phone layout) are done. Drag and drop comes next, one feature at a time. Roadmap in [`front-end/.specs/ROADMAP.md`](front-end/.specs/ROADMAP.md).
+Web front-end: `foundation` (app shell, routes and auth guard, typed API client, theme, PT-BR/EN i18n, toasts, Docker service, CI) `auth` (sign-up, log-in, rate-limit notice, log-out) `boards` (active/archived tabs, create, edit, archive, restore, delete) and `board` (columns and cards, done flag, archived items, read-only archived board, phone layout) and `board-dnd` (move cards and columns with the mouse or the keyboard, live region, "Move to…") are done. Board filters come next, one feature at a time. Roadmap in [`front-end/.specs/ROADMAP.md`](front-end/.specs/ROADMAP.md).
 
 ---
 
@@ -172,6 +172,9 @@ Using a board on `/b/{id}`:
 - Click a column name (or pick **Rename** in its **Column actions** menu) to rename it; Enter or leaving the field saves, Esc cancels. **Archive** in the same menu hides the column.
 - **Add task** in a column footer opens a title field (up to 100 characters); Enter adds the task at the end and keeps the field open, Esc closes it. Press `n` anywhere outside a text field to open it in the first column.
 - Tick **Completed** on a task to mark it done; it shows struck through.
+- Drag a task with the mouse to another spot or column: a dashed placeholder shows where it lands. Drag a column by its header to reorder the columns.
+- With the keyboard, focus a task (or a column header) and press Space to pick it up. ↑ ↓ change the position, ← → change the column (for a column, ← → change its position), and Space or Enter drops it; Esc puts it back. A banner above the columns shows where it is, and a screen reader hears every step. A help line under the board recalls the keys.
+- Every task has a **Move to…** menu that lists the columns; picking one moves the task to the end of that column. On a phone, this is the way to move a task.
 - Turn on **Show archived** in the toolbar to see, after the active columns, an **Archived** column with every archived task (with the date and the column it came from) and the **Archived columns** section. There, **Restore** puts a column back at the end and **Delete permanently** removes it with all its tasks after a confirmation that says how many tasks go with it. The switch is off every time a board opens.
 - An archived board (opened from the **Archived** tab) is read-only: a banner reads "Board archived · read-only", the add controls and column menus are hidden and the checkboxes are disabled. **Restore** in the banner makes it editable again.
 - On a phone, the board shows one column per screen. Swipe between them, or tap a dot under the header; the text next to the dots reads "{column} · 1 of 3". The back arrow returns to `/boards`.
