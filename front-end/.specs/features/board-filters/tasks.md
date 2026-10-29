@@ -518,8 +518,8 @@ T20 → T21 → T22 → T23
 
 **Done when**:
 
-- [ ] Unit: with `canDrag` false: `draggable` false, `dragstart` does not call `onDragStart`, Space does not call `onPick`, card still focusable, menu still offers "Mover para…" and calls `onMoveTo`; with `canDrag` true every existing test passes
-- [ ] Build gate passes; test count only grows
+- [x] Unit: with `canDrag` false: `draggable` false, `dragstart` does not call `onDragStart`, Space does not call `onPick`, card still focusable, menu still offers "Mover para…" and calls `onMoveTo`; with `canDrag` true every existing test passes
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
