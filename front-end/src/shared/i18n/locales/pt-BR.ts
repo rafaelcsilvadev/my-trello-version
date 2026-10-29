@@ -152,6 +152,9 @@ export const ptBR = {
       labels: 'Etiquetas',
       labelsCount: 'Etiquetas · {{count}}',
       noLabels: 'Nenhuma etiqueta ainda',
+      oneCard: '1 tarefa',
+      cards: '{{count}} tarefas',
+      clearFilters: 'Limpar filtros',
       showArchived: 'Mostrar arquivadas',
     },
     move: {

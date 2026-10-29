@@ -150,6 +150,9 @@ export const en = {
       labels: 'Labels',
       labelsCount: 'Labels · {{count}}',
       noLabels: 'No labels yet',
+      oneCard: '1 task',
+      cards: '{{count}} tasks',
+      clearFilters: 'Clear filters',
       showArchived: 'Show archived',
     },
     move: {
