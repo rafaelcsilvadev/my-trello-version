@@ -599,6 +599,26 @@ describe('BoardScreen', () => {
       expect(moves).toEqual([]);
     });
 
+    it('ignores / during a keyboard move and focuses the search once it ends', async () => {
+      boardApi();
+      renderScreen();
+      await screen.findByRole('region', { name: 'Doing' });
+
+      card('Write the brief').focus();
+      fireEvent.keyDown(card('Write the brief'), { key: ' ' });
+      fireEvent.keyDown(card('Write the brief'), { key: '/' });
+
+      expect(document.activeElement).toBe(card('Write the brief'));
+      expect(screen.getByText(/^Moving “Write the brief”/)).toBeTruthy();
+
+      fireEvent.keyDown(card('Write the brief'), { key: 'Escape' });
+      fireEvent.keyDown(card('Write the brief'), { key: '/' });
+
+      expect(document.activeElement).toBe(
+        screen.getByRole('textbox', { name: 'Search this board…' }),
+      );
+    });
+
     it('moves a card across columns with the mouse and updates both counters', async () => {
       const seed = boardApi();
       const moves = recordMoves(seed);
