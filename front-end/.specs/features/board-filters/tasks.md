@@ -262,8 +262,8 @@ T20 → T21 → T22 → T23
 
 **Done when**:
 
-- [ ] Unit: starts empty; each setter changes only its field; `clearQuery` keeps labels and due; `clearAll` resets all three; a remount starts empty again
-- [ ] Build gate passes; test count only grows
+- [x] Unit: starts empty; each setter changes only its field; `clearQuery` keeps labels and due; `clearAll` resets all three; a remount starts empty again
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
