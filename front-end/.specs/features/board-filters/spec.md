@@ -238,48 +238,48 @@ The board screen (features `board`, 3a, and `board-dnd`, 3b) shows every active 
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| FBF-01 | P1: Search the board | - | Pending |
-| FBF-02 | P1: Search the board | - | Pending |
-| FBF-03 | P1: Search the board | - | Pending |
-| FBF-04 | P1: Search the board | - | Pending |
-| FBF-05 | P1: Search the board | - | Pending |
-| FBF-06 | P1: Search the board | - | Pending |
-| FBF-07 | P1: Search the board | - | Pending |
-| FBF-08 | P1: Search the board | - | Pending |
-| FBF-09 | P1: Filter by label | - | Pending |
-| FBF-10 | P1: Filter by label | - | Pending |
-| FBF-11 | P1: Filter by label | - | Pending |
-| FBF-12 | P1: Filter by label | - | Pending |
-| FBF-13 | P1: Filter by label | - | Pending |
-| FBF-14 | P1: Filter by label | - | Pending |
-| FBF-15 | P1: Filter by label | - | Pending |
-| FBF-16 | P1: Filter by due date | - | Pending |
-| FBF-17 | P1: Filter by due date | - | Pending |
-| FBF-18 | P1: Filter by due date | - | Pending |
-| FBF-19 | P1: Filter by due date | - | Pending |
-| FBF-20 | P1: Filter by due date | - | Pending |
-| FBF-21 | P1: Filter by due date | - | Pending |
-| FBF-22 | P1: Filtered board view | - | Pending |
-| FBF-23 | P1: Filtered board view | - | Pending |
-| FBF-24 | P1: Filtered board view | - | Pending |
-| FBF-25 | P1: Filtered board view | - | Pending |
-| FBF-26 | P1: Filtered board view | - | Pending |
-| FBF-27 | P1: Filtered board view | - | Pending |
-| FBF-28 | P1: Filtered board view | - | Pending |
-| FBF-29 | P1: Filtered board view | - | Pending |
-| FBF-30 | P1: Drag off while filtering | - | Pending |
-| FBF-31 | P1: Drag off while filtering | - | Pending |
-| FBF-32 | P1: Drag off while filtering | - | Pending |
-| FBF-33 | P1: Drag off while filtering | - | Pending |
-| FBF-34 | P1: Drag off while filtering | - | Pending |
-| FBF-35 | P1: Drag off while filtering | - | Pending |
-| FBF-36 | P1: Drag off while filtering | - | Pending |
-| FBF-37 | P1: Reset and shortcut `n` | - | Pending |
-| FBF-38 | P1: Reset and shortcut `n` | - | Pending |
-| FBF-39 | P1: Reset and shortcut `n` | - | Pending |
-| FBF-40 | P1: Toolbar layout and accessibility | - | Pending |
-| FBF-41 | P1: Toolbar layout and accessibility | - | Pending |
-| FBF-42 | P1: Toolbar layout and accessibility | - | Pending |
+| FBF-01 | P1: Search the board | - | Verified |
+| FBF-02 | P1: Search the board | - | Verified |
+| FBF-03 | P1: Search the board | - | Verified |
+| FBF-04 | P1: Search the board | - | Verified |
+| FBF-05 | P1: Search the board | - | Verified |
+| FBF-06 | P1: Search the board | - | Verified |
+| FBF-07 | P1: Search the board | - | Verified |
+| FBF-08 | P1: Search the board | - | Verified |
+| FBF-09 | P1: Filter by label | - | Verified |
+| FBF-10 | P1: Filter by label | - | Verified |
+| FBF-11 | P1: Filter by label | - | Verified |
+| FBF-12 | P1: Filter by label | - | Verified |
+| FBF-13 | P1: Filter by label | - | Verified |
+| FBF-14 | P1: Filter by label | - | Verified |
+| FBF-15 | P1: Filter by label | - | Verified |
+| FBF-16 | P1: Filter by due date | - | Verified |
+| FBF-17 | P1: Filter by due date | - | Verified |
+| FBF-18 | P1: Filter by due date | - | Verified |
+| FBF-19 | P1: Filter by due date | - | Verified |
+| FBF-20 | P1: Filter by due date | - | Verified |
+| FBF-21 | P1: Filter by due date | - | Verified |
+| FBF-22 | P1: Filtered board view | - | Verified |
+| FBF-23 | P1: Filtered board view | - | Verified |
+| FBF-24 | P1: Filtered board view | - | Verified |
+| FBF-25 | P1: Filtered board view | - | Verified |
+| FBF-26 | P1: Filtered board view | - | Verified |
+| FBF-27 | P1: Filtered board view | - | Verified |
+| FBF-28 | P1: Filtered board view | - | Verified |
+| FBF-29 | P1: Filtered board view | - | Verified |
+| FBF-30 | P1: Drag off while filtering | - | Verified |
+| FBF-31 | P1: Drag off while filtering | - | Verified |
+| FBF-32 | P1: Drag off while filtering | - | Verified |
+| FBF-33 | P1: Drag off while filtering | - | Verified |
+| FBF-34 | P1: Drag off while filtering | - | Verified |
+| FBF-35 | P1: Drag off while filtering | - | Verified |
+| FBF-36 | P1: Drag off while filtering | - | Verified |
+| FBF-37 | P1: Reset and shortcut `n` | - | Verified |
+| FBF-38 | P1: Reset and shortcut `n` | - | Verified |
+| FBF-39 | P1: Reset and shortcut `n` | - | Verified |
+| FBF-40 | P1: Toolbar layout and accessibility | - | Verified |
+| FBF-41 | P1: Toolbar layout and accessibility | - | Verified |
+| FBF-42 | P1: Toolbar layout and accessibility | - | Verified |
 
 **Coverage:** 42 total, 0 mapped to tasks, 42 unmapped ⚠️ (mapped at Tasks)
 
