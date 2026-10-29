@@ -414,9 +414,9 @@ T20 → T21 → T22 → T23
 
 **Done when**:
 
-- [ ] Unit: "0 tarefas", "1 tarefa", "3 tarefas" in a status element; button calls `onClear`
-- [ ] i18n keys `oneCard`, `cards`, `clearFilters` in both locales
-- [ ] Build gate passes; test count only grows
+- [x] Unit: "0 tarefas", "1 tarefa", "3 tarefas" in a status element; button calls `onClear`
+- [x] i18n keys `oneCard`, `cards`, `clearFilters` in both locales
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
