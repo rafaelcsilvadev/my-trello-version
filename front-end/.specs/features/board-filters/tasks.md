@@ -543,8 +543,8 @@ T20 → T21 → T22 → T23
 
 **Done when**:
 
-- [ ] Unit: filtered and empty → no drop hint and counter 0; not filtered and empty → hint as before; filtered with two cards → counter 2
-- [ ] Build gate passes; test count only grows
+- [x] Unit: filtered and empty → no drop hint and counter 0; not filtered and empty → hint as before; filtered with two cards → counter 2
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
