@@ -618,7 +618,7 @@ T20 → T21 → T22 → T23
 
 **Done when**:
 
-- [ ] E2E: each journey passes against the API started by `docker compose`
+- [x] E2E: each journey passes against the API started by `docker compose`
 - [ ] Full gate passes locally and in CI
 
 **Tests**: e2e
