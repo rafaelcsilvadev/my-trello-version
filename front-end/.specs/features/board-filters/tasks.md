@@ -492,9 +492,9 @@ T20 → T21 → T22 → T23
 
 **Done when**:
 
-- [ ] Unit: `role="search"` holds the controls in spec order; "Prazo" lists Qualquer prazo, Atrasadas, Vencem hoje, Sem prazo, Concluídas with the current value selected; choosing one calls the due callback; summary shown only while `isFiltering`; switch unchanged
-- [ ] i18n keys `due`, `dueAny`, `dueOverdue`, `dueToday`, `dueNone`, `dueDone` in both locales
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `role="search"` holds the controls in spec order; "Prazo" lists Qualquer prazo, Atrasadas, Vencem hoje, Sem prazo, Concluídas with the current value selected; choosing one calls the due callback; summary shown only while `isFiltering`; switch unchanged
+- [x] i18n keys `due`, `dueAny`, `dueOverdue`, `dueToday`, `dueNone`, `dueDone` in both locales
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
