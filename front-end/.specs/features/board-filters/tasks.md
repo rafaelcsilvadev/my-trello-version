@@ -362,9 +362,9 @@ T20 → T21 → T22 → T23
 
 **Done when**:
 
-- [ ] Unit: name and placeholder; typing calls `onChange`; clear button hidden while empty, shown with text and calls `onClear`; Esc with text calls `onClear`, keeps focus and does not bubble; Esc while empty does nothing; `/` focuses the field; `/` ignored with `isShortcutEnabled` false, inside another input and with Ctrl held; hint has `hidden md:inline`; field has `w-full md:w-65`
-- [ ] i18n keys `search`, `clearSearch` in both locales
-- [ ] Build gate passes; test count only grows
+- [x] Unit: name and placeholder; typing calls `onChange`; clear button hidden while empty, shown with text and calls `onClear`; Esc with text calls `onClear`, keeps focus and does not bubble; Esc while empty does nothing; `/` focuses the field; `/` ignored with `isShortcutEnabled` false, inside another input and with Ctrl held; hint has `hidden md:inline`; field has `w-full md:w-65`
+- [x] i18n keys `search`, `clearSearch` in both locales
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
