@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 13,
+  "next_id": 17,
   "lessons": [
     {
       "id": "L-001",
@@ -11,17 +11,19 @@
       "text": "Test each screen composition through the rendered screen, asserting every prop it derives and passes to child components, not only the view-model state and the children in isolation",
       "signal": "surviving_mutant",
       "scope": "components",
-      "status": "candidate",
+      "status": "confirmed",
       "features": [
-        "boards"
+        "boards",
+        "board-filters"
       ],
-      "recurrence": 1,
+      "recurrence": 2,
       "harmful": 0,
       "evidence": [
-        "M40-M43 front-end/src/features/boards/components/boards-screen.tsx:89,115,125,147 (components)"
+        "M40-M43 front-end/src/features/boards/components/boards-screen.tsx:89,115,125,147 (components)",
+        "M31 front-end/src/features/board/components/board-screen.tsx:70 (components)"
       ],
       "created": "2026-10-26T20:51:23Z",
-      "last_seen": "2026-10-26T20:51:23Z"
+      "last_seen": "2026-10-29T18:09:54Z"
     },
     {
       "id": "L-002",
@@ -220,6 +222,78 @@
       ],
       "created": "2026-10-28T19:58:36Z",
       "last_seen": "2026-10-28T19:58:36Z"
+    },
+    {
+      "id": "L-013",
+      "key": "surviving_mutant::test each clear all button with every filter kind active not only the one that was easiest to set",
+      "text": "Test each clear-all button with every filter kind active, not only the one that was easiest to set",
+      "signal": "surviving_mutant",
+      "scope": "components",
+      "status": "candidate",
+      "features": [
+        "board-filters"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M40 front-end/src/features/board/components/board-screen.tsx:84 (components)"
+      ],
+      "created": "2026-10-29T18:09:54Z",
+      "last_seen": "2026-10-29T18:09:54Z"
+    },
+    {
+      "id": "L-014",
+      "key": "ac_gap::when an acceptance criterion lists several triggers test each trigger not only the first",
+      "text": "When an acceptance criterion lists several triggers, test each trigger, not only the first",
+      "signal": "ac_gap",
+      "scope": "components",
+      "status": "candidate",
+      "features": [
+        "board-filters"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "FBF-13 front-end/test/unit/features/board/components/label-filter.spec.tsx:117 (components)"
+      ],
+      "created": "2026-10-29T18:09:54Z",
+      "last_seen": "2026-10-29T18:09:54Z"
+    },
+    {
+      "id": "L-015",
+      "key": "spec_deviation::check how a react aria trigger names its overlay before designing an aria label on the overlay",
+      "text": "Check how a React Aria trigger names its overlay before designing an aria-label on the overlay",
+      "signal": "spec_deviation",
+      "scope": "components",
+      "status": "candidate",
+      "features": [
+        "board-filters"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "SPEC_DEVIATION front-end/src/features/board/components/label-filter.tsx:39 (components)"
+      ],
+      "created": "2026-10-29T18:09:54Z",
+      "last_seen": "2026-10-29T18:09:54Z"
+    },
+    {
+      "id": "L-016",
+      "key": "spec_deviation::do not nest a shared focusable form control inside an aria menu item draw its visual instead",
+      "text": "Do not nest a shared focusable form control inside an ARIA menu item; draw its visual instead",
+      "signal": "spec_deviation",
+      "scope": "components",
+      "status": "candidate",
+      "features": [
+        "board-filters"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "SPEC_DEVIATION front-end/src/features/board/components/label-filter.tsx:63 (components)"
+      ],
+      "created": "2026-10-29T18:09:54Z",
+      "last_seen": "2026-10-29T18:09:54Z"
     }
   ]
 }

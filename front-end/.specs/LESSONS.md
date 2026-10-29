@@ -8,17 +8,15 @@
 
 Corroborated across multiple features. Safe to apply as guidance.
 
-_none_
+### L-001 - Test each screen composition through the rendered screen, asserting every prop it derives and passes to child components, not only the view-model state and the children in isolation
+- signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `components` · harmful: 0
+- features: boards, board-filters
+- evidence: M40-M43 front-end/src/features/boards/components/boards-screen.tsx:89,115,125,147 (components) (+1 more)
+- last seen: 2026-10-29T18:09:54Z
 
 ## Candidates (under observation - do NOT load as guidance yet)
 
 Seen once or not yet corroborated. Tracked, not trusted.
-
-### L-001 - Test each screen composition through the rendered screen, asserting every prop it derives and passes to child components, not only the view-model state and the children in isolation
-- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `components` · harmful: 0
-- features: boards
-- evidence: M40-M43 front-end/src/features/boards/components/boards-screen.tsx:89,115,125,147 (components)
-- last seen: 2026-10-26T20:51:23Z
 
 ### L-002 - When a spec says a value is computed before trimming, test it with input that has surrounding spaces
 - signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `components` · harmful: 0
@@ -85,6 +83,30 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - features: board-dnd
 - evidence: FDND-02 board-column.spec.tsx:521 (front-end/components)
 - last seen: 2026-10-28T19:58:36Z
+
+### L-013 - Test each clear-all button with every filter kind active, not only the one that was easiest to set
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `components` · harmful: 0
+- features: board-filters
+- evidence: M40 front-end/src/features/board/components/board-screen.tsx:84 (components)
+- last seen: 2026-10-29T18:09:54Z
+
+### L-014 - When an acceptance criterion lists several triggers, test each trigger, not only the first
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `components` · harmful: 0
+- features: board-filters
+- evidence: FBF-13 front-end/test/unit/features/board/components/label-filter.spec.tsx:117 (components)
+- last seen: 2026-10-29T18:09:54Z
+
+### L-015 - Check how a React Aria trigger names its overlay before designing an aria-label on the overlay
+- signal: `spec_deviation` · recurrence: 1 feature(s) · scope: `components` · harmful: 0
+- features: board-filters
+- evidence: SPEC_DEVIATION front-end/src/features/board/components/label-filter.tsx:39 (components)
+- last seen: 2026-10-29T18:09:54Z
+
+### L-016 - Do not nest a shared focusable form control inside an ARIA menu item; draw its visual instead
+- signal: `spec_deviation` · recurrence: 1 feature(s) · scope: `components` · harmful: 0
+- features: board-filters
+- evidence: SPEC_DEVIATION front-end/src/features/board/components/label-filter.tsx:63 (components)
+- last seen: 2026-10-29T18:09:54Z
 
 ## Quarantined (failed when applied - ignore)
 
