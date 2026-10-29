@@ -127,6 +127,19 @@ describe('LabelFilter', () => {
     expect(screen.getByRole('button', { name: 'Etiquetas · 1' })).toBeTruthy();
   });
 
+  it('closes the menu on a click outside and keeps the checked labels (FBF-13)', () => {
+    const { onChange } = renderFilter({ selectedIds: [bug.id] });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Etiquetas · 1' }));
+    // The popover underlay covers the page, so a press outside the menu lands on it.
+    fireEvent.pointerDown(document.body, { button: 0 });
+    fireEvent.click(document.body, { button: 0 });
+
+    expect(screen.queryByRole('menu')).toBeNull();
+    expect(onChange).not.toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: 'Etiquetas · 1' })).toBeTruthy();
+  });
+
   it('shows "Nenhuma etiqueta ainda" when the board has no labels (FBF-14)', () => {
     renderFilter({ labels: [] });
 
