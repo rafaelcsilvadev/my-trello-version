@@ -14,6 +14,7 @@ const variants = {
     'border-border-subtle bg-surface-card text-text-primary shadow-xs hover:bg-(--neutral-50) active:bg-neutral-100',
   danger:
     'border-transparent bg-danger text-(--text-on-dark) hover:bg-red-600 active:bg-red-700',
+  soft: 'border-transparent bg-(--purple-50) text-purple-700 hover:bg-(--purple-100) active:bg-purple-200',
   // Prototype tl-ghost-btn (design/Task List.dc.html:82).
   ghost:
     'border-transparent bg-transparent text-text-secondary hover:bg-neutral-100 hover:text-text-primary active:bg-(--neutral-200)',
