@@ -125,6 +125,7 @@ export function useBoardViewModel(boardId: string) {
   const move = useBoardMove(boardId, {
     columns,
     canMove,
+    canDrag: canMove,
     pendingIds,
     renamingListId: editing?.listId ?? null,
   });

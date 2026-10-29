@@ -24,6 +24,8 @@ import type { Column } from '../model/types';
 export type BoardMoveOptions = {
   columns: Column[];
   canMove: boolean;
+  // False while the board is filtered: no drag or pick, "Mover para…" still works (FBF-31, FBF-32, FBF-34).
+  canDrag: boolean;
   pendingIds: Set<string>;
   // The column whose name is a field, so its header cannot be dragged (FDND-27).
   renamingListId: string | null;
@@ -112,7 +114,7 @@ function columnValues(columns: Column[], session: ColumnSession) {
 // One move session shared by the mouse and the keyboard; dropping sends one optimistic move.
 export function useBoardMove(
   boardId: string,
-  { columns, canMove, pendingIds, renamingListId }: BoardMoveOptions,
+  { columns, canMove, canDrag, pendingIds, renamingListId }: BoardMoveOptions,
 ) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -146,9 +148,9 @@ export function useBoardMove(
     [columns, session],
   );
 
-  // FDND-40, FDND-41, FDND-27.
+  // FDND-40, FDND-41, FDND-27, FBF-31, FBF-32.
   function start(kind: MoveSession['kind'], id: string, input: MoveInput) {
-    if (!canMove || session || pendingIds.has(id)) return;
+    if (!canMove || !canDrag || session || pendingIds.has(id)) return;
     if (kind === 'column' && id === renamingListId) return;
     const next = sessionAt(columns, kind, id, input);
     setSession(next);
