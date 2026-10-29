@@ -104,6 +104,19 @@ describe('Button', () => {
     expect(classList.contains('shadow-xs')).toBe(false);
   });
 
+  it('applies the soft variant classes', () => {
+    render(<Button variant="soft">Etiquetas · 2</Button>);
+
+    const { classList } = screen.getByRole('button');
+    expect(classList.contains('bg-(--purple-50)')).toBe(true);
+    expect(classList.contains('text-purple-700')).toBe(true);
+    expect(classList.contains('hover:bg-(--purple-100)')).toBe(true);
+    expect(classList.contains('active:bg-purple-200')).toBe(true);
+    expect(classList.contains('border-transparent')).toBe(true);
+    expect(classList.contains('bg-brand')).toBe(false);
+    expect(classList.contains('bg-transparent')).toBe(false);
+  });
+
   it('applies the sm size classes', () => {
     render(<Button size="sm">Restaurar</Button>);
 
