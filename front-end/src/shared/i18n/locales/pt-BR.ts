@@ -156,6 +156,7 @@ export const ptBR = {
       cards: '{{count}} tarefas',
       clearFilters: 'Limpar filtros',
       dragOff: 'Arrastar fica desativado enquanto há filtros',
+      noResults: 'Nenhuma tarefa encontrada',
       showArchived: 'Mostrar arquivadas',
     },
     move: {
