@@ -85,6 +85,7 @@ export function BoardScreen({ boardId }: BoardScreenProps) {
         isCreatingCard={state.isCreatingCard}
         showArchived={state.showArchived}
         archived={state.archived}
+        isFiltered={state.isFiltering}
         onStartRename={actions.startRename}
         onSubmitRename={actions.submitRename}
         onCancelRename={actions.cancelRename}
@@ -102,6 +103,7 @@ export function BoardScreen({ boardId }: BoardScreenProps) {
             ? {
                 session: move.session,
                 preview: move.preview,
+                canDrag: state.canDrag,
                 onStart: moveActions.start,
                 onHover: moveActions.hover,
                 onStep: moveActions.step,

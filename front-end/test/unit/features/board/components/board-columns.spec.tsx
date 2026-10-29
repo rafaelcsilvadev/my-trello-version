@@ -64,12 +64,15 @@ type RenderOptions = {
   showArchived?: boolean;
   archivedItems?: BoardColumnsArchived;
   session?: MoveSession | null;
+  canDrag?: boolean;
+  isFiltered?: boolean;
 };
 
 function moveProps(): BoardColumnsMove {
   return {
     session: null,
     preview: previewColumns([], null),
+    canDrag: true,
     onStart: vi.fn<BoardColumnsMove['onStart']>(),
     onHover: vi.fn<BoardColumnsMove['onHover']>(),
     onStep: vi.fn<BoardColumnsMove['onStep']>(),
@@ -109,6 +112,8 @@ function renderColumns(options: RenderOptions = {}) {
     showArchived = false,
     archivedItems = archived,
     session = null,
+    canDrag = true,
+    isFiltered = false,
   }: RenderOptions) {
     const preview = previewColumns(columns, session);
     return (
@@ -125,7 +130,8 @@ function renderColumns(options: RenderOptions = {}) {
           isCreatingCard={false}
           showArchived={showArchived}
           archived={archivedItems}
-          move={{ ...move, session, preview }}
+          isFiltered={isFiltered}
+          move={{ ...move, session, preview, canDrag }}
           {...callbacks}
         />
       </I18nextProvider>
@@ -257,6 +263,19 @@ describe('BoardColumns', () => {
     expect(scrollTo).toHaveBeenCalledWith({ left: 312, behavior: 'smooth' });
   });
 
+  // FBF-27
+  it('hides the drop hint in an empty column while filtered', () => {
+    renderColumns({ isFiltered: true });
+
+    expect(screen.queryByText('Arraste cards para cá')).toBeNull();
+  });
+
+  it('shows the drop hint in an empty column when not filtered', () => {
+    renderColumns();
+
+    expect(screen.getAllByText('Arraste cards para cá')).toHaveLength(2);
+  });
+
   it('wires each column to its own list id', () => {
     const { onStartRename } = renderColumns();
 
@@ -336,6 +355,28 @@ describe('BoardColumns', () => {
 
     it('asks to move a card through its menu', () => {
       const { move } = renderColumns();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Mover para…' }));
+      fireEvent.click(screen.getByRole('menuitem', { name: 'Mover para…' }));
+
+      expect(move.onMoveTo).toHaveBeenCalledExactlyOnceWith('c1');
+    });
+
+    // FBF-31, FBF-32, FBF-34
+    it('turns off every column and card drag while canDrag is false', () => {
+      renderColumns({ canDrag: false });
+
+      expect(
+        screen.queryAllByRole('button', { name: /Espaço para mover/ }),
+      ).toEqual([]);
+      expect(document.querySelectorAll('[data-column-id]')).toHaveLength(0);
+      expect(document.querySelectorAll('[draggable="true"]')).toHaveLength(0);
+      expect(cardTile()?.getAttribute('draggable')).toBe('false');
+      screen.getByRole('button', { name: 'Mover para…' });
+    });
+
+    it('still moves a card through its menu while canDrag is false', () => {
+      const { move } = renderColumns({ canDrag: false });
 
       fireEvent.click(screen.getByRole('button', { name: 'Mover para…' }));
       fireEvent.click(screen.getByRole('menuitem', { name: 'Mover para…' }));

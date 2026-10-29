@@ -49,9 +49,11 @@ export type BoardColumnsArchived = {
 };
 
 // The board's move session and its actions (`useBoardMove`). `columns` is already `preview.columns`.
+// While `canDrag` is false no header is a handle and no card drags; "Mover para…" stays (FBF-31, FBF-32, FBF-34).
 export type BoardColumnsMove = {
   session: MoveSession | null;
   preview: ColumnsPreview;
+  canDrag: boolean;
   onStart: (kind: MoveSession['kind'], id: string, input: MoveInput) => void;
   onHover: (target: CardSpot | ColumnSpot) => void;
   onStep: (key: ArrowKey) => void;
@@ -72,6 +74,7 @@ type BoardColumnsProps = {
   isCreatingCard: boolean;
   showArchived: boolean;
   archived: BoardColumnsArchived;
+  isFiltered: boolean;
   onStartRename: (listId: string) => void;
   onSubmitRename: (list: List, raw: string) => ItemFieldError | null;
   onCancelRename: () => void;
@@ -101,6 +104,7 @@ export function BoardColumns({
   isCreatingCard,
   showArchived,
   archived,
+  isFiltered,
   onStartRename,
   onSubmitRename,
   onCancelRename,
@@ -200,7 +204,7 @@ export function BoardColumns({
     session?.kind === 'card' && session.input === 'mouse' ? session : null;
 
   function columnMove(listId: string): ColumnMove | undefined {
-    if (!move) return undefined;
+    if (!move?.canDrag) return undefined;
     return {
       isSource: columnDrag?.id === listId,
       isLifted: move.preview.liftedId === listId,
@@ -233,7 +237,7 @@ export function BoardColumns({
     ? (cardId: string): CardMove => ({
         isSource: move.preview.sourceCardId === cardId,
         isLifted: move.preview.liftedId === cardId,
-        canDrag: true,
+        canDrag: move.canDrag,
         onDragStart: (id) => move.onStart('card', id, 'mouse'),
         onDragEnd: move.onCancel,
         onPick: (id) => move.onStart('card', id, 'keyboard'),
@@ -314,7 +318,7 @@ export function BoardColumns({
               rename={editing?.listId === listId ? editing : null}
               isAddingCard={addingCardListId === listId}
               isCreatingCard={isCreatingCard}
-              isFiltered={false}
+              isFiltered={isFiltered}
               onStartRename={() => onStartRename(listId)}
               onSubmitRename={(raw) => onSubmitRename(column.list, raw)}
               onCancelRename={onCancelRename}
