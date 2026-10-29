@@ -25,9 +25,14 @@ import { toArchivedCards, toArchivedColumns } from '../model/archived';
 import { toColumns } from '../model/columns';
 import { todayParts } from '../model/due-date';
 import { mapTitleServerError } from '../model/errors';
+import {
+  filterColumns,
+  isFiltering as hasActiveFilters,
+} from '../model/filters';
 import type { Card, ItemFieldError, Label, List } from '../model/types';
 import { validateCardTitle, validateColumnName } from '../model/validation';
 
+import { useBoardFilters } from './use-board-filters';
 import { useBoardMove } from './use-board-move';
 
 export type BoardStatus = 'loading' | 'ready' | 'error' | 'notFound';
@@ -122,17 +127,46 @@ export function useBoardViewModel(boardId: string) {
     archivedColumns.find(({ list }) => list.id === deleteListId) ?? null;
   const readOnly = board.data !== undefined && board.data.archivedAt !== null;
   const canMove = !readOnly;
-  const move = useBoardMove(boardId, {
-    columns,
-    canMove,
-    canDrag: canMove,
-    pendingIds,
-    renamingListId: editing?.listId ?? null,
-  });
   const labelsById = useMemo(
     () => new Map<string, Label>(labels.data?.map((l) => [l.id, l]) ?? []),
     [labels.data],
   );
+  const boardLabelIds = useMemo(() => new Set(labelsById.keys()), [labelsById]);
+  const filters = useBoardFilters();
+  const isFiltering = hasActiveFilters(filters.filters, boardLabelIds);
+  // Drag works on the full columns, so it is off while some cards are hidden (FBF-31, FBF-36).
+  const canDrag = canMove && !isFiltering;
+  const move = useBoardMove(boardId, {
+    columns,
+    canMove,
+    canDrag,
+    pendingIds,
+    renamingListId: editing?.listId ?? null,
+  });
+  // Filters the preview, so the cache's optimistic changes and rollbacks show at once (FBF-22, FBF-29).
+  const visible = useMemo(() => {
+    const { columns: preview } = move.state.preview;
+    if (!isFiltering)
+      return {
+        columns: preview,
+        matchCount: preview.reduce((sum, { cards }) => sum + cards.length, 0),
+      };
+    return filterColumns(preview, filters.filters, boardLabelIds, today);
+  }, [move.state.preview, isFiltering, filters.filters, boardLabelIds, today]);
+  // FBF-11, FBF-15.
+  const selectedLabelCount = filters.filters.labelIds.filter((id) =>
+    labelsById.has(id),
+  ).length;
+
+  // A keyboard move can be live while a filter changes with the mouse; it ends first.
+  function cancelingMove<Args extends unknown[]>(
+    change: (...args: Args) => void,
+  ) {
+    return (...args: Args) => {
+      move.actions.cancel();
+      change(...args);
+    };
+  }
 
   // A deleted board also makes its lists and cards answer 404 (FBV-11).
   // A failed refetch keeps the cached board; the write's toast already told the user.
@@ -240,10 +274,16 @@ export function useBoardViewModel(boardId: string) {
       board: board.data,
       readOnly,
       canMove,
-      // The preview, so the columns and their counters follow a running move (FDND-06).
-      columns: move.state.preview.columns,
+      // The filtered preview, so the columns and their counters follow a running move (FDND-06, FBF-26).
+      columns: visible.columns,
+      matchCount: visible.matchCount,
       move: move.state,
       labelsById,
+      labels: labels.data ?? [],
+      filters: filters.filters,
+      isFiltering,
+      canDrag,
+      selectedLabelCount,
       showArchived,
       archived: {
         cards: archivedCardItems,
@@ -296,6 +336,13 @@ export function useBoardViewModel(boardId: string) {
           t('board.toast.boardRestored'),
         ),
       move: move.actions,
+      filters: {
+        setQuery: cancelingMove(filters.setQuery),
+        setLabelIds: cancelingMove(filters.setLabelIds),
+        setDue: cancelingMove(filters.setDue),
+        clearQuery: cancelingMove(filters.clearQuery),
+        clearAll: cancelingMove(filters.clearAll),
+      },
     },
   };
 }

@@ -1252,4 +1252,195 @@ describe('useBoardViewModel', () => {
       held.open();
     });
   });
+
+  describe('filters', () => {
+    function columnCards(result: ReturnType<typeof setup>['result']) {
+      return result.current.state.columns.map(({ list, cards }) => [
+        list.title,
+        cards.map((card) => card.id),
+      ]);
+    }
+
+    function allCards(result: ReturnType<typeof setup>['result']) {
+      return result.current.state.columns.flatMap(({ cards }) => cards);
+    }
+
+    it('starts unfiltered with every card shown and dragging on', async () => {
+      boardServer();
+      const { result } = await setupReady();
+
+      expect(result.current.state.isFiltering).toBe(false);
+      expect(result.current.state.canDrag).toBe(true);
+      expect(columnCards(result)).toEqual([
+        ['Doing', ['c3']],
+        ['Backlog', ['c2', 'c1']],
+      ]);
+    });
+
+    it('a query hides the cards that do not match and counts the rest', async () => {
+      boardServer();
+      const { result } = await setupReady();
+
+      act(() => result.current.actions.filters.setQuery('card c3'));
+
+      expect(result.current.state.filters.query).toBe('card c3');
+      expect(result.current.state.isFiltering).toBe(true);
+      expect(columnCards(result)).toEqual([
+        ['Doing', ['c3']],
+        ['Backlog', []],
+      ]);
+      expect(result.current.state.matchCount).toBe(1);
+    });
+
+    it('turns dragging off while filtering and back on after clearAll', async () => {
+      boardServer();
+      const { result } = await setupReady();
+
+      act(() => result.current.actions.filters.setDue('none'));
+      expect(result.current.state.canDrag).toBe(false);
+      expect(result.current.state.canMove).toBe(true);
+
+      act(() => result.current.actions.filters.clearAll());
+      expect(result.current.state.filters).toEqual({
+        query: '',
+        labelIds: [],
+        due: 'any',
+      });
+      expect(result.current.state.isFiltering).toBe(false);
+      expect(result.current.state.canDrag).toBe(true);
+      expect(allCards(result)).toHaveLength(3);
+    });
+
+    it('filters a read-only board with dragging off', async () => {
+      boardServer({
+        [boardUrl]: () =>
+          HttpResponse.json(
+            boardFixture({ archivedAt: '2026-10-24T12:00:00.000Z' }),
+          ),
+      });
+      const { result } = await setupReady();
+      expect(result.current.state.canDrag).toBe(false);
+
+      act(() => result.current.actions.filters.setQuery('c1'));
+
+      expect(columnCards(result)).toEqual([
+        ['Doing', []],
+        ['Backlog', ['c1']],
+      ]);
+      expect(result.current.state.matchCount).toBe(1);
+      expect(result.current.state.canDrag).toBe(false);
+    });
+
+    it('leaves the archived cards and columns unfiltered', async () => {
+      boardServer();
+      const { result } = await setupReady();
+
+      act(() => result.current.actions.setShowArchived(true));
+      act(() => result.current.actions.filters.setQuery('nothing matches'));
+
+      await waitFor(() =>
+        expect(result.current.state.archived.cardsStatus).toBe('ready'),
+      );
+      await waitFor(() =>
+        expect(result.current.state.archived.columnsStatus).toBe('ready'),
+      );
+      expect(result.current.state.matchCount).toBe(0);
+      expect(
+        result.current.state.archived.cards.map(({ card }) => card.id),
+      ).toEqual(['c8', 'c7']);
+      expect(
+        result.current.state.archived.columns.map(({ list }) => list.id),
+      ).toEqual(['l4', 'l3']);
+    });
+
+    it('counts only the checked labels the board still has, and ignores the rest', async () => {
+      boardServer();
+      const { result } = await setupReady();
+
+      expect(result.current.state.labels).toEqual([urgent]);
+
+      act(() => result.current.actions.filters.setLabelIds(['lb1', 'gone']));
+      expect(result.current.state.selectedLabelCount).toBe(1);
+
+      act(() => result.current.actions.filters.setLabelIds(['gone']));
+      expect(result.current.state.selectedLabelCount).toBe(0);
+      expect(result.current.state.isFiltering).toBe(false);
+      expect(result.current.state.canDrag).toBe(true);
+      expect(allCards(result)).toHaveLength(3);
+    });
+
+    it('shows a card toggled done under Concluídas at once and hides it again on rollback', async () => {
+      boardServer();
+      const held = gate();
+      cardWrites(async () => {
+        await held.wait();
+        return problem(500);
+      });
+      const { result } = await setupReady();
+      const card = allCards(result).find(({ id }) => id === 'c3')!;
+
+      act(() => result.current.actions.filters.setDue('done'));
+      expect(result.current.state.matchCount).toBe(0);
+
+      act(() => result.current.actions.toggleDone(card));
+
+      await waitFor(() =>
+        expect(allCards(result).map(({ id }) => id)).toEqual(['c3']),
+      );
+      expect(result.current.state.matchCount).toBe(1);
+      held.open();
+      await screen.findByText(saveFail);
+      await waitFor(() => expect(allCards(result)).toEqual([]));
+      expect(result.current.state.matchCount).toBe(0);
+    });
+
+    it('hides a card toggled not done under Concluídas at once and brings it back on rollback', async () => {
+      boardServer({
+        [cardsUrl]: () =>
+          HttpResponse.json([cardFixture('c3', doing.id, { done: true })]),
+      });
+      const held = gate();
+      cardWrites(async () => {
+        await held.wait();
+        return problem(500);
+      });
+      const { result } = await setupReady();
+
+      act(() => result.current.actions.filters.setDue('done'));
+      const card = allCards(result)[0];
+      expect(card.id).toBe('c3');
+
+      act(() => result.current.actions.toggleDone(card));
+
+      await waitFor(() => expect(allCards(result)).toEqual([]));
+      held.open();
+      await screen.findByText(saveFail);
+      await waitFor(() =>
+        expect(allCards(result).map(({ id }) => id)).toEqual(['c3']),
+      );
+    });
+
+    it.each([
+      ['setQuery', (f: Filters) => f.setQuery('c1')],
+      ['setLabelIds', (f: Filters) => f.setLabelIds(['lb1'])],
+      ['setDue', (f: Filters) => f.setDue('overdue')],
+      ['clearQuery', (f: Filters) => f.clearQuery()],
+      ['clearAll', (f: Filters) => f.clearAll()],
+    ])('%s cancels a running keyboard move first', async (_name, change) => {
+      boardServer();
+      const { result } = await setupReady();
+
+      act(() => result.current.actions.move.start('card', 'c3', 'keyboard'));
+      expect(result.current.state.move.session).not.toBeNull();
+
+      act(() => change(result.current.actions.filters));
+
+      expect(result.current.state.move.session).toBeNull();
+      expect(result.current.state.move.announcement).toBe(
+        'Movimento cancelado',
+      );
+    });
+  });
 });
+
+type Filters = ReturnType<typeof useBoardViewModel>['actions']['filters'];
