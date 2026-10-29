@@ -466,9 +466,9 @@ T20 → T21 → T22 → T23
 
 **Done when**:
 
-- [ ] Unit: renders the text; button "Limpar filtros" calls `onClear`
-- [ ] i18n key `noResults` in both locales
-- [ ] Build gate passes; test count only grows
+- [x] Unit: renders the text; button "Limpar filtros" calls `onClear`
+- [x] i18n key `noResults` in both locales
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
