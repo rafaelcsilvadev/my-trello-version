@@ -378,6 +378,97 @@ describe('BoardScreen', () => {
     expect(screen.getByRole('button', { name: 'Add column' })).toBeTruthy();
   });
 
+  describe('filters', () => {
+    const dragOff = 'Dragging is off while filters are applied';
+
+    function search(text: string) {
+      fireEvent.change(
+        screen.getByRole('textbox', { name: 'Search this board…' }),
+        { target: { value: text } },
+      );
+    }
+
+    it('shows only the matching cards with the count and the notice, and brings drag back on clear', async () => {
+      boardApi();
+      renderScreen();
+      await screen.findByRole('region', { name: 'Doing' });
+
+      search('brief');
+
+      expect(
+        within(column('Backlog')).getByText('Write the brief'),
+      ).toBeTruthy();
+      expect(within(column('Doing')).queryByText('Book the venue')).toBeNull();
+      expect(screen.getByText('1 task')).toBeTruthy();
+      expect(screen.getByText(dragOff)).toBeTruthy();
+      expect(screen.queryByText(keyboardHelp)).toBeNull();
+      expect(document.querySelector('[draggable="true"]')).toBeNull();
+      expect(
+        within(column('Doing')).getByRole('button', { name: 'Add task' }),
+      ).toBeTruthy();
+
+      // A match exists, so the toolbar holds the only Clear filters.
+      fireEvent.click(screen.getByRole('button', { name: 'Clear filters' }));
+
+      expect(within(column('Doing')).getByText('Book the venue')).toBeTruthy();
+      expect(screen.queryByText(dragOff)).toBeNull();
+      expect(screen.getByText(keyboardHelp)).toBeTruthy();
+      expect(card('Write the brief').getAttribute('draggable')).toBe('true');
+    });
+
+    it('replaces the columns with No tasks found and restores them from its Clear filters', async () => {
+      boardApi();
+      renderScreen();
+      await screen.findByRole('region', { name: 'Doing' });
+
+      search('nothing like this');
+
+      const noResults = screen.getByText('No tasks found').parentElement!;
+      expect(screen.queryByTestId('board-columns')).toBeNull();
+      expect(screen.queryByRole('button', { name: 'Add column' })).toBeNull();
+
+      fireEvent.click(
+        within(noResults).getByRole('button', { name: 'Clear filters' }),
+      );
+
+      expect(screen.queryByText('No tasks found')).toBeNull();
+      expect(within(column('Doing')).getByText('Book the venue')).toBeTruthy();
+      expect(
+        screen.getByRole<HTMLInputElement>('textbox', {
+          name: 'Search this board…',
+        }).value,
+      ).toBe('');
+    });
+
+    it('shows the empty board block, not No tasks found, on a board without columns', async () => {
+      const seed = boardApi();
+      seed.lists = [];
+      seed.cards = [];
+      renderScreen();
+      await screen.findByText('Add the first column');
+
+      search('brief');
+
+      expect(screen.getByText('Add the first column')).toBeTruthy();
+      expect(screen.queryByText('No tasks found')).toBeNull();
+    });
+
+    it('filters an archived board without the drag-off notice', async () => {
+      boardApi(boardFixture({ archivedAt: archivedStamp }));
+      renderScreen();
+      await screen.findByText('Board archived · read-only');
+
+      search('brief');
+
+      expect(
+        within(column('Backlog')).getByText('Write the brief'),
+      ).toBeTruthy();
+      expect(within(column('Doing')).queryByText('Book the venue')).toBeNull();
+      expect(screen.getByText('1 task')).toBeTruthy();
+      expect(screen.queryByText(dragOff)).toBeNull();
+    });
+  });
+
   describe('moves', () => {
     // jsdom has no scrollTo; a keyboard move scrolls the phone layout.
     beforeEach(() => {

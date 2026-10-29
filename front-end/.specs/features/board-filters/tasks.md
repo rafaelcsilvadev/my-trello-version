@@ -593,8 +593,8 @@ T20 → T21 → T22 → T23
 
 **Done when**:
 
-- [ ] Unit (screen + MSW): typing a search shows only matching cards, the count, the notice, and hides the help line; no match shows "Nenhuma tarefa encontrada" and its Limpar filtros restores the board; board without columns shows the empty-board block, not no-results; archived board filters without the notice; "+ Adicionar tarefa" stays while filtering; remounting the screen (new `boardId` key) starts unfiltered with "Mostrar arquivadas" off; clearing brings back drag and the help line
-- [ ] Build gate passes; test count only grows
+- [x] Unit (screen + MSW): typing a search shows only matching cards, the count, the notice, and hides the help line; no match shows "Nenhuma tarefa encontrada" and its Limpar filtros restores the board; board without columns shows the empty-board block, not no-results; archived board filters without the notice; "+ Adicionar tarefa" stays while filtering; remounting the screen (new `boardId` key) starts unfiltered with "Mostrar arquivadas" off; clearing brings back drag and the help line
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build

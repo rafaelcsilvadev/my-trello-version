@@ -64,4 +64,24 @@ describe('BoardPage', () => {
     await screen.findByRole('heading', { level: 1, name: 'Travel' });
     expect((await showArchived()).checked).toBe(false);
   });
+
+  it('starts the next board with an empty search', async () => {
+    respondBoards([
+      boardFixture(),
+      boardFixture({ id: otherBoardId, title: 'Travel' }),
+    ]);
+    const { router } = renderApp({ route: `/b/${boardId}`, token: 'token' });
+    const searchBox = () =>
+      screen.findByRole<HTMLInputElement>('textbox', {
+        name: 'Search this board…',
+      });
+
+    fireEvent.change(await searchBox(), { target: { value: 'brief' } });
+    expect((await searchBox()).value).toBe('brief');
+
+    await router.navigate(`/b/${otherBoardId}`);
+
+    await screen.findByRole('heading', { level: 1, name: 'Travel' });
+    expect((await searchBox()).value).toBe('');
+  });
 });
