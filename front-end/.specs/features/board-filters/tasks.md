@@ -137,8 +137,8 @@ T20 → T21 → T22 → T23
 
 **Done when**:
 
-- [ ] Unit: combobox named by `label`; renders every option in order; shows `value` as selected; choosing an option calls `onChange` with its value
-- [ ] Build gate passes; test count only grows
+- [x] Unit: combobox named by `label`; renders every option in order; shows `value` as selected; choosing an option calls `onChange` with its value
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
