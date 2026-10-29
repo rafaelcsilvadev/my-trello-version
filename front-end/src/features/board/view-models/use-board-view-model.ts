@@ -254,9 +254,15 @@ export function useBoardViewModel(boardId: string) {
   }
 
   // FE-AD-011 guards live in the hook; this only adds the board's own (FBV-30, FBV-46).
-  useShortcut('n', () => setAddingCardListId(columns[0].list.id), {
-    enabled: status === 'ready' && !readOnly && columns.length > 0,
-  });
+  // Clears the filters first and reads the unfiltered columns, so a column the filters left empty still opens (FBF-38).
+  useShortcut(
+    'n',
+    () => {
+      filters.clearAll();
+      setAddingCardListId(columns[0].list.id);
+    },
+    { enabled: status === 'ready' && !readOnly && columns.length > 0 },
+  );
 
   function confirmDeleteList() {
     if (!deleteListId) return;

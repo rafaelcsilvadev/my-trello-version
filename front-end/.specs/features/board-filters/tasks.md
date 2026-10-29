@@ -337,8 +337,8 @@ T20 → T21 → T22 → T23
 
 **Done when**:
 
-- [ ] Unit: with a filter that leaves the first column empty, `n` clears every filter and sets `addingCardListId` to the first active column; without filters behavior unchanged
-- [ ] Build gate passes; test count only grows
+- [x] Unit: with a filter that leaves the first column empty, `n` clears every filter and sets `addingCardListId` to the first active column; without filters behavior unchanged
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
