@@ -568,8 +568,8 @@ T20 → T21 → T22 → T23
 
 **Done when**:
 
-- [ ] Unit: with `canDrag` false no header has the "Espaço para mover" name or `draggable`, cards are not draggable and keep "Mover para…"; `isFiltered` hides the hint in an empty column; with `canDrag` true existing tests pass
-- [ ] Build gate passes; test count only grows
+- [x] Unit: with `canDrag` false no header has the "Espaço para mover" name or `draggable`, cards are not draggable and keep "Mover para…"; `isFiltered` hides the hint in an empty column; with `canDrag` true existing tests pass
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
