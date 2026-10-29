@@ -11,7 +11,7 @@ Web client for the personal Trello API (`back-end/`, features 0–6). Screens an
 | 2 | `boards` | My boards: active/archived tabs, create, edit, archive, restore, delete | 1 | Done |
 | 3a | `board` | Board view: columns and cards, create and rename columns, archive/restore/delete columns, create cards, done flag, "Mostrar arquivadas", read-only archived board, `n` shortcut, phone layout | 2 | Done |
 | 3b | `board-dnd` | Drag cards and columns with mouse and keyboard, live region, "Mover para…" | 3a | Done |
-| 3c | `board-filters` | Search, label and due-date filters, `/` shortcut, drag disabled while filtering | 3b | — |
+| 3c | `board-filters` | Search, label and due-date filters, `/` shortcut, drag disabled while filtering | 3b | Done |
 | 4 | `card-detail` | Card detail: title, description, due date, done flag, checklist, apply labels | 3a | — |
 | 5 | `labels` | Board labels page: create, edit, delete | 4 | — |
 | 6 | `settings` | Settings screen (language, theme, session) and keyboard shortcuts dialog | 1 | — |
