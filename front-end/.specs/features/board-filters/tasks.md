@@ -440,9 +440,9 @@ T20 → T21 → T22 → T23
 
 **Done when**:
 
-- [ ] Unit: renders the text; icon is `aria-hidden`
-- [ ] i18n key `dragOff` in both locales
-- [ ] Build gate passes; test count only grows
+- [x] Unit: renders the text; icon is `aria-hidden`
+- [x] i18n key `dragOff` in both locales
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
