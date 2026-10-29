@@ -233,6 +233,7 @@ export function BoardColumns({
     ? (cardId: string): CardMove => ({
         isSource: move.preview.sourceCardId === cardId,
         isLifted: move.preview.liftedId === cardId,
+        canDrag: true,
         onDragStart: (id) => move.onStart('card', id, 'mouse'),
         onDragEnd: move.onCancel,
         onPick: (id) => move.onStart('card', id, 'keyboard'),

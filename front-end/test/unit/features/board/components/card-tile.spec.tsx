@@ -36,6 +36,7 @@ function moveProps(overrides: Partial<CardMove> = {}): CardMove {
   return {
     isSource: false,
     isLifted: false,
+    canDrag: true,
     onDragStart: vi.fn<(cardId: string) => void>(),
     onDragEnd: vi.fn<() => void>(),
     onPick: vi.fn<(cardId: string) => void>(),
@@ -391,6 +392,51 @@ describe('CardTile', () => {
       fireEvent.keyDown(doneCheckbox(), { key: 'ArrowDown' });
 
       expect(move.onStep).not.toHaveBeenCalled();
+    });
+
+    describe('while drag is off', () => {
+      it('stays a focusable button with the card id', () => {
+        renderTile({ move: { canDrag: false } });
+
+        const card = cardButton();
+        expect(card.tabIndex).toBe(0);
+        expect(card.dataset.cardId).toBe('c1');
+      });
+
+      it('is not draggable', () => {
+        renderTile({ move: { canDrag: false } });
+
+        expect(cardButton().getAttribute('draggable')).toBe('false');
+      });
+
+      it('does not start a mouse move on dragstart', () => {
+        const { move } = renderTile({ move: { canDrag: false } });
+        const dataTransfer = dataTransferStub();
+
+        fireEvent.dragStart(cardButton(), { dataTransfer });
+
+        expect(move.onDragStart).not.toHaveBeenCalled();
+        expect(dataTransfer.setData).not.toHaveBeenCalled();
+      });
+
+      it('does not pick the card on Space', () => {
+        const { move } = renderTile({ move: { canDrag: false } });
+
+        const notPrevented = fireEvent.keyDown(cardButton(), { key: ' ' });
+
+        expect(move.onPick).not.toHaveBeenCalled();
+        expect(notPrevented).toBe(true);
+      });
+
+      it('still moves the card through "Mover para…"', async () => {
+        const user = userEvent.setup();
+        const { move } = renderTile({ move: { canDrag: false } });
+
+        await user.click(screen.getByRole('button', { name: 'Mover para…' }));
+        await user.click(screen.getByRole('menuitem', { name: 'Mover para…' }));
+
+        expect(move.onMoveTo).toHaveBeenCalledExactlyOnceWith('c1');
+      });
     });
 
     it('shows a dashed, translucent drag source', () => {
