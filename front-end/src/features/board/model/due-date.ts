@@ -49,3 +49,11 @@ export function isOverdue(
   if (card.done || card.dueDate === null) return false;
   return daysBetween(today, parseDateOnly(card.dueDate)) < 0;
 }
+
+export function isDueToday(
+  card: Pick<Card, 'dueDate'>,
+  today: DateParts,
+): boolean {
+  if (card.dueDate === null) return false;
+  return daysBetween(today, parseDateOnly(card.dueDate)) === 0;
+}

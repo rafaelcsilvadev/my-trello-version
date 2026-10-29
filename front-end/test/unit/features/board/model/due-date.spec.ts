@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import {
   dueLabel,
+  isDueToday,
   isOverdue,
   parseDateOnly,
   todayParts,
@@ -159,5 +160,26 @@ describe('isOverdue', () => {
 
   it('is not overdue without a due date', () => {
     expect(isOverdue({ done: false, dueDate: null }, today)).toBe(false);
+  });
+});
+
+describe('isDueToday', () => {
+  it.each([false, true])('is due today when due today (done: %s)', (done) => {
+    const card = { done, dueDate: '2026-10-27' };
+
+    expect(isDueToday(card, today)).toBe(true);
+  });
+
+  it.each([
+    ['yesterday', '2026-10-26'],
+    ['tomorrow', '2026-10-28'],
+    ['the same day of another month', '2026-11-27'],
+    ['the same day of another year', '2025-10-27'],
+  ])('is not due today when due %s', (_case, dueDate) => {
+    expect(isDueToday({ dueDate }, today)).toBe(false);
+  });
+
+  it('is not due today without a due date', () => {
+    expect(isDueToday({ dueDate: null }, today)).toBe(false);
   });
 });
