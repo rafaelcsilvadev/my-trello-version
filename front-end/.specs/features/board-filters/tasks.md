@@ -187,8 +187,8 @@ T20 → T21 → T22 → T23
 
 **Done when**:
 
-- [ ] Unit: "LANCAMENTO" matches "Lançamento"; "acao" matches "Ação"; match in description only; `null` description matches by title only; spaces-only and empty match everything; surrounding spaces ignored; no match returns false
-- [ ] Build gate passes; test count only grows
+- [x] Unit: "LANCAMENTO" matches "Lançamento"; "acao" matches "Ação"; match in description only; `null` description matches by title only; spaces-only and empty match everything; surrounding spaces ignored; no match returns false
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
