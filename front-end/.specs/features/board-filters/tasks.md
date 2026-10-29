@@ -287,8 +287,8 @@ T20 → T21 → T22 → T23
 
 **Done when**:
 
-- [ ] Unit: with `canDrag` false a mouse or keyboard `start` leaves `session` null and announces nothing; "Mover para…" still opens and sends the move with the full column length; with `canDrag` true every existing test passes
-- [ ] Build gate passes; test count only grows
+- [x] Unit: with `canDrag` false a mouse or keyboard `start` leaves `session` null and announces nothing; "Mover para…" still opens and sends the move with the full column length; with `canDrag` true every existing test passes
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
