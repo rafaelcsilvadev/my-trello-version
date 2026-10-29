@@ -312,8 +312,8 @@ T20 → T21 → T22 → T23
 
 **Done when**:
 
-- [ ] Unit (MSW): a query hides non-matching cards and sets `matchCount`; `canDrag` false while filtering and true after `clearAll`; read-only board filters with `canDrag` false; archived cards and columns unaffected; a done toggle under "Concluídas" shows the card at once and the rollback after a failure hides it again; `selectedLabelCount` ignores a deleted label; a filter change during a keyboard session cancels it
-- [ ] Build gate passes; test count only grows
+- [x] Unit (MSW): a query hides non-matching cards and sets `matchCount`; `canDrag` false while filtering and true after `clearAll`; read-only board filters with `canDrag` false; archived cards and columns unaffected; a done toggle under "Concluídas" shows the card at once and the rollback after a failure hides it again; `selectedLabelCount` ignores a deleted label; a filter change during a keyboard session cancels it
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
