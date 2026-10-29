@@ -46,6 +46,7 @@ type RenderOptions = {
   pendingIds?: string[];
   rename?: ColumnRename | null;
   isAddingCard?: boolean;
+  isFiltered?: boolean;
   language?: Language;
   move?: Partial<ColumnMove>;
   cardDrop?: Partial<ColumnCardDrop>;
@@ -95,6 +96,7 @@ function renderColumn({
   pendingIds = [],
   rename = null,
   isAddingCard = false,
+  isFiltered = false,
   language = 'pt-BR',
   move: moveOverrides,
   cardDrop: cardDropOverrides,
@@ -126,6 +128,7 @@ function renderColumn({
         rename={rename}
         isAddingCard={isAddingCard}
         isCreatingCard={false}
+        isFiltered={isFiltered}
         move={move}
         cardDrop={cardDrop}
         cardMove={cardMove}
@@ -170,6 +173,27 @@ describe('BoardColumn', () => {
 
     expect(screen.getByText('Arraste cards para cá')).toBeTruthy();
     expect(screen.getByText('0')).toBeTruthy();
+  });
+
+  // A filter that leaves a column empty is no place to drop a card (FBF-27).
+  it('shows no drop hint and a zero counter when a filter leaves it empty', () => {
+    renderColumn({ cards: [], isFiltered: true });
+
+    expect(screen.queryByText('Arraste cards para cá')).toBeNull();
+    expect(screen.getByText('0')).toBeTruthy();
+  });
+
+  it('shows no "Nenhuma tarefa" when a filter leaves a read-only column empty', () => {
+    renderColumn({ cards: [], isReadOnly: true, isFiltered: true });
+
+    expect(screen.queryByText('Nenhuma tarefa')).toBeNull();
+  });
+
+  // The header counts the cards the filter kept (FBF-26).
+  it('counts the cards it receives while filtered', () => {
+    renderColumn({ isFiltered: true });
+
+    expect(screen.getByText('2')).toBeTruthy();
   });
 
   it('asks to rename when the name is clicked', () => {
