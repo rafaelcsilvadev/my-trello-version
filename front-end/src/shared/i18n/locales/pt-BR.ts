@@ -155,6 +155,7 @@ export const ptBR = {
       oneCard: '1 tarefa',
       cards: '{{count}} tarefas',
       clearFilters: 'Limpar filtros',
+      dragOff: 'Arrastar fica desativado enquanto há filtros',
       showArchived: 'Mostrar arquivadas',
     },
     move: {

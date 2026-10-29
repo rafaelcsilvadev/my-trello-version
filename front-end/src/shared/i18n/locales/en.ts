@@ -153,6 +153,7 @@ export const en = {
       oneCard: '1 task',
       cards: '{{count}} tasks',
       clearFilters: 'Clear filters',
+      dragOff: 'Dragging is off while filters are applied',
       showArchived: 'Show archived',
     },
     move: {
