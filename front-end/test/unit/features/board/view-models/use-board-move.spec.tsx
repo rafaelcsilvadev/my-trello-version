@@ -102,6 +102,7 @@ function setup(overrides: Partial<BoardMoveOptions> = {}) {
   const initialProps: BoardMoveOptions = {
     columns: toColumns(lists, cards),
     canMove: true,
+    canDrag: true,
     pendingIds: new Set(),
     renamingListId: null,
     ...overrides,
@@ -176,6 +177,24 @@ describe('useBoardMove', () => {
 
       expect(result.current.state.session).toBeNull();
     });
+
+    it.each([
+      ['card', first.id, 'mouse'],
+      ['card', first.id, 'keyboard'],
+      ['column', doing.id, 'mouse'],
+      ['column', doing.id, 'keyboard'],
+    ] as const)(
+      'is ignored for a %s by %s while dragging is off',
+      (kind, id, input) => {
+        const { result } = setup({ canDrag: false });
+
+        act(() => result.current.actions.start(kind, id, input));
+
+        expect(result.current.state.session).toBeNull();
+        expect(result.current.state.announcement).toBe('');
+        expect(result.current.state.banner).toBeNull();
+      },
+    );
 
     it('is ignored for an item with a change in flight', () => {
       const { result } = setup({ pendingIds: new Set([first.id, doing.id]) });
@@ -688,6 +707,26 @@ describe('useBoardMove', () => {
         ]),
       );
       await screen.findByText('Tarefa movida para Backlog');
+    });
+
+    it('still sends the card to the end of the full column while dragging is off', async () => {
+      const moves = moveWrites();
+      const { result } = setup({ canDrag: false });
+
+      act(() => result.current.actions.askMoveTo(third.id));
+
+      expect(result.current.state.moveToCard).toEqual(third);
+
+      act(() => result.current.actions.moveTo(backlog.id));
+
+      await waitFor(() =>
+        expect(moves).toEqual([
+          {
+            path: `/api/v1/cards/${third.id}/move`,
+            body: { listId: backlog.id, position: 2 },
+          },
+        ]),
+      );
     });
 
     it('closes with no request for the current column', async () => {
