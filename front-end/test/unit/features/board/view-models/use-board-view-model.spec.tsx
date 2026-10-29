@@ -1146,10 +1146,14 @@ describe('useBoardViewModel', () => {
 
   describe('board restore', () => {
     it('restoreBoard ends read-only at once, sends the request and toasts', async () => {
+      // Restored once the unarchive arrives, so the refetch after it keeps the board active.
       boardServer({
         [boardUrl]: () =>
           HttpResponse.json(
-            boardFixture({ archivedAt: '2026-10-24T12:00:00.000Z' }),
+            boardFixture({
+              archivedAt:
+                changes.length === 0 ? '2026-10-24T12:00:00.000Z' : null,
+            }),
           ),
       });
       const changes = columnWrites();
