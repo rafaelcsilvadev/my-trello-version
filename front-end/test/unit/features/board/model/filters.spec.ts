@@ -3,13 +3,16 @@ import { describe, expect, it } from 'vitest';
 import {
   type BoardFilters,
   type DueFilter,
+  filterColumns,
   isFiltering,
   matchesCard,
   matchesQuery,
   NO_FILTERS,
   normalizeText,
 } from '@/features/board/model/filters';
-import type { Card, DateParts } from '@/features/board/model/types';
+import type { Card, Column, DateParts } from '@/features/board/model/types';
+
+import { cardFixture, listFixture } from '../../../../support/fixtures/board';
 
 function card(
   title: string,
@@ -219,5 +222,86 @@ describe('isFiltering', () => {
     ['a due filter', { due: 'done' }],
   ])('is true with %s', (_case, overrides) => {
     expect(isFiltering(filters(overrides), BOARD_LABELS)).toBe(true);
+  });
+});
+
+describe('filterColumns', () => {
+  function column(listId: string, titles: string[]): Column {
+    return {
+      list: listFixture(listId),
+      cards: titles.map((title, index) =>
+        cardFixture(`${listId}-${index}`, listId, { title }),
+      ),
+    };
+  }
+
+  function titles(columns: Column[]): Record<string, string[]> {
+    return Object.fromEntries(
+      columns.map(({ list, cards }) => [list.id, cards.map((c) => c.title)]),
+    );
+  }
+
+  const board = [
+    column('todo', ['Revisar contrato', 'Pagar fornecedor', 'Contrato novo']),
+    column('doing', []),
+    column('done', ['Enviar contrato']),
+  ];
+
+  it('keeps every column in order, empty ones included, and the card order', () => {
+    const result = filterColumns(
+      board,
+      filters({ query: 'contrato' }),
+      BOARD_LABELS,
+      TODAY,
+    );
+
+    expect(result.columns.map(({ list }) => list.id)).toEqual([
+      'todo',
+      'doing',
+      'done',
+    ]);
+    expect(titles(result.columns)).toEqual({
+      todo: ['Revisar contrato', 'Contrato novo'],
+      doing: [],
+      done: ['Enviar contrato'],
+    });
+  });
+
+  it('counts the matching cards of every column', () => {
+    expect(
+      filterColumns(board, filters({ query: 'contrato' }), BOARD_LABELS, TODAY)
+        .matchCount,
+    ).toBe(3);
+  });
+
+  it('keeps the list of each column', () => {
+    const result = filterColumns(
+      board,
+      filters({ query: 'contrato' }),
+      BOARD_LABELS,
+      TODAY,
+    );
+
+    expect(result.columns.map(({ list }) => list)).toEqual(
+      board.map(({ list }) => list),
+    );
+  });
+
+  it('empties every column when no card matches', () => {
+    const result = filterColumns(
+      board,
+      filters({ query: 'orçamento' }),
+      BOARD_LABELS,
+      TODAY,
+    );
+
+    expect(titles(result.columns)).toEqual({ todo: [], doing: [], done: [] });
+    expect(result.matchCount).toBe(0);
+  });
+
+  it('returns no columns and no matches for a board without columns', () => {
+    expect(
+      filterColumns([], filters({ query: 'contrato' }), BOARD_LABELS, TODAY),
+    ).toEqual({ columns: [], matchCount: 0 });
   });
 });
