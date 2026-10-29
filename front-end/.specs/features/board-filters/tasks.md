@@ -86,9 +86,9 @@ T20 → T21 → T22 → T23
 
 **Done when**:
 
-- [ ] Unit: `LabelChip` renders the name, the chip class and the dot class for each of the 10 colors
-- [ ] `card-tile.spec.tsx` passes unchanged
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `LabelChip` renders the name, the chip class and the dot class for each of the 10 colors
+- [x] `card-tile.spec.tsx` passes unchanged
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
