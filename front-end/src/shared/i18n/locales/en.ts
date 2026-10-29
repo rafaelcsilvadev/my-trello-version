@@ -154,6 +154,7 @@ export const en = {
       cards: '{{count}} tasks',
       clearFilters: 'Clear filters',
       dragOff: 'Dragging is off while filters are applied',
+      noResults: 'No tasks found',
       showArchived: 'Show archived',
     },
     move: {
