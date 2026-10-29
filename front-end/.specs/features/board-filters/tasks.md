@@ -619,7 +619,7 @@ T20 → T21 → T22 → T23
 **Done when**:
 
 - [x] E2E: each journey passes against the API started by `docker compose`
-- [ ] Full gate passes locally and in CI
+- [x] Full gate passes locally and in CI
 
 **Tests**: e2e
 **Gate**: full
@@ -643,8 +643,8 @@ T20 → T21 → T22 → T23
 
 **Done when**:
 
-- [ ] README explains search, label and due filters, the `/` shortcut and why drag is off
-- [ ] Build gate passes; test count unchanged
+- [x] README explains search, label and due filters, the `/` shortcut and why drag is off
+- [x] Build gate passes; test count unchanged
 
 **Tests**: none
 **Gate**: build
