@@ -16,6 +16,7 @@ import {
   boardFixture,
   boardId,
   cardFixture,
+  labelFixture,
   listFixture,
 } from '../../../../support/fixtures/board';
 import { server } from '../../../../support/msw/server';
@@ -438,6 +439,48 @@ describe('BoardScreen', () => {
           name: 'Search this board…',
         }).value,
       ).toBe('');
+    });
+
+    it('resets the search, the labels and the due date from the No tasks found Clear filters', async () => {
+      boardApi();
+      server.use(
+        http.get(`${boardUrl}/labels`, () =>
+          HttpResponse.json([labelFixture('lb1', { name: 'Bug' })]),
+        ),
+      );
+      renderScreen();
+      await screen.findByRole('region', { name: 'Doing' });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Labels' }));
+      fireEvent.click(
+        await screen.findByRole('menuitemcheckbox', { name: 'Bug' }),
+      );
+      fireEvent.keyDown(screen.getByRole('menu'), { key: 'Escape' });
+      fireEvent.change(screen.getByRole('combobox', { name: 'Due date' }), {
+        target: { value: 'overdue' },
+      });
+      search('brief');
+
+      const noResults = screen.getByText('No tasks found').parentElement!;
+      fireEvent.click(
+        within(noResults).getByRole('button', { name: 'Clear filters' }),
+      );
+
+      expect(screen.queryByText('No tasks found')).toBeNull();
+      expect(
+        within(column('Backlog')).getByText('Write the brief'),
+      ).toBeTruthy();
+      expect(within(column('Doing')).getByText('Book the venue')).toBeTruthy();
+      expect(
+        screen.getByRole<HTMLInputElement>('textbox', {
+          name: 'Search this board…',
+        }).value,
+      ).toBe('');
+      expect(
+        screen.getByRole<HTMLSelectElement>('combobox', { name: 'Due date' })
+          .value,
+      ).toBe('any');
+      expect(screen.getByRole('button', { name: 'Labels' })).toBeTruthy();
     });
 
     it('shows the empty board block, not No tasks found, on a board without columns', async () => {
