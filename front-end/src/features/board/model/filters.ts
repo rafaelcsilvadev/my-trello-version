@@ -1,5 +1,5 @@
 import { isDueToday, isOverdue } from './due-date';
-import type { Card, DateParts } from './types';
+import type { Card, Column, DateParts } from './types';
 
 export type DueFilter = 'any' | 'overdue' | 'today' | 'none' | 'done';
 
@@ -86,4 +86,20 @@ export function matchesCard(
     (labels.length === 0 || labels.some((id) => card.labelIds.includes(id))) &&
     matchesDue(card, filters.due, today)
   );
+}
+
+export function filterColumns(
+  columns: Column[],
+  filters: BoardFilters,
+  boardLabelIds: ReadonlySet<string>,
+  today: DateParts,
+): { columns: Column[]; matchCount: number } {
+  const visible = columns.map((column) => ({
+    ...column,
+    cards: column.cards.filter((card) =>
+      matchesCard(card, filters, boardLabelIds, today),
+    ),
+  }));
+  const matchCount = visible.reduce((sum, { cards }) => sum + cards.length, 0);
+  return { columns: visible, matchCount };
 }

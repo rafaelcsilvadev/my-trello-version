@@ -237,8 +237,8 @@ T20 → T21 → T22 → T23
 
 **Done when**:
 
-- [ ] Unit: columns kept in order, empty ones included; cards keep their order; `matchCount` sums all columns; no match → every column empty and `matchCount` 0; no columns → `[]` and 0
-- [ ] Build gate passes; test count only grows
+- [x] Unit: columns kept in order, empty ones included; cards keep their order; `matchCount` sums all columns; no match → every column empty and `matchCount` 0; no columns → `[]` and 0
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
