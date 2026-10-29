@@ -112,8 +112,8 @@ T20 → T21 → T22 → T23
 
 **Done when**:
 
-- [ ] Unit: `soft` renders `bg-(--purple-50)` and `text-purple-700`; other variants unchanged
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `soft` renders `bg-(--purple-50)` and `text-purple-700`; other variants unchanged
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
