@@ -388,9 +388,9 @@ T20 → T21 → T22 → T23
 
 **Done when**:
 
-- [ ] Unit: button "Etiquetas" with no selection, "Etiquetas · 2" with two; menu items are `menuitemcheckbox` with name and `aria-checked`; clicking an item calls `onChange` with the new id list and the menu stays open; Esc closes the menu; no labels → "Nenhuma etiqueta ainda"
-- [ ] i18n keys `labels`, `labelsCount`, `noLabels` in both locales
-- [ ] Build gate passes; test count only grows
+- [x] Unit: button "Etiquetas" with no selection, "Etiquetas · 2" with two; menu items are `menuitemcheckbox` with name and `aria-checked`; clicking an item calls `onChange` with the new id list and the menu stays open; Esc closes the menu; no labels → "Nenhuma etiqueta ainda"
+- [x] i18n keys `labels`, `labelsCount`, `noLabels` in both locales
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build

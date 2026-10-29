@@ -149,6 +149,9 @@ export const ptBR = {
     toolbar: {
       search: 'Buscar no quadro…',
       clearSearch: 'Limpar busca',
+      labels: 'Etiquetas',
+      labelsCount: 'Etiquetas · {{count}}',
+      noLabels: 'Nenhuma etiqueta ainda',
       showArchived: 'Mostrar arquivadas',
     },
     move: {

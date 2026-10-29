@@ -147,6 +147,9 @@ export const en = {
     toolbar: {
       search: 'Search this board…',
       clearSearch: 'Clear search',
+      labels: 'Labels',
+      labelsCount: 'Labels · {{count}}',
+      noLabels: 'No labels yet',
       showArchived: 'Show archived',
     },
     move: {
