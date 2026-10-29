@@ -147,6 +147,8 @@ export const ptBR = {
       restore: 'Restaurar',
     },
     toolbar: {
+      search: 'Buscar no quadro…',
+      clearSearch: 'Limpar busca',
       showArchived: 'Mostrar arquivadas',
     },
     move: {

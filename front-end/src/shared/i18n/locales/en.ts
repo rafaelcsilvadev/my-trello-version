@@ -145,6 +145,8 @@ export const en = {
       restore: 'Restore',
     },
     toolbar: {
+      search: 'Search this board…',
+      clearSearch: 'Clear search',
       showArchived: 'Show archived',
     },
     move: {
