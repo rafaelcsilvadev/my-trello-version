@@ -134,9 +134,11 @@ export function useBoardViewModel(boardId: string) {
   );
 
   // A deleted board also makes its lists and cards answer 404 (FBV-11).
+  // A failed refetch keeps the cached board; the write's toast already told the user.
   let status: BoardStatus = 'ready';
   if (queries.some((q) => q.error?.status === 404)) status = 'notFound';
-  else if (queries.some((q) => q.isError)) status = 'error';
+  else if (queries.some((q) => q.isError && q.data === undefined))
+    status = 'error';
   else if (queries.some((q) => q.isPending)) status = 'loading';
 
   // Resolves `null` once created, or the field message; rejects after toasting

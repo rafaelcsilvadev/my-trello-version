@@ -60,7 +60,8 @@ const newStamp = '2026-10-20T12:00:00.000Z';
 const ideas = listFixture('l3', { title: 'Ideas', archivedAt: oldStamp });
 const later = listFixture('l4', { title: 'Later', archivedAt: newStamp });
 
-type Reply = () => Response;
+// `undefined` falls back to the seed.
+type Reply = () => Response | undefined;
 
 // Each endpoint answers with its seed unless a test overrides it; `requests` counts the hits.
 // The archived requests are keyed by their `?archived=true` URL.
@@ -332,6 +333,40 @@ describe('useBoardViewModel', () => {
       expect(requests[boardUrl]).toBe(before[boardUrl]);
       expect(requests[listsUrl]).toBe(before[listsUrl]);
       expect(requests[labelsUrl]).toBe(before[labelsUrl]);
+    });
+
+    it('stays ready with the cached board when a refetch after a failed write fails', async () => {
+      let down = false;
+      const requests = boardServer({
+        [cardsUrl]: () => (down ? problem(500) : undefined),
+      });
+      cardWrites(() => problem(500));
+      const { result } = await setupReady();
+      const before = requests[cardsUrl];
+      const card = result.current.state.columns[0].cards[0];
+
+      down = true;
+      act(() => result.current.actions.toggleDone(card));
+
+      // One refetch plus the three retries of the query client.
+      await waitFor(() => expect(requests[cardsUrl]).toBe(before + 4));
+      await act(() => new Promise((resolve) => setTimeout(resolve, 0)));
+      expect(cardDone(result, 'c3')).toBe(false);
+      expect(result.current.state.status).toBe('ready');
+      expect(columnTitles(result)).toEqual(['Doing', 'Backlog']);
+    });
+
+    it('is notFound when a refetch after a failed write answers 404', async () => {
+      let deleted = false;
+      boardServer({ [boardUrl]: () => (deleted ? problem(404) : undefined) });
+      cardWrites(() => problem(500));
+      const { result } = await setupReady();
+      const card = result.current.state.columns[0].cards[0];
+
+      deleted = true;
+      act(() => result.current.actions.toggleDone(card));
+
+      await waitFor(() => expect(result.current.state.status).toBe('notFound'));
     });
   });
 

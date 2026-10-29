@@ -116,7 +116,7 @@ Decisions for the web app. They must conform to the global decisions in the root
 - **Decision**: fix in a future task. Show the load error only when there is no data to show (first load); a failed refetch with cached data keeps the board and relies on the write's toast.
 - **Source**: board-dnd manual UAT in Chrome (API container stopped during a card move)
 - **Date**: 2026-10-28
-- **Status**: open
+- **Status**: resolved in the board refetch fix PR (`use-board-view-model.ts` shows the load error only when a failed query has no data)
 
 ## Handoff
 
