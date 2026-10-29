@@ -57,7 +57,18 @@ export function BoardScreen({ boardId }: BoardScreenProps) {
         />
       ) : null}
       <BoardToolbar
+        filters={state.filters}
+        labels={state.labels}
+        selectedLabelCount={state.selectedLabelCount}
+        isFiltering={state.isFiltering}
+        matchCount={state.matchCount}
+        isSearchShortcutEnabled={!keyboardSession}
         showArchived={state.showArchived}
+        onQueryChange={actions.filters.setQuery}
+        onQueryClear={actions.filters.clearQuery}
+        onLabelIdsChange={actions.filters.setLabelIds}
+        onDueChange={actions.filters.setDue}
+        onClearAll={actions.filters.clearAll}
         onShowArchivedChange={actions.setShowArchived}
       />
       {canMove ? <MoveAnnouncer text={move.announcement} /> : null}
