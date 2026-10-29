@@ -10,10 +10,12 @@ import { BoardNotFound } from './board-not-found';
 import { BoardSkeleton } from './board-skeleton';
 import { BoardToolbar } from './board-toolbar';
 import { DeleteColumnDialog } from './delete-column-dialog';
+import { DragOffNotice } from './drag-off-notice';
 import { KeyboardHelp } from './keyboard-help';
 import { MoveAnnouncer } from './move-announcer';
 import { MoveBanner } from './move-banner';
 import { MoveToDialog } from './move-to-dialog';
+import { NoResults } from './no-results';
 
 type BoardScreenProps = {
   boardId: string;
@@ -37,6 +39,9 @@ export function BoardScreen({ boardId }: BoardScreenProps) {
   const { deleteTarget, move, canMove } = state;
   const moveActions = actions.move;
   const keyboardSession = move.session?.input === 'keyboard';
+  // A board without columns keeps its empty block (FBF-28).
+  const noResults =
+    state.isFiltering && state.matchCount === 0 && state.columns.length > 0;
 
   // Focus may leave the picked item, so Esc anywhere on the board cancels; the item handles its own (FDND-14).
   function onKeyDown(event: KeyboardEvent<HTMLDivElement>) {
@@ -71,50 +76,57 @@ export function BoardScreen({ boardId }: BoardScreenProps) {
         onClearAll={actions.filters.clearAll}
         onShowArchivedChange={actions.setShowArchived}
       />
+      {/* An archived board filters too, but has no drag to turn off (FBF-30, FBF-36). */}
+      {canMove && state.isFiltering ? <DragOffNotice /> : null}
       {canMove ? <MoveAnnouncer text={move.announcement} /> : null}
       {move.banner !== null ? <MoveBanner text={move.banner} /> : null}
-      <BoardColumns
-        columns={state.columns}
-        labels={state.labelsById}
-        today={state.today}
-        isReadOnly={state.readOnly}
-        pendingIds={state.pendingIds}
-        editing={state.editing}
-        addingCardListId={state.addingCardListId}
-        isCreatingList={state.isCreatingList}
-        isCreatingCard={state.isCreatingCard}
-        showArchived={state.showArchived}
-        archived={state.archived}
-        isFiltered={state.isFiltering}
-        onStartRename={actions.startRename}
-        onSubmitRename={actions.submitRename}
-        onCancelRename={actions.cancelRename}
-        onArchive={actions.archiveList}
-        onOpenAddCard={actions.openAddCard}
-        onCloseAddCard={actions.closeAddCard}
-        onCreateCard={actions.createCard}
-        onToggleDone={actions.toggleDone}
-        onCreateList={actions.createList}
-        onRestoreList={actions.restoreList}
-        onDeleteList={actions.askDeleteList}
-        onRetryArchived={actions.retryLoad}
-        move={
-          canMove
-            ? {
-                session: move.session,
-                preview: move.preview,
-                canDrag: state.canDrag,
-                onStart: moveActions.start,
-                onHover: moveActions.hover,
-                onStep: moveActions.step,
-                onDrop: moveActions.drop,
-                onCancel: moveActions.cancel,
-                onMoveTo: moveActions.askMoveTo,
-              }
-            : undefined
-        }
-      />
-      {canMove && state.columns.length > 0 && !keyboardSession ? (
+      {noResults ? (
+        <NoResults onClear={actions.filters.clearAll} />
+      ) : (
+        <BoardColumns
+          columns={state.columns}
+          labels={state.labelsById}
+          today={state.today}
+          isReadOnly={state.readOnly}
+          pendingIds={state.pendingIds}
+          editing={state.editing}
+          addingCardListId={state.addingCardListId}
+          isCreatingList={state.isCreatingList}
+          isCreatingCard={state.isCreatingCard}
+          showArchived={state.showArchived}
+          archived={state.archived}
+          isFiltered={state.isFiltering}
+          onStartRename={actions.startRename}
+          onSubmitRename={actions.submitRename}
+          onCancelRename={actions.cancelRename}
+          onArchive={actions.archiveList}
+          onOpenAddCard={actions.openAddCard}
+          onCloseAddCard={actions.closeAddCard}
+          onCreateCard={actions.createCard}
+          onToggleDone={actions.toggleDone}
+          onCreateList={actions.createList}
+          onRestoreList={actions.restoreList}
+          onDeleteList={actions.askDeleteList}
+          onRetryArchived={actions.retryLoad}
+          move={
+            canMove
+              ? {
+                  session: move.session,
+                  preview: move.preview,
+                  canDrag: state.canDrag,
+                  onStart: moveActions.start,
+                  onHover: moveActions.hover,
+                  onStep: moveActions.step,
+                  onDrop: moveActions.drop,
+                  onCancel: moveActions.cancel,
+                  onMoveTo: moveActions.askMoveTo,
+                }
+              : undefined
+          }
+        />
+      )}
+      {/* The help line explains drag, so it hides while drag is off (FBF-33). */}
+      {state.canDrag && state.columns.length > 0 && !keyboardSession ? (
         <KeyboardHelp />
       ) : null}
       {/* Opens once the count loads, so the text never claims a wrong loss (FBV-40). */}
