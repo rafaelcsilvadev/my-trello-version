@@ -343,6 +343,7 @@ describe('BoardColumn', () => {
       const cardMove = vi.fn<(cardId: string) => CardMove>((cardId) => ({
         isSource: false,
         isLifted: cardId === 'c2',
+        canDrag: true,
         onDragStart: vi.fn<(id: string) => void>(),
         onDragEnd: vi.fn<() => void>(),
         onPick,

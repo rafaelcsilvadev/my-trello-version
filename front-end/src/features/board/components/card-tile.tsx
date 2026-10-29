@@ -26,9 +26,11 @@ export const ARROW_KEYS: ReadonlySet<string> = new Set<ArrowKey>([
 ]);
 
 // The card's part in a move session and its "Mover para…" menu (FDND-01, FDND-09, FDND-29). Ignored on archived cards and read-only boards.
+// While `canDrag` is false the card keeps its focus and menu but neither drags nor picks (FBF-32, FBF-34).
 export type CardMove = {
   isSource: boolean;
   isLifted: boolean;
+  canDrag: boolean;
   onDragStart: (cardId: string) => void;
   onDragEnd: () => void;
   onPick: (cardId: string) => void;
@@ -77,7 +79,7 @@ export function CardTile({
   function onKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     if (!movable || event.target !== event.currentTarget) return;
     if (!movable.isLifted) {
-      if (event.key !== ' ' || isPending) return;
+      if (event.key !== ' ' || isPending || !movable.canDrag) return;
       event.preventDefault();
       movable.onPick(card.id);
     } else if (ARROW_KEYS.has(event.key)) {
@@ -94,6 +96,7 @@ export function CardTile({
 
   // Firefox starts a drag only with data set.
   function onDragStart(event: DragEvent<HTMLDivElement>) {
+    if (!movable?.canDrag) return;
     event.dataTransfer.setData('text/plain', card.id);
     event.dataTransfer.effectAllowed = 'move';
     movable?.onDragStart(card.id);
@@ -107,7 +110,7 @@ export function CardTile({
             tabIndex: 0,
             'aria-label': card.title,
             'data-card-id': card.id,
-            draggable: !isPending,
+            draggable: movable.canDrag && !isPending,
             onDragStart,
             onDragEnd: movable.onDragEnd,
             onKeyDown,
