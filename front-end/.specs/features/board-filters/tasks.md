@@ -212,8 +212,8 @@ T20 → T21 → T22 → T23
 
 **Done when**:
 
-- [ ] Unit: each due option against a card set (overdue not done, overdue done, today done and not, tomorrow, none, done without date); one label and two labels (OR); unknown selected id ignored; all three combined (AND); `isFiltering` false for `NO_FILTERS`, spaces-only query and only unknown label ids, true for each single active filter
-- [ ] Build gate passes; test count only grows
+- [x] Unit: each due option against a card set (overdue not done, overdue done, today done and not, tomorrow, none, done without date); one label and two labels (OR); unknown selected id ignored; all three combined (AND); `isFiltering` false for `NO_FILTERS`, spaces-only query and only unknown label ids, true for each single active filter
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
