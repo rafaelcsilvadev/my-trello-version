@@ -314,6 +314,7 @@ export function BoardColumns({
               rename={editing?.listId === listId ? editing : null}
               isAddingCard={addingCardListId === listId}
               isCreatingCard={isCreatingCard}
+              isFiltered={false}
               onStartRename={() => onStartRename(listId)}
               onSubmitRename={(raw) => onSubmitRename(column.list, raw)}
               onCancelRename={onCancelRename}

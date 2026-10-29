@@ -51,6 +51,8 @@ type BoardColumnProps = {
   rename: ColumnRename | null;
   isAddingCard: boolean;
   isCreatingCard: boolean;
+  // A search or filter is on, so `cards` holds only the matches (FBF-26).
+  isFiltered: boolean;
   onStartRename: () => void;
   onSubmitRename: (raw: string) => ItemFieldError | null;
   onCancelRename: () => void;
@@ -75,6 +77,7 @@ export function BoardColumn({
   rename,
   isAddingCard,
   isCreatingCard,
+  isFiltered,
   onStartRename,
   onSubmitRename,
   onCancelRename,
@@ -260,7 +263,8 @@ export function BoardColumn({
           </Fragment>
         ))}
         {placeholder?.beforeCardId === null ? gap : null}
-        {cards.length === 0 && placeholder === null ? (
+        {/* A column a filter left empty shows nothing (FBF-27). */}
+        {cards.length === 0 && placeholder === null && !isFiltered ? (
           <div className="rounded-md border border-dashed border-border-default px-3 py-4.5 text-center text-sm text-text-tertiary">
             {t(isReadOnly ? 'board.column.empty' : 'board.column.dropHere')}
           </div>
