@@ -162,8 +162,8 @@ T20 → T21 → T22 → T23
 
 **Done when**:
 
-- [ ] Unit: true for today (done or not); false for yesterday, tomorrow, the same day in another month or year, and `null`
-- [ ] Build gate passes; test count only grows
+- [x] Unit: true for today (done or not); false for yesterday, tomorrow, the same day in another month or year, and `null`
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
