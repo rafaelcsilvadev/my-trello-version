@@ -917,6 +917,28 @@ describe('useBoardViewModel', () => {
       expect(result.current.state.addingCardListId).toBe(doing.id);
     });
 
+    it('clears every filter and opens the field in the first active column', async () => {
+      boardServer();
+      const { result } = await setupReady();
+      act(() => {
+        result.current.actions.filters.setQuery('c1');
+        result.current.actions.filters.setLabelIds([urgent.id]);
+        result.current.actions.filters.setDue('none');
+      });
+      expect(result.current.state.columns[0].cards).toEqual([]);
+
+      act(() => pressN());
+
+      expect(result.current.state.filters).toEqual({
+        query: '',
+        labelIds: [],
+        due: 'any',
+      });
+      expect(result.current.state.isFiltering).toBe(false);
+      expect(result.current.state.addingCardListId).toBe(doing.id);
+      expect(result.current.state.columns[0].cards).toHaveLength(1);
+    });
+
     it('does nothing on an archived board', async () => {
       boardServer({
         [boardUrl]: () =>
