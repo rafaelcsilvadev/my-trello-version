@@ -638,8 +638,8 @@ T20 → T21 → T22 → T23 → T24 → T25 → T26 → T27
 
 **Done when**:
 
-- [ ] Unit: click and Enter call `onOpen(card.id)` for active, archived and read-only tiles; clicking the checkbox or the menu button does not; Enter while lifted drops and does not open; Space still picks; archived and read-only tiles are focusable; existing tile tests pass
-- [ ] Build gate passes; test count only grows
+- [x] Unit: click and Enter call `onOpen(card.id)` for active, archived and read-only tiles; clicking the checkbox or the menu button does not; Enter while lifted drops and does not open; Space still picks; archived and read-only tiles are focusable; existing tile tests pass
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build

@@ -6,7 +6,7 @@ import {
   SquareCheck,
   TriangleAlert,
 } from 'lucide-react';
-import type { DragEvent, KeyboardEvent } from 'react';
+import type { DragEvent, KeyboardEvent, MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { formatDayMonth, formatShortDate } from '@/shared/i18n/format-date';
@@ -24,6 +24,10 @@ export const ARROW_KEYS: ReadonlySet<string> = new Set<ArrowKey>([
   'ArrowLeft',
   'ArrowRight',
 ]);
+
+// Clicks that must not open the card: the checkbox renders as a label, and the
+// portaled menu still bubbles through React. React Aria buttons stop their own clicks.
+const NESTED_CONTROLS = 'label, [role="menu"]';
 
 // The card's part in a move session and its "Mover para…" menu (FDND-01, FDND-09, FDND-29). Ignored on archived cards and read-only boards.
 // While `canDrag` is false the card keeps its focus and menu but neither drags nor picks (FBF-32, FBF-34).
@@ -50,6 +54,8 @@ type CardTileProps = {
   isReadOnly: boolean;
   onToggleDone: (card: Card) => void;
   move?: CardMove;
+  // Opens the card detail (FCD-01, FCD-02); also makes archived and read-only tiles focusable.
+  onOpen?: (cardId: string) => void;
 };
 
 // Port of the prototype card tile (design/Task List.dc.html:412-427, 464-473).
@@ -63,6 +69,7 @@ export function CardTile({
   isReadOnly,
   onToggleDone,
   move,
+  onOpen,
 }: CardTileProps) {
   const { t } = useTranslation();
   const isArchived = mode === 'archived';
@@ -74,12 +81,19 @@ export function CardTile({
   const overdue = !isArchived && isOverdue(card, today);
   const { total, done } = card.checklist;
   const movable = !isArchived && !isReadOnly ? move : undefined;
+  const isButton = movable !== undefined || onOpen !== undefined;
 
   // Only keys pressed on the card itself, so the checkbox keeps Space (FDND-16).
   function onKeyDown(event: KeyboardEvent<HTMLDivElement>) {
-    if (!movable || event.target !== event.currentTarget) return;
-    if (!movable.isLifted) {
-      if (event.key !== ' ' || isPending || !movable.canDrag) return;
+    if (event.target !== event.currentTarget) return;
+    if (!movable?.isLifted) {
+      if (event.key === 'Enter' && onOpen) {
+        event.preventDefault();
+        onOpen(card.id);
+        return;
+      }
+      if (!movable || event.key !== ' ' || isPending || !movable.canDrag)
+        return;
       event.preventDefault();
       movable.onPick(card.id);
     } else if (ARROW_KEYS.has(event.key)) {
@@ -94,6 +108,15 @@ export function CardTile({
     }
   }
 
+  function onClick(event: MouseEvent<HTMLDivElement>) {
+    if (
+      event.target instanceof Element &&
+      event.target.closest(NESTED_CONTROLS)
+    )
+      return;
+    onOpen?.(card.id);
+  }
+
   // Firefox starts a drag only with data set.
   function onDragStart(event: DragEvent<HTMLDivElement>) {
     if (!movable?.canDrag) return;
@@ -104,19 +127,24 @@ export function CardTile({
 
   return (
     <div
-      {...(movable
+      {...(isButton
         ? {
             role: 'button',
             tabIndex: 0,
             'aria-label': card.title,
             'data-card-id': card.id,
+            onKeyDown,
+            onClick,
+          }
+        : {})}
+      {...(movable
+        ? {
             draggable: movable.canDrag && !isPending,
             onDragStart,
             onDragEnd: movable.onDragEnd,
-            onKeyDown,
           }
         : {})}
-      className={`flex flex-none flex-col gap-2 rounded-md border bg-surface-card py-2.5 pr-2.5 pl-3 ${tileState(isArchived, movable)}`}
+      className={`flex flex-none flex-col gap-2 rounded-md border bg-surface-card py-2.5 pr-2.5 pl-3 ${tileState(isArchived, isButton, movable)}`}
     >
       {cardLabels.length > 0 ? (
         <div className="flex flex-wrap gap-1">
@@ -208,11 +236,16 @@ export function CardTile({
 }
 
 // Prototype card classes (design/Task List.dc.html:1073-1075).
-function tileState(isArchived: boolean, move: CardMove | undefined): string {
-  if (isArchived) return 'border-border-subtle opacity-75';
-  if (!move) return 'border-border-subtle';
-  const focus =
-    'cursor-pointer transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus';
+function tileState(
+  isArchived: boolean,
+  isButton: boolean,
+  move: CardMove | undefined,
+): string {
+  const focus = isButton
+    ? 'cursor-pointer transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus'
+    : '';
+  if (isArchived) return `${focus} border-border-subtle opacity-75`;
+  if (!move) return `${focus} border-border-subtle`;
   if (move.isSource)
     return `${focus} border-dashed border-purple-300 shadow-xs opacity-45`;
   if (move.isLifted)
