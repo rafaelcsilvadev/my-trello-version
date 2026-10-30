@@ -212,6 +212,8 @@ export const ptBR = {
       counter: '{{n}} / 5000',
       save: 'Salvar',
       cancel: 'Cancelar',
+      archivedNotice: 'Tarefa arquivada · somente leitura',
+      boardArchivedNotice: 'Quadro arquivado · somente leitura',
       notFound: {
         title: 'Esta tarefa não existe mais',
         detail: 'Ela pode ter sido excluída em outro dispositivo.',
