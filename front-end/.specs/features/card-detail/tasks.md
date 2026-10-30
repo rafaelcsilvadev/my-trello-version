@@ -713,8 +713,8 @@ T20 → T21 → T22 → T23 → T24 → T25 → T26 → T27
 
 **Done when**:
 
-- [ ] README explains the card detail and its read-only modes
-- [ ] Build gate passes; test count unchanged
+- [x] README explains the card detail and its read-only modes
+- [x] Build gate passes; test count unchanged
 
 **Tests**: none
 **Gate**: build

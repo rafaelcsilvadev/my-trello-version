@@ -4,7 +4,7 @@
 
 [English](README.md) | **Português**
 
-> 🚧 **Projeto em andamento.** A API do back-end está com todas as features prontas (0 a 6). O front-end (web) já tem cadastro, login, a lista de quadros, a visão do quadro, arrastar e soltar e os filtros do quadro; detalhe da tarefa, etiquetas e configurações vêm a seguir. O mobile ainda não começou.
+> 🚧 **Projeto em andamento.** A API do back-end está com todas as features prontas (0 a 6). O front-end (web) já tem cadastro, login, a lista de quadros, a visão do quadro, arrastar e soltar, os filtros do quadro e o detalhe da tarefa; o checklist da tarefa, etiquetas e configurações vêm a seguir. O mobile ainda não começou.
 
 Uma versão pessoal do Trello: cada usuário se cadastra e gerencia só os próprios quadros, listas e cartões.
 
@@ -29,7 +29,7 @@ O projeto tem dois objetivos:
 
 MVP = features 0 a 4. Roadmap completo em [`back-end/.specs/ROADMAP.md`](back-end/.specs/ROADMAP.md).
 
-Front-end (web): `foundation` (estrutura do app, rotas e guard de autenticação, cliente tipado da API, tema, i18n PT-BR/EN, toasts, serviço Docker, CI) `auth` (cadastro, login, aviso de rate limit, logout) `boards` (abas de ativos/arquivados, criar, editar, arquivar, restaurar, excluir) e `board` (colunas e tarefas, marcar como concluída, itens arquivados, quadro arquivado somente leitura, layout de celular) `board-dnd` (mover tarefas e colunas com o mouse ou o teclado, região live, "Mover para…") e `board-filters` (busca, filtros de etiqueta e de prazo, atalho `/`, arrastar desligado enquanto filtra) concluídas. O detalhe da tarefa vem a seguir, uma feature por vez. Roadmap em [`front-end/.specs/ROADMAP.md`](front-end/.specs/ROADMAP.md).
+Front-end (web): `foundation` (estrutura do app, rotas e guard de autenticação, cliente tipado da API, tema, i18n PT-BR/EN, toasts, serviço Docker, CI) `auth` (cadastro, login, aviso de rate limit, logout) `boards` (abas de ativos/arquivados, criar, editar, arquivar, restaurar, excluir) e `board` (colunas e tarefas, marcar como concluída, itens arquivados, quadro arquivado somente leitura, layout de celular) `board-dnd` (mover tarefas e colunas com o mouse ou o teclado, região live, "Mover para…") `board-filters` (busca, filtros de etiqueta e de prazo, atalho `/`, arrastar desligado enquanto filtra) e `card-detail` (título, concluída, prazo, descrição, mover, arquivar, restaurar, excluir, modos somente leitura, diálogo de descarte) concluídas. O checklist da tarefa vem a seguir, uma feature por vez. Roadmap em [`front-end/.specs/ROADMAP.md`](front-end/.specs/ROADMAP.md).
 
 ---
 
@@ -187,6 +187,19 @@ Buscando e filtrando um quadro:
 - Busca, etiquetas e prazo se combinam. Com qualquer um ligado, o cabeçalho de cada coluna mostra quantas tarefas batem, a barra mostra o total, e **Limpar filtros** zera os três. Quando nada bate, as colunas dão lugar a "Nenhuma tarefa encontrada" com o mesmo botão.
 - Enquanto filtra, arrastar fica desligado e um aviso diz isso: mover uma tarefa dentro de uma lista parcial a colocaria no lugar errado. **Mover para…** continua funcionando, assim como **Adicionar tarefa**. Tarefas e colunas arquivadas (com **Mostrar arquivadas** ligado) nunca são filtradas.
 - Os filtros não ficam salvos: todo quadro abre com a busca vazia, nenhuma etiqueta e **Qualquer prazo**.
+
+Abrindo uma tarefa:
+
+- Clique em uma tarefa (ou foque nela e aperte Enter) para abrir o detalhe em `/b/{id}/t/{idDaTarefa}`: um diálogo sobre o quadro no desktop, uma tela cheia com a seta **Voltar** no celular. O link também funciona sozinho: recarregue ou compartilhe e o quadro carrega atrás da tarefa. O cabeçalho mostra a coluna da tarefa; uma tarefa que não existe mais mostra "Esta tarefa não existe mais" com **Fechar**.
+- Marque **Concluída** para concluir a tarefa; o selo "Concluída" aparece ao lado do título ("Atrasada" aparece no lugar quando ela não está concluída e o prazo já passou).
+- Edite o título no próprio campo: Enter ou sair do campo salva, Esc volta o título salvo. Um título vazio ("Dê um título à tarefa") ou com mais de 100 caracteres não é salvo.
+- Escolha uma data em **Prazo** para definir, e **Remover prazo** para limpar. Os dois salvam na hora.
+- **Descrição** aceita até 5000 caracteres, com um contador abaixo do campo. **Salvar** e **Cancelar** só aparecem enquanto o texto difere do salvo.
+- As etiquetas da tarefa aparecem como chips; ainda não dá para mudá-las aqui. O rodapé mostra quando a tarefa foi criada, **Mover para…** (o mesmo diálogo do quadro; o detalhe fica aberto na nova coluna) e **Arquivar**.
+- Uma tarefa arquivada abre somente leitura, com o aviso "Tarefa arquivada · somente leitura"; abra pela coluna **Arquivadas** (**Mostrar arquivadas**). **Restaurar** libera a edição de novo e coloca a tarefa no fim da coluna. **Excluir definitivamente** pede confirmação e então apaga a tarefa com o checklist. Se a coluna da tarefa estiver arquivada, os dois botões ficam desligados até você restaurar a coluna.
+- Uma tarefa de quadro arquivado mostra "Quadro arquivado · somente leitura", com todos os campos desligados e nenhuma ação no rodapé.
+- Feche o detalhe pelo X, Esc, um clique fora dele ou o Voltar do navegador; o foco volta para a tarefa no quadro. Se o título ou a descrição tiverem edições não salvas, "Descartar alterações?" pergunta antes: **Continuar editando** mantém o texto, **Descartar** fecha sem salvar.
+- Com o detalhe aberto, os atalhos `n` e `/` ficam desligados.
 
 As mudanças aparecem na hora e são salvas em segundo plano. Se salvar falhar, a mudança é desfeita e um toast oferece **Tentar novamente**.
 
