@@ -108,7 +108,7 @@ graph TD
 
 - **Purpose**: Framework-free rules of the detail.
 - **Interfaces**:
-  - `cardDetailMode(card: Card, board: Board, list: List | undefined): 'editable' | 'archivedCard' | 'archivedBoard'` — board archived wins (FCD-41).
+  - `cardDetailMode(card: Card, board: Board): CardDetailMode` — board archived wins (FCD-41). `CardDetailMode` is exported from this module.
   - `findCardList(card: Card, lists: List[]): List | undefined` — `undefined` means the card is not of this board (FCD-11).
   - `isDescriptionTooLong(draft: string): boolean` — `> 5000` (FCD-27, FCD-53).
   - `descriptionBody(draft: string): string | null` — empty → `null`, otherwise the draft untrimmed (FCD-26).
