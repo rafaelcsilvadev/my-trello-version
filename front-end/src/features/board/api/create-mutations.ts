@@ -58,7 +58,7 @@ export function useCreateCard(boardId: string) {
 }
 
 // Shows the item at once, then refetches to pick up the server order.
-function appendThenInvalidate<TItem>(
+export function appendThenInvalidate<TItem>(
   queryClient: QueryClient,
   key: QueryKey,
   item: TItem,

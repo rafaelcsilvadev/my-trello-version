@@ -1,10 +1,26 @@
-import { describe, expect, it } from 'vitest';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { delay, http, HttpResponse } from 'msw';
+import type { ReactNode } from 'react';
+import { describe, expect, it, vi } from 'vitest';
 
-import { progressChange } from '@/features/board/api/checklist-mutations';
+import {
+  progressChange,
+  useCreateChecklistItem,
+} from '@/features/board/api/checklist-mutations';
 import { boardViewKeys } from '@/features/board/api/keys';
 import type { CacheChange } from '@/features/board/api/mutations';
+import { ApiProvider } from '@/shared/api/api-context';
+import { ApiError } from '@/shared/api/api-error';
+import { createApiClient } from '@/shared/api/client';
+import { createQueryClient } from '@/shared/api/query-client';
 
-import { boardId, cardFixture } from '../../../../support/fixtures/board';
+import {
+  boardId,
+  cardFixture,
+  checklistItem,
+} from '../../../../support/fixtures/board';
+import { server } from '../../../../support/msw/server';
 
 const card = cardFixture('c1', 'l1', { checklist: { total: 3, done: 1 } });
 const other = cardFixture('c2', 'l1', { checklist: { total: 2, done: 0 } });
@@ -113,4 +129,156 @@ describe('progressChange', () => {
     expect(active.apply([other])).toEqual([other]);
     expect(active.revert([card, other])).toEqual([card, other]);
   });
+});
+
+const baseUrl = 'http://api.test';
+const itemsUrl = `${baseUrl}/api/v1/cards/${card.id}/checklist-items`;
+const firstItem = checklistItem('i1', card.id);
+const created = checklistItem('i2', card.id, { text: 'Ship', position: 1 });
+
+const archivedConflict = {
+  type: '/problems/card-archived',
+  title: 'Conflict',
+  status: 409,
+  detail: 'Card is archived',
+  instance: `/api/v1/cards/${card.id}/checklist-items`,
+  requestId: 'req-1',
+};
+
+function setup() {
+  const api = createApiClient({
+    baseUrl,
+    getToken: () => 'token-123',
+    onSessionExpired: vi.fn<() => void>(),
+  });
+  const queryClient = createQueryClient();
+  queryClient.setQueryData(boardViewKeys.checklist(boardId, card.id), [
+    firstItem,
+  ]);
+  queryClient.setQueryData(boardViewKeys.card(boardId, card.id), card);
+  queryClient.setQueryData(boardViewKeys.cards(boardId, false), [card, other]);
+  queryClient.setQueryData(boardViewKeys.cards(boardId, true), [archivedCard]);
+  const wrapper = ({ children }: { children: ReactNode }) => (
+    <QueryClientProvider client={queryClient}>
+      <ApiProvider client={api}>{children}</ApiProvider>
+    </QueryClientProvider>
+  );
+  return { wrapper, queryClient };
+}
+
+function snapshot(queryClient: ReturnType<typeof createQueryClient>) {
+  return {
+    items: queryClient.getQueryData(boardViewKeys.checklist(boardId, card.id)),
+    card: queryClient.getQueryData(boardViewKeys.card(boardId, card.id)),
+    active: queryClient.getQueryData(boardViewKeys.cards(boardId, false)),
+    archived: queryClient.getQueryData(boardViewKeys.cards(boardId, true)),
+  };
+}
+
+const untouched = {
+  items: [firstItem],
+  card,
+  active: [card, other],
+  archived: [archivedCard],
+};
+
+describe('useCreateChecklistItem', () => {
+  it('posts the text to the checklist items of the card', async () => {
+    const bodies: unknown[] = [];
+    server.use(
+      http.post(itemsUrl, async ({ request }) => {
+        bodies.push(await request.json());
+        return HttpResponse.json(created, { status: 201 });
+      }),
+    );
+    const { wrapper } = setup();
+    const { result } = renderHook(
+      () => useCreateChecklistItem(boardId, card.id),
+      { wrapper },
+    );
+
+    await act(() => result.current.mutateAsync({ text: 'Ship' }));
+
+    expect(bodies).toEqual([{ text: 'Ship' }]);
+  });
+
+  it('changes no cache while the request is in flight', async () => {
+    server.use(http.post(itemsUrl, () => delay('infinite')));
+    const { wrapper, queryClient } = setup();
+    const { result } = renderHook(
+      () => useCreateChecklistItem(boardId, card.id),
+      { wrapper },
+    );
+
+    act(() => result.current.mutate({ text: 'Ship' }));
+
+    await waitFor(() => expect(result.current.isPending).toBe(true));
+    expect(snapshot(queryClient)).toEqual(untouched);
+  });
+
+  it('appends the created item last and invalidates the checklist', async () => {
+    server.use(
+      http.post(itemsUrl, () => HttpResponse.json(created, { status: 201 })),
+    );
+    const { wrapper, queryClient } = setup();
+    const { result } = renderHook(
+      () => useCreateChecklistItem(boardId, card.id),
+      { wrapper },
+    );
+
+    await act(() => result.current.mutateAsync({ text: 'Ship' }));
+
+    const key = boardViewKeys.checklist(boardId, card.id);
+    expect(queryClient.getQueryData(key)).toEqual([firstItem, created]);
+    expect(queryClient.getQueryState(key)?.isInvalidated).toBe(true);
+  });
+
+  it('adds one to the card total in the card query and both card lists', async () => {
+    server.use(
+      http.post(itemsUrl, () => HttpResponse.json(created, { status: 201 })),
+    );
+    const { wrapper, queryClient } = setup();
+    const { result } = renderHook(
+      () => useCreateChecklistItem(boardId, card.id),
+      { wrapper },
+    );
+
+    await act(() => result.current.mutateAsync({ text: 'Ship' }));
+
+    const grown = { total: 4, done: 1 };
+    expect(snapshot(queryClient)).toMatchObject({
+      card: { checklist: grown },
+      active: [{ id: card.id, checklist: grown }, other],
+      archived: [{ id: card.id, checklist: grown }],
+    });
+  });
+
+  it.each([
+    ['409', 409, archivedConflict],
+    ['5xx', 500, {}],
+  ])(
+    'changes no cache and rejects with an ApiError on %s',
+    async (_name, status, body) => {
+      server.use(
+        http.post(itemsUrl, () => HttpResponse.json(body, { status })),
+      );
+      const { wrapper, queryClient } = setup();
+      const { result } = renderHook(
+        () => useCreateChecklistItem(boardId, card.id),
+        { wrapper },
+      );
+
+      await act(() =>
+        expect(result.current.mutateAsync({ text: 'Ship' })).rejects.toThrow(
+          ApiError,
+        ),
+      );
+
+      expect(snapshot(queryClient)).toEqual(untouched);
+      expect(
+        queryClient.getQueryState(boardViewKeys.checklist(boardId, card.id))
+          ?.isInvalidated,
+      ).toBe(false);
+    },
+  );
 });
