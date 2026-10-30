@@ -755,7 +755,12 @@ describe('useCardDetailViewModel', () => {
   describe('move', () => {
     it('moveTo sends the end of the chosen column, closes the dialog and toasts the column', async () => {
       detailServer();
-      const changes = cardWrites();
+      // Held, so the settle refetch of the seeded card cannot undo the move first.
+      const held = gate();
+      const changes = cardWrites(async () => {
+        await held.wait();
+        return HttpResponse.json(cardFixture(cardId, doing.id));
+      });
       const { result } = await setupWithCards();
 
       act(() => result.current.actions.openMove());
@@ -766,6 +771,7 @@ describe('useCardDetailViewModel', () => {
       await waitFor(() =>
         expect(result.current.state.card?.listId).toBe(doing.id),
       );
+      held.open();
       await screen.findByText('Tarefa movida para Doing');
       expect(changes).toEqual(post('move', { listId: doing.id, position: 2 }));
     });
