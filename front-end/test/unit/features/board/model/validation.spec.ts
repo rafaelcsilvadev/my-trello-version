@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   validateCardTitle,
+  validateChecklistItemText,
   validateColumnName,
 } from '@/features/board/model/validation';
 
@@ -36,5 +37,28 @@ describe.each([
 
   it('rejects 101 chars after trimming', () => {
     expect(validate(` ${'A'.repeat(101)} `)).toBe(tooLong);
+  });
+});
+
+describe('validateChecklistItemText', () => {
+  it.each([
+    ['empty', ''],
+    ['blank', '   '],
+  ])('is required when %s', (_case, raw) => {
+    expect(validateChecklistItemText(raw)).toBe('checklistItemRequired');
+  });
+
+  it.each([
+    ['1 char', 'A'],
+    ['200 chars', 'A'.repeat(200)],
+    ['200 chars after trimming', `  ${'A'.repeat(200)}  `],
+  ])('accepts %s', (_case, raw) => {
+    expect(validateChecklistItemText(raw)).toBeNull();
+  });
+
+  it('rejects 201 chars after trimming', () => {
+    expect(validateChecklistItemText(` ${'A'.repeat(201)} `)).toBe(
+      'checklistItemTooLong',
+    );
   });
 });

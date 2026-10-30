@@ -143,9 +143,9 @@ T18 → T19 → T20 → T21
 
 **Done when**:
 
-- [ ] Unit: `""` and `"   "` → `checklistItemRequired`; 200 chars → `null`; 200 chars with outer spaces → `null`; 201 chars → `checklistItemTooLong`; column and card title rules unchanged (100/101)
-- [ ] PT-BR texts are "Escreva o item" and "Use até 200 caracteres"; the locale key parity test passes
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `""` and `"   "` → `checklistItemRequired`; 200 chars → `null`; 200 chars with outer spaces → `null`; 201 chars → `checklistItemTooLong`; column and card title rules unchanged (100/101)
+- [x] PT-BR texts are "Escreva o item" and "Use até 200 caracteres"; the locale key parity test passes
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build

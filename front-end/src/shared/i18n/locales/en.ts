@@ -195,6 +195,8 @@ export const en = {
       columnNameTooLong: 'Use up to 100 characters',
       cardTitleRequired: 'Give the task a title',
       cardTitleTooLong: 'Use up to 100 characters',
+      checklistItemRequired: 'Write the item',
+      checklistItemTooLong: 'Use up to 200 characters',
       cardDescriptionTooLong: 'Use up to 5000 characters',
     },
     cardDetail: {
