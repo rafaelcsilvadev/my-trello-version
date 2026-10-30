@@ -23,11 +23,11 @@ import { boardViewKeys } from './keys';
 export const BOARD_VIEW_CHANGE_KEY = ['board', 'change'] as const;
 
 // `id` is the list, card or board being changed (FBV-58).
-type ItemVariables = { id: string };
+export type ItemVariables = { id: string };
 
 // One patch on one cached query (FE-AD-010). `apply` may remember the old
 // values it overwrites, so `revert` puts back only this item.
-type CacheChange = {
+export type CacheChange = {
   key: QueryKey;
   apply: (data: never) => unknown;
   revert: (data: never) => unknown;
@@ -310,7 +310,9 @@ function activeCardSpot(cards: Card[], id: string): CardSpot | null {
 
 // Removes the matching items and remembers their indexes, so `revert` puts
 // them back where they were unless a refetch already brought them back.
-function removal<T extends { id: string }>(matches: (item: T) => boolean) {
+export function removal<T extends { id: string }>(
+  matches: (item: T) => boolean,
+) {
   let removed: { index: number; item: T }[] = [];
   return {
     removed: () => removed.map(({ item }) => item),
@@ -335,7 +337,7 @@ function removal<T extends { id: string }>(matches: (item: T) => boolean) {
 // TanStack Query optimistic recipe with per-item revert (FE-AD-010): patch the
 // cached queries now, undo only this change on failure, refetch the board once
 // no other change is in flight.
-function useOptimisticBoardViewChange<TVariables extends ItemVariables>(
+export function useOptimisticBoardViewChange<TVariables extends ItemVariables>(
   boardId: string,
   mutationFn: (variables: TVariables) => Promise<unknown>,
   change: (variables: TVariables) => CacheChange[],
