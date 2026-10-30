@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 17,
+  "next_id": 20,
   "lessons": [
     {
       "id": "L-001",
@@ -17,13 +17,13 @@
         "board-filters"
       ],
       "recurrence": 2,
-      "harmful": 0,
+      "harmful": 1,
       "evidence": [
         "M40-M43 front-end/src/features/boards/components/boards-screen.tsx:89,115,125,147 (components)",
         "M31 front-end/src/features/board/components/board-screen.tsx:70 (components)"
       ],
       "created": "2026-10-26T20:51:23Z",
-      "last_seen": "2026-10-29T18:09:54Z"
+      "last_seen": "2026-10-30T20:11:17Z"
     },
     {
       "id": "L-002",
@@ -294,6 +294,60 @@
       ],
       "created": "2026-10-29T18:09:54Z",
       "last_seen": "2026-10-29T18:09:54Z"
+    },
+    {
+      "id": "L-017",
+      "key": "surviving_mutant::click each toast action such as recarregar in a test and assert the exact queries it refetches since a settle refetch can mask a wrong reload key",
+      "text": "Click each toast action such as Recarregar in a test and assert the exact queries it refetches, since a settle refetch can mask a wrong reload key",
+      "signal": "surviving_mutant",
+      "scope": "view-models",
+      "status": "candidate",
+      "features": [
+        "card-detail"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M19 use-card-detail-view-model.ts:59 (validation.md Fix 2) (view-models)"
+      ],
+      "created": "2026-10-30T20:11:17Z",
+      "last_seen": "2026-10-30T20:11:17Z"
+    },
+    {
+      "id": "L-018",
+      "key": "ac_gap::assert the visual state an ac names such as dimmed with a class or style check on every listed field not only the disabled attribute",
+      "text": "Assert the visual state an AC names, such as dimmed, with a class or style check on every listed field, not only the disabled attribute",
+      "signal": "ac_gap",
+      "scope": "components",
+      "status": "candidate",
+      "features": [
+        "card-detail"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "FCD-34 card-detail-title.tsx:78 (validation.md Fix 3) (components)"
+      ],
+      "created": "2026-10-30T20:11:17Z",
+      "last_seen": "2026-10-30T20:11:17Z"
+    },
+    {
+      "id": "L-019",
+      "key": "ac_gap::give each negative clause of an ac such as no control or not shown its own absence assertion",
+      "text": "Give each negative clause of an AC, such as no control or not shown, its own absence assertion",
+      "signal": "ac_gap",
+      "scope": "components",
+      "status": "candidate",
+      "features": [
+        "card-detail"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "FCD-29 card-detail.spec.tsx:283-293 (validation.md Fix 4) (components)"
+      ],
+      "created": "2026-10-30T20:11:17Z",
+      "last_seen": "2026-10-30T20:11:17Z"
     }
   ]
 }

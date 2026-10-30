@@ -240,59 +240,59 @@ The board screen (features `board`, `board-dnd`, `board-filters`) shows cards, b
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| FCD-01 | P1: Open and close the card detail | Design | Pending |
-| FCD-02 | P1: Open and close the card detail | Design | Pending |
-| FCD-03 | P1: Open and close the card detail | Design | Pending |
-| FCD-04 | P1: Open and close the card detail | Design | Pending |
-| FCD-05 | P1: Open and close the card detail | Design | Pending |
-| FCD-06 | P1: Open and close the card detail | Design | Pending |
-| FCD-07 | P1: Open and close the card detail | Design | Pending |
-| FCD-08 | P1: Open and close the card detail | Design | Pending |
-| FCD-09 | P1: Open and close the card detail | Design | Pending |
-| FCD-10 | P1: Open and close the card detail | Design | Pending |
-| FCD-11 | P1: Open and close the card detail | Design | Pending |
-| FCD-12 | P1: Open and close the card detail | Design | Pending |
-| FCD-13 | P1: Edit the title and the done flag | Design | Pending |
-| FCD-14 | P1: Edit the title and the done flag | Design | Pending |
-| FCD-15 | P1: Edit the title and the done flag | Design | Pending |
-| FCD-16 | P1: Edit the title and the done flag | Design | Pending |
-| FCD-17 | P1: Edit the title and the done flag | Design | Pending |
-| FCD-18 | P1: Edit the title and the done flag | Design | Pending |
-| FCD-19 | P1: Edit the title and the done flag | Design | Pending |
-| FCD-20 | P1: Edit the title and the done flag | Design | Pending |
-| FCD-21 | P1: Set the due date and edit the description | Design | Pending |
-| FCD-22 | P1: Set the due date and edit the description | Design | Pending |
-| FCD-23 | P1: Set the due date and edit the description | Design | Pending |
-| FCD-24 | P1: Set the due date and edit the description | Design | Pending |
-| FCD-25 | P1: Set the due date and edit the description | Design | Pending |
-| FCD-26 | P1: Set the due date and edit the description | Design | Pending |
-| FCD-27 | P1: Set the due date and edit the description | Design | Pending |
-| FCD-28 | P1: Set the due date and edit the description | Design | Pending |
-| FCD-29 | P1: Set the due date and edit the description | Design | Pending |
-| FCD-30 | P1: Set the due date and edit the description | Design | Pending |
-| FCD-31 | P1: Move and archive from the detail | Design | Pending |
-| FCD-32 | P1: Move and archive from the detail | Design | Pending |
-| FCD-33 | P1: Move and archive from the detail | Design | Pending |
-| FCD-34 | P1: Archived card: restore or delete | Design | Pending |
-| FCD-35 | P1: Archived card: restore or delete | Design | Pending |
-| FCD-36 | P1: Archived card: restore or delete | Design | Pending |
-| FCD-37 | P1: Archived card: restore or delete | Design | Pending |
-| FCD-38 | P1: Archived card: restore or delete | Design | Pending |
-| FCD-39 | P1: Archived card: restore or delete | Design | Pending |
-| FCD-40 | P1: Read-only card of an archived board | Design | Pending |
-| FCD-41 | P1: Read-only card of an archived board | Design | Pending |
-| FCD-42 | P1: Unsaved edits | Design | Pending |
-| FCD-43 | P1: Unsaved edits | Design | Pending |
-| FCD-44 | P1: Unsaved edits | Design | Pending |
-| FCD-45 | P1: Unsaved edits | Design | Pending |
-| FCD-46 | P1: Unsaved edits | Design | Pending |
-| FCD-47 | Edge cases | Design | Pending |
-| FCD-48 | Edge cases | Design | Pending |
-| FCD-49 | Edge cases | Design | Pending |
-| FCD-50 | Edge cases | Design | Pending |
-| FCD-51 | Edge cases | Design | Pending |
-| FCD-52 | Edge cases | Design | Pending |
-| FCD-53 | Edge cases | Design | Pending |
+| FCD-01 | P1: Open and close the card detail | Verify | ✅ Verified |
+| FCD-02 | P1: Open and close the card detail | Verify | ✅ Verified |
+| FCD-03 | P1: Open and close the card detail | Verify | ✅ Verified |
+| FCD-04 | P1: Open and close the card detail | Verify | ✅ Verified |
+| FCD-05 | P1: Open and close the card detail | Verify | ✅ Verified |
+| FCD-06 | P1: Open and close the card detail | Verify | ✅ Verified |
+| FCD-07 | P1: Open and close the card detail | Verify | ✅ Verified |
+| FCD-08 | P1: Open and close the card detail | Verify | ✅ Verified |
+| FCD-09 | P1: Open and close the card detail | Verify | ❌ Needs Fix |
+| FCD-10 | P1: Open and close the card detail | Verify | ✅ Verified |
+| FCD-11 | P1: Open and close the card detail | Verify | ✅ Verified |
+| FCD-12 | P1: Open and close the card detail | Verify | ✅ Verified |
+| FCD-13 | P1: Edit the title and the done flag | Verify | ✅ Verified |
+| FCD-14 | P1: Edit the title and the done flag | Verify | ✅ Verified |
+| FCD-15 | P1: Edit the title and the done flag | Verify | ✅ Verified |
+| FCD-16 | P1: Edit the title and the done flag | Verify | ✅ Verified |
+| FCD-17 | P1: Edit the title and the done flag | Verify | ✅ Verified |
+| FCD-18 | P1: Edit the title and the done flag | Verify | ✅ Verified |
+| FCD-19 | P1: Edit the title and the done flag | Verify | ✅ Verified |
+| FCD-20 | P1: Edit the title and the done flag | Verify | ✅ Verified |
+| FCD-21 | P1: Set the due date and edit the description | Verify | ✅ Verified |
+| FCD-22 | P1: Set the due date and edit the description | Verify | ✅ Verified |
+| FCD-23 | P1: Set the due date and edit the description | Verify | ✅ Verified |
+| FCD-24 | P1: Set the due date and edit the description | Verify | ✅ Verified |
+| FCD-25 | P1: Set the due date and edit the description | Verify | ✅ Verified |
+| FCD-26 | P1: Set the due date and edit the description | Verify | ✅ Verified |
+| FCD-27 | P1: Set the due date and edit the description | Verify | ✅ Verified |
+| FCD-28 | P1: Set the due date and edit the description | Verify | ✅ Verified |
+| FCD-29 | P1: Set the due date and edit the description | Verify | ❌ Needs Fix |
+| FCD-30 | P1: Set the due date and edit the description | Verify | ✅ Verified |
+| FCD-31 | P1: Move and archive from the detail | Verify | ✅ Verified |
+| FCD-32 | P1: Move and archive from the detail | Verify | ✅ Verified |
+| FCD-33 | P1: Move and archive from the detail | Verify | ✅ Verified |
+| FCD-34 | P1: Archived card: restore or delete | Verify | ❌ Needs Fix |
+| FCD-35 | P1: Archived card: restore or delete | Verify | ✅ Verified |
+| FCD-36 | P1: Archived card: restore or delete | Verify | ✅ Verified |
+| FCD-37 | P1: Archived card: restore or delete | Verify | ✅ Verified |
+| FCD-38 | P1: Archived card: restore or delete | Verify | ✅ Verified |
+| FCD-39 | P1: Archived card: restore or delete | Verify | ✅ Verified |
+| FCD-40 | P1: Read-only card of an archived board | Verify | ✅ Verified |
+| FCD-41 | P1: Read-only card of an archived board | Verify | ✅ Verified |
+| FCD-42 | P1: Unsaved edits | Verify | ✅ Verified |
+| FCD-43 | P1: Unsaved edits | Verify | ✅ Verified |
+| FCD-44 | P1: Unsaved edits | Verify | ✅ Verified |
+| FCD-45 | P1: Unsaved edits | Verify | ✅ Verified |
+| FCD-46 | P1: Unsaved edits | Verify | ✅ Verified |
+| FCD-47 | Edge cases | Verify | ✅ Verified |
+| FCD-48 | Edge cases | Verify | ❌ Needs Fix |
+| FCD-49 | Edge cases | Verify | ✅ Verified |
+| FCD-50 | Edge cases | Verify | ✅ Verified |
+| FCD-51 | Edge cases | Verify | ✅ Verified |
+| FCD-52 | Edge cases | Verify | ✅ Verified |
+| FCD-53 | Edge cases | Verify | ✅ Verified |
 
 **Coverage:** 53 total, 0 mapped to tasks, 53 unmapped ⚠️ (mapped at Tasks)
 

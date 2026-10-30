@@ -9,10 +9,10 @@
 Corroborated across multiple features. Safe to apply as guidance.
 
 ### L-001 - Test each screen composition through the rendered screen, asserting every prop it derives and passes to child components, not only the view-model state and the children in isolation
-- signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `components` · harmful: 0
+- signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `components` · harmful: 1
 - features: boards, board-filters
 - evidence: M40-M43 front-end/src/features/boards/components/boards-screen.tsx:89,115,125,147 (components) (+1 more)
-- last seen: 2026-10-29T18:09:54Z
+- last seen: 2026-10-30T20:11:17Z
 
 ## Candidates (under observation - do NOT load as guidance yet)
 
@@ -107,6 +107,24 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - features: board-filters
 - evidence: SPEC_DEVIATION front-end/src/features/board/components/label-filter.tsx:63 (components)
 - last seen: 2026-10-29T18:09:54Z
+
+### L-017 - Click each toast action such as Recarregar in a test and assert the exact queries it refetches, since a settle refetch can mask a wrong reload key
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `view-models` · harmful: 0
+- features: card-detail
+- evidence: M19 use-card-detail-view-model.ts:59 (validation.md Fix 2) (view-models)
+- last seen: 2026-10-30T20:11:17Z
+
+### L-018 - Assert the visual state an AC names, such as dimmed, with a class or style check on every listed field, not only the disabled attribute
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `components` · harmful: 0
+- features: card-detail
+- evidence: FCD-34 card-detail-title.tsx:78 (validation.md Fix 3) (components)
+- last seen: 2026-10-30T20:11:17Z
+
+### L-019 - Give each negative clause of an AC, such as no control or not shown, its own absence assertion
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `components` · harmful: 0
+- features: card-detail
+- evidence: FCD-29 card-detail.spec.tsx:283-293 (validation.md Fix 4) (components)
+- last seen: 2026-10-30T20:11:17Z
 
 ## Quarantined (failed when applied - ignore)
 
