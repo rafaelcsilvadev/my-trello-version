@@ -6,6 +6,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import {
   useArchiveCard,
+  useDeleteCard,
   useRestoreCard,
   useUpdateCard,
 } from '@/features/board/api/card-mutations';
@@ -380,5 +381,58 @@ describe('useRestoreCard', () => {
     expect(queryClient.getQueryData(archivedCardsKey)).toEqual([archivedCard]);
     expect(queryClient.getQueryData(cardsKey)).toEqual([card, neighbor]);
     expect(queryClient.getQueryData<Card>(restoredKey)).toEqual(archivedCard);
+  });
+});
+
+describe('useDeleteCard', () => {
+  const deletedKey = boardViewKeys.card(boardId, archivedCard.id);
+
+  it('deletes the card by its id', async () => {
+    const paths: unknown[] = [];
+    server.use(
+      http.delete(cardUrl, ({ params }) => {
+        paths.push(params.id);
+        return new HttpResponse(null, { status: 204 });
+      }),
+    );
+    const { wrapper } = setup(archivedCard);
+    const { result } = renderHook(() => useDeleteCard(boardId), { wrapper });
+
+    await act(() => result.current.mutateAsync({ id: archivedCard.id }));
+
+    expect(paths).toEqual([archivedCard.id]);
+  });
+
+  it('drops the card from the archived list before the response', async () => {
+    server.use(http.delete(cardUrl, () => delay('infinite')));
+    const { wrapper, queryClient } = setup(archivedCard);
+    const { result } = renderHook(() => useDeleteCard(boardId), { wrapper });
+
+    act(() => result.current.mutate({ id: archivedCard.id }));
+
+    await waitFor(() => expect(ids(queryClient, archivedCardsKey)).toEqual([]));
+    expect(queryClient.getQueryData(cardsKey)).toEqual([card, neighbor]);
+    expect(queryClient.getQueryData<Card>(deletedKey)).toEqual(archivedCard);
+  });
+
+  it('puts the card back at its index on failure', async () => {
+    const other = cardFixture('c4', 'l1', { archivedAt });
+    server.use(
+      http.delete(cardUrl, () =>
+        HttpResponse.json(serverError, { status: 500 }),
+      ),
+    );
+    const { wrapper, queryClient } = setup(archivedCard);
+    queryClient.setQueryData(archivedCardsKey, [other, archivedCard]);
+    const { result } = renderHook(() => useDeleteCard(boardId), { wrapper });
+
+    await act(() =>
+      expect(
+        result.current.mutateAsync({ id: archivedCard.id }),
+      ).rejects.toThrow(ApiError),
+    );
+
+    expect(ids(queryClient, archivedCardsKey)).toEqual(['c4', 'c3']);
+    expect(queryClient.getQueryData<Card>(deletedKey)).toEqual(archivedCard);
   });
 });

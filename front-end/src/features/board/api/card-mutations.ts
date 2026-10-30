@@ -107,6 +107,22 @@ export function useRestoreCard(boardId: string) {
   );
 }
 
+export function useDeleteCard(boardId: string) {
+  const api = useApi();
+
+  return useOptimisticBoardViewChange<ItemVariables>(
+    boardId,
+    ({ id }) =>
+      call(api.DELETE('/api/v1/cards/{id}', { params: { path: { id } } })),
+    ({ id }) => [
+      {
+        key: boardViewKeys.cards(boardId, true),
+        ...removal<Card>((card) => card.id === id),
+      },
+    ],
+  );
+}
+
 type CardPatch = {
   apply: (card: Card) => Card;
   revert: (card: Card) => Card;
