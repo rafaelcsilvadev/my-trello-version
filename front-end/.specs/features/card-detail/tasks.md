@@ -113,8 +113,8 @@ T20 → T21 → T22 → T23 → T24 → T25 → T26 → T27
 
 **Done when**:
 
-- [ ] Unit: `409` with `conflictMessage` shows that text and **Recarregar**; `409` without it shows the generic conflict text; `runChange` passes the option through on retry
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `409` with `conflictMessage` shows that text and **Recarregar**; `409` without it shows the generic conflict text; `runChange` passes the option through on retry
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
