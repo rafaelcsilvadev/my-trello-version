@@ -238,8 +238,8 @@ T20 → T21 → T22 → T23 → T24 → T25 → T26 → T27
 
 **Done when**:
 
-- [ ] Unit: archive removes from the active list, prepends to the archived list (when loaded) and sets `archivedAt` on the card query; restore does the reverse and puts the card last in its column; each failure puts back only that card at its old index
-- [ ] Build gate passes; test count only grows
+- [x] Unit: archive removes from the active list, prepends to the archived list (when loaded) and sets `archivedAt` on the card query; restore does the reverse and puts the card last in its column; each failure puts back only that card at its old index
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
