@@ -1,13 +1,23 @@
 import { QueryClientProvider } from '@tanstack/react-query';
-import { act, renderHook, waitFor } from '@testing-library/react';
+import {
+  act,
+  cleanup,
+  renderHook,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { http, HttpResponse, type JsonBodyType } from 'msw';
 import type { ReactNode } from 'react';
+import { I18nextProvider } from 'react-i18next';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import type { Card } from '@/features/board/model/types';
 import { useCardDetailViewModel } from '@/features/board/view-models/use-card-detail-view-model';
 import { ApiProvider } from '@/shared/api/api-context';
 import { createApiClient } from '@/shared/api/client';
 import { createQueryClient } from '@/shared/api/query-client';
+import { createI18n } from '@/shared/i18n/i18n';
+import { ToastProvider } from '@/shared/ui/toast/toast-provider';
 
 import {
   boardFixture,
@@ -34,9 +44,12 @@ const urgent = labelFixture('lb1', { name: 'Urgent', color: 'red' });
 const later = labelFixture('lb2', { name: 'Later', color: 'blue' });
 const bug = labelFixture('lb3', { name: 'Bug', color: 'orange' });
 
-function problem(status: number) {
+function problem(
+  status: number,
+  errors?: { field: string; message: string }[],
+) {
   return HttpResponse.json(
-    { type: `/problems/${status}`, title: 'Error', status, detail: '' },
+    { type: `/problems/${status}`, title: 'Error', status, detail: '', errors },
     {
       status,
       headers: { 'Content-Type': 'application/problem+json' },
@@ -88,9 +101,13 @@ function setup() {
     queries: { ...queryClient.getDefaultOptions().queries, retryDelay: 0 },
   });
   const wrapper = ({ children }: { children: ReactNode }) => (
-    <QueryClientProvider client={queryClient}>
-      <ApiProvider client={api}>{children}</ApiProvider>
-    </QueryClientProvider>
+    <I18nextProvider i18n={createI18n('pt-BR')}>
+      <QueryClientProvider client={queryClient}>
+        <ApiProvider client={api}>
+          <ToastProvider>{children}</ToastProvider>
+        </ApiProvider>
+      </QueryClientProvider>
+    </I18nextProvider>
   );
   return renderHook(() => useCardDetailViewModel(boardId, cardId), {
     wrapper,
@@ -105,8 +122,82 @@ async function setupReady() {
   return rendered;
 }
 
+type ChangeRequest = { method: string; path: string; body: unknown };
+
+// Records every card write; each one is answered by the next queued response, or by the card.
+function cardWrites(...responses: (() => Response | Promise<Response>)[]) {
+  const changes: ChangeRequest[] = [];
+  server.use(
+    http.patch(cardUrl, async ({ request }) => {
+      changes.push({
+        method: request.method,
+        path: new URL(request.url).pathname,
+        body: await request.json(),
+      });
+      return (
+        responses.shift() ??
+        (() => HttpResponse.json(cardFixture(cardId, backlog.id)))
+      )();
+    }),
+  );
+  return changes;
+}
+
+// Holds a write until the test opens it, to see the change before the answer.
+function gate() {
+  let open!: () => void;
+  const opened = new Promise<void>((resolve) => {
+    open = resolve;
+  });
+  return { open, wait: () => opened };
+}
+
+function patch(body: unknown): ChangeRequest[] {
+  return [{ method: 'PATCH', path: `/api/v1/cards/${cardId}`, body }];
+}
+
+function toastText() {
+  return screen.getByRole('status').textContent;
+}
+
+const savedStamp = '2026-10-21T12:00:00.000Z';
+
+// The card as loaded, then as the settle refetch reads it once a save finished.
+function cardThenSaved(overrides: Partial<Card> = {}): Reply {
+  let loads = 0;
+  return () =>
+    HttpResponse.json(
+      cardFixture(cardId, backlog.id, {
+        ...overrides,
+        updatedAt: loads++ === 0 ? stamp : savedStamp,
+      }),
+    );
+}
+
+async function expectSavedSilently(
+  result: Awaited<ReturnType<typeof setupReady>>['result'],
+) {
+  await waitFor(() =>
+    expect(result.current.state.card?.updatedAt).toBe(savedStamp),
+  );
+  // The save resolves in microtasks after the refetch lands; one macrotask runs them all.
+  await act(() => new Promise((resolve) => setTimeout(resolve, 0)));
+  expect(toastText()).toBe('');
+}
+
+function toastButtons() {
+  return ['Recarregar', 'Tentar novamente'].filter(
+    (name) => screen.queryByRole('button', { name }) !== null,
+  );
+}
+
+const saveFail = 'Não foi possível salvar. Tente novamente.';
+const conflict = 'Este item foi arquivado. Recarregue para ver o estado atual.';
+const titleFieldError = [{ field: 'title', message: 'too long' }];
+
 afterEach(() => {
   vi.useRealTimers();
+  cleanup();
 });
 
 describe('useCardDetailViewModel', () => {
@@ -274,6 +365,358 @@ describe('useCardDetailViewModel', () => {
         'Urgent',
         'Bug',
       ]);
+    });
+  });
+
+  describe('done and due date', () => {
+    it.each([false, true])(
+      'toggleDone on a card with done %s shows the flip at once, sends it and saves silently',
+      async (done) => {
+        detailServer({ [cardUrl]: cardThenSaved({ done }) });
+        const held = gate();
+        const changes = cardWrites(async () => {
+          await held.wait();
+          return HttpResponse.json(cardFixture(cardId, backlog.id));
+        });
+        const { result } = await setupReady();
+
+        act(() => result.current.actions.toggleDone());
+
+        await waitFor(() =>
+          expect(result.current.state.card?.done).toBe(!done),
+        );
+        held.open();
+        await expectSavedSilently(result);
+        expect(changes).toEqual(patch({ done: !done }));
+      },
+    );
+
+    it('setDueDate shows the date at once, sends it and saves silently', async () => {
+      detailServer({ [cardUrl]: cardThenSaved() });
+      const held = gate();
+      const changes = cardWrites(async () => {
+        await held.wait();
+        return HttpResponse.json(cardFixture(cardId, backlog.id));
+      });
+      const { result } = await setupReady();
+
+      act(() => result.current.actions.setDueDate('2026-11-05'));
+
+      await waitFor(() =>
+        expect(result.current.state.card?.dueDate).toBe('2026-11-05'),
+      );
+      held.open();
+      await expectSavedSilently(result);
+      expect(changes).toEqual(patch({ dueDate: '2026-11-05' }));
+    });
+
+    it('removeDueDate clears the date at once, sends null and saves silently', async () => {
+      detailServer({ [cardUrl]: cardThenSaved({ dueDate: '2026-11-05' }) });
+      const held = gate();
+      const changes = cardWrites(async () => {
+        await held.wait();
+        return HttpResponse.json(cardFixture(cardId, backlog.id));
+      });
+      const { result } = await setupReady();
+
+      act(() => result.current.actions.removeDueDate());
+
+      await waitFor(() =>
+        expect(result.current.state.card?.dueDate).toBeNull(),
+      );
+      held.open();
+      await expectSavedSilently(result);
+      expect(changes).toEqual(patch({ dueDate: null }));
+    });
+  });
+
+  describe('title', () => {
+    it('submitTitle shows the trimmed title at once, sends it and saves silently', async () => {
+      detailServer({ [cardUrl]: cardThenSaved() });
+      const held = gate();
+      const changes = cardWrites(async () => {
+        await held.wait();
+        return HttpResponse.json(cardFixture(cardId, backlog.id));
+      });
+      const { result } = await setupReady();
+
+      act(() => result.current.actions.setTitleDraft('  Write tests  '));
+      expect(result.current.state.titleDraft).toBe('  Write tests  ');
+      act(() => result.current.actions.submitTitle());
+
+      expect(result.current.state.titleDraft).toBeNull();
+      await waitFor(() =>
+        expect(result.current.state.card?.title).toBe('Write tests'),
+      );
+      held.open();
+      await expectSavedSilently(result);
+      expect(changes).toEqual(patch({ title: 'Write tests' }));
+    });
+
+    it('submitTitle with the saved title after trimming sends nothing', async () => {
+      detailServer();
+      const changes = cardWrites();
+      const { result } = await setupReady();
+
+      act(() => result.current.actions.setTitleDraft(`  Card ${cardId} `));
+      act(() => result.current.actions.submitTitle());
+
+      expect(result.current.state.titleDraft).toBeNull();
+      expect(result.current.state.titleError).toBeNull();
+      expect(changes).toEqual([]);
+    });
+
+    it('submitTitle saves a 100-character title', async () => {
+      detailServer();
+      const changes = cardWrites();
+      const { result } = await setupReady();
+      const title = 'a'.repeat(100);
+
+      act(() => result.current.actions.setTitleDraft(` ${title} `));
+      act(() => result.current.actions.submitTitle());
+
+      expect(result.current.state.titleError).toBeNull();
+      await waitFor(() => expect(changes).toEqual(patch({ title })));
+    });
+
+    it.each([
+      ['   ', 'cardTitleRequired'],
+      ['a'.repeat(101), 'cardTitleTooLong'],
+    ])(
+      'submitTitle with %j sets %s, keeps the draft and sends nothing',
+      async (draft, error) => {
+        detailServer();
+        const changes = cardWrites();
+        const { result } = await setupReady();
+
+        act(() => result.current.actions.setTitleDraft(draft));
+        act(() => result.current.actions.submitTitle());
+
+        expect(result.current.state.titleError).toBe(error);
+        expect(result.current.state.titleDraft).toBe(draft);
+        expect(changes).toEqual([]);
+      },
+    );
+
+    it('cancelTitle restores the saved title and clears the error', async () => {
+      detailServer();
+      const { result } = await setupReady();
+      act(() => result.current.actions.setTitleDraft(''));
+      act(() => result.current.actions.submitTitle());
+
+      act(() => result.current.actions.cancelTitle());
+
+      expect(result.current.state.titleDraft).toBeNull();
+      expect(result.current.state.titleError).toBeNull();
+      expect(result.current.state.card?.title).toBe(`Card ${cardId}`);
+    });
+
+    it('a failed title save puts the title back and keeps the typed text as a draft', async () => {
+      detailServer();
+      cardWrites(() => problem(500));
+      const { result } = await setupReady();
+
+      act(() => result.current.actions.setTitleDraft(' Write tests '));
+      act(() => result.current.actions.submitTitle());
+
+      await screen.findByText(saveFail);
+      expect(result.current.state.titleDraft).toBe(' Write tests ');
+      expect(result.current.state.card?.title).toBe(`Card ${cardId}`);
+      expect(result.current.state.isDirty).toBe(true);
+    });
+
+    it('a title 400 becomes the field error with no toast', async () => {
+      detailServer();
+      cardWrites(() => problem(400, titleFieldError));
+      const { result } = await setupReady();
+
+      act(() => result.current.actions.setTitleDraft('Write tests'));
+      act(() => result.current.actions.submitTitle());
+
+      await waitFor(() =>
+        expect(result.current.state.titleError).toBe('cardTitleTooLong'),
+      );
+      expect(result.current.state.titleDraft).toBe('Write tests');
+      expect(toastText()).toBe('');
+    });
+
+    it('the title retry resends the same title', async () => {
+      detailServer();
+      const changes = cardWrites(() => problem(500));
+      const { result } = await setupReady();
+      act(() => result.current.actions.setTitleDraft(' Write tests '));
+      act(() => result.current.actions.submitTitle());
+      await screen.findByText(saveFail);
+
+      act(() =>
+        screen.getByRole('button', { name: 'Tentar novamente' }).click(),
+      );
+
+      await waitFor(() =>
+        expect(changes).toEqual([
+          ...patch({ title: 'Write tests' }),
+          ...patch({ title: 'Write tests' }),
+        ]),
+      );
+    });
+  });
+
+  describe('description', () => {
+    it('saveDescription sends the untrimmed draft, clears it and saves silently', async () => {
+      detailServer({ [cardUrl]: cardThenSaved() });
+      const changes = cardWrites();
+      const { result } = await setupReady();
+
+      act(() => result.current.actions.setDescriptionDraft(' Notes '));
+      expect(result.current.state.descriptionDraft).toBe(' Notes ');
+      act(() => result.current.actions.saveDescription());
+
+      expect(result.current.state.descriptionDraft).toBeNull();
+      await expectSavedSilently(result);
+      expect(changes).toEqual(patch({ description: ' Notes ' }));
+    });
+
+    it('saveDescription sends null for an empty draft', async () => {
+      detailServer({
+        [cardUrl]: () =>
+          HttpResponse.json(
+            cardFixture(cardId, backlog.id, { description: 'Old' }),
+          ),
+      });
+      const changes = cardWrites();
+      const { result } = await setupReady();
+
+      act(() => result.current.actions.setDescriptionDraft(''));
+      act(() => result.current.actions.saveDescription());
+
+      await waitFor(() =>
+        expect(changes).toEqual(patch({ description: null })),
+      );
+    });
+
+    it('allows and saves a 5000-character description', async () => {
+      detailServer();
+      const changes = cardWrites();
+      const { result } = await setupReady();
+      const description = 'a'.repeat(5000);
+
+      act(() => result.current.actions.setDescriptionDraft(description));
+      expect(result.current.state.descriptionError).toBeNull();
+      act(() => result.current.actions.saveDescription());
+
+      await waitFor(() => expect(changes).toEqual(patch({ description })));
+    });
+
+    it('a 5001-character draft sets the error and saveDescription sends nothing', async () => {
+      detailServer();
+      const changes = cardWrites();
+      const { result } = await setupReady();
+      const draft = 'a'.repeat(5001);
+
+      act(() => result.current.actions.setDescriptionDraft(draft));
+      expect(result.current.state.descriptionError).toBe(
+        'cardDescriptionTooLong',
+      );
+      act(() => result.current.actions.saveDescription());
+
+      expect(result.current.state.descriptionDraft).toBe(draft);
+      expect(changes).toEqual([]);
+    });
+
+    it('cancelDescription restores the saved description', async () => {
+      detailServer();
+      const { result } = await setupReady();
+      act(() => result.current.actions.setDescriptionDraft('a'.repeat(5001)));
+
+      act(() => result.current.actions.cancelDescription());
+
+      expect(result.current.state.descriptionDraft).toBeNull();
+      expect(result.current.state.descriptionError).toBeNull();
+      expect(result.current.state.isDirty).toBe(false);
+    });
+
+    it('a failed description save keeps the typed text as a draft', async () => {
+      detailServer();
+      cardWrites(() => problem(500));
+      const { result } = await setupReady();
+
+      act(() => result.current.actions.setDescriptionDraft('Notes'));
+      act(() => result.current.actions.saveDescription());
+
+      await screen.findByText(saveFail);
+      expect(result.current.state.descriptionDraft).toBe('Notes');
+      expect(result.current.state.card?.description).toBeNull();
+      expect(result.current.state.isDirty).toBe(true);
+    });
+  });
+
+  describe('save failures', () => {
+    it.each([
+      [500, saveFail, ['Tentar novamente']],
+      [409, conflict, ['Recarregar']],
+    ])(
+      'a save failing with %i puts the card back and toasts %j',
+      async (status, message, buttons) => {
+        detailServer();
+        cardWrites(() => problem(status));
+        const { result } = await setupReady();
+
+        act(() => result.current.actions.toggleDone());
+
+        await screen.findByText(message);
+        await waitFor(() =>
+          expect(result.current.state.card?.done).toBe(false),
+        );
+        expect(toastButtons()).toEqual(buttons);
+      },
+    );
+
+    it('a save failing with 404 toasts and refetches the card into notFound', async () => {
+      let deleted = false;
+      detailServer({ [cardUrl]: () => (deleted ? problem(404) : undefined) });
+      cardWrites(() => {
+        deleted = true;
+        return problem(404);
+      });
+      const { result } = await setupReady();
+
+      act(() => result.current.actions.toggleDone());
+
+      await screen.findByText(saveFail);
+      expect(toastButtons()).toEqual([]);
+      await waitFor(() => expect(result.current.state.status).toBe('notFound'));
+    });
+  });
+
+  describe('isDirty', () => {
+    it('is false with no drafts', async () => {
+      detailServer();
+      const { result } = await setupReady();
+
+      expect(result.current.state.isDirty).toBe(false);
+    });
+
+    it('is true while the trimmed title draft differs and false after cancelTitle', async () => {
+      detailServer();
+      const { result } = await setupReady();
+
+      act(() => result.current.actions.setTitleDraft(` Card ${cardId} `));
+      expect(result.current.state.isDirty).toBe(false);
+      act(() => result.current.actions.setTitleDraft('Other'));
+      expect(result.current.state.isDirty).toBe(true);
+
+      act(() => result.current.actions.cancelTitle());
+      expect(result.current.state.isDirty).toBe(false);
+    });
+
+    it('is true while the description draft differs from the saved one', async () => {
+      detailServer();
+      const { result } = await setupReady();
+
+      act(() => result.current.actions.setDescriptionDraft(''));
+      expect(result.current.state.isDirty).toBe(false);
+      act(() => result.current.actions.setDescriptionDraft('Notes'));
+      expect(result.current.state.isDirty).toBe(true);
     });
   });
 
