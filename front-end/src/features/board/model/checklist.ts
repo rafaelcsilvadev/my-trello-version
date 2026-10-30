@@ -11,6 +11,9 @@ export type ChecklistProgress = {
 // Item id → typed text; the add field is not a draft (FCL-29).
 export type ItemDrafts = Record<string, string>;
 
+// A change to `Card.checklist` caused by adding, ticking or deleting an item.
+export type ProgressDelta = { total: number; done: number };
+
 export function checklistProgress(items: ChecklistItem[]): ChecklistProgress {
   const total = items.length;
   const done = items.filter((item) => item.done).length;

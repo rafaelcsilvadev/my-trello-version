@@ -194,8 +194,8 @@ T18 → T19 → T20 → T21
 
 **Done when**:
 
-- [ ] Unit: `apply` adds the delta only to the matching card in each of the three caches; `revert` subtracts it; two overlapping deltas reverted out of order leave the other's change in place; a delta read lazily (function) is the one applied and reverted
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `apply` adds the delta only to the matching card in each of the three caches; `revert` subtracts it; two overlapping deltas reverted out of order leave the other's change in place; a delta read lazily (function) is the one applied and reverted
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
