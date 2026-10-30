@@ -51,7 +51,7 @@ export function CardDetail({ boardId, cardId }: CardDetailProps) {
       data-testid="card-detail-overlay"
       className="fixed inset-0 z-40 flex bg-surface-card md:items-start md:justify-center md:overflow-auto md:bg-surface-overlay md:px-6 md:pt-10 md:pb-6"
     >
-      <Modal className="flex min-h-0 flex-1 flex-col bg-surface-card md:max-h-[calc(100vh-48px)] md:w-full md:max-w-160 md:flex-none md:overflow-hidden md:rounded-xl md:border md:border-border-subtle md:shadow-lg">
+      <Modal className="flex min-h-0 min-w-0 flex-1 flex-col bg-surface-card md:max-h-[calc(100vh-48px)] md:w-full md:max-w-160 md:flex-none md:overflow-hidden md:rounded-xl md:border md:border-border-subtle md:shadow-lg">
         {/* React Aria hides the board but drops aria-modal from the props, so the
             element is rendered here; the board shortcuts read it (FCD-12). */}
         <Dialog
