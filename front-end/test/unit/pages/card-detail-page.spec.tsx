@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, screen } from '@testing-library/react';
+import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { afterEach, describe, expect, it } from 'vitest';
 
@@ -129,5 +129,39 @@ describe('CardDetailPage', () => {
         hidden: true,
       }),
     ).toBeTruthy();
+  });
+  it('returns focus to the tile after Esc closes the detail', async () => {
+    boardApi();
+    const { router } = renderApp({ route: boardPath, token: 'token' });
+    const tile = await screen.findByRole('button', { name: card.title });
+
+    tile.focus();
+    fireEvent.click(tile);
+    const detail = await screen.findByRole('dialog', { name: card.title });
+    fireEvent.keyDown(detail, { key: 'Escape' });
+
+    await waitFor(() => expect(router.state.location.pathname).toBe(boardPath));
+    await waitFor(() =>
+      expect(document.activeElement).toBe(
+        screen.getByRole('button', { name: card.title }),
+      ),
+    );
+  });
+
+  it('focuses the tile when a detail opened by URL closes', async () => {
+    boardApi();
+    renderApp({ route: `${boardPath}/t/${card.id}`, token: 'token' });
+    await screen.findByRole('dialog', { name: card.title });
+    await screen.findByRole('button', { name: card.title, hidden: true });
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Close', hidden: true }),
+    );
+
+    await waitFor(() =>
+      expect(document.activeElement).toBe(
+        screen.getByRole('button', { name: card.title }),
+      ),
+    );
   });
 });

@@ -1,4 +1,5 @@
 import type { KeyboardEvent } from 'react';
+import { useNavigate } from 'react-router';
 
 import { LoadError } from '@/shared/ui/load-error';
 
@@ -24,6 +25,7 @@ type BoardScreenProps = {
 // Port of the prototype board screen (design/Task List.dc.html:298-520).
 export function BoardScreen({ boardId }: BoardScreenProps) {
   const { state, actions } = useBoardViewModel(boardId);
+  const navigate = useNavigate();
 
   switch (state.status) {
     case 'loading':
@@ -104,6 +106,7 @@ export function BoardScreen({ boardId }: BoardScreenProps) {
           onCloseAddCard={actions.closeAddCard}
           onCreateCard={actions.createCard}
           onToggleDone={actions.toggleDone}
+          onOpenCard={(cardId) => void navigate(`/b/${boardId}/t/${cardId}`)}
           onCreateList={actions.createList}
           onRestoreList={actions.restoreList}
           onDeleteList={actions.askDeleteList}

@@ -61,6 +61,7 @@ type BoardColumnProps = {
   onCloseAddCard: () => void;
   onCreateCard: (raw: string) => Promise<ItemFieldError | null>;
   onToggleDone: (card: Card) => void;
+  onOpenCard: (cardId: string) => void;
   move?: ColumnMove;
   cardDrop?: ColumnCardDrop;
   // Each card's part in a move session, by card id.
@@ -86,6 +87,7 @@ export function BoardColumn({
   onCloseAddCard,
   onCreateCard,
   onToggleDone,
+  onOpenCard,
   move,
   cardDrop,
   cardMove,
@@ -259,6 +261,7 @@ export function BoardColumn({
               isReadOnly={isReadOnly}
               onToggleDone={onToggleDone}
               move={cardMove?.(card.id)}
+              onOpen={onOpenCard}
             />
           </Fragment>
         ))}

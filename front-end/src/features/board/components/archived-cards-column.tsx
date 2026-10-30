@@ -13,6 +13,7 @@ type ArchivedCardsColumnProps = {
   status: ArchivedStatus;
   labels: ReadonlyMap<string, Label>;
   today: DateParts;
+  onOpenCard: (cardId: string) => void;
   onRetry: () => void;
 };
 
@@ -22,6 +23,7 @@ export function ArchivedCardsColumn({
   status,
   labels,
   today,
+  onOpenCard,
   onRetry,
 }: ArchivedCardsColumnProps) {
   const { t } = useTranslation();
@@ -61,6 +63,7 @@ export function ArchivedCardsColumn({
               isPending={false}
               isReadOnly
               onToggleDone={() => {}}
+              onOpen={onOpenCard}
             />
           ))}
           {items.length === 0 ? (

@@ -111,7 +111,12 @@ function renderScreen() {
     route: `/b/${boardId}`,
     token: 'token',
     routes: [
-      { path: '/b/:boardId', element: <BoardScreen boardId={boardId} /> },
+      {
+        path: '/b/:boardId',
+        element: <BoardScreen boardId={boardId} />,
+        // The detail URL keeps this screen; the detail itself is out of scope here.
+        children: [{ path: 't/:cardId', element: null }],
+      },
     ],
   });
 }
@@ -699,6 +704,60 @@ describe('BoardScreen', () => {
       expect(
         within(column('Backlog')).getByText('Write the brief'),
       ).toBeTruthy();
+    });
+  });
+  describe('opening cards', () => {
+    const detailPath = (cardId: string) => `/b/${boardId}/t/${cardId}`;
+
+    it.each([
+      ['Backlog', 'Write the brief', 'c1'],
+      ['Doing', 'Book the venue', 'c2'],
+    ])(
+      'opens the detail of a card of %s on click',
+      async (name, title, cardId) => {
+        boardApi();
+        const { router } = renderScreen();
+        await screen.findByRole('region', { name });
+
+        fireEvent.click(
+          within(column(name)).getByRole('button', { name: title }),
+        );
+
+        expect(router.state.location.pathname).toBe(detailPath(cardId));
+      },
+    );
+
+    it('opens the detail of an archived card from Show archived', async () => {
+      const seed = boardApi();
+      seed.cards.push(
+        cardFixture('c9', 'l1', {
+          title: 'Old draft',
+          archivedAt: archivedStamp,
+        }),
+      );
+      const { router } = renderScreen();
+      await screen.findByRole('region', { name: 'Backlog' });
+
+      fireEvent.click(screen.getByRole('switch', { name: 'Show archived' }));
+      const archived = await screen.findByRole('region', { name: 'Archived' });
+      fireEvent.click(
+        await within(archived).findByRole('button', { name: 'Old draft' }),
+      );
+
+      expect(router.state.location.pathname).toBe(detailPath('c9'));
+    });
+
+    it('opens the detail of a card of an archived board', async () => {
+      boardApi(boardFixture({ archivedAt: archivedStamp }));
+      const { router } = renderScreen();
+      await screen.findByText('Board archived · read-only');
+
+      fireEvent.keyDown(
+        within(column('Doing')).getByRole('button', { name: 'Book the venue' }),
+        { key: 'Enter' },
+      );
+
+      expect(router.state.location.pathname).toBe(detailPath('c2'));
     });
   });
 });
