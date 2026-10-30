@@ -6,12 +6,17 @@ import { useSaveFailureNotifier } from '@/shared/ui/toast/use-save-failure-notif
 
 import {
   useCreateChecklistItem,
+  useDeleteChecklistItem,
   useUpdateChecklistItem,
 } from '../api/checklist-mutations';
 import { useChecklistItems } from '../api/checklist-queries';
 import { boardViewKeys } from '../api/keys';
 import { usePendingItemIds } from '../api/mutations';
-import { checklistProgress, type ItemDrafts } from '../model/checklist';
+import {
+  checklistProgress,
+  isChecklistDirty,
+  type ItemDrafts,
+} from '../model/checklist';
 import type { ChecklistItem, ItemFieldError } from '../model/types';
 import { validateChecklistItemText } from '../model/validation';
 
@@ -30,6 +35,7 @@ export function useCardChecklistViewModel(boardId: string, cardId: string) {
   const queryClient = useQueryClient();
   const createMutation = useCreateChecklistItem(boardId, cardId);
   const updateMutation = useUpdateChecklistItem(boardId, cardId);
+  const deleteMutation = useDeleteChecklistItem(boardId, cardId);
   const pendingIds = usePendingItemIds();
   const { notify, runChange } = useSaveFailureNotifier(
     () =>
@@ -114,8 +120,17 @@ export function useCardChecklistViewModel(boardId: string, cardId: string) {
     });
   }
 
+  // No confirmation and no success toast: the item leaves the list at once (FCL-24).
+  function remove(id: string) {
+    dropDraft(id);
+    clearErrorOf(id);
+    runChange(deleteMutation.mutateAsync, { id }, null);
+  }
+
   return {
     query,
+    // Text in the add field is not an unsaved edit (FCL-29).
+    isDirty: isChecklistDirty(items, drafts),
     state: {
       status,
       items,
@@ -145,6 +160,7 @@ export function useCardChecklistViewModel(boardId: string, cardId: string) {
         dropDraft(id);
         clearErrorOf(id);
       },
+      remove,
     },
   };
 }

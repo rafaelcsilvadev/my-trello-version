@@ -618,3 +618,154 @@ describe('useCardChecklistViewModel — edit text', () => {
     expect(requests[1]).toEqual({ id: 'i2', body: { text: 'Comprar leite' } });
   });
 });
+
+// Answers each item delete with the next queued reply, or with a 204.
+function deleteServer(...replies: (() => Response | Promise<Response>)[]) {
+  const ids: string[] = [];
+  server.use(
+    http.delete(`${baseUrl}/api/v1/checklist-items/:id`, ({ params }) => {
+      ids.push(params.id as string);
+      const deleted = () => new HttpResponse(null, { status: 204 });
+      return (replies.shift() ?? deleted)();
+    }),
+  );
+  return ids;
+}
+
+function idsOf(items: ChecklistItem[]) {
+  return items.map((item) => item.id);
+}
+
+describe('useCardChecklistViewModel — delete', () => {
+  it('sends DELETE, removes the item at once and saves silently', async () => {
+    checklistServer();
+    const hold = gate();
+    const ids = deleteServer(async () => {
+      await hold.opened;
+      return new HttpResponse(null, { status: 204 });
+    });
+    const { result } = await setupReady();
+
+    act(() => result.current.actions.remove('i2'));
+
+    await waitFor(() =>
+      expect(idsOf(result.current.state.items)).toEqual(['i1', 'i3']),
+    );
+    expect(ids).toEqual(['i2']);
+    hold.open();
+    await waitFor(() => expect(result.current.state.pendingIds.size).toBe(0));
+    expect(screen.getByRole('status').textContent).toBe('');
+  });
+
+  it('drops the draft and the error of the removed item only', async () => {
+    checklistServer();
+    deleteServer();
+    const { result } = await setupReady();
+    act(() => result.current.actions.setDraft('i3', 'Rascunho'));
+    act(() => result.current.actions.setDraft('i2', '   '));
+    act(() => result.current.actions.submitDraft('i2'));
+    expect(result.current.state.error?.target).toBe('i2');
+
+    act(() => result.current.actions.remove('i2'));
+
+    expect(result.current.state.drafts).toEqual({ i3: 'Rascunho' });
+    expect(result.current.state.error).toBeNull();
+    // An unsettled DELETE would hit the next test's handler.
+    await waitFor(() => expect(result.current.state.pendingIds.size).toBe(0));
+  });
+
+  it('a 5xx brings the item back and Tentar novamente resends it', async () => {
+    checklistServer();
+    const ids = deleteServer(() => problem(500));
+    const { result } = await setupReady();
+    act(() => result.current.actions.remove('i2'));
+
+    await screen.findByText(saveFail);
+    await waitFor(() =>
+      expect(idsOf(result.current.state.items)).toEqual(['i1', 'i2', 'i3']),
+    );
+    act(() => screen.getByRole('button', { name: 'Tentar novamente' }).click());
+
+    await waitFor(() => expect(ids).toEqual(['i2', 'i2']));
+  });
+
+  it('a 409 brings the item back and shows the conflict toast with Recarregar', async () => {
+    checklistServer();
+    deleteServer(() => problem(409));
+    const { result } = await setupReady();
+    act(() => result.current.actions.remove('i2'));
+
+    await screen.findByText(conflict);
+    expect(screen.getByRole('button', { name: 'Recarregar' })).toBeTruthy();
+    await waitFor(() =>
+      expect(idsOf(result.current.state.items)).toEqual(['i1', 'i2', 'i3']),
+    );
+  });
+
+  it('a 404 shows the save-fail toast and refetches the checklist', async () => {
+    const requests = checklistServer();
+    deleteServer(() => problem(404));
+    const { result } = await setupReady();
+    const loaded = requests.items;
+    act(() => result.current.actions.remove('i2'));
+
+    await screen.findByText(saveFail);
+    expect(
+      screen.queryByRole('button', { name: 'Tentar novamente' }),
+    ).toBeNull();
+    await waitFor(() => expect(requests.items).toBeGreaterThan(loaded));
+  });
+});
+
+describe('useCardChecklistViewModel — dirty', () => {
+  it('is dirty with a changed item draft', async () => {
+    checklistServer();
+    const { result } = await setupReady();
+    expect(result.current.isDirty).toBe(false);
+
+    act(() => result.current.actions.setDraft('i2', 'Comprar leite'));
+
+    expect(result.current.isDirty).toBe(true);
+  });
+
+  it('is not dirty with a draft equal to the saved text after trim', async () => {
+    checklistServer();
+    const { result } = await setupReady();
+    const saved = textOf(result.current.state.items, 'i2');
+
+    act(() => result.current.actions.setDraft('i2', ` ${saved} `));
+
+    expect(result.current.isDirty).toBe(false);
+  });
+
+  it('is not dirty with text only in the add field', async () => {
+    checklistServer();
+    const { result } = await setupReady();
+
+    act(() => result.current.actions.setNewText('Comprar pão'));
+
+    expect(result.current.isDirty).toBe(false);
+  });
+
+  it('is not dirty after cancelDraft', async () => {
+    checklistServer();
+    const { result } = await setupReady();
+    act(() => result.current.actions.setDraft('i2', 'Comprar leite'));
+
+    act(() => result.current.actions.cancelDraft('i2'));
+
+    expect(result.current.isDirty).toBe(false);
+  });
+
+  it('is not dirty after the edited item is removed', async () => {
+    checklistServer();
+    deleteServer();
+    const { result } = await setupReady();
+    act(() => result.current.actions.setDraft('i2', 'Comprar leite'));
+
+    act(() => result.current.actions.remove('i2'));
+
+    expect(result.current.isDirty).toBe(false);
+    await waitFor(() => expect(result.current.state.pendingIds.size).toBe(0));
+  });
+});
