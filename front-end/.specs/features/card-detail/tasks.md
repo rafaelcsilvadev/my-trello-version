@@ -538,8 +538,8 @@ T20 → T21 → T22 → T23 → T24 → T25 → T26 → T27
 
 **Done when**:
 
-- [ ] Unit: date in PT-BR and EN format; `editable` shows **Mover para…** and **Arquivar** wired to their callbacks; `archivedCard` shows **Restaurar** and **Excluir definitivamente**, both disabled when `isColumnArchived` or `isPending`; `archivedBoard` shows only the date
-- [ ] Build gate passes; test count only grows
+- [x] Unit: date in PT-BR and EN format; `editable` shows **Mover para…** and **Arquivar** wired to their callbacks; `archivedCard` shows **Restaurar** and **Excluir definitivamente**, both disabled when `isColumnArchived` or `isPending`; `archivedBoard` shows only the date
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
