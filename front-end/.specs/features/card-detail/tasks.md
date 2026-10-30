@@ -513,8 +513,8 @@ T20 → T21 → T22 → T23 → T24 → T25 → T26 → T27
 
 **Done when**:
 
-- [ ] Unit: `editable` renders nothing; `archivedCard` shows the card notice, plus the column notice when `isColumnArchived`; `archivedBoard` shows only the board notice, even for an archived card in an archived column
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `editable` renders nothing; `archivedCard` shows the card notice, plus the column notice when `isColumnArchived`; `archivedBoard` shows only the board notice, even for an archived card in an archived column
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
