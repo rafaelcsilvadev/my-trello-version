@@ -588,8 +588,8 @@ T20 → T21 → T22 → T23 → T24 → T25 → T26 → T27
 
 **Done when**:
 
-- [ ] Unit (rendered with `renderApp` + MSW, L-001): dialog has `aria-modal="true"`; header shows the column name; X and back arrow carry their names and responsive classes; X, back arrow, Esc and backdrop each navigate to `/b/{boardId}`; Esc in the title restores it and keeps the dialog; Esc in the move, delete and discard dialogs closes only that dialog; load error shows **Tentar novamente**; each child receives the mode-derived `isDisabled`, drafts, errors and callbacks; label chips in board order
-- [ ] Build gate passes; test count only grows
+- [x] Unit (rendered with `renderApp` + MSW, L-001): dialog has `aria-modal="true"`; header shows the column name; X and back arrow carry their names and responsive classes; X, back arrow, Esc and backdrop each navigate to `/b/{boardId}`; Esc in the title restores it and keeps the dialog; Esc in the move, delete and discard dialogs closes only that dialog; load error shows **Tentar novamente**; each child receives the mode-derived `isDisabled`, drafts, errors and callbacks; label chips in board order
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
