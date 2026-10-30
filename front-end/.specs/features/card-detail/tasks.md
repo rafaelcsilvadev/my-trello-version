@@ -738,8 +738,8 @@ T20 → T21 → T22 → T23 → T24 → T25 → T26 → T27
 
 **Done when**:
 
-- [ ] ROADMAP shows 4a Done and STATE Handoff points to `card-checklist` (4b)
-- [ ] Build gate passes; test count unchanged
+- [x] ROADMAP shows 4a Done and STATE Handoff points to `card-checklist` (4b)
+- [x] Build gate passes; test count unchanged
 
 **Tests**: none
 **Gate**: build

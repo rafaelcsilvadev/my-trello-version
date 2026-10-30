@@ -12,7 +12,7 @@ Web client for the personal Trello API (`back-end/`, features 0–6). Screens an
 | 3a | `board` | Board view: columns and cards, create and rename columns, archive/restore/delete columns, create cards, done flag, "Mostrar arquivadas", read-only archived board, `n` shortcut, phone layout | 2 | Done |
 | 3b | `board-dnd` | Drag cards and columns with mouse and keyboard, live region, "Mover para…" | 3a | Done |
 | 3c | `board-filters` | Search, label and due-date filters, `/` shortcut, drag disabled while filtering | 3b | Done |
-| 4a | `card-detail` | Card detail modal/full screen: title, description, due date, done flag, applied labels (read-only), "Mover para…", archive, archived card restore/delete, archived board read-only, load states, discard dialog | 3a | Spec |
+| 4a | `card-detail` | Card detail modal/full screen: title, description, due date, done flag, applied labels (read-only), "Mover para…", archive, archived card restore/delete, archived board read-only, load states, discard dialog | 3a | Done |
 | 4b | `card-checklist` | Checklist in the card detail: progress, add, edit, check, delete, reorder with mouse and keyboard | 4a | — |
 | 4c | `card-labels` | Label popover in the card detail: search, apply/remove board labels, create a label, link to the labels page | 4a | — |
 | 5 | `labels` | Board labels page: create, edit, delete | 4c | — |
