@@ -413,8 +413,8 @@ T20 → T21 → T22 → T23 → T24 → T25 → T26 → T27
 
 **Done when**:
 
-- [ ] Unit: skeleton has `aria-busy` and no field controls; not-found shows the PT-BR text and **Fechar** calls `onClose`
-- [ ] Build gate passes; test count only grows
+- [x] Unit: skeleton has `aria-busy` and no field controls; not-found shows the PT-BR text and **Fechar** calls `onClose`
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build

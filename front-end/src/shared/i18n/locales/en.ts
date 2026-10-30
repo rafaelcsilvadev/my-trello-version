@@ -196,6 +196,13 @@ export const en = {
       cardTitleRequired: 'Give the task a title',
       cardTitleTooLong: 'Use up to 100 characters',
     },
+    cardDetail: {
+      close: 'Close',
+      notFound: {
+        title: 'This task no longer exists',
+        detail: 'It may have been deleted on another device.',
+      },
+    },
     toast: {
       columnCreated: 'Column created',
       columnRenamed: 'Column renamed',
