@@ -313,8 +313,8 @@ T20 → T21 → T22 → T23 → T24 → T25 → T26 → T27
 
 **Done when**:
 
-- [ ] Unit: `loading` while any query is pending; `error` on a failed load with no data and `retryLoad` refetches only failed queries; `notFound` on `404` and on a card whose list is not of the board; `mode` per T4; `list` resolves archived columns; labels follow board label order and skip unknown ids
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `loading` while any query is pending; `error` on a failed load with no data and `retryLoad` refetches only failed queries; `notFound` on `404` and on a card whose list is not of the board; `mode` per T4; `list` resolves archived columns; labels follow board label order and skip unknown ids
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
