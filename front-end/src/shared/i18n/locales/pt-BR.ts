@@ -197,6 +197,8 @@ export const ptBR = {
       columnNameTooLong: 'Use até 100 caracteres',
       cardTitleRequired: 'Dê um título à tarefa',
       cardTitleTooLong: 'Use até 100 caracteres',
+      checklistItemRequired: 'Escreva o item',
+      checklistItemTooLong: 'Use até 200 caracteres',
       cardDescriptionTooLong: 'Use até 5000 caracteres',
     },
     cardDetail: {

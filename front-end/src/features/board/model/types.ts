@@ -31,4 +31,6 @@ export type ItemFieldError =
   | 'columnNameRequired'
   | 'columnNameTooLong'
   | 'cardTitleRequired'
-  | 'cardTitleTooLong';
+  | 'cardTitleTooLong'
+  | 'checklistItemRequired'
+  | 'checklistItemTooLong';
