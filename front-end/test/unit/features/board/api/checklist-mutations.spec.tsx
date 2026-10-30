@@ -7,6 +7,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   progressChange,
   useCreateChecklistItem,
+  useDeleteChecklistItem,
   useUpdateChecklistItem,
 } from '@/features/board/api/checklist-mutations';
 import { boardViewKeys } from '@/features/board/api/keys';
@@ -520,5 +521,106 @@ describe('useUpdateChecklistItem', () => {
     await waitFor(() =>
       expect(result.current.pending).toEqual(new Set([firstItem.id])),
     );
+  });
+});
+
+describe('useDeleteChecklistItem', () => {
+  it('deletes the item by id', async () => {
+    const ids: unknown[] = [];
+    server.use(
+      http.delete(itemUrl, ({ params }) => {
+        ids.push(params.id);
+        return new HttpResponse(null, { status: 204 });
+      }),
+    );
+    const { wrapper } = setup();
+    const { result } = renderHook(
+      () => useDeleteChecklistItem(boardId, card.id),
+      { wrapper },
+    );
+
+    await act(() => result.current.mutateAsync({ id: firstItem.id }));
+
+    expect(ids).toEqual([firstItem.id]);
+  });
+
+  it('removes the item from the checklist before the response', async () => {
+    server.use(http.delete(itemUrl, () => delay('infinite')));
+    const { wrapper, queryClient } = setup();
+    const { result } = renderHook(
+      () => useDeleteChecklistItem(boardId, card.id),
+      { wrapper },
+    );
+
+    act(() => result.current.mutate({ id: firstItem.id }));
+
+    await waitFor(() =>
+      expect(queryClient.getQueryData(checklistKey)).toEqual([]),
+    );
+  });
+
+  it.each([
+    ['done', true, { total: 2, done: 0 }],
+    ['not done', false, { total: 2, done: 1 }],
+  ])(
+    'lowers the progress of the three card caches for a %s item',
+    async (_name, done, progress) => {
+      server.use(http.delete(itemUrl, () => delay('infinite')));
+      const { wrapper, queryClient } = setup();
+      queryClient.setQueryData(checklistKey, [{ ...firstItem, done }]);
+      const { result } = renderHook(
+        () => useDeleteChecklistItem(boardId, card.id),
+        { wrapper },
+      );
+
+      act(() => result.current.mutate({ id: firstItem.id }));
+
+      await waitFor(() =>
+        expect(progressOf(queryClient)).toEqual([progress, progress, progress]),
+      );
+    },
+  );
+
+  it('leaves the progress alone when the item is no longer cached', async () => {
+    server.use(http.delete(itemUrl, () => delay('infinite')));
+    const { wrapper, queryClient } = setup();
+    queryClient.setQueryData(checklistKey, []);
+    const { result } = renderHook(
+      () => useDeleteChecklistItem(boardId, card.id),
+      { wrapper },
+    );
+
+    act(() => result.current.mutate({ id: firstItem.id }));
+
+    await waitFor(() => expect(result.current.isPending).toBe(true));
+    const same = { total: 3, done: 1 };
+    expect(progressOf(queryClient)).toEqual([same, same, same]);
+  });
+
+  it('puts the item back at its index and restores the progress on failure', async () => {
+    server.use(
+      http.delete(itemUrl, () => HttpResponse.json({}, { status: 500 })),
+    );
+    const { wrapper, queryClient } = setup();
+    const before = checklistItem('i0', card.id, { position: 0 });
+    const after = checklistItem('i3', card.id, { position: 2 });
+    const doneItem = { ...firstItem, done: true, position: 1 };
+    queryClient.setQueryData(checklistKey, [before, doneItem, after]);
+    const { result } = renderHook(
+      () => useDeleteChecklistItem(boardId, card.id),
+      { wrapper },
+    );
+
+    act(() => result.current.mutate({ id: firstItem.id }));
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(result.current.error).toBeInstanceOf(ApiError);
+    expect(queryClient.getQueryData(checklistKey)).toEqual([
+      before,
+      doneItem,
+      after,
+    ]);
+    const restored = { total: 3, done: 1 };
+    expect(progressOf(queryClient)).toEqual([restored, restored, restored]);
   });
 });

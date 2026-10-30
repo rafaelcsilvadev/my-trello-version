@@ -17,6 +17,7 @@ import {
   fieldsPatch,
   inList,
   type ItemVariables,
+  removal,
   useOptimisticBoardViewChange,
 } from './mutations';
 
@@ -88,6 +89,35 @@ export function useUpdateChecklistItem(boardId: string, cardId: string) {
       return body.done === undefined
         ? changes
         : [...changes, ...progressChange(boardId, cardId, ticked)];
+    },
+  );
+}
+
+export function useDeleteChecklistItem(boardId: string, cardId: string) {
+  const api = useApi();
+
+  return useOptimisticBoardViewChange<ItemVariables>(
+    boardId,
+    ({ id }) =>
+      call(
+        api.DELETE('/api/v1/checklist-items/{id}', {
+          params: { path: { id } },
+        }),
+      ),
+    ({ id }) => {
+      const items = removal<ChecklistItem>((item) => item.id === id);
+      // Read once the item left the cache, so an item already gone counts
+      // nothing.
+      const removed = () => {
+        const [item] = items.removed();
+        return item
+          ? { total: -1, done: -Number(item.done) }
+          : { total: 0, done: 0 };
+      };
+      return [
+        { key: boardViewKeys.checklist(boardId, cardId), ...items },
+        ...progressChange(boardId, cardId, removed),
+      ];
     },
   );
 }
