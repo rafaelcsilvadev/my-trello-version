@@ -747,6 +747,25 @@ describe('useCardDetailViewModel', () => {
       },
     );
 
+    it('Recarregar after a 409 reloads the card and the board', async () => {
+      const requests = detailServer();
+      cardWrites(() => problem(409));
+      const { result, queryClient } = await setupReady();
+
+      act(() => result.current.actions.toggleDone());
+      await screen.findByText(conflict);
+      // The settle refetch runs first, so it cannot stand in for the reload.
+      await waitFor(() => expect(queryClient.isFetching()).toBe(0));
+      const before = { ...requests };
+
+      act(() => screen.getByRole('button', { name: 'Recarregar' }).click());
+
+      await waitFor(() => expect(requests[cardUrl]).toBe(before[cardUrl] + 1));
+      await waitFor(() =>
+        expect(requests[boardUrl]).toBe(before[boardUrl] + 1),
+      );
+    });
+
     it('a save failing with 404 toasts and refetches the card into notFound', async () => {
       let deleted = false;
       detailServer({ [cardUrl]: () => (deleted ? problem(404) : undefined) });
