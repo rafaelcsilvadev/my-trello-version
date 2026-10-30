@@ -223,6 +223,16 @@ export const ptBR = {
         title: 'Esta tarefa não existe mais',
         detail: 'Ela pode ter sido excluída em outro dispositivo.',
       },
+      delete: {
+        title: 'Excluir a tarefa definitivamente?',
+        description: 'Isso apaga a tarefa e o checklist. Não dá para desfazer.',
+      },
+      discard: {
+        title: 'Descartar alterações?',
+        description: 'Você tem edições não salvas.',
+        keepEditing: 'Continuar editando',
+        confirm: 'Descartar',
+      },
     },
     toast: {
       columnCreated: 'Coluna criada',

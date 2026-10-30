@@ -221,6 +221,17 @@ export const en = {
         title: 'This task no longer exists',
         detail: 'It may have been deleted on another device.',
       },
+      delete: {
+        title: 'Delete this task permanently?',
+        description:
+          'This deletes the task and its checklist. It can’t be undone.',
+      },
+      discard: {
+        title: 'Discard changes?',
+        description: 'You have unsaved edits.',
+        keepEditing: 'Keep editing',
+        confirm: 'Discard',
+      },
     },
     toast: {
       columnCreated: 'Column created',
