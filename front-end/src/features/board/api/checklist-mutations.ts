@@ -8,10 +8,17 @@ import type {
   Card,
   ChecklistItem,
   CreateChecklistItemDto,
+  UpdateChecklistItemDto,
 } from '../model/types';
 import { appendThenInvalidate } from './create-mutations';
 import { boardViewKeys } from './keys';
-import { type CacheChange, inList } from './mutations';
+import {
+  type CacheChange,
+  fieldsPatch,
+  inList,
+  type ItemVariables,
+  useOptimisticBoardViewChange,
+} from './mutations';
 
 // Not optimistic: the item has no id until the API answers (FCL-12).
 export function useCreateChecklistItem(boardId: string, cardId: string) {
@@ -38,6 +45,51 @@ export function useCreateChecklistItem(boardId: string, cardId: string) {
       );
     },
   });
+}
+
+export type UpdateChecklistItemVariables = ItemVariables & {
+  body: UpdateChecklistItemDto;
+};
+
+export function useUpdateChecklistItem(boardId: string, cardId: string) {
+  const api = useApi();
+
+  return useOptimisticBoardViewChange<UpdateChecklistItemVariables>(
+    boardId,
+    ({ id, body }) =>
+      call(
+        api.PATCH('/api/v1/checklist-items/{id}', {
+          params: { path: { id } },
+          body,
+        }),
+      ),
+    ({ id, body }) => {
+      const fields = fieldsPatch<ChecklistItem>(body);
+      let wasDone: boolean | null = null;
+      const item = {
+        apply: (current: ChecklistItem) => {
+          wasDone = current.done;
+          return fields.apply(current);
+        },
+        revert: fields.revert,
+      };
+      // Read once the item applied, so a tick of an item already done counts
+      // nothing (FCL-18).
+      const ticked = () => ({
+        total: 0,
+        done:
+          body.done === undefined || wasDone === null
+            ? 0
+            : Number(body.done) - Number(wasDone),
+      });
+      const changes: CacheChange[] = [
+        { key: boardViewKeys.checklist(boardId, cardId), ...inList(id, item) },
+      ];
+      return body.done === undefined
+        ? changes
+        : [...changes, ...progressChange(boardId, cardId, ticked)];
+    },
+  );
 }
 
 // Keeps the tile badge in step with the items (FCL-39). Each cache adds the

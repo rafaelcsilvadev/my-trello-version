@@ -7,9 +7,14 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   progressChange,
   useCreateChecklistItem,
+  useUpdateChecklistItem,
 } from '@/features/board/api/checklist-mutations';
 import { boardViewKeys } from '@/features/board/api/keys';
-import type { CacheChange } from '@/features/board/api/mutations';
+import {
+  type CacheChange,
+  usePendingItemIds,
+} from '@/features/board/api/mutations';
+import type { ChecklistItem } from '@/features/board/model/types';
 import { ApiProvider } from '@/shared/api/api-context';
 import { ApiError } from '@/shared/api/api-error';
 import { createApiClient } from '@/shared/api/client';
@@ -281,4 +286,239 @@ describe('useCreateChecklistItem', () => {
       ).toBe(false);
     },
   );
+});
+
+const itemUrl = `${baseUrl}/api/v1/checklist-items/:id`;
+const checklistKey = boardViewKeys.checklist(boardId, card.id);
+
+function cachedItem(queryClient: ReturnType<typeof createQueryClient>) {
+  return queryClient
+    .getQueryData<ChecklistItem[]>(checklistKey)
+    ?.find((item) => item.id === firstItem.id);
+}
+
+function progressOf(queryClient: ReturnType<typeof createQueryClient>) {
+  const {
+    card: detail,
+    active,
+    archived,
+  } = snapshot(queryClient) as {
+    card: typeof card;
+    active: (typeof card)[];
+    archived: (typeof card)[];
+  };
+  return [detail.checklist, active[0]?.checklist, archived[0]?.checklist];
+}
+
+describe('useUpdateChecklistItem', () => {
+  it('patches the item with the given body', async () => {
+    const calls: { id: unknown; body: unknown }[] = [];
+    server.use(
+      http.patch(itemUrl, async ({ params, request }) => {
+        calls.push({ id: params.id, body: await request.json() });
+        return HttpResponse.json(firstItem);
+      }),
+    );
+    const { wrapper } = setup();
+    const { result } = renderHook(
+      () => useUpdateChecklistItem(boardId, card.id),
+      { wrapper },
+    );
+
+    await act(() =>
+      result.current.mutateAsync({
+        id: firstItem.id,
+        body: { text: 'Ship', done: true },
+      }),
+    );
+
+    expect(calls).toEqual([
+      { id: firstItem.id, body: { text: 'Ship', done: true } },
+    ]);
+  });
+
+  it('shows the new text and done state before the response', async () => {
+    server.use(http.patch(itemUrl, () => delay('infinite')));
+    const { wrapper, queryClient } = setup();
+    const { result } = renderHook(
+      () => useUpdateChecklistItem(boardId, card.id),
+      { wrapper },
+    );
+
+    act(() =>
+      result.current.mutate({
+        id: firstItem.id,
+        body: { text: 'Ship', done: true },
+      }),
+    );
+
+    await waitFor(() =>
+      expect(cachedItem(queryClient)).toMatchObject({
+        text: 'Ship',
+        done: true,
+      }),
+    );
+  });
+
+  it('adds one to done in the three card caches when an item is ticked', async () => {
+    server.use(http.patch(itemUrl, () => delay('infinite')));
+    const { wrapper, queryClient } = setup();
+    const { result } = renderHook(
+      () => useUpdateChecklistItem(boardId, card.id),
+      { wrapper },
+    );
+
+    act(() =>
+      result.current.mutate({ id: firstItem.id, body: { done: true } }),
+    );
+
+    const ticked = { total: 3, done: 2 };
+    await waitFor(() =>
+      expect(progressOf(queryClient)).toEqual([ticked, ticked, ticked]),
+    );
+  });
+
+  it('removes one from done when an item is unticked', async () => {
+    server.use(http.patch(itemUrl, () => delay('infinite')));
+    const { wrapper, queryClient } = setup();
+    queryClient.setQueryData(checklistKey, [{ ...firstItem, done: true }]);
+    const { result } = renderHook(
+      () => useUpdateChecklistItem(boardId, card.id),
+      { wrapper },
+    );
+
+    act(() =>
+      result.current.mutate({ id: firstItem.id, body: { done: false } }),
+    );
+
+    const unticked = { total: 3, done: 0 };
+    await waitFor(() =>
+      expect(progressOf(queryClient)).toEqual([unticked, unticked, unticked]),
+    );
+  });
+
+  it.each([
+    ['a text-only change', { text: 'Ship' }],
+    ['a tick of an item already done', { done: true }],
+  ])('leaves the progress alone on %s', async (_name, body) => {
+    server.use(http.patch(itemUrl, () => delay('infinite')));
+    const { wrapper, queryClient } = setup();
+    if ('done' in body) {
+      queryClient.setQueryData(checklistKey, [{ ...firstItem, done: true }]);
+    }
+    const { result } = renderHook(
+      () => useUpdateChecklistItem(boardId, card.id),
+      { wrapper },
+    );
+
+    act(() => result.current.mutate({ id: firstItem.id, body }));
+
+    await waitFor(() => expect(result.current.isPending).toBe(true));
+    await waitFor(() => expect(cachedItem(queryClient)).toMatchObject(body));
+    const same = { total: 3, done: 1 };
+    expect(progressOf(queryClient)).toEqual([same, same, same]);
+  });
+
+  it('reverts only the failed toggle and keeps an overlapping text edit', async () => {
+    let failToggle: (() => void) | undefined;
+    server.use(
+      http.patch(itemUrl, async ({ request }) => {
+        const body = (await request.json()) as Record<string, unknown>;
+        if ('text' in body) return delay('infinite');
+        await new Promise<void>((resolve) => (failToggle = resolve));
+        return HttpResponse.json({}, { status: 500 });
+      }),
+    );
+    const { wrapper, queryClient } = setup();
+    const { result } = renderHook(
+      () => ({
+        toggle: useUpdateChecklistItem(boardId, card.id),
+        edit: useUpdateChecklistItem(boardId, card.id),
+      }),
+      { wrapper },
+    );
+
+    act(() =>
+      result.current.toggle.mutate({ id: firstItem.id, body: { done: true } }),
+    );
+    await waitFor(() => expect(cachedItem(queryClient)?.done).toBe(true));
+    act(() =>
+      result.current.edit.mutate({ id: firstItem.id, body: { text: 'Ship' } }),
+    );
+    await waitFor(() => expect(cachedItem(queryClient)?.text).toBe('Ship'));
+    await waitFor(() => expect(failToggle).toBeDefined());
+    act(() => failToggle?.());
+
+    await waitFor(() => expect(result.current.toggle.isError).toBe(true));
+    expect(result.current.toggle.error).toBeInstanceOf(ApiError);
+    expect(cachedItem(queryClient)).toMatchObject({
+      text: 'Ship',
+      done: false,
+    });
+    const restored = { total: 3, done: 1 };
+    expect(progressOf(queryClient)).toEqual([restored, restored, restored]);
+  });
+
+  it('refetches the board once, after the last pending change settles', async () => {
+    let releaseToggle: (() => void) | undefined;
+    server.use(
+      http.patch(itemUrl, async ({ request }) => {
+        const body = (await request.json()) as Record<string, unknown>;
+        if ('done' in body) {
+          await new Promise<void>((resolve) => (releaseToggle = resolve));
+        }
+        return HttpResponse.json(firstItem);
+      }),
+    );
+    const { wrapper, queryClient } = setup();
+    const { result } = renderHook(
+      () => ({
+        toggle: useUpdateChecklistItem(boardId, card.id),
+        edit: useUpdateChecklistItem(boardId, card.id),
+      }),
+      { wrapper },
+    );
+
+    act(() =>
+      result.current.toggle.mutate({ id: firstItem.id, body: { done: true } }),
+    );
+    await act(() =>
+      result.current.edit.mutateAsync({
+        id: firstItem.id,
+        body: { text: 'Ship' },
+      }),
+    );
+    await waitFor(() => expect(releaseToggle).toBeDefined());
+    expect(queryClient.getQueryState(checklistKey)?.isInvalidated).toBe(false);
+
+    act(() => releaseToggle?.());
+
+    await waitFor(() =>
+      expect(queryClient.getQueryState(checklistKey)?.isInvalidated).toBe(true),
+    );
+    expect(
+      queryClient.getQueryState(boardViewKeys.card(boardId, card.id))
+        ?.isInvalidated,
+    ).toBe(true);
+  });
+
+  it('marks the item id as pending while the change is in flight', async () => {
+    server.use(http.patch(itemUrl, () => delay('infinite')));
+    const { wrapper } = setup();
+    const { result } = renderHook(
+      () => ({
+        update: useUpdateChecklistItem(boardId, card.id),
+        pending: usePendingItemIds(),
+      }),
+      { wrapper },
+    );
+
+    act(() =>
+      result.current.update.mutate({ id: firstItem.id, body: { done: true } }),
+    );
+
+    await waitFor(() =>
+      expect(result.current.pending).toEqual(new Set([firstItem.id])),
+    );
+  });
 });
