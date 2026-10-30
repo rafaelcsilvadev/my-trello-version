@@ -206,6 +206,13 @@ export const en = {
       cardCreated: 'Task created',
       cardMoved: 'Task moved to {{col}}',
       moveFailed: 'Couldn’t move the task',
+      cardArchived: 'Task archived',
+      cardRestored: 'Task restored',
+      cardDeleted: 'Task permanently deleted',
+    },
+    errors: {
+      columnArchived:
+        'The original column is archived. Restore the column first.',
     },
     column: {
       menu: 'Column actions',

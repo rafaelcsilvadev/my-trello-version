@@ -363,8 +363,8 @@ T20 → T21 → T22 → T23 → T24 → T25 → T26 → T27
 
 **Done when**:
 
-- [ ] Unit: `moveTo` sends the end position of the chosen column, toasts "Tarefa movida para {col}", sends nothing for the current column and closes the dialog; archive toasts "Tarefa arquivada" and `mode` becomes `archivedCard` at once; restore toasts "Tarefa restaurada" and `mode` becomes `editable`; `confirmDelete` sends the delete, navigates to `/b/{boardId}`, removes the card query and toasts "Tarefa excluída definitivamente"; restore/delete `409` toast the column-archived text; move failure toasts "Não foi possível mover a tarefa"; `isPending` is true while a change on the card is in flight
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `moveTo` sends the end position of the chosen column, toasts "Tarefa movida para {col}", sends nothing for the current column and closes the dialog; archive toasts "Tarefa arquivada" and `mode` becomes `archivedCard` at once; restore toasts "Tarefa restaurada" and `mode` becomes `editable`; `confirmDelete` sends the delete, navigates to `/b/{boardId}`, leaves no card query behind without fetching the card again and toasts "Tarefa excluída definitivamente"; restore/delete `409` toast the column-archived text; move failure toasts "Não foi possível mover a tarefa"; `isPending` is true while a change on the card is in flight
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
