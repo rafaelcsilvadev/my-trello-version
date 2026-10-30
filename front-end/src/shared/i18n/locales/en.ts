@@ -210,6 +210,11 @@ export const en = {
       counter: '{{n}} / 5000',
       save: 'Save',
       cancel: 'Cancel',
+      created: 'Created {{d}}',
+      moveTo: 'Move to…',
+      archive: 'Archive',
+      restore: 'Restore',
+      deleteForever: 'Delete permanently',
       archivedNotice: 'Archived task · read-only',
       boardArchivedNotice: 'Archived board · read-only',
       notFound: {

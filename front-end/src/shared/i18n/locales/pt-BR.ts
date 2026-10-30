@@ -212,6 +212,11 @@ export const ptBR = {
       counter: '{{n}} / 5000',
       save: 'Salvar',
       cancel: 'Cancelar',
+      created: 'Criada em {{d}}',
+      moveTo: 'Mover para…',
+      archive: 'Arquivar',
+      restore: 'Restaurar',
+      deleteForever: 'Excluir definitivamente',
       archivedNotice: 'Tarefa arquivada · somente leitura',
       boardArchivedNotice: 'Quadro arquivado · somente leitura',
       notFound: {
