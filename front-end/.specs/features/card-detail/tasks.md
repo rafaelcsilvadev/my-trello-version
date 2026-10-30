@@ -138,8 +138,8 @@ T20 → T21 → T22 → T23 → T24 → T25 → T26 → T27
 
 **Done when**:
 
-- [ ] Unit: fetches the card; returns the seeded card at once when it is in the active or archived board list and still refetches; `404` surfaces as `ApiError` status 404 with no retry; network error retries; the key is under `all(boardId)` (board invalidation refetches it)
-- [ ] Build gate passes; test count only grows
+- [x] Unit: fetches the card; returns the seeded card at once when it is in the active or archived board list and still refetches; `404` surfaces as `ApiError` status 404 with no retry; network error retries; the key is under `all(boardId)` (board invalidation refetches it)
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
