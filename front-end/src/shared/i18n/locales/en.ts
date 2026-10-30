@@ -198,6 +198,10 @@ export const en = {
     },
     cardDetail: {
       close: 'Close',
+      done: 'Completed',
+      doneBadge: 'Completed',
+      overdue: 'Overdue',
+      title: 'Title',
       notFound: {
         title: 'This task no longer exists',
         detail: 'It may have been deleted on another device.',
