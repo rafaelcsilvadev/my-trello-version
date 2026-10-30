@@ -8,6 +8,7 @@ import {
 const API_URL = 'http://localhost:3000/api/v1';
 const PASSWORD = 'e2e-password';
 const PHONE_VIEWPORT = { width: 375, height: 812 };
+const SHORT_DESKTOP_VIEWPORT = { width: 1280, height: 500 };
 const TOKEN_KEY = 'my-trello.token';
 
 type SeededBoard = { boardId: string; cardIds: Record<string, string> };
@@ -317,5 +318,25 @@ test.describe('card detail', () => {
 
     await panel.getByRole('button', { name: 'Back' }).click();
     await expect(page).toHaveURL(`/b/${boardId}`);
+  });
+
+  // FCD-03: a short window caps the modal height, the overlay must not scroll
+  test('keeps the modal inside a short desktop window', async ({
+    page,
+    request,
+  }) => {
+    await page.setViewportSize(SHORT_DESKTOP_VIEWPORT);
+    await openSeededBoard(page, request);
+
+    await tile(page, 'Run tests').click();
+    await expect(detail(page, 'Run tests')).toBeVisible();
+    const overlay = page.getByTestId('card-detail-overlay');
+    const { scrollHeight, clientHeight } = await overlay.evaluate(
+      (element) => ({
+        scrollHeight: element.scrollHeight,
+        clientHeight: element.clientHeight,
+      }),
+    );
+    expect(scrollHeight).toBeLessThanOrEqual(clientHeight);
   });
 });
