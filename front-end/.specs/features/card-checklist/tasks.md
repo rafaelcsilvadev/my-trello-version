@@ -118,8 +118,8 @@ T18 → T19 → T20 → T21
 
 **Done when**:
 
-- [ ] Unit: progress of 0 items is `{ done: 0, total: 0, percent: 0, isComplete: false }`; 2 of 3 → 67 %; 3 of 3 → 100 % and complete; 1 of 3 → 33 %; `sortItems` orders by `position` without mutating the input; dirty only when a draft's trimmed text differs from its item's text; a draft for an unknown id or equal after trim is not dirty
-- [ ] Build gate passes; test count only grows
+- [x] Unit: progress of 0 items is `{ done: 0, total: 0, percent: 0, isComplete: false }`; 2 of 3 → 67 %; 3 of 3 → 100 % and complete; 1 of 3 → 33 %; `sortItems` orders by `position` without mutating the input; dirty only when a draft's trimmed text differs from its item's text; a draft for an unknown id or equal after trim is not dirty
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build

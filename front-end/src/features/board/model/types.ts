@@ -10,6 +10,9 @@ export type CreateCardDto = Schemas['CreateCardDto'];
 export type UpdateCardDto = Schemas['UpdateCardDto'];
 export type MoveCardDto = Schemas['MoveCardDto'];
 export type MoveListDto = Schemas['MoveListDto'];
+export type ChecklistItem = Schemas['ChecklistItemResponseDto'];
+export type CreateChecklistItemDto = Schemas['CreateChecklistItemDto'];
+export type UpdateChecklistItemDto = Schemas['UpdateChecklistItemDto'];
 
 // One active column on screen.
 export type Column = { list: List; cards: Card[] };
