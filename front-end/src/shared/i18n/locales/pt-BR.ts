@@ -200,6 +200,10 @@ export const ptBR = {
     },
     cardDetail: {
       close: 'Fechar',
+      done: 'Concluída',
+      doneBadge: 'Concluída',
+      overdue: 'Atrasada',
+      title: 'Título',
       notFound: {
         title: 'Esta tarefa não existe mais',
         detail: 'Ela pode ter sido excluída em outro dispositivo.',

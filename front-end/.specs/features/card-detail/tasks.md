@@ -438,8 +438,8 @@ T20 → T21 → T22 → T23 → T24 → T25 → T26 → T27
 
 **Done when**:
 
-- [ ] Unit: checkbox named "Concluída" calls `onToggleDone`; badge "Concluída" only when done; "Atrasada" only when not done and due before today; Enter and blur call `onSubmit`; Esc calls `onCancel`, prevents default and stops propagation; error text shows under the field with `aria-invalid`; `isDisabled` disables checkbox and input
-- [ ] Build gate passes; test count only grows
+- [x] Unit: checkbox named "Concluída" calls `onToggleDone`; badge "Concluída" only when done; "Atrasada" only when not done and due before today; Enter and blur call `onSubmit`; Esc calls `onCancel`, prevents default and stops propagation; error text shows under the field with `aria-invalid`; `isDisabled` disables checkbox and input
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
