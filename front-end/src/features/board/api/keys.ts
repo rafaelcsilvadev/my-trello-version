@@ -8,6 +8,8 @@ export const boardViewKeys = {
     ['board', boardId, 'cards', { archived }] as const,
   card: (boardId: string, cardId: string) =>
     ['board', boardId, 'card', cardId] as const,
+  checklist: (boardId: string, cardId: string) =>
+    ['board', boardId, 'checklist', cardId] as const,
   labels: (boardId: string) => ['board', boardId, 'labels'] as const,
   listCards: (boardId: string, listId: string) =>
     ['board', boardId, 'list-cards', listId] as const,

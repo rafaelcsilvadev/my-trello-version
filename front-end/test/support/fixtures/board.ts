@@ -1,4 +1,10 @@
-import type { Board, Card, Label, List } from '@/features/board/model/types';
+import type {
+  Board,
+  Card,
+  ChecklistItem,
+  Label,
+  List,
+} from '@/features/board/model/types';
 
 const stamp = '2026-10-23T12:00:00.000Z';
 
@@ -60,6 +66,23 @@ export function labelFixture(
     boardId,
     name: `Label ${id}`,
     color: 'green',
+    createdAt: stamp,
+    updatedAt: stamp,
+    ...overrides,
+  };
+}
+
+export function checklistItem(
+  id: string,
+  cardId: string,
+  overrides: Partial<ChecklistItem> = {},
+): ChecklistItem {
+  return {
+    id,
+    cardId,
+    text: `Item ${id}`,
+    done: false,
+    position: 0,
     createdAt: stamp,
     updatedAt: stamp,
     ...overrides,
