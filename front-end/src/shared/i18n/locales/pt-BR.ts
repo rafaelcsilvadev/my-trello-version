@@ -204,6 +204,8 @@ export const ptBR = {
       doneBadge: 'Concluída',
       overdue: 'Atrasada',
       title: 'Título',
+      due: 'Prazo',
+      removeDue: 'Remover prazo',
       notFound: {
         title: 'Esta tarefa não existe mais',
         detail: 'Ela pode ter sido excluída em outro dispositivo.',
