@@ -463,8 +463,8 @@ T20 → T21 → T22 → T23 → T24 → T25 → T26 → T27
 
 **Done when**:
 
-- [ ] Unit: shows the current `YYYY-MM-DD`; changing it calls `onChange` with the new value; clearing the native input does not call `onChange`; "Remover prazo" shows only with a due date and calls `onRemove`; disabled state disables both
-- [ ] Build gate passes; test count only grows
+- [x] Unit: shows the current `YYYY-MM-DD`; changing it calls `onChange` with the new value; clearing the native input does not call `onChange`; "Remover prazo" shows only with a due date and calls `onRemove`; disabled state disables both
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build

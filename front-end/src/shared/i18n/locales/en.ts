@@ -202,6 +202,8 @@ export const en = {
       doneBadge: 'Completed',
       overdue: 'Overdue',
       title: 'Title',
+      due: 'Due date',
+      removeDue: 'Remove due date',
       notFound: {
         title: 'This task no longer exists',
         detail: 'It may have been deleted on another device.',
