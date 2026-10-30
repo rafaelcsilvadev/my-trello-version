@@ -169,8 +169,8 @@ T18 → T19 → T20 → T21
 
 **Done when**:
 
-- [ ] Unit: fetches the items of the card and returns them sorted by `position` from an unsorted response; `404` surfaces as `ApiError` status 404; the key is under `all(boardId)` (a board invalidation refetches it) and not under `card(boardId, cardId)`
-- [ ] Build gate passes; test count only grows
+- [x] Unit: fetches the items of the card and returns them sorted by `position` from an unsorted response; `404` surfaces as `ApiError` status 404; the key is under `all(boardId)` (a board invalidation refetches it) and not under `card(boardId, cardId)`
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
