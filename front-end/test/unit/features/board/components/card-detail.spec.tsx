@@ -260,6 +260,32 @@ describe('CardDetail', () => {
     );
   });
 
+  it('shows the skeleton while the card loads', async () => {
+    detailApi();
+    let release!: () => void;
+    const held = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    server.use(
+      http.get(cardUrl, async () => {
+        await held;
+        return undefined;
+      }),
+    );
+    renderDetail();
+
+    const dialog = await screen.findByRole('dialog');
+    await waitFor(() =>
+      expect(dialog.querySelector('[aria-busy="true"]')).not.toBeNull(),
+    );
+    expect(screen.queryByRole('textbox', { name: 'Título' })).toBeNull();
+
+    release();
+
+    expect(await screen.findByRole('textbox', { name: 'Título' })).toBeTruthy();
+    expect(detail().querySelector('[aria-busy="true"]')).toBeNull();
+  });
+
   it('shows the load error and loads again on Tentar novamente', async () => {
     // 5xx is retried with backoff; fake timers skip the waits.
     vi.useFakeTimers({ shouldAdvanceTime: true });
