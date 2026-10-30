@@ -319,8 +319,8 @@ T18 → T19 → T20 → T21
 
 **Done when**:
 
-- [ ] Unit: `add` sends the trimmed text; a second `add` while in flight sends nothing and keeps the text; `201` clears `newText`; empty → `checklistItemRequired` and 201 chars → `checklistItemTooLong` with no request; typing clears the error; `5xx` keeps the text and shows the save-fail toast whose **Tentar novamente** resends the same text; `409` shows the conflict toast with **Recarregar**
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `add` sends the trimmed text; a second `add` while in flight sends nothing and keeps the text; `201` clears `newText`; empty → `checklistItemRequired` and 201 chars → `checklistItemTooLong` with no request; typing clears the error; `5xx` keeps the text and shows the save-fail toast whose **Tentar novamente** resends the same text; `409` shows the conflict toast with **Recarregar**
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
