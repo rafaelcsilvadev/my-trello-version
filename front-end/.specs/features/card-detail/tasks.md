@@ -263,8 +263,8 @@ T20 → T21 → T22 → T23 → T24 → T25 → T26 → T27
 
 **Done when**:
 
-- [ ] Unit: sends the request; the archived list drops the card at once; failure puts it back at its index; the card query is not patched
-- [ ] Build gate passes; test count only grows
+- [x] Unit: sends the request; the archived list drops the card at once; failure puts it back at its index; the card query is not patched
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
