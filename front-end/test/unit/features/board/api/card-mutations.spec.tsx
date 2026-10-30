@@ -4,7 +4,11 @@ import { delay, http, HttpResponse } from 'msw';
 import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { useUpdateCard } from '@/features/board/api/card-mutations';
+import {
+  useArchiveCard,
+  useRestoreCard,
+  useUpdateCard,
+} from '@/features/board/api/card-mutations';
 import { boardViewKeys } from '@/features/board/api/keys';
 import type { Card } from '@/features/board/model/types';
 import { ApiProvider } from '@/shared/api/api-context';
@@ -220,5 +224,161 @@ describe('useUpdateCard', () => {
       expect(queryClient.getQueryState(cardKey)?.isInvalidated).toBe(true),
     );
     expect(queryClient.getQueryState(cardsKey)?.isInvalidated).toBe(true);
+  });
+});
+
+function ids(queryClient: TestQueryClient, key: typeof cardsKey) {
+  return queryClient.getQueryData<Card[]>(key)?.map(({ id }) => id);
+}
+
+describe('useArchiveCard', () => {
+  it('posts to the archive path of the card', async () => {
+    const paths: unknown[] = [];
+    server.use(
+      http.post(`${cardUrl}/archive`, ({ params }) => {
+        paths.push(params.id);
+        return HttpResponse.json({ ...card, archivedAt });
+      }),
+    );
+    const { wrapper } = setup();
+    const { result } = renderHook(() => useArchiveCard(boardId), { wrapper });
+
+    await act(() => result.current.mutateAsync({ id: card.id }));
+
+    expect(paths).toEqual([card.id]);
+  });
+
+  it('moves the card to the top of the archived list before the response', async () => {
+    server.use(http.post(`${cardUrl}/archive`, () => delay('infinite')));
+    const { wrapper, queryClient } = setup();
+    const { result } = renderHook(() => useArchiveCard(boardId), { wrapper });
+
+    act(() => result.current.mutate({ id: card.id }));
+
+    await waitFor(() => expect(ids(queryClient, cardsKey)).toEqual(['c2']));
+    expect(ids(queryClient, archivedCardsKey)).toEqual(['c1', 'c3']);
+    expect(cached(queryClient, archivedCardsKey)?.archivedAt).toEqual(
+      expect.any(String),
+    );
+    expect(queryClient.getQueryData<Card>(cardKey)?.archivedAt).toEqual(
+      expect.any(String),
+    );
+  });
+
+  it('leaves the archived list unloaded when it was not fetched', async () => {
+    server.use(http.post(`${cardUrl}/archive`, () => delay('infinite')));
+    const { wrapper, queryClient } = setup();
+    queryClient.removeQueries({ queryKey: archivedCardsKey });
+    const { result } = renderHook(() => useArchiveCard(boardId), { wrapper });
+
+    act(() => result.current.mutate({ id: card.id }));
+
+    await waitFor(() => expect(ids(queryClient, cardsKey)).toEqual(['c2']));
+    expect(queryClient.getQueryData(archivedCardsKey)).toBeUndefined();
+  });
+
+  it('puts the card back at its index on failure', async () => {
+    server.use(
+      http.post(`${cardUrl}/archive`, () =>
+        HttpResponse.json(serverError, { status: 500 }),
+      ),
+    );
+    const { wrapper, queryClient } = setup();
+    const { result } = renderHook(() => useArchiveCard(boardId), { wrapper });
+
+    await act(() =>
+      expect(result.current.mutateAsync({ id: card.id })).rejects.toThrow(
+        ApiError,
+      ),
+    );
+
+    expect(queryClient.getQueryData(cardsKey)).toEqual([card, neighbor]);
+    expect(queryClient.getQueryData(archivedCardsKey)).toEqual([archivedCard]);
+    expect(queryClient.getQueryData<Card>(cardKey)).toEqual(card);
+  });
+
+  it('keeps another archived card when only the first archive fails', async () => {
+    let failFirst: (() => void) | undefined;
+    server.use(
+      http.post(`${cardUrl}/archive`, async ({ params }) => {
+        if (params.id !== card.id) return delay('infinite');
+        await new Promise<void>((resolve) => (failFirst = resolve));
+        return HttpResponse.json(serverError, { status: 500 });
+      }),
+    );
+    const { wrapper, queryClient } = setup();
+    const { result } = renderHook(
+      () => ({
+        first: useArchiveCard(boardId),
+        second: useArchiveCard(boardId),
+      }),
+      { wrapper },
+    );
+
+    act(() => result.current.first.mutate({ id: card.id }));
+    await waitFor(() => expect(failFirst).toBeDefined());
+    act(() => result.current.second.mutate({ id: neighbor.id }));
+    await waitFor(() => expect(ids(queryClient, cardsKey)).toEqual([]));
+    act(() => failFirst?.());
+
+    await waitFor(() => expect(result.current.first.isError).toBe(true));
+    expect(ids(queryClient, cardsKey)).toEqual(['c1']);
+    expect(ids(queryClient, archivedCardsKey)).toEqual(['c2', 'c3']);
+  });
+});
+
+describe('useRestoreCard', () => {
+  const restoredKey = boardViewKeys.card(boardId, archivedCard.id);
+
+  it('posts to the unarchive path of the card', async () => {
+    const paths: unknown[] = [];
+    server.use(
+      http.post(`${cardUrl}/unarchive`, ({ params }) => {
+        paths.push(params.id);
+        return HttpResponse.json({ ...archivedCard, archivedAt: null });
+      }),
+    );
+    const { wrapper } = setup(archivedCard);
+    const { result } = renderHook(() => useRestoreCard(boardId), { wrapper });
+
+    await act(() => result.current.mutateAsync({ id: archivedCard.id }));
+
+    expect(paths).toEqual([archivedCard.id]);
+  });
+
+  it('moves the card to the end of its column before the response', async () => {
+    server.use(http.post(`${cardUrl}/unarchive`, () => delay('infinite')));
+    const { wrapper, queryClient } = setup(archivedCard);
+    const { result } = renderHook(() => useRestoreCard(boardId), { wrapper });
+
+    act(() => result.current.mutate({ id: archivedCard.id }));
+
+    await waitFor(() => expect(ids(queryClient, archivedCardsKey)).toEqual([]));
+    expect(ids(queryClient, cardsKey)).toEqual(['c1', 'c2', 'c3']);
+    expect(cached(queryClient, cardsKey, archivedCard.id)).toMatchObject({
+      archivedAt: null,
+      position: 2,
+    });
+    expect(queryClient.getQueryData<Card>(restoredKey)?.archivedAt).toBeNull();
+  });
+
+  it('puts the card back at its index on failure', async () => {
+    server.use(
+      http.post(`${cardUrl}/unarchive`, () =>
+        HttpResponse.json(serverError, { status: 500 }),
+      ),
+    );
+    const { wrapper, queryClient } = setup(archivedCard);
+    const { result } = renderHook(() => useRestoreCard(boardId), { wrapper });
+
+    await act(() =>
+      expect(
+        result.current.mutateAsync({ id: archivedCard.id }),
+      ).rejects.toThrow(ApiError),
+    );
+
+    expect(queryClient.getQueryData(archivedCardsKey)).toEqual([archivedCard]);
+    expect(queryClient.getQueryData(cardsKey)).toEqual([card, neighbor]);
+    expect(queryClient.getQueryData<Card>(restoredKey)).toEqual(archivedCard);
   });
 });
