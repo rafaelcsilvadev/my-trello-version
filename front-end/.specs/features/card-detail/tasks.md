@@ -688,8 +688,8 @@ T20 → T21 → T22 → T23 → T24 → T25 → T26 → T27
 
 **Done when**:
 
-- [ ] E2E: open from tile → rename, tick done, set and remove due date, save description → close and the tile shows the values; reopen shows them after reload; Mover para… updates the header; archive → restore puts the card last → archive → delete; dirty description + Esc → discard dialog; archived board card is read-only; 375 px viewport shows full screen with "Voltar"; URL of a deleted card shows "Esta tarefa não existe mais"
-- [ ] Full gate passes
+- [x] E2E: open from tile → rename, tick done, set and remove due date, save description → close and the tile shows the values; reopen shows them after reload; Mover para… updates the header; archive → restore puts the card last → archive → delete; dirty description + Esc → discard dialog; archived board card is read-only; 375 px viewport shows full screen with "Voltar"; URL of a deleted card shows "Esta tarefa não existe mais"
+- [x] Full gate passes
 
 **Tests**: e2e
 **Gate**: full
