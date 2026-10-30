@@ -369,8 +369,8 @@ T18 → T19 → T20 → T21
 
 **Done when**:
 
-- [ ] Unit: `submitDraft` sends the trimmed text and clears the draft; equal text after trim sends nothing and clears the draft; empty or 201 chars → error for that item, draft kept, nothing sent; exactly 200 chars is sent; `cancelDraft` clears the draft and the error; a failed save puts the typed text back as that item's draft while another item's draft is untouched; typing clears the error
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `submitDraft` sends the trimmed text and clears the draft; equal text after trim sends nothing and clears the draft; empty or 201 chars → error for that item, draft kept, nothing sent; exactly 200 chars is sent; `cancelDraft` clears the draft and the error; a failed save puts the typed text back as that item's draft while another item's draft is untouched; typing clears the error
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
