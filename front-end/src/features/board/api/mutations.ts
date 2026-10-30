@@ -347,6 +347,40 @@ export function removal<T extends { id: string }>(
   };
 }
 
+type ItemPatch<T> = {
+  apply: (item: T) => T;
+  revert: (item: T) => T;
+};
+
+// Sets the fields of `body` and remembers only their old values, so a failed
+// update leaves the fields another pending update changed (FE-AD-010).
+export function fieldsPatch<T extends { id: string }>(
+  body: Partial<T>,
+): ItemPatch<T> {
+  let previous: Partial<T> | null = null;
+  return {
+    apply: (item) => {
+      previous = Object.fromEntries(
+        Object.keys(body).map((field) => [field, item[field as keyof T]]),
+      ) as Partial<T>;
+      return { ...item, ...body };
+    },
+    revert: (item) => (previous ? { ...item, ...previous } : item),
+  };
+}
+
+export function inList<T extends { id: string }>(
+  id: string,
+  patch: ItemPatch<T>,
+) {
+  return {
+    apply: (items: T[]) =>
+      items.map((item) => (item.id === id ? patch.apply(item) : item)),
+    revert: (items: T[]) =>
+      items.map((item) => (item.id === id ? patch.revert(item) : item)),
+  };
+}
+
 // TanStack Query optimistic recipe with per-item revert (FE-AD-010): patch the
 // cached queries now, undo only this change on failure, refetch the board once
 // no other change is in flight.

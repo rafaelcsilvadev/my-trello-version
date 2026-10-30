@@ -92,9 +92,9 @@ T18 → T19 → T20 → T21
 
 **Done when**:
 
-- [ ] `card-mutations.ts` imports the moved helpers; no other change in behavior
-- [ ] `card-mutations.spec.tsx` and `mutations.spec.tsx` pass unchanged
-- [ ] Build gate passes; test count unchanged
+- [x] `card-mutations.ts` imports the moved helpers; no other change in behavior
+- [x] `card-mutations.spec.tsx` and `mutations.spec.tsx` pass unchanged
+- [x] Build gate passes; test count unchanged
 
 **Tests**: unit
 **Gate**: build
