@@ -188,8 +188,8 @@ T20 → T21 → T22 → T23 → T24 → T25 → T26 → T27
 
 **Done when**:
 
-- [ ] Unit: 4999 and 5000 chars allowed, 5001 too long; empty draft → `null`, spaces-only draft kept as is; dirty when trimmed title differs or description differs (`null` description equals empty draft); not dirty with `null` drafts or a title that differs only by outer spaces; `nextPosition` is max active position + 1, `0` for an empty column
-- [ ] Build gate passes; test count only grows
+- [x] Unit: 4999 and 5000 chars allowed, 5001 too long; empty draft → `null`, spaces-only draft kept as is; dirty when trimmed title differs or description differs (`null` description equals empty draft); not dirty with `null` drafts or a title that differs only by outer spaces; `nextPosition` is max active position + 1, `0` for an empty column
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
