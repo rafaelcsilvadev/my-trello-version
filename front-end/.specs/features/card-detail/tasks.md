@@ -388,8 +388,8 @@ T20 → T21 → T22 → T23 → T24 → T25 → T26 → T27
 
 **Done when**:
 
-- [ ] Unit (data router): close with no drafts navigates; close with a dirty title or description opens the discard state; browser back (`navigate(-1)`) while dirty is blocked too; `discard` completes the navigation without sending; `keepEditing` stays with drafts intact; read-only modes never block; `confirmDelete` is never blocked
-- [ ] Build gate passes; test count only grows
+- [x] Unit (data router): close with no drafts navigates; close with a dirty title or description opens the discard state; browser back (`navigate(-1)`) while dirty is blocked too; `discard` completes the navigation without sending; `keepEditing` stays with drafts intact; read-only modes never block; `confirmDelete` is never blocked
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build

@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import { useBlocker, useNavigate } from 'react-router';
 
 import type { ApiError } from '@/shared/api/api-error';
 import { useSaveFailureNotifier } from '@/shared/ui/toast/use-save-failure-notifier';
@@ -85,6 +85,18 @@ export function useCardDetailViewModel(boardId: string, cardId: string) {
     status = 'error';
   else if (queries.some((q) => q.isPending)) status = 'loading';
   else if (list === undefined) status = 'notFound';
+
+  const dirty =
+    card.data !== undefined &&
+    isDirty(card.data, { title: titleDraft, description: descriptionDraft });
+  // Every close path is a navigation, browser Back included, so one blocker
+  // asks before any of them drops the drafts. Read-only modes never ask (FCD-42, FCD-45).
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      dirty &&
+      mode === 'editable' &&
+      currentLocation.pathname !== nextLocation.pathname,
+  );
 
   const descriptionError =
     descriptionDraft !== null && isDescriptionTooLong(descriptionDraft)
@@ -190,15 +202,11 @@ export function useCardDetailViewModel(boardId: string, cardId: string) {
       titleError,
       descriptionDraft,
       descriptionError,
-      isDirty:
-        card.data !== undefined &&
-        isDirty(card.data, {
-          title: titleDraft,
-          description: descriptionDraft,
-        }),
+      isDirty: dirty,
       isPending: pendingIds.has(cardId),
       isMoveOpen,
       isDeleteOpen,
+      isDiscardOpen: blocker.state === 'blocked',
     },
     actions: {
       toggleDone: () => card.data && save({ done: !card.data.done }),
@@ -234,6 +242,10 @@ export function useCardDetailViewModel(boardId: string, cardId: string) {
       askDelete: () => setIsDeleteOpen(true),
       cancelDelete: () => setIsDeleteOpen(false),
       confirmDelete,
+      close: () => void navigate(`/b/${boardId}`),
+      // Leaves without sending the drafts (FCD-43).
+      discard: () => blocker.proceed?.(),
+      keepEditing: () => blocker.reset?.(),
       // Only the failed requests run again (FCD-10).
       retryLoad: () => {
         for (const query of queries) if (query.isError) void query.refetch();

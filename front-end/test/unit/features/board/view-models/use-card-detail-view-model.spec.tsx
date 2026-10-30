@@ -7,9 +7,9 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { http, HttpResponse, type JsonBodyType } from 'msw';
-import { type ReactNode, useEffect } from 'react';
+import { createContext, type ReactNode, useContext } from 'react';
 import { I18nextProvider } from 'react-i18next';
-import { MemoryRouter, Route, Routes, useLocation } from 'react-router';
+import { createMemoryRouter, RouterProvider } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { boardViewKeys } from '@/features/board/api/keys';
@@ -99,6 +99,13 @@ function detailServer(overrides: Partial<Record<string, Reply>> = {}) {
   return requests;
 }
 
+// The hook renders inside the detail route; the router is built once, so it reads it from here.
+const HookContext = createContext<ReactNode>(null);
+
+function HookSlot() {
+  return useContext(HookContext);
+}
+
 function setup() {
   const api = createApiClient({
     baseUrl,
@@ -110,27 +117,32 @@ function setup() {
   queryClient.setDefaultOptions({
     queries: { ...queryClient.getDefaultOptions().queries, retryDelay: 0 },
   });
-  const location = { pathname: '' };
-  function LocationProbe() {
-    const { pathname } = useLocation();
-    useEffect(() => {
-      location.pathname = pathname;
-    }, [pathname]);
-    return null;
-  }
+  // `useBlocker` needs a data router. The board entry sits below the detail, so
+  // `navigate(-1)` is the browser Back of a detail opened from the board.
+  const router = createMemoryRouter(
+    [
+      { path: '/b/:boardId', element: null },
+      { path: '/b/:boardId/t/:cardId', element: <HookSlot /> },
+    ],
+    {
+      initialEntries: [boardPath, `${boardPath}/t/${cardId}`],
+      initialIndex: 1,
+    },
+  );
+  const location = {
+    get pathname() {
+      return router.state.location.pathname;
+    },
+  };
   // The detail is a child route of the board, so leaving it unmounts the hook.
   const wrapper = ({ children }: { children: ReactNode }) => (
     <I18nextProvider i18n={createI18n('pt-BR')}>
       <QueryClientProvider client={queryClient}>
         <ApiProvider client={api}>
           <ToastProvider>
-            <MemoryRouter initialEntries={[`${boardPath}/t/${cardId}`]}>
-              <LocationProbe />
-              <Routes>
-                <Route path="/b/:boardId" element={null} />
-                <Route path="/b/:boardId/t/:cardId" element={children} />
-              </Routes>
-            </MemoryRouter>
+            <HookContext.Provider value={children}>
+              <RouterProvider router={router} />
+            </HookContext.Provider>
           </ToastProvider>
         </ApiProvider>
       </QueryClientProvider>
@@ -139,7 +151,7 @@ function setup() {
   const rendered = renderHook(() => useCardDetailViewModel(boardId, cardId), {
     wrapper,
   });
-  return { ...rendered, queryClient, location };
+  return { ...rendered, queryClient, location, router };
 }
 
 async function setupReady() {
@@ -755,7 +767,12 @@ describe('useCardDetailViewModel', () => {
   describe('move', () => {
     it('moveTo sends the end of the chosen column, closes the dialog and toasts the column', async () => {
       detailServer();
-      const changes = cardWrites();
+      // Held, so the settle refetch of the seeded card cannot undo the move first.
+      const held = gate();
+      const changes = cardWrites(async () => {
+        await held.wait();
+        return HttpResponse.json(cardFixture(cardId, doing.id));
+      });
       const { result } = await setupWithCards();
 
       act(() => result.current.actions.openMove());
@@ -766,6 +783,7 @@ describe('useCardDetailViewModel', () => {
       await waitFor(() =>
         expect(result.current.state.card?.listId).toBe(doing.id),
       );
+      held.open();
       await screen.findByText('Tarefa movida para Doing');
       expect(changes).toEqual(post('move', { listId: doing.id, position: 2 }));
     });
@@ -957,6 +975,140 @@ describe('useCardDetailViewModel', () => {
       expect(result.current.state.isDirty).toBe(false);
       act(() => result.current.actions.setDescriptionDraft('Notes'));
       expect(result.current.state.isDirty).toBe(true);
+    });
+  });
+
+  describe('close and discard', () => {
+    it('close with no drafts goes to the board', async () => {
+      detailServer();
+      const { result, location } = await setupReady();
+
+      act(() => result.current.actions.close());
+
+      await waitFor(() => expect(location.pathname).toBe(boardPath));
+    });
+
+    it('close with a dirty title opens the discard dialog and stays', async () => {
+      detailServer();
+      const { result, location } = await setupReady();
+      act(() => result.current.actions.setTitleDraft('Other'));
+
+      act(() => result.current.actions.close());
+
+      await waitFor(() =>
+        expect(result.current.state.isDiscardOpen).toBe(true),
+      );
+      expect(location.pathname).toBe(`${boardPath}/t/${cardId}`);
+    });
+
+    it('close with a dirty description opens the discard dialog', async () => {
+      detailServer();
+      const { result, location } = await setupReady();
+      act(() => result.current.actions.setDescriptionDraft('Notes'));
+
+      act(() => result.current.actions.close());
+
+      await waitFor(() =>
+        expect(result.current.state.isDiscardOpen).toBe(true),
+      );
+      expect(location.pathname).toBe(`${boardPath}/t/${cardId}`);
+    });
+
+    it('browser Back while dirty opens the discard dialog too', async () => {
+      detailServer();
+      const { result, location, router } = await setupReady();
+      act(() => result.current.actions.setTitleDraft('Other'));
+
+      await act(() => router.navigate(-1));
+
+      expect(result.current.state.isDiscardOpen).toBe(true);
+      expect(location.pathname).toBe(`${boardPath}/t/${cardId}`);
+    });
+
+    it('a navigation that stays on the detail path is not blocked', async () => {
+      detailServer();
+      const { result, router } = await setupReady();
+      act(() => result.current.actions.setTitleDraft('Other'));
+
+      await act(() => router.navigate(`${boardPath}/t/${cardId}?tab=1`));
+
+      expect(router.state.location.search).toBe('?tab=1');
+      expect(result.current.state.isDiscardOpen).toBe(false);
+      expect(result.current.state.titleDraft).toBe('Other');
+    });
+
+    it('discard completes the navigation without sending the drafts', async () => {
+      detailServer();
+      const changes = cardWrites();
+      const { result, location } = await setupReady();
+      act(() => result.current.actions.setTitleDraft('Other'));
+      act(() => result.current.actions.setDescriptionDraft('Notes'));
+      act(() => result.current.actions.close());
+      await waitFor(() =>
+        expect(result.current.state.isDiscardOpen).toBe(true),
+      );
+
+      act(() => result.current.actions.discard());
+
+      await waitFor(() => expect(location.pathname).toBe(boardPath));
+      expect(changes).toEqual([]);
+    });
+
+    it('keepEditing closes the dialog and keeps the drafts', async () => {
+      detailServer();
+      const { result, location } = await setupReady();
+      act(() => result.current.actions.setTitleDraft('Other'));
+      act(() => result.current.actions.setDescriptionDraft('Notes'));
+      act(() => result.current.actions.close());
+      await waitFor(() =>
+        expect(result.current.state.isDiscardOpen).toBe(true),
+      );
+
+      act(() => result.current.actions.keepEditing());
+
+      await waitFor(() =>
+        expect(result.current.state.isDiscardOpen).toBe(false),
+      );
+      expect(location.pathname).toBe(`${boardPath}/t/${cardId}`);
+      expect(result.current.state.titleDraft).toBe('Other');
+      expect(result.current.state.descriptionDraft).toBe('Notes');
+    });
+
+    it('closes an archived card with drafts without asking', async () => {
+      detailServer({ [cardUrl]: archivedCard() });
+      const { result, location } = await setupReady();
+      act(() => result.current.actions.setTitleDraft('Other'));
+
+      act(() => result.current.actions.close());
+
+      await waitFor(() => expect(location.pathname).toBe(boardPath));
+      expect(result.current.state.isDiscardOpen).toBe(false);
+    });
+
+    it('closes a card of an archived board with drafts without asking', async () => {
+      detailServer({
+        [boardUrl]: () =>
+          HttpResponse.json(boardFixture({ archivedAt: stamp })),
+      });
+      const { result, location } = await setupReady();
+      act(() => result.current.actions.setDescriptionDraft('Notes'));
+
+      act(() => result.current.actions.close());
+
+      await waitFor(() => expect(location.pathname).toBe(boardPath));
+      expect(result.current.state.isDiscardOpen).toBe(false);
+    });
+
+    it('confirmDelete is never blocked', async () => {
+      detailServer({ [cardUrl]: archivedCard() });
+      cardWrites();
+      const { result, location } = await setupReady();
+      act(() => result.current.actions.setTitleDraft('Other'));
+
+      act(() => result.current.actions.confirmDelete());
+
+      await waitFor(() => expect(location.pathname).toBe(boardPath));
+      expect(result.current.state.isDiscardOpen).toBe(false);
     });
   });
 
