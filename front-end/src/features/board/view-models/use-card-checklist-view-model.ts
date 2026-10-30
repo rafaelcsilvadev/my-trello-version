@@ -4,9 +4,13 @@ import { useMemo, useState } from 'react';
 import type { ApiError } from '@/shared/api/api-error';
 import { useSaveFailureNotifier } from '@/shared/ui/toast/use-save-failure-notifier';
 
-import { useCreateChecklistItem } from '../api/checklist-mutations';
+import {
+  useCreateChecklistItem,
+  useUpdateChecklistItem,
+} from '../api/checklist-mutations';
 import { useChecklistItems } from '../api/checklist-queries';
 import { boardViewKeys } from '../api/keys';
+import { usePendingItemIds } from '../api/mutations';
 import { checklistProgress } from '../model/checklist';
 import type { ChecklistItem, ItemFieldError } from '../model/types';
 import { validateChecklistItemText } from '../model/validation';
@@ -25,7 +29,9 @@ export function useCardChecklistViewModel(boardId: string, cardId: string) {
   const query = useChecklistItems(boardId, cardId);
   const queryClient = useQueryClient();
   const createMutation = useCreateChecklistItem(boardId, cardId);
-  const { notify } = useSaveFailureNotifier(
+  const updateMutation = useUpdateChecklistItem(boardId, cardId);
+  const pendingIds = usePendingItemIds();
+  const { notify, runChange } = useSaveFailureNotifier(
     () =>
       void queryClient.invalidateQueries({
         queryKey: boardViewKeys.all(boardId),
@@ -61,6 +67,17 @@ export function useCardChecklistViewModel(boardId: string, cardId: string) {
     create(newText);
   }
 
+  // No success toast: the checkbox already shows the change (FCL-16).
+  function toggle(id: string) {
+    const item = items.find((current) => current.id === id);
+    if (!item) return;
+    runChange(
+      updateMutation.mutateAsync,
+      { id, body: { done: !item.done } },
+      null,
+    );
+  }
+
   return {
     query,
     state: {
@@ -70,6 +87,7 @@ export function useCardChecklistViewModel(boardId: string, cardId: string) {
       newText,
       isCreating: createMutation.isPending,
       error,
+      pendingIds,
     },
     actions: {
       retryLoad: () => void query.refetch(),
@@ -79,6 +97,7 @@ export function useCardChecklistViewModel(boardId: string, cardId: string) {
         setError((current) => (current?.target === 'new' ? null : current));
       },
       add,
+      toggle,
     },
   };
 }

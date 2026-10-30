@@ -344,8 +344,8 @@ T18 → T19 → T20 → T21
 
 **Done when**:
 
-- [ ] Unit: `toggle` sends the opposite `done` and saves silently (no toast); the item id is in `pendingIds` while in flight and leaves it on settle; `5xx` → save-fail toast with retry; `409` → conflict toast; `404` → save-fail toast and the checklist is refetched
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `toggle` sends the opposite `done` and saves silently (no toast); the item id is in `pendingIds` while in flight and leaves it on settle; `5xx` → save-fail toast with retry; `409` → conflict toast; `404` → save-fail toast and the checklist is refetched
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
