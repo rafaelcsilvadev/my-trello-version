@@ -1,9 +1,15 @@
 import { QueryClientProvider } from '@tanstack/react-query';
-import { act, renderHook, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  cleanup,
+  renderHook,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import type { ReactNode } from 'react';
 import { I18nextProvider } from 'react-i18next';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { boardViewKeys } from '@/features/board/api/keys';
 import type { ChecklistItem } from '@/features/board/model/types';
@@ -120,6 +126,12 @@ function gate() {
   });
   return { open, opened };
 }
+
+// Vitest runs without globals, so Testing Library does not unmount by itself;
+// a toast left by one test would otherwise answer the next test's query.
+afterEach(() => {
+  cleanup();
+});
 
 describe('useCardChecklistViewModel — load', () => {
   it('is loading until the items arrive', async () => {
@@ -368,5 +380,113 @@ describe('useCardChecklistViewModel — add', () => {
       screen.queryByRole('button', { name: 'Tentar novamente' }),
     ).toBeNull();
     expect(result.current.state.newText).toBe('Comprar pão');
+  });
+});
+
+// Answers each item update with the next queued reply, or with a 200 of the sent fields.
+function updateServer(...replies: (() => Response | Promise<Response>)[]) {
+  const requests: { id: string; body: unknown }[] = [];
+  server.use(
+    http.patch(
+      `${baseUrl}/api/v1/checklist-items/:id`,
+      async ({ request, params }) => {
+        const id = params.id as string;
+        const body = (await request.json()) as Partial<ChecklistItem>;
+        requests.push({ id, body });
+        const saved = () =>
+          HttpResponse.json({
+            ...seed.find((item) => item.id === id),
+            ...body,
+          });
+        return (replies.shift() ?? saved)();
+      },
+    ),
+  );
+  return requests;
+}
+
+function doneOf(items: ChecklistItem[], id: string) {
+  return items.find((item) => item.id === id)?.done;
+}
+
+describe('useCardChecklistViewModel — toggle', () => {
+  it.each([
+    ['i2', true],
+    ['i1', false],
+  ])('sends %s with done %s and saves silently', async (id, done) => {
+    checklistServer();
+    const requests = updateServer();
+    const { result } = await setupReady();
+
+    act(() => result.current.actions.toggle(id));
+
+    await waitFor(() => expect(requests).toEqual([{ id, body: { done } }]));
+    await waitFor(() => expect(result.current.state.pendingIds.size).toBe(0));
+    expect(screen.getByRole('status').textContent).toBe('');
+  });
+
+  it('shows the tick at once and keeps the item pending until it settles', async () => {
+    checklistServer();
+    const hold = gate();
+    updateServer(async () => {
+      await hold.opened;
+      return HttpResponse.json({ ...seed[0], done: true });
+    });
+    const { result } = await setupReady();
+
+    act(() => result.current.actions.toggle('i2'));
+
+    await waitFor(() =>
+      expect(result.current.state.pendingIds.has('i2')).toBe(true),
+    );
+    expect(doneOf(result.current.state.items, 'i2')).toBe(true);
+    expect(result.current.state.pendingIds.has('i3')).toBe(false);
+    hold.open();
+    await waitFor(() =>
+      expect(result.current.state.pendingIds.has('i2')).toBe(false),
+    );
+  });
+
+  it('a 5xx undoes the tick and Tentar novamente resends it', async () => {
+    checklistServer();
+    const requests = updateServer(() => problem(500));
+    const { result } = await setupReady();
+    act(() => result.current.actions.toggle('i2'));
+
+    await screen.findByText(saveFail);
+    await waitFor(() =>
+      expect(doneOf(result.current.state.items, 'i2')).toBe(false),
+    );
+    act(() => screen.getByRole('button', { name: 'Tentar novamente' }).click());
+
+    await waitFor(() => expect(requests).toHaveLength(2));
+    expect(requests[1]).toEqual({ id: 'i2', body: { done: true } });
+  });
+
+  it('a 409 undoes the tick and shows the conflict toast with Recarregar', async () => {
+    checklistServer();
+    updateServer(() => problem(409));
+    const { result } = await setupReady();
+    act(() => result.current.actions.toggle('i2'));
+
+    await screen.findByText(conflict);
+    expect(screen.getByRole('button', { name: 'Recarregar' })).toBeTruthy();
+    await waitFor(() =>
+      expect(doneOf(result.current.state.items, 'i2')).toBe(false),
+    );
+  });
+
+  it('a 404 shows the save-fail toast and refetches the checklist', async () => {
+    const requests = checklistServer();
+    updateServer(() => problem(404));
+    const { result } = await setupReady();
+    const loaded = requests.items;
+    act(() => result.current.actions.toggle('i2'));
+
+    await screen.findByText(saveFail);
+    expect(
+      screen.queryByRole('button', { name: 'Tentar novamente' }),
+    ).toBeNull();
+    await waitFor(() => expect(requests.items).toBeGreaterThan(loaded));
   });
 });
