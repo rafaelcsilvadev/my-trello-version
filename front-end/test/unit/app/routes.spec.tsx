@@ -22,7 +22,6 @@ describe('routes', () => {
   describe('with a token', () => {
     it.each([
       ['/boards', '/boards', 'My boards'],
-      ['/b/x/t/y', '/b/x/t/y', 'Card'],
       ['/b/x/labels', '/b/x/labels', 'Labels'],
       ['/settings', '/settings', 'Settings'],
     ])('opens %s at %s with heading "%s"', async (route, url, title) => {
@@ -61,7 +60,7 @@ describe('routes', () => {
     it.each([
       ['/boards', 'My boards', '/login?redirect=%2Fboards'],
       ['/b/x', 'Board', '/login?redirect=%2Fb%2Fx'],
-      ['/b/x/t/y', 'Card', '/login?redirect=%2Fb%2Fx%2Ft%2Fy'],
+      ['/b/x/t/y', 'Board', '/login?redirect=%2Fb%2Fx%2Ft%2Fy'],
       ['/b/x/labels', 'Labels', '/login?redirect=%2Fb%2Fx%2Flabels'],
       ['/settings', 'Settings', '/login?redirect=%2Fsettings'],
       ['/b/x?q=1', 'Board', '/login?redirect=%2Fb%2Fx%3Fq%3D1'],

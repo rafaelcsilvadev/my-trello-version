@@ -2,6 +2,7 @@ import { redirect, type RouteObject } from 'react-router';
 
 import { BoardPage } from '@/pages/board-page';
 import { BoardsPage } from '@/pages/boards-page';
+import { CardDetailPage } from '@/pages/card-detail-page';
 import { LoginPage } from '@/pages/login-page';
 import { NotFoundPage } from '@/pages/not-found-page';
 import { PlaceholderPage } from '@/pages/placeholder-page';
@@ -32,10 +33,10 @@ export function createRoutes({
       element: <ProtectedLayout />,
       children: [
         { path: 'boards', element: <BoardsPage /> },
-        { path: 'b/:boardId', element: <BoardPage /> },
         {
-          path: 'b/:boardId/t/:cardId',
-          element: <PlaceholderPage titleKey="card" />,
+          path: 'b/:boardId',
+          element: <BoardPage />,
+          children: [{ path: 't/:cardId', element: <CardDetailPage /> }],
         },
         {
           path: 'b/:boardId/labels',

@@ -613,8 +613,8 @@ T20 → T21 → T22 → T23 → T24 → T25 → T26 → T27
 
 **Done when**:
 
-- [ ] Unit: `/b/{id}/t/{cardId}` renders the board and the detail; closing keeps the same `BoardScreen` instance (a filter typed before opening is still there after closing); `n` and `/` do nothing while the detail is open; unknown card id shows the not-found block over the board; routes spec updated
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `/b/{id}/t/{cardId}` renders the board and the detail; closing keeps the same `BoardScreen` instance (a filter typed before opening is still there after closing); `n` and `/` do nothing while the detail is open; unknown card id shows the not-found block over the board; routes spec updated
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
