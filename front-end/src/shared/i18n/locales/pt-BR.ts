@@ -208,6 +208,13 @@ export const ptBR = {
       cardCreated: 'Tarefa criada',
       cardMoved: 'Tarefa movida para {{col}}',
       moveFailed: 'Não foi possível mover a tarefa',
+      cardArchived: 'Tarefa arquivada',
+      cardRestored: 'Tarefa restaurada',
+      cardDeleted: 'Tarefa excluída definitivamente',
+    },
+    errors: {
+      columnArchived:
+        'A coluna de origem está arquivada. Restaure a coluna primeiro.',
     },
     column: {
       menu: 'Ações da coluna',

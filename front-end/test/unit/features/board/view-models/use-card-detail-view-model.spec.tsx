@@ -7,10 +7,12 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { http, HttpResponse, type JsonBodyType } from 'msw';
-import type { ReactNode } from 'react';
+import { type ReactNode, useEffect } from 'react';
 import { I18nextProvider } from 'react-i18next';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import { boardViewKeys } from '@/features/board/api/keys';
 import type { Card } from '@/features/board/model/types';
 import { useCardDetailViewModel } from '@/features/board/view-models/use-card-detail-view-model';
 import { ApiProvider } from '@/shared/api/api-context';
@@ -33,8 +35,11 @@ const boardUrl = `${baseUrl}/api/v1/boards/${boardId}`;
 const listsUrl = `${boardUrl}/lists`;
 const archivedListsUrl = `${listsUrl}?archived=true`;
 const labelsUrl = `${boardUrl}/labels`;
+const cardsUrl = `${boardUrl}/cards`;
 const cardId = 'c1';
 const cardUrl = `${baseUrl}/api/v1/cards/${cardId}`;
+const cardPath = `/api/v1/cards/${cardId}`;
+const boardPath = `/b/${boardId}`;
 
 const stamp = '2026-10-20T12:00:00.000Z';
 const backlog = listFixture('l1', { title: 'Backlog' });
@@ -70,13 +75,18 @@ function detailServer(overrides: Partial<Record<string, Reply>> = {}) {
     [listsUrl]: [backlog, doing],
     [archivedListsUrl]: [ideas],
     [labelsUrl]: [urgent, later, bug],
+    // Without the detail's card, so the card query never starts from this seed.
+    [cardsUrl]: [
+      cardFixture('c2', doing.id, { position: 0 }),
+      cardFixture('c3', doing.id, { position: 1 }),
+    ],
   };
   async function reply(url: string) {
     requests[url] = (requests[url] ?? 0) + 1;
     return (await overrides[url]?.()) ?? HttpResponse.json(seed[url] ?? null);
   }
   server.use(
-    ...[cardUrl, boardUrl, listsUrl, labelsUrl].map((url) =>
+    ...[cardUrl, boardUrl, listsUrl, labelsUrl, cardsUrl].map((url) =>
       http.get(url, ({ request }) =>
         reply(
           new URL(request.url).searchParams.get('archived') === 'true'
@@ -100,18 +110,36 @@ function setup() {
   queryClient.setDefaultOptions({
     queries: { ...queryClient.getDefaultOptions().queries, retryDelay: 0 },
   });
+  const location = { pathname: '' };
+  function LocationProbe() {
+    const { pathname } = useLocation();
+    useEffect(() => {
+      location.pathname = pathname;
+    }, [pathname]);
+    return null;
+  }
+  // The detail is a child route of the board, so leaving it unmounts the hook.
   const wrapper = ({ children }: { children: ReactNode }) => (
     <I18nextProvider i18n={createI18n('pt-BR')}>
       <QueryClientProvider client={queryClient}>
         <ApiProvider client={api}>
-          <ToastProvider>{children}</ToastProvider>
+          <ToastProvider>
+            <MemoryRouter initialEntries={[`${boardPath}/t/${cardId}`]}>
+              <LocationProbe />
+              <Routes>
+                <Route path="/b/:boardId" element={null} />
+                <Route path="/b/:boardId/t/:cardId" element={children} />
+              </Routes>
+            </MemoryRouter>
+          </ToastProvider>
         </ApiProvider>
       </QueryClientProvider>
     </I18nextProvider>
   );
-  return renderHook(() => useCardDetailViewModel(boardId, cardId), {
+  const rendered = renderHook(() => useCardDetailViewModel(boardId, cardId), {
     wrapper,
   });
+  return { ...rendered, queryClient, location };
 }
 
 async function setupReady() {
@@ -124,23 +152,34 @@ async function setupReady() {
 
 type ChangeRequest = { method: string; path: string; body: unknown };
 
-// Records every card write; each one is answered by the next queued response, or by the card.
+// Records every card write; each one is answered by the next queued response,
+// or by the card (`204` for a delete).
 function cardWrites(...responses: (() => Response | Promise<Response>)[]) {
   const changes: ChangeRequest[] = [];
+  async function record(request: Request, fallback: () => Response) {
+    const text = await request.text();
+    changes.push({
+      method: request.method,
+      path: new URL(request.url).pathname,
+      body: text === '' ? undefined : JSON.parse(text),
+    });
+    return (responses.shift() ?? fallback)();
+  }
+  const card = () => HttpResponse.json(cardFixture(cardId, backlog.id));
   server.use(
-    http.patch(cardUrl, async ({ request }) => {
-      changes.push({
-        method: request.method,
-        path: new URL(request.url).pathname,
-        body: await request.json(),
-      });
-      return (
-        responses.shift() ??
-        (() => HttpResponse.json(cardFixture(cardId, backlog.id)))
-      )();
-    }),
+    http.patch(cardUrl, ({ request }) => record(request, card)),
+    ...['move', 'archive', 'unarchive'].map((action) =>
+      http.post(`${cardUrl}/${action}`, ({ request }) => record(request, card)),
+    ),
+    http.delete(cardUrl, ({ request }) =>
+      record(request, () => new HttpResponse(null, { status: 204 })),
+    ),
   );
   return changes;
+}
+
+function post(action: string, body?: unknown): ChangeRequest[] {
+  return [{ method: 'POST', path: `${cardPath}/${action}`, body }];
 }
 
 // Holds a write until the test opens it, to see the change before the answer.
@@ -153,7 +192,7 @@ function gate() {
 }
 
 function patch(body: unknown): ChangeRequest[] {
-  return [{ method: 'PATCH', path: `/api/v1/cards/${cardId}`, body }];
+  return [{ method: 'PATCH', path: cardPath, body }];
 }
 
 function toastText() {
@@ -193,6 +232,24 @@ function toastButtons() {
 
 const saveFail = 'Não foi possível salvar. Tente novamente.';
 const conflict = 'Este item foi arquivado. Recarregue para ver o estado atual.';
+const columnArchived =
+  'A coluna de origem está arquivada. Restaure a coluna primeiro.';
+
+function archivedCard(): Reply {
+  return () =>
+    HttpResponse.json(cardFixture(cardId, backlog.id, { archivedAt: stamp }));
+}
+
+// The move needs the board's active cards, which the detail does not wait for.
+async function setupWithCards() {
+  const rendered = await setupReady();
+  await waitFor(() =>
+    expect(
+      rendered.queryClient.getQueryData(boardViewKeys.cards(boardId, false)),
+    ).toBeDefined(),
+  );
+  return rendered;
+}
 const titleFieldError = [{ field: 'title', message: 'too long' }];
 
 afterEach(() => {
@@ -222,7 +279,14 @@ describe('useCardDetailViewModel', () => {
         // Every other query has answered; only the gated one is still out.
         await waitFor(() =>
           expect(Object.keys(requests).sort()).toEqual(
-            [cardUrl, boardUrl, listsUrl, archivedListsUrl, labelsUrl].sort(),
+            [
+              cardUrl,
+              boardUrl,
+              listsUrl,
+              archivedListsUrl,
+              labelsUrl,
+              cardsUrl,
+            ].sort(),
           ),
         );
         expect(result.current.state.status).toBe('loading');
@@ -685,6 +749,182 @@ describe('useCardDetailViewModel', () => {
       await screen.findByText(saveFail);
       expect(toastButtons()).toEqual([]);
       await waitFor(() => expect(result.current.state.status).toBe('notFound'));
+    });
+  });
+
+  describe('move', () => {
+    it('moveTo sends the end of the chosen column, closes the dialog and toasts the column', async () => {
+      detailServer();
+      const changes = cardWrites();
+      const { result } = await setupWithCards();
+
+      act(() => result.current.actions.openMove());
+      expect(result.current.state.isMoveOpen).toBe(true);
+      act(() => result.current.actions.moveTo(doing.id));
+
+      expect(result.current.state.isMoveOpen).toBe(false);
+      await waitFor(() =>
+        expect(result.current.state.card?.listId).toBe(doing.id),
+      );
+      await screen.findByText('Tarefa movida para Doing');
+      expect(changes).toEqual(post('move', { listId: doing.id, position: 2 }));
+    });
+
+    it('moveTo the current column sends nothing and closes the dialog', async () => {
+      detailServer();
+      const changes = cardWrites();
+      const { result } = await setupWithCards();
+
+      act(() => result.current.actions.openMove());
+      act(() => result.current.actions.moveTo(backlog.id));
+
+      expect(result.current.state.isMoveOpen).toBe(false);
+      expect(changes).toEqual([]);
+    });
+
+    it('closeMove closes the dialog without sending', async () => {
+      detailServer();
+      const changes = cardWrites();
+      const { result } = await setupWithCards();
+
+      act(() => result.current.actions.openMove());
+      act(() => result.current.actions.closeMove());
+
+      expect(result.current.state.isMoveOpen).toBe(false);
+      expect(changes).toEqual([]);
+    });
+
+    it('a failed move puts the card back and toasts the move failure with a retry', async () => {
+      detailServer();
+      cardWrites(() => problem(500));
+      const { result } = await setupWithCards();
+
+      act(() => result.current.actions.moveTo(doing.id));
+
+      await screen.findByText('Não foi possível mover a tarefa');
+      await waitFor(() =>
+        expect(result.current.state.card?.listId).toBe(backlog.id),
+      );
+      expect(toastButtons()).toEqual(['Tentar novamente']);
+    });
+  });
+
+  describe('archive and restore', () => {
+    it('archive switches to archivedCard at once, sends it and toasts', async () => {
+      detailServer();
+      const held = gate();
+      const changes = cardWrites(async () => {
+        await held.wait();
+        return HttpResponse.json(cardFixture(cardId, backlog.id));
+      });
+      const { result } = await setupReady();
+
+      act(() => result.current.actions.archive());
+
+      await waitFor(() =>
+        expect(result.current.state.mode).toBe('archivedCard'),
+      );
+      held.open();
+      await screen.findByText('Tarefa arquivada');
+      expect(changes).toEqual(post('archive'));
+    });
+
+    it('restore switches to editable at once, sends it and toasts', async () => {
+      detailServer({ [cardUrl]: archivedCard() });
+      const held = gate();
+      const changes = cardWrites(async () => {
+        await held.wait();
+        return HttpResponse.json(cardFixture(cardId, backlog.id));
+      });
+      const { result } = await setupReady();
+
+      act(() => result.current.actions.restore());
+
+      await waitFor(() => expect(result.current.state.mode).toBe('editable'));
+      held.open();
+      await screen.findByText('Tarefa restaurada');
+      expect(changes).toEqual(post('unarchive'));
+    });
+
+    it('a restore 409 puts the card back and toasts that the column is archived', async () => {
+      detailServer({ [cardUrl]: archivedCard() });
+      cardWrites(() => problem(409));
+      const { result } = await setupReady();
+
+      act(() => result.current.actions.restore());
+
+      await screen.findByText(columnArchived);
+      await waitFor(() =>
+        expect(result.current.state.mode).toBe('archivedCard'),
+      );
+      expect(toastButtons()).toEqual(['Recarregar']);
+    });
+
+    it('isPending is true while a change on the card is in flight', async () => {
+      detailServer();
+      const held = gate();
+      cardWrites(async () => {
+        await held.wait();
+        return HttpResponse.json(cardFixture(cardId, backlog.id));
+      });
+      const { result } = await setupReady();
+      expect(result.current.state.isPending).toBe(false);
+
+      act(() => result.current.actions.archive());
+
+      await waitFor(() => expect(result.current.state.isPending).toBe(true));
+      held.open();
+      await waitFor(() => expect(result.current.state.isPending).toBe(false));
+    });
+  });
+
+  describe('delete', () => {
+    it('askDelete opens the dialog and cancelDelete closes it without sending', async () => {
+      detailServer({ [cardUrl]: archivedCard() });
+      const changes = cardWrites();
+      const { result } = await setupReady();
+
+      act(() => result.current.actions.askDelete());
+      expect(result.current.state.isDeleteOpen).toBe(true);
+      act(() => result.current.actions.cancelDelete());
+
+      expect(result.current.state.isDeleteOpen).toBe(false);
+      expect(changes).toEqual([]);
+    });
+
+    it('confirmDelete sends the delete, goes to the board and toasts, leaving no card query behind', async () => {
+      const requests = detailServer({ [cardUrl]: archivedCard() });
+      const changes = cardWrites();
+      const { result, queryClient, location } = await setupReady();
+      const cardLoads = requests[cardUrl];
+      act(() => result.current.actions.askDelete());
+
+      act(() => result.current.actions.confirmDelete());
+
+      expect(location.pathname).toBe(boardPath);
+      await screen.findByText('Tarefa excluída definitivamente');
+      expect(changes).toEqual([
+        { method: 'DELETE', path: cardPath, body: undefined },
+      ]);
+      await waitFor(() =>
+        expect(
+          queryClient.getQueryCache().find({
+            queryKey: boardViewKeys.card(boardId, cardId),
+          }),
+        ).toBeUndefined(),
+      );
+      expect(requests[cardUrl]).toBe(cardLoads);
+    });
+
+    it('a delete 409 toasts that the column is archived', async () => {
+      detailServer({ [cardUrl]: archivedCard() });
+      cardWrites(() => problem(409));
+      const { result } = await setupReady();
+
+      act(() => result.current.actions.confirmDelete());
+
+      await screen.findByText(columnArchived);
+      expect(toastButtons()).toEqual(['Recarregar']);
     });
   });
 

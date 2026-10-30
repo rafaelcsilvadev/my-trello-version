@@ -1,13 +1,22 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router';
 
 import type { ApiError } from '@/shared/api/api-error';
 import { useSaveFailureNotifier } from '@/shared/ui/toast/use-save-failure-notifier';
 
 import { useCardDetail } from '../api/card-detail-queries';
-import { type UpdateCardVariables, useUpdateCard } from '../api/card-mutations';
+import {
+  type UpdateCardVariables,
+  useArchiveCard,
+  useDeleteCard,
+  useRestoreCard,
+  useUpdateCard,
+} from '../api/card-mutations';
 import { boardViewKeys } from '../api/keys';
-import { useBoard, useLabels, useLists } from '../api/queries';
+import { useMoveCard, usePendingItemIds } from '../api/mutations';
+import { useBoard, useCards, useLabels, useLists } from '../api/queries';
 import {
   cardDetailMode,
   descriptionBody,
@@ -30,10 +39,19 @@ export function useCardDetailViewModel(boardId: string, cardId: string) {
   const archivedLists = useLists(boardId, true);
   const labels = useLabels(boardId);
   const queries = [card, board, lists, archivedLists, labels];
+  // Only for the end position of a move; the detail does not wait for it.
+  const activeCards = useCards(boardId, false);
   // Read once, so the due labels do not change while the detail is open.
   const [today] = useState(() => todayParts());
+  const { t } = useTranslation();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const updateCardMutation = useUpdateCard(boardId);
+  const moveCardMutation = useMoveCard(boardId);
+  const archiveCardMutation = useArchiveCard(boardId);
+  const restoreCardMutation = useRestoreCard(boardId);
+  const deleteCardMutation = useDeleteCard(boardId);
+  const pendingIds = usePendingItemIds();
   // The cache rollback is done by the mutation hooks; this only tells the user (FCD-47–FCD-49).
   const { notify, runChange } = useSaveFailureNotifier(
     () =>
@@ -45,6 +63,8 @@ export function useCardDetailViewModel(boardId: string, cardId: string) {
   const [titleDraft, setTitleDraft] = useState<string | null>(null);
   const [titleError, setTitleError] = useState<ItemFieldError | null>(null);
   const [descriptionDraft, setDescriptionDraft] = useState<string | null>(null);
+  const [isMoveOpen, setIsMoveOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   const list =
     card.data && lists.data && archivedLists.data
@@ -125,6 +145,37 @@ export function useCardDetailViewModel(boardId: string, cardId: string) {
     );
   }
 
+  // The end of the chosen column, as the board's "Mover para…" does (FCD-31, FCD-32).
+  function moveTo(listId: string) {
+    setIsMoveOpen(false);
+    const target = lists.data?.find((item) => item.id === listId);
+    if (!card.data || !activeCards.data || !target) return;
+    if (card.data.listId === listId) return;
+    const position = activeCards.data.filter(
+      (item) => item.listId === listId && item.archivedAt === null,
+    ).length;
+    runChange(
+      moveCardMutation.mutateAsync,
+      { id: card.data.id, body: { listId, position } },
+      t('board.toast.cardMoved', { col: target.title }),
+      { retryMessage: t('board.toast.moveFailed') },
+    );
+  }
+
+  // Leaves at once: the card is archived, so there are no drafts to lose (FCD-38).
+  // The card query is not removed here: the detail renders once more before the
+  // route change unmounts it and would fetch it again. Its `gcTime: 0` drops it.
+  function confirmDelete() {
+    setIsDeleteOpen(false);
+    navigate(`/b/${boardId}`);
+    runChange(
+      deleteCardMutation.mutateAsync,
+      { id: cardId },
+      t('board.toast.cardDeleted'),
+      { conflictMessage: t('board.errors.columnArchived') },
+    );
+  }
+
   return {
     state: {
       status,
@@ -145,6 +196,9 @@ export function useCardDetailViewModel(boardId: string, cardId: string) {
           title: titleDraft,
           description: descriptionDraft,
         }),
+      isPending: pendingIds.has(cardId),
+      isMoveOpen,
+      isDeleteOpen,
     },
     actions: {
       toggleDone: () => card.data && save({ done: !card.data.done }),
@@ -160,6 +214,26 @@ export function useCardDetailViewModel(boardId: string, cardId: string) {
       setDescriptionDraft,
       saveDescription,
       cancelDescription: () => setDescriptionDraft(null),
+      openMove: () => setIsMoveOpen(true),
+      closeMove: () => setIsMoveOpen(false),
+      moveTo,
+      archive: () =>
+        runChange(
+          archiveCardMutation.mutateAsync,
+          { id: cardId },
+          t('board.toast.cardArchived'),
+        ),
+      // A card of an archived column answers `409` (FCD-51).
+      restore: () =>
+        runChange(
+          restoreCardMutation.mutateAsync,
+          { id: cardId },
+          t('board.toast.cardRestored'),
+          { conflictMessage: t('board.errors.columnArchived') },
+        ),
+      askDelete: () => setIsDeleteOpen(true),
+      cancelDelete: () => setIsDeleteOpen(false),
+      confirmDelete,
       // Only the failed requests run again (FCD-10).
       retryLoad: () => {
         for (const query of queries) if (query.isError) void query.refetch();
