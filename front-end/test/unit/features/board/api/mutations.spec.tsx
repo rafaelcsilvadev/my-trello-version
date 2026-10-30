@@ -46,6 +46,7 @@ const otherIdeaCard = cardFixture('c3', ideas.id, { archivedAt });
 const cardUrl = `${baseUrl}/api/v1/cards/:id`;
 const cardsKey = boardViewKeys.cards(boardId, false);
 const todoCard = cardFixture('c4', backlog.id);
+const todoCardKey = boardViewKeys.card(boardId, todoCard.id);
 const doneCard = cardFixture('c5', backlog.id, { position: 1, done: true });
 const boardUrl = `${baseUrl}/api/v1/boards/:id`;
 const detailKey = boardViewKeys.detail(boardId);
@@ -662,6 +663,79 @@ describe('useMoveCard', () => {
       c5: 'l1:2',
       c6: 'l1:1',
     });
+  });
+
+  it('sets the new listId on the cached card query before the response arrives', async () => {
+    server.use(http.post(moveCardUrl, () => delay('infinite')));
+    const { wrapper, queryClient } = setupMoveCards();
+    queryClient.setQueryData(todoCardKey, todoCard);
+    const { result } = renderHook(() => useMoveCard(boardId), { wrapper });
+
+    act(() =>
+      result.current.mutate({
+        id: todoCard.id,
+        body: { listId: doing.id, position: 0 },
+      }),
+    );
+
+    await waitFor(() =>
+      expect(queryClient.getQueryData<Card>(todoCardKey)?.listId).toBe(
+        doing.id,
+      ),
+    );
+  });
+
+  it('puts the old listId back on the cached card query when the move fails', async () => {
+    server.use(
+      http.post(moveCardUrl, () =>
+        HttpResponse.json(serverError, { status: 500 }),
+      ),
+    );
+    const { wrapper, queryClient } = setupMoveCards();
+    queryClient.setQueryData(todoCardKey, todoCard);
+    const { result } = renderHook(() => useMoveCard(boardId), { wrapper });
+
+    act(() =>
+      result.current.mutate({
+        id: todoCard.id,
+        body: { listId: doing.id, position: 0 },
+      }),
+    );
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(queryClient.getQueryData<Card>(todoCardKey)).toEqual(todoCard);
+  });
+
+  it('keeps the listId of the cached card query on a move inside its column', async () => {
+    server.use(http.post(moveCardUrl, () => delay('infinite')));
+    const { wrapper, queryClient } = setupMoveCards();
+    queryClient.setQueryData(todoCardKey, todoCard);
+    const { result } = renderHook(() => useMoveCard(boardId), { wrapper });
+
+    act(() =>
+      result.current.mutate({ id: todoCard.id, body: { position: 1 } }),
+    );
+
+    await waitFor(() => expect(cardSpots(queryClient).c4).toBe('l1:1'));
+    expect(queryClient.getQueryData<Card>(todoCardKey)?.listId).toBe(
+      backlog.id,
+    );
+  });
+
+  it('moves the card without creating a card query when none is cached', async () => {
+    server.use(http.post(moveCardUrl, () => delay('infinite')));
+    const { wrapper, queryClient } = setupMoveCards();
+    const { result } = renderHook(() => useMoveCard(boardId), { wrapper });
+
+    act(() =>
+      result.current.mutate({
+        id: todoCard.id,
+        body: { listId: doing.id, position: 0 },
+      }),
+    );
+
+    await waitFor(() => expect(cardSpots(queryClient).c4).toBe('l2:0'));
+    expect(queryClient.getQueryData(todoCardKey)).toBeUndefined();
   });
 
   it('marks the card pending while the move is in flight', async () => {
