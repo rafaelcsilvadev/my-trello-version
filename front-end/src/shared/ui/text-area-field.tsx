@@ -19,6 +19,7 @@ type TextAreaFieldProps = {
   placeholder?: string;
   counter?: string;
   error?: string;
+  isDisabled?: boolean;
   inputRef?: Ref<HTMLTextAreaElement>;
 };
 
@@ -29,6 +30,7 @@ export function TextAreaField({
   placeholder,
   counter,
   error,
+  isDisabled,
   inputRef,
 }: TextAreaFieldProps) {
   return (
@@ -36,6 +38,7 @@ export function TextAreaField({
       value={value}
       onChange={onChange}
       isInvalid={error !== undefined}
+      isDisabled={isDisabled}
       validationBehavior="aria"
       className="flex flex-col gap-2"
     >
