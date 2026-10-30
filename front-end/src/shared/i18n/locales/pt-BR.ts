@@ -198,6 +198,13 @@ export const ptBR = {
       cardTitleRequired: 'Dê um título à tarefa',
       cardTitleTooLong: 'Use até 100 caracteres',
     },
+    cardDetail: {
+      close: 'Fechar',
+      notFound: {
+        title: 'Esta tarefa não existe mais',
+        detail: 'Ela pode ter sido excluída em outro dispositivo.',
+      },
+    },
     toast: {
       columnCreated: 'Coluna criada',
       columnRenamed: 'Coluna renomeada',
