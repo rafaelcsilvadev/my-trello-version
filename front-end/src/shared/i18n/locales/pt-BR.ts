@@ -200,6 +200,10 @@ export const ptBR = {
       cardDescriptionTooLong: 'Use até 5000 caracteres',
     },
     cardDetail: {
+      dialog: 'Detalhe da tarefa',
+      back: 'Voltar',
+      column: 'Coluna',
+      labels: 'Etiquetas',
       close: 'Fechar',
       done: 'Concluída',
       doneBadge: 'Concluída',
