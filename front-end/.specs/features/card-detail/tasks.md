@@ -213,8 +213,8 @@ T20 → T21 → T22 → T23 → T24 → T25 → T26 → T27
 
 **Done when**:
 
-- [ ] Unit: sends the body; card query and `cards(b, false)` show the new values before the response; failure reverts only the changed fields; two overlapping updates of different fields — first fails — keep the second; one settle refetch after the last change
-- [ ] Build gate passes; test count only grows
+- [x] Unit: sends the body; card query and `cards(b, false)` show the new values before the response; failure reverts only the changed fields; two overlapping updates of different fields — first fails — keep the second; one settle refetch after the last change
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
