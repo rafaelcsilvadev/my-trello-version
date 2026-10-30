@@ -4,8 +4,9 @@ import type { ApiError } from '@/shared/api/api-error';
 import { saveFailureKind } from '@/shared/api/save-failure';
 import { useToast } from '@/shared/ui/toast/use-toast';
 
-// `retryMessage` replaces the generic text only where the change can be resent.
-type NotifyOptions = { retryMessage?: string };
+// `retryMessage` replaces the generic text only where the change can be resent;
+// `conflictMessage` replaces it only on a conflict, still offering a reload.
+type NotifyOptions = { retryMessage?: string; conflictMessage?: string };
 
 // The cache rollback is done by the mutation hooks; this only tells the user.
 // `reload` refetches the screen's data after a conflict or a missing item.
@@ -19,7 +20,7 @@ export function useSaveFailureNotifier(reload: () => void) {
         return;
       case 'conflict':
         toast.show({
-          message: t('errors.conflict'),
+          message: options?.conflictMessage ?? t('errors.conflict'),
           action: { label: t('errors.reload'), onClick: reload },
         });
         return;

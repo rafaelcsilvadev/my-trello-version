@@ -182,6 +182,69 @@ describe('useSaveFailureNotifier', () => {
     ).toBeNull();
   });
 
+  it('shows the conflict message with Recarregar when one is given', () => {
+    const { notifier, reload } = setup();
+    const retry = vi.fn<() => void>();
+
+    act(() =>
+      notifier().notify(apiError(409), retry, {
+        conflictMessage: 'A coluna desta tarefa está arquivada.',
+      }),
+    );
+
+    expect(
+      within(region()).getByText('A coluna desta tarefa está arquivada.'),
+    ).toBeTruthy();
+    expect(
+      within(region()).queryByText(
+        'Este item foi arquivado. Recarregue para ver o estado atual.',
+      ),
+    ).toBeNull();
+    fireEvent.click(button('Recarregar'));
+    expect(reload).toHaveBeenCalledTimes(1);
+    expect(retry).not.toHaveBeenCalled();
+  });
+
+  it('ignores the conflict message for a server failure', () => {
+    const { notifier } = setup();
+
+    act(() =>
+      notifier().notify(apiError(500), vi.fn(), {
+        conflictMessage: 'A coluna desta tarefa está arquivada.',
+      }),
+    );
+
+    expect(
+      within(region()).getByText('Não foi possível salvar. Tente novamente.'),
+    ).toBeTruthy();
+    expect(
+      within(region()).queryByText('A coluna desta tarefa está arquivada.'),
+    ).toBeNull();
+  });
+
+  it('keeps the conflict message when the retried change conflicts', async () => {
+    const { notifier } = setup();
+    const mutateAsync = vi
+      .fn<(variables: { id: string }) => Promise<void>>()
+      .mockRejectedValueOnce(apiError(500))
+      .mockRejectedValue(apiError(409));
+    const options = {
+      conflictMessage: 'A coluna desta tarefa está arquivada.',
+    };
+
+    act(() => notifier().runChange(mutateAsync, { id: 'a' }, null, options));
+    await waitFor(() => button('Tentar novamente'));
+    fireEvent.click(button('Tentar novamente'));
+
+    await waitFor(() =>
+      expect(
+        within(region()).getByText('A coluna desta tarefa está arquivada.'),
+      ).toBeTruthy(),
+    );
+    expect(mutateAsync).toHaveBeenNthCalledWith(2, { id: 'a' });
+    expect(button('Recarregar')).toBeTruthy();
+  });
+
   it('ignores the retry message when the item is gone', () => {
     const { notifier } = setup();
 
