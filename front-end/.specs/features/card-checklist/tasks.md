@@ -294,8 +294,8 @@ T18 → T19 → T20 → T21
 
 **Done when**:
 
-- [ ] Unit: `loading` before the response; `ready` with sorted items and their progress; `error` on `5xx` and `retryLoad` refetches only the checklist and reaches `ready`; progress follows the cache after a toggle
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `loading` before the response; `ready` with sorted items and their progress; `error` on `5xx` and `retryLoad` refetches only the checklist and reaches `ready`; progress follows the cache after a toggle
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
