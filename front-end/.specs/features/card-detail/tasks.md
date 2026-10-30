@@ -87,9 +87,9 @@ T20 → T21 → T22 → T23 → T24 → T25 → T26 → T27
 
 **Done when**:
 
-- [ ] The four names are exported; no other change in `mutations.ts`
-- [ ] `mutations.spec.tsx` passes unchanged
-- [ ] Build gate passes; test count unchanged
+- [x] The four names are exported; no other change in `mutations.ts`
+- [x] `mutations.spec.tsx` passes unchanged
+- [x] Build gate passes; test count unchanged
 
 **Tests**: unit
 **Gate**: build
