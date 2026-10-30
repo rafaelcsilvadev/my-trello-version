@@ -195,6 +195,7 @@ export const en = {
       columnNameTooLong: 'Use up to 100 characters',
       cardTitleRequired: 'Give the task a title',
       cardTitleTooLong: 'Use up to 100 characters',
+      cardDescriptionTooLong: 'Use up to 5000 characters',
     },
     cardDetail: {
       close: 'Close',
@@ -204,6 +205,11 @@ export const en = {
       title: 'Title',
       due: 'Due date',
       removeDue: 'Remove due date',
+      description: 'Description',
+      descriptionPlaceholder: 'Add more details…',
+      counter: '{{n}} / 5000',
+      save: 'Save',
+      cancel: 'Cancel',
       notFound: {
         title: 'This task no longer exists',
         detail: 'It may have been deleted on another device.',

@@ -488,8 +488,8 @@ T20 → T21 → T22 → T23 → T24 → T25 → T26 → T27
 
 **Done when**:
 
-- [ ] Unit: counter reads "0 / 5000" for an empty value and follows typing; buttons hidden when not dirty; **Salvar** calls `onSave`, **Cancelar** calls `onCancel`; with the error **Salvar** is disabled and "Use até 5000 caracteres" shows; disabled state disables the textarea
-- [ ] Build gate passes; test count only grows
+- [x] Unit: counter reads "0 / 5000" for an empty value and follows typing; buttons hidden when not dirty; **Salvar** calls `onSave`, **Cancelar** calls `onCancel`; with the error **Salvar** is disabled and "Use até 5000 caracteres" shows; disabled state disables the textarea
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build

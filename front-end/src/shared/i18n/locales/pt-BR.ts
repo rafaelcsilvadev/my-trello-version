@@ -197,6 +197,7 @@ export const ptBR = {
       columnNameTooLong: 'Use até 100 caracteres',
       cardTitleRequired: 'Dê um título à tarefa',
       cardTitleTooLong: 'Use até 100 caracteres',
+      cardDescriptionTooLong: 'Use até 5000 caracteres',
     },
     cardDetail: {
       close: 'Fechar',
@@ -206,6 +207,11 @@ export const ptBR = {
       title: 'Título',
       due: 'Prazo',
       removeDue: 'Remover prazo',
+      description: 'Descrição',
+      descriptionPlaceholder: 'Adicione mais detalhes…',
+      counter: '{{n}} / 5000',
+      save: 'Salvar',
+      cancel: 'Cancelar',
       notFound: {
         title: 'Esta tarefa não existe mais',
         detail: 'Ela pode ter sido excluída em outro dispositivo.',

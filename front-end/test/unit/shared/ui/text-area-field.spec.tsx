@@ -99,6 +99,21 @@ describe('TextAreaField', () => {
     );
   });
 
+  it('disables the textarea when isDisabled is set', () => {
+    render(
+      <TextAreaField
+        label="Descrição"
+        value=""
+        onChange={() => {}}
+        isDisabled
+      />,
+    );
+
+    expect(
+      screen.getByLabelText<HTMLTextAreaElement>('Descrição').disabled,
+    ).toBe(true);
+  });
+
   it('attaches inputRef to the textarea element', () => {
     const inputRef = createRef<HTMLTextAreaElement>();
     render(
