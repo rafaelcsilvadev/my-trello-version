@@ -244,8 +244,8 @@ T18 → T19 → T20 → T21
 
 **Done when**:
 
-- [ ] Unit: `PATCH` body is the given body; the item shows the new `text`/`done` at once; ticking adds 1 to `done`, unticking removes 1, a text-only change leaves the progress alone; on failure only this change is reverted (an overlapping text edit of the same item survives a failed toggle); the board is refetched once after the last change settles; the mutation's `id` is the item id
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `PATCH` body is the given body; the item shows the new `text`/`done` at once; ticking adds 1 to `done`, unticking removes 1, a text-only change leaves the progress alone; on failure only this change is reverted (an overlapping text edit of the same item survives a failed toggle); the board is refetched once after the last change settles; the mutation's `id` is the item id
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
