@@ -198,6 +198,10 @@ export const en = {
       cardDescriptionTooLong: 'Use up to 5000 characters',
     },
     cardDetail: {
+      dialog: 'Task detail',
+      back: 'Back',
+      column: 'Column',
+      labels: 'Labels',
       close: 'Close',
       done: 'Completed',
       doneBadge: 'Completed',

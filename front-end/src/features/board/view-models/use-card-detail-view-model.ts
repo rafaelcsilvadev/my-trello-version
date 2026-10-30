@@ -100,7 +100,7 @@ export function useCardDetailViewModel(boardId: string, cardId: string) {
 
   const descriptionError =
     descriptionDraft !== null && isDescriptionTooLong(descriptionDraft)
-      ? 'cardDescriptionTooLong'
+      ? ('cardDescriptionTooLong' as const)
       : null;
 
   // Done, title, due date and description save silently (FBV-31 rule).
