@@ -306,7 +306,7 @@ describe('CardDetail', () => {
     expect(await screen.findByRole('textbox', { name: 'Título' })).toBeTruthy();
   });
 
-  it('shows the label chips in board order', async () => {
+  it('shows the label chips in board order, with no control', async () => {
     detailApi();
     await renderReady();
 
@@ -316,6 +316,9 @@ describe('CardDetail', () => {
         .getAllByRole('listitem')
         .map((item) => item.textContent),
     ).toEqual(['Urgent', 'Bug']);
+    // No "+" or remove control: labels change in a later feature.
+    const block = labels.parentElement!;
+    expect(within(block).queryAllByRole('button')).toHaveLength(0);
   });
 
   it('wires the editable fields to the card and its changes', async () => {
