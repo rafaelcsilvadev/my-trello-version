@@ -210,6 +210,8 @@ export const en = {
       counter: '{{n}} / 5000',
       save: 'Save',
       cancel: 'Cancel',
+      archivedNotice: 'Archived task · read-only',
+      boardArchivedNotice: 'Archived board · read-only',
       notFound: {
         title: 'This task no longer exists',
         detail: 'It may have been deleted on another device.',
