@@ -55,6 +55,7 @@ function renderColumn({
         status={status}
         labels={labels}
         today={today}
+        onOpenCard={() => {}}
         onRetry={onRetry}
       />
     </I18nextProvider>,
@@ -107,10 +108,13 @@ describe('ArchivedCardsColumn', () => {
     expect(checkboxes.map((box) => box.checked)).toEqual([true, false]);
   });
 
-  it('offers no menu, create field or other button', () => {
+  it('offers no menu, create field or button other than the tiles', () => {
     renderColumn();
 
-    expect(screen.queryByRole('button')).toBeNull();
+    // Each tile is a button that opens the card (FCD-02).
+    expect(
+      screen.getAllByRole('button').map((button) => button.ariaLabel),
+    ).toEqual(['Write release notes', 'Review PR']);
     expect(screen.queryByRole('textbox')).toBeNull();
   });
 

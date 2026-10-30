@@ -83,6 +83,7 @@ type BoardColumnsProps = {
   onCloseAddCard: () => void;
   onCreateCard: (listId: string, raw: string) => Promise<ItemFieldError | null>;
   onToggleDone: (card: Card) => void;
+  onOpenCard: (cardId: string) => void;
   onCreateList: (raw: string) => Promise<ItemFieldError | null>;
   onRestoreList: (listId: string) => void;
   onDeleteList: (listId: string) => void;
@@ -113,6 +114,7 @@ export function BoardColumns({
   onCloseAddCard,
   onCreateCard,
   onToggleDone,
+  onOpenCard,
   onCreateList,
   onRestoreList,
   onDeleteList,
@@ -327,6 +329,7 @@ export function BoardColumns({
               onCloseAddCard={onCloseAddCard}
               onCreateCard={(raw) => onCreateCard(listId, raw)}
               onToggleDone={onToggleDone}
+              onOpenCard={onOpenCard}
               move={columnMove(listId)}
               cardDrop={cardDrop(listId)}
               cardMove={cardMove}
@@ -340,6 +343,7 @@ export function BoardColumns({
               status={archived.cardsStatus}
               labels={labels}
               today={today}
+              onOpenCard={onOpenCard}
               onRetry={onRetryArchived}
             />
             <ArchivedColumnsSection

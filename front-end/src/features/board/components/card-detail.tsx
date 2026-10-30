@@ -1,4 +1,5 @@
 import { ArrowLeft, Columns3, X } from 'lucide-react';
+import { useEffect } from 'react';
 import { Dialog, Modal, ModalOverlay } from 'react-aria-components';
 import { useTranslation } from 'react-i18next';
 
@@ -28,6 +29,17 @@ export function CardDetail({ boardId, cardId }: CardDetailProps) {
   const { state, actions } = useCardDetailViewModel(boardId, cardId);
   const { card, list, mode } = state;
   const isDisabled = mode !== 'editable';
+
+  // React Aria restores focus to the tile that opened the detail; a detail
+  // opened by URL has no such tile, so focus it on close (FCD-08).
+  useEffect(
+    () => () => {
+      document
+        .querySelector<HTMLElement>(`[data-card-id="${CSS.escape(cardId)}"]`)
+        ?.focus();
+    },
+    [cardId],
+  );
 
   return (
     <ModalOverlay

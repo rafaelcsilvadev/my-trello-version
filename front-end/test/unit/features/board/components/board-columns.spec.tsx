@@ -96,6 +96,7 @@ function renderColumns(options: RenderOptions = {}) {
       (listId: string, raw: string) => Promise<ItemFieldError | null>
     >(() => Promise.resolve(null)),
     onToggleDone: vi.fn<(card: Card) => void>(),
+    onOpenCard: vi.fn<(cardId: string) => void>(),
     onCreateList: vi.fn<(raw: string) => Promise<ItemFieldError | null>>(() =>
       Promise.resolve(null),
     ),
@@ -522,7 +523,6 @@ describe('BoardColumns', () => {
       for (const name of ['Arquivadas', 'Colunas arquivadas']) {
         const region = screen.getByRole('region', { name });
         expect(region.querySelector('[draggable]')).toBeNull();
-        expect(region.querySelector('[data-card-id]')).toBeNull();
         expect(region.querySelector('[data-column-id]')).toBeNull();
         expect(fireEvent.dragOver(region)).toBe(true);
       }

@@ -116,6 +116,7 @@ function renderColumn({
       Promise.resolve(null),
     ),
     onToggleDone: vi.fn<(card: Card) => void>(),
+    onOpenCard: vi.fn<(cardId: string) => void>(),
   };
   render(
     <I18nextProvider i18n={createI18n(language)}>
@@ -443,7 +444,10 @@ describe('BoardColumn', () => {
       ).toBeNull();
       expect(document.querySelector('[draggable]')).toBeNull();
       expect(document.querySelector('[data-column-id]')).toBeNull();
-      expect(document.querySelector('[tabindex="0"]')).toBeNull();
+      // Only the tiles stay focusable, to open the card (FCD-02).
+      expect(
+        document.querySelector('[tabindex="0"]:not([data-card-id])'),
+      ).toBeNull();
       fireEvent.keyDown(screen.getByText('To do'), { key: ' ' });
       expect(move.onPick).not.toHaveBeenCalled();
     });
