@@ -1,5 +1,5 @@
 import { QueryClientProvider } from '@tanstack/react-query';
-import { act, renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, screen, waitFor } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import type { ReactNode } from 'react';
 import { I18nextProvider } from 'react-i18next';
@@ -90,6 +90,27 @@ async function setupReady() {
   );
   return rendered;
 }
+
+// Answers each create with the next queued reply, or with a 201 of the sent text.
+function createServer(...replies: (() => Response | Promise<Response>)[]) {
+  const bodies: unknown[] = [];
+  server.use(
+    http.post(itemsUrl, async ({ request }) => {
+      const body = (await request.json()) as { text: string };
+      bodies.push(body);
+      const created = () =>
+        HttpResponse.json(
+          checklistItem('i4', cardId, { text: body.text, position: 4000 }),
+          { status: 201 },
+        );
+      return (replies.shift() ?? created)();
+    }),
+  );
+  return bodies;
+}
+
+const saveFail = 'Não foi possível salvar. Tente novamente.';
+const conflict = 'Este item foi arquivado. Recarregue para ver o estado atual.';
 
 // Holds a reply until the test opens it, to see the state before the answer.
 function gate() {
@@ -235,5 +256,117 @@ describe('useCardChecklistViewModel — progress', () => {
         isComplete: true,
       }),
     );
+  });
+});
+
+describe('useCardChecklistViewModel — add', () => {
+  it('sends the trimmed text and clears the field on 201', async () => {
+    checklistServer();
+    const bodies = createServer();
+    const { result } = await setupReady();
+
+    act(() => result.current.actions.setNewText('  Comprar pão  '));
+    act(() => result.current.actions.add());
+
+    await waitFor(() => expect(result.current.state.newText).toBe(''));
+    expect(bodies).toEqual([{ text: 'Comprar pão' }]);
+    expect(result.current.state.error).toBeNull();
+  });
+
+  it('ignores a second add while the first is in flight', async () => {
+    checklistServer();
+    const hold = gate();
+    const bodies = createServer(async () => {
+      await hold.opened;
+      return HttpResponse.json(checklistItem('i4', cardId), { status: 201 });
+    });
+    const { result } = await setupReady();
+    act(() => result.current.actions.setNewText('Comprar pão'));
+    act(() => result.current.actions.add());
+    await waitFor(() => expect(result.current.state.isCreating).toBe(true));
+
+    act(() => result.current.actions.add());
+
+    expect(result.current.state.newText).toBe('Comprar pão');
+    hold.open();
+    await waitFor(() => expect(result.current.state.isCreating).toBe(false));
+    expect(bodies).toHaveLength(1);
+  });
+
+  it('keeps text typed while the create was in flight', async () => {
+    checklistServer();
+    const hold = gate();
+    createServer(async () => {
+      await hold.opened;
+      return HttpResponse.json(checklistItem('i4', cardId), { status: 201 });
+    });
+    const { result } = await setupReady();
+    act(() => result.current.actions.setNewText('Comprar pão'));
+    act(() => result.current.actions.add());
+    await waitFor(() => expect(result.current.state.isCreating).toBe(true));
+
+    act(() => result.current.actions.setNewText('Comprar leite'));
+    hold.open();
+
+    await waitFor(() => expect(result.current.state.isCreating).toBe(false));
+    expect(result.current.state.newText).toBe('Comprar leite');
+  });
+
+  it.each([
+    ['   ', 'checklistItemRequired'],
+    ['a'.repeat(201), 'checklistItemTooLong'],
+  ])('rejects %j with %s and sends nothing', async (text, code) => {
+    checklistServer();
+    const bodies = createServer();
+    const { result } = await setupReady();
+
+    act(() => result.current.actions.setNewText(text));
+    act(() => result.current.actions.add());
+
+    expect(result.current.state.error).toEqual({ target: 'new', code });
+    expect(result.current.state.newText).toBe(text);
+    expect(result.current.state.isCreating).toBe(false);
+    expect(bodies).toEqual([]);
+  });
+
+  it('clears the error when the user types', async () => {
+    checklistServer();
+    const { result } = await setupReady();
+    act(() => result.current.actions.add());
+    expect(result.current.state.error).not.toBeNull();
+
+    act(() => result.current.actions.setNewText('C'));
+
+    expect(result.current.state.error).toBeNull();
+  });
+
+  it('a 5xx keeps the text and Tentar novamente resends it', async () => {
+    checklistServer();
+    const bodies = createServer(() => problem(500));
+    const { result } = await setupReady();
+    act(() => result.current.actions.setNewText(' Comprar pão '));
+    act(() => result.current.actions.add());
+
+    await screen.findByText(saveFail);
+    expect(result.current.state.newText).toBe(' Comprar pão ');
+    act(() => screen.getByRole('button', { name: 'Tentar novamente' }).click());
+
+    await waitFor(() => expect(result.current.state.newText).toBe(''));
+    expect(bodies).toEqual([{ text: 'Comprar pão' }, { text: 'Comprar pão' }]);
+  });
+
+  it('a 409 shows the conflict toast with Recarregar', async () => {
+    checklistServer();
+    createServer(() => problem(409));
+    const { result } = await setupReady();
+    act(() => result.current.actions.setNewText('Comprar pão'));
+    act(() => result.current.actions.add());
+
+    await screen.findByText(conflict);
+    expect(screen.getByRole('button', { name: 'Recarregar' })).toBeTruthy();
+    expect(
+      screen.queryByRole('button', { name: 'Tentar novamente' }),
+    ).toBeNull();
+    expect(result.current.state.newText).toBe('Comprar pão');
   });
 });
