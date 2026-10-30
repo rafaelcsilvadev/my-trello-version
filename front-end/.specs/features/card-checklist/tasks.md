@@ -394,8 +394,8 @@ T18 → T19 → T20 → T21
 
 **Done when**:
 
-- [ ] Unit: `remove` sends `DELETE` silently; failures follow the three toast paths; `isDirty` is true with a changed item draft, false with only `newText`, false after `cancelDraft` or `remove`
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `remove` sends `DELETE` silently; failures follow the three toast paths; `isDirty` is true with a changed item draft, false with only `newText`, false after `cancelDraft` or `remove`
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
