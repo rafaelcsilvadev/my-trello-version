@@ -563,8 +563,8 @@ T20 → T21 → T22 → T23 → T24 → T25 → T26 → T27
 
 **Done when**:
 
-- [ ] Unit: delete dialog shows "Excluir a tarefa definitivamente?", the text and **Cancelar** / **Excluir definitivamente** wired to callbacks; discard dialog shows "Descartar alterações?", "Você tem edições não salvas.", **Continuar editando** / **Descartar**; Esc in each calls the cancel / keep-editing callback
-- [ ] Build gate passes; test count only grows
+- [x] Unit: delete dialog shows "Excluir a tarefa definitivamente?", the text and **Cancelar** / **Excluir definitivamente** wired to callbacks; discard dialog shows "Descartar alterações?", "Você tem edições não salvas.", **Continuar editando** / **Descartar**; Esc in each calls the cancel / keep-editing callback
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
