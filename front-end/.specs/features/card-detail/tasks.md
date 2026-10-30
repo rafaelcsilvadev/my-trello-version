@@ -163,8 +163,8 @@ T20 → T21 → T22 → T23 → T24 → T25 → T26 → T27
 
 **Done when**:
 
-- [ ] Unit: `editable` for active card on active board; `archivedCard` for archived card; `archivedBoard` for any card of an archived board, archived card included; `findCardList` finds active and archived lists and returns `undefined` for a list of another board
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `editable` for active card on active board; `archivedCard` for archived card; `archivedBoard` for any card of an archived board, archived card included; `findCardList` finds active and archived lists and returns `undefined` for a list of another board
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
