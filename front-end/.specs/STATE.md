@@ -100,6 +100,14 @@ Decisions for the web app. They must conform to the global decisions in the root
 - **Date**: 2026-10-28
 - **Status**: active
 
+### FE-AD-013
+- **Decision**: Features that read and patch the same cached data stay in one feature folder. The card detail (4a), its checklist (4b) and its label popover (4c) live in `features/board`, as `card-detail-*` files, and reuse the board's query keys and optimistic pipeline (`useOptimisticBoardViewChange`, `BOARD_VIEW_CHANGE_KEY`). The card route `t/:cardId` is a child of `b/:boardId`, so the board stays mounted under the detail.
+- **Reason**: FE-AD-006 forbids one feature importing another; the detail must patch the board's card lists at once (FE-AD-009) and share one settle refetch with board changes. Moving the cache layer to `shared/` would put board domain code there and cost several refactor PRs.
+- **Trade-off**: `features/board` grows large; the ROADMAP still tracks 4a–4c as separate features with their own specs.
+- **Scope**: front-end (features `card-detail`, `card-checklist`, `card-labels`)
+- **Date**: 2026-10-30
+- **Status**: active
+
 ## Open Items
 
 ### P1
