@@ -338,8 +338,8 @@ T20 → T21 → T22 → T23 → T24 → T25 → T26 → T27
 
 **Done when**:
 
-- [ ] Unit: each action sends the exact body of its AC; unchanged trimmed title sends nothing; empty / 101-char title sets the error and sends nothing, 100 chars saves; `cancelTitle` restores and clears the error; description over 5000 sets the error and `saveDescription` sends nothing; empty description sends `null`; a failed title or description save restores the typed draft; title `400` maps to the field error with no toast; network failure toasts with retry, `409` with Recarregar, `404` toasts and refetches; done/title/due/description success shows no toast
-- [ ] Build gate passes; test count only grows
+- [x] Unit: each action sends the exact body of its AC; unchanged trimmed title sends nothing; empty / 101-char title sets the error and sends nothing, 100 chars saves; `cancelTitle` restores and clears the error; description over 5000 sets the error and `saveDescription` sends nothing; empty description sends `null`; a failed title or description save restores the typed draft; title `400` maps to the field error with no toast; network failure toasts with retry, `409` with Recarregar, `404` toasts and refetches; done/title/due/description success shows no toast
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
