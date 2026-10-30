@@ -269,8 +269,8 @@ T18 → T19 → T20 → T21
 
 **Done when**:
 
-- [ ] Unit: sends `DELETE`; the item leaves the cache at once; deleting a done item lowers `total` and `done`, a not-done item only `total`; on failure the item returns at its index and the progress is restored
-- [ ] Build gate passes; test count only grows
+- [x] Unit: sends `DELETE`; the item leaves the cache at once; deleting a done item lowers `total` and `done`, a not-done item only `total`; on failure the item returns at its index and the progress is restored
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
