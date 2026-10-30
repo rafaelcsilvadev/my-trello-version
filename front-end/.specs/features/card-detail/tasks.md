@@ -663,8 +663,8 @@ T20 → T21 → T22 → T23 → T24 → T25 → T26 → T27
 
 **Done when**:
 
-- [ ] Unit (rendered board, L-001): clicking an active tile, an archived tile ("Mostrar arquivadas" on) and a tile of an archived board opens the detail URL; each column and the archived column pass `onOpen` to every tile; after Esc, focus is on the tile of the closed card; direct URL close focuses the tile too
-- [ ] Build gate passes; test count only grows
+- [x] Unit (rendered board, L-001): clicking an active tile, an archived tile ("Mostrar arquivadas" on) and a tile of an archived board opens the detail URL; each column and the archived column pass `onOpen` to every tile; after Esc, focus is on the tile of the closed card; direct URL close focuses the tile too
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
