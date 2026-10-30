@@ -30,6 +30,7 @@ type RenderOptions = {
   isReadOnly?: boolean;
   language?: Language;
   move?: Partial<CardMove>;
+  canOpen?: boolean;
 };
 
 function moveProps(overrides: Partial<CardMove> = {}): CardMove {
@@ -66,9 +67,11 @@ function renderTile({
   isReadOnly = false,
   language = 'pt-BR',
   move: moveOverrides,
+  canOpen = false,
 }: RenderOptions = {}) {
   const move = moveProps(moveOverrides);
   const onToggleDone = vi.fn<(card: Card) => void>();
+  const onOpen = vi.fn<(cardId: string) => void>();
   const tileCard = cardFixture('c1', 'list-1', {
     title: 'Write release notes',
     ...card,
@@ -85,10 +88,11 @@ function renderTile({
         isReadOnly={isReadOnly}
         onToggleDone={onToggleDone}
         move={move}
+        onOpen={canOpen ? onOpen : undefined}
       />
     </I18nextProvider>,
   );
-  return { onToggleDone, tileCard, move };
+  return { onToggleDone, tileCard, move, onOpen };
 }
 
 function doneCheckbox() {
@@ -532,6 +536,136 @@ describe('CardTile', () => {
       renderTile({ language: 'en' });
 
       expect(screen.queryByRole('button', { name: 'Move to…' })).not.toBeNull();
+    });
+  });
+
+  describe('opening', () => {
+    function cardButton() {
+      return screen.getByRole('button', { name: 'Write release notes' });
+    }
+
+    // The visible box, where a real click lands, not the hidden input.
+    function checkboxBox() {
+      return doneCheckbox()
+        .closest('label')
+        ?.querySelector('span') as HTMLElement;
+    }
+
+    const tiles: { name: string; options: RenderOptions }[] = [
+      { name: 'an active', options: {} },
+      {
+        name: 'an archived',
+        options: {
+          mode: 'archived',
+          card: { archivedAt: localNoon(2026, 9, 1) },
+        },
+      },
+      { name: 'a read-only', options: { isReadOnly: true } },
+    ];
+
+    it.each(tiles)(
+      'makes $name tile a focusable button with the card id',
+      ({ options }) => {
+        renderTile({ ...options, canOpen: true });
+
+        const card = cardButton();
+        expect(card.tabIndex).toBe(0);
+        expect(card.dataset.cardId).toBe('c1');
+        expect(
+          card.classList.contains('focus-visible:outline-border-focus'),
+        ).toBe(true);
+      },
+    );
+
+    it.each(tiles)('opens $name tile on click', async ({ options }) => {
+      const user = userEvent.setup();
+      const { onOpen } = renderTile({ ...options, canOpen: true });
+
+      await user.click(screen.getByText('Write release notes'));
+
+      expect(onOpen).toHaveBeenCalledExactlyOnceWith('c1');
+    });
+
+    it.each(tiles)('opens $name tile on Enter', ({ options }) => {
+      const { onOpen } = renderTile({ ...options, canOpen: true });
+
+      const notPrevented = fireEvent.keyDown(cardButton(), { key: 'Enter' });
+
+      expect(onOpen).toHaveBeenCalledExactlyOnceWith('c1');
+      expect(notPrevented).toBe(false);
+    });
+
+    it('does not open when the checkbox is clicked', async () => {
+      const user = userEvent.setup();
+      const { onOpen, onToggleDone } = renderTile({ canOpen: true });
+
+      await user.click(checkboxBox());
+
+      expect(onToggleDone).toHaveBeenCalledOnce();
+      expect(onOpen).not.toHaveBeenCalled();
+    });
+
+    it('does not open when the disabled checkbox of an archived card is clicked', async () => {
+      const user = userEvent.setup();
+      const { onOpen } = renderTile({
+        mode: 'archived',
+        card: { archivedAt: localNoon(2026, 9, 1) },
+        canOpen: true,
+      });
+
+      await user.click(checkboxBox());
+
+      expect(onOpen).not.toHaveBeenCalled();
+    });
+
+    it('does not open when the menu button, its item or the menu is clicked', async () => {
+      const user = userEvent.setup();
+      const { onOpen } = renderTile({ canOpen: true });
+
+      await user.click(screen.getByRole('button', { name: 'Mover para…' }));
+      fireEvent.click(screen.getByRole('menu'));
+      fireEvent.click(screen.getByRole('menuitem', { name: 'Mover para…' }));
+
+      expect(onOpen).not.toHaveBeenCalled();
+    });
+
+    it('drops and does not open on Enter while lifted', () => {
+      const { onOpen, move } = renderTile({
+        canOpen: true,
+        move: { isLifted: true },
+      });
+
+      fireEvent.keyDown(cardButton(), { key: 'Enter' });
+
+      expect(move.onDrop).toHaveBeenCalledOnce();
+      expect(onOpen).not.toHaveBeenCalled();
+    });
+
+    it('still picks on Space and does not open', () => {
+      const { onOpen, move } = renderTile({ canOpen: true });
+
+      fireEvent.keyDown(cardButton(), { key: ' ' });
+
+      expect(move.onPick).toHaveBeenCalledExactlyOnceWith('c1');
+      expect(onOpen).not.toHaveBeenCalled();
+    });
+
+    it('does not open on Enter pressed on the menu button', () => {
+      const { onOpen } = renderTile({ canOpen: true });
+
+      fireEvent.keyDown(screen.getByRole('button', { name: 'Mover para…' }), {
+        key: 'Enter',
+      });
+
+      expect(onOpen).not.toHaveBeenCalled();
+    });
+
+    it('leaves archived and read-only tiles unfocusable without onOpen', () => {
+      renderTile({ isReadOnly: true });
+
+      expect(
+        screen.queryByRole('button', { name: 'Write release notes' }),
+      ).toBeNull();
     });
   });
 });
