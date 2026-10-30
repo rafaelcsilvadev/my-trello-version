@@ -248,7 +248,7 @@ The board screen (features `board`, `board-dnd`, `board-filters`) shows cards, b
 | FCD-06 | P1: Open and close the card detail | Verify | ✅ Verified |
 | FCD-07 | P1: Open and close the card detail | Verify | ✅ Verified |
 | FCD-08 | P1: Open and close the card detail | Verify | ✅ Verified |
-| FCD-09 | P1: Open and close the card detail | Verify | ❌ Needs Fix |
+| FCD-09 | P1: Open and close the card detail | Verify | ✅ Verified |
 | FCD-10 | P1: Open and close the card detail | Verify | ✅ Verified |
 | FCD-11 | P1: Open and close the card detail | Verify | ✅ Verified |
 | FCD-12 | P1: Open and close the card detail | Verify | ✅ Verified |
@@ -268,12 +268,12 @@ The board screen (features `board`, `board-dnd`, `board-filters`) shows cards, b
 | FCD-26 | P1: Set the due date and edit the description | Verify | ✅ Verified |
 | FCD-27 | P1: Set the due date and edit the description | Verify | ✅ Verified |
 | FCD-28 | P1: Set the due date and edit the description | Verify | ✅ Verified |
-| FCD-29 | P1: Set the due date and edit the description | Verify | ❌ Needs Fix |
+| FCD-29 | P1: Set the due date and edit the description | Verify | ✅ Verified |
 | FCD-30 | P1: Set the due date and edit the description | Verify | ✅ Verified |
 | FCD-31 | P1: Move and archive from the detail | Verify | ✅ Verified |
 | FCD-32 | P1: Move and archive from the detail | Verify | ✅ Verified |
 | FCD-33 | P1: Move and archive from the detail | Verify | ✅ Verified |
-| FCD-34 | P1: Archived card: restore or delete | Verify | ❌ Needs Fix |
+| FCD-34 | P1: Archived card: restore or delete | Verify | ✅ Verified |
 | FCD-35 | P1: Archived card: restore or delete | Verify | ✅ Verified |
 | FCD-36 | P1: Archived card: restore or delete | Verify | ✅ Verified |
 | FCD-37 | P1: Archived card: restore or delete | Verify | ✅ Verified |
@@ -287,7 +287,7 @@ The board screen (features `board`, `board-dnd`, `board-filters`) shows cards, b
 | FCD-45 | P1: Unsaved edits | Verify | ✅ Verified |
 | FCD-46 | P1: Unsaved edits | Verify | ✅ Verified |
 | FCD-47 | Edge cases | Verify | ✅ Verified |
-| FCD-48 | Edge cases | Verify | ❌ Needs Fix |
+| FCD-48 | Edge cases | Verify | ✅ Verified |
 | FCD-49 | Edge cases | Verify | ✅ Verified |
 | FCD-50 | Edge cases | Verify | ✅ Verified |
 | FCD-51 | Edge cases | Verify | ✅ Verified |

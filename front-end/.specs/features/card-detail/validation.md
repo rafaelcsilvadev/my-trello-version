@@ -3,9 +3,19 @@
 **Date**: 2026-10-30
 **Spec**: `front-end/.specs/features/card-detail/spec.md`
 **Diff range**: `972abaf..61a4f7b` (`972abaf` = merge of spec PR #301; `61a4f7b` = merge of PR #328, main HEAD). 27 non-merge commits touch `front-end/src` / `front-end/test`; `git diff --stat 972abaf..61a4f7b -- front-end/src front-end/test front-end/e2e` → 50 files, +5372/−31 (`src/` 27 files, `test/` 23 files).
-**Verifier**: independent sub-agent (author ≠ verifier), iteration 1
+**Iteration 2 diff range**: `61a4f7b..29b6863` (`29b6863` = merge of PR #333, main HEAD). Code commits `0032125` (Fix 1, PR #329), `8edcbb3` (Fix 2, PR #331), `bf99dd0` (Fix 3, PR #332), `d9cce54` (Fix 4, PR #333); the rest are docs (`c9342da`, `e8aabf1`, PR #330). `git diff --stat 61a4f7b..29b6863 -- front-end/src front-end/test` → 4 files, +60/−2: one `src` line (`card-detail-title.tsx:78`) and three spec files with only added tests and assertions.
+**Verifier**: independent sub-agent (author ≠ verifier), iteration 2 (iteration 1 kept below)
 
-## Validation: Card Detail - FAIL ❌ (iteration 1)
+## Validation: Card Detail - PASS ✅ (iteration 2)
+
+**Result (iteration 2)**: PASS ✅. All four iteration-1 gaps are closed with discriminating evidence. The build gate is green on `29b6863`: **1531** unit/component tests (1528 + 3), lint, typecheck, build; 26 e2e green in CI run `41125334821`. The sensor re-ran M19 and M24 exactly as in iteration 1 (both now **killed**), added M19b (reload only the card), M51 (Fix 3) and M52 (Fix 4), and re-ran M16, M22, M30: **8/8 killed**. The fix diff only adds tests and assertions; one test was renamed (`with no control`), none was removed or weakened. 53/53 FCD requirements are verified; no spec-precision gaps.
+
+1. **Fix 1 / FCD-09 ✅**: `cd.spec:263-287` holds the card `GET`, asserts an `aria-busy="true"` element inside the dialog and no "Título" textbox, then releases and asserts the textbox shows and the busy element is gone. M24 killed (`cd.spec`).
+2. **Fix 2 / FCD-48 ✅**: `vm.spec:750-767` waits for the settle refetch of a `409` `toggleDone`, clicks **Recarregar**, and asserts `requests[cardUrl]` and `requests[boardUrl]` each grow by exactly 1. M19 (only active cards) and M19b (only the card) killed (`vm.spec`).
+3. **Fix 3 / FCD-34 ✅**: `card-detail-title.tsx:78` now has `disabled:text-text-disabled`, like the due date (`card-detail-due-date.tsx:43`) and the description (`shared/ui/text-field.tsx:12` `inputClasses`, reused by `text-area-field.tsx:10`); `title.spec:202-210` asserts the class on the disabled title. M51 killed (`title.spec`).
+4. **Fix 4 / FCD-29 ✅**: `cd.spec:319-321` asserts `within(labels.parentElement).queryAllByRole('button')` has length 0. M52 (a "+" button in the labels block) killed (`cd.spec`).
+
+### Iteration 1 verdict: Card Detail - FAIL ❌
 
 **Result (iteration 1)**: FAIL ❌. The build gate is green (1528 unit/component tests, lint, typecheck, build; 26 e2e green in CI run `41117429464` on `61a4f7b`). 49 of 53 FCD requirements have full discriminating evidence. The sensor ran 48 behavior-level mutants: **46 killed, 2 survived** (M19, M24). One small code defect: the title input is not dimmed in the read-only modes (FCD-34). All four gaps are small; three are test-only.
 
@@ -19,6 +29,7 @@
 | Iteration | Range | Gate | ACs | Sensor | Verdict |
 | --------- | ----- | ---- | --- | ------ | ------- |
 | 1 (2026-10-30) | `972abaf..61a4f7b` | ✅ 1528 unit (local), 26 e2e (CI `41117429464`) | 49/53 strong, 2 partial (FCD-09, FCD-34), 2 with a weak conjunct (FCD-29, FCD-48) | 46/48 killed, M19 and M24 survived | ❌ FAIL, Fixes 1–4 |
+| 2 (2026-10-30) | `61a4f7b..29b6863` | ✅ 1531 unit (local), 26 e2e (CI `41125334821`) | 53/53 strong | 8/8 killed (M19, M24 re-run; M19b, M51, M52 new; M16, M22, M30 spot re-runs) | ✅ PASS |
 
 ---
 
@@ -27,12 +38,13 @@
 | Task | Status | Notes |
 | ---- | ------ | ----- |
 | T1..T27 | ✅ Done | `tasks.md`: `- [ ]` → `0`, `- [x]` → `55`. T27 (feature done) is checked; CI run `41117429464` on `61a4f7b` confirms the full gate including e2e. |
+| Fixes 1–4 (it. 2) | ✅ Done | PRs #329, #331, #332, #333 merged; CI run `41125334821` on `29b6863` green, e2e included. |
 
 ---
 
 ## Spec-Anchored Acceptance Criteria
 
-Paths are relative to `front-end/test/`. Line numbers are read on `61a4f7b`. Short names: `model.spec` = `unit/features/board/model/card-detail.spec.ts`; `q.spec` = `unit/features/board/api/card-detail-queries.spec.tsx`; `cm.spec` = `unit/features/board/api/card-mutations.spec.tsx`; `mut.spec` = `unit/features/board/api/mutations.spec.tsx`; `vm.spec` = `unit/features/board/view-models/use-card-detail-view-model.spec.tsx` (PT-BR); `cd.spec` = `unit/features/board/components/card-detail.spec.tsx` (PT-BR); `title.spec`, `desc.spec`, `due.spec`, `foot.spec`, `notice.spec`, `states.spec`, `dlg.spec` = `unit/features/board/components/card-detail-{title,description,due-date,footer,notices,states,dialogs}.spec.tsx`; `tile.spec` = `unit/features/board/components/card-tile.spec.tsx`; `screen.spec` = `unit/features/board/components/board-screen.spec.tsx` (EN); `page.spec` = `unit/pages/card-detail-page.spec.tsx` (EN); `notifier.spec` = `unit/shared/ui/toast/use-save-failure-notifier.spec.tsx`; `e2e` = `e2e/card-detail.e2e-spec.ts` (EN, real API). "Mx" points to a sensor mutant.
+Paths are relative to `front-end/test/`. Line numbers are read on `61a4f7b`, except the iteration-2 evidence (marked "it. 2"), read on `29b6863`; in `cd.spec`, `61a4f7b` lines 263-293 moved by +26 and lines after 293 by +29 in iteration 2. Short names: `model.spec` = `unit/features/board/model/card-detail.spec.ts`; `q.spec` = `unit/features/board/api/card-detail-queries.spec.tsx`; `cm.spec` = `unit/features/board/api/card-mutations.spec.tsx`; `mut.spec` = `unit/features/board/api/mutations.spec.tsx`; `vm.spec` = `unit/features/board/view-models/use-card-detail-view-model.spec.tsx` (PT-BR); `cd.spec` = `unit/features/board/components/card-detail.spec.tsx` (PT-BR); `title.spec`, `desc.spec`, `due.spec`, `foot.spec`, `notice.spec`, `states.spec`, `dlg.spec` = `unit/features/board/components/card-detail-{title,description,due-date,footer,notices,states,dialogs}.spec.tsx`; `tile.spec` = `unit/features/board/components/card-tile.spec.tsx`; `screen.spec` = `unit/features/board/components/board-screen.spec.tsx` (EN); `page.spec` = `unit/pages/card-detail-page.spec.tsx` (EN); `notifier.spec` = `unit/shared/ui/toast/use-save-failure-notifier.spec.tsx`; `e2e` = `e2e/card-detail.e2e-spec.ts` (EN, real API). "Mx" points to a sensor mutant.
 
 ### P1: Open and close the card detail
 
@@ -46,7 +58,7 @@ Paths are relative to `front-end/test/`. Line numbers are read on `61a4f7b`. Sho
 | FCD-06 | Header shows the card's current column | `cd.spec:132` `within(dialog).getByText('Backlog')`; `vm.spec:396-415` active and archived column; `e2e:191` (M28 killed) | ✅ |
 | FCD-07 | X, back arrow, Esc, backdrop, browser Back with no edits → `/b/{boardId}` | `cd.spec:145-155` Fechar/Voltar, `:157-169` Esc, `:171-179` backdrop, all `closedPath` `toBe(boardPath)`; `vm.spec:982-989` close (M26 killed). Browser Back without edits is plain router navigation with the same blocker predicate (`dirty && ...`), proven open by `vm.spec:982` | ✅ |
 | FCD-08 | On close, focus goes to the tile when on screen | `page.spec:133-149` after Esc `document.activeElement` `toBe(tile)`; `:151-166` same for a detail opened by URL (M27 killed) | ✅ |
-| FCD-09 | Skeleton while loading | `vm.spec:281-309` status `'loading'` while each query is held; `states.spec:16-27` `aria-busy="true"`, no controls. **No test renders `CardDetail` while loading** (M24 survived) | ❌ Partial → Fix 1 |
+| FCD-09 | Skeleton while loading | `vm.spec:281-309` status `'loading'` while each query is held; `states.spec:16-27` `aria-busy="true"`, no controls. it. 2: `cd.spec:263-287` card `GET` held → `dialog.querySelector('[aria-busy="true"]')` `not.toBeNull()`, "Título" textbox `toBeNull()`; released → textbox shown, busy element `toBeNull()` (M24 killed, it. 2; it. 1 survived) | ✅ (Fix 1) |
 | FCD-10 | Network/5xx → "Não foi possível carregar" + **Tentar novamente** that loads again | `vm.spec:332-357` status `'error'`, retry refetches only the failed query; `cd.spec:263-281` alert text `'Não foi possível carregar'`, click → title textbox shown | ✅ |
 | FCD-11 | `404` or other-board card → "Esta tarefa não existe mais" + **Fechar** → `/b/{boardId}` | `vm.spec:311-330` 404 on card/board and card of list `l-other` → `'notFound'` (M6, M21 killed); `states.spec:41-71` heading text, `onClose` once; `page.spec:120-131`; `e2e:236-242` text, Close → URL `/b/{id}` | ✅ |
 | FCD-12 | `n` and `/` ignored while the detail is open | `page.spec:99-118` `fireEvent.keyDown(document.body,{key:'/'|'n'})` `toBe(true)` (not handled) at the detail route, `false` on the board (M25 killed) | ✅ |
@@ -76,7 +88,7 @@ Paths are relative to `front-end/test/`. Line numbers are read on `61a4f7b`. Sho
 | FCD-26 | Salvar ≤ 5000 → `PATCH` draft as is (`null` when empty), buttons hidden | `vm.spec:641-653` `patch({description:' Notes '})` untrimmed, draft `null`; `:655-671` `''` → `null`; `model.spec:76-88`; `e2e:157-160` Save hidden (M3 killed) | ✅ |
 | FCD-27 | > 5000 → "Use até 5000 caracteres", Salvar disabled | `vm.spec:686-700` error, nothing sent; `desc.spec:109-123` message, Salvar `disabled` `true`; `cd.spec:322-323` (M2, M36 killed) | ✅ |
 | FCD-28 | Cancelar → saved description back, buttons hidden | `vm.spec:702-712` draft null, not dirty; `cd.spec:324-325` value `'Saved notes'` | ✅ |
-| FCD-29 | Applied labels as chips in board label order, **no control to change them** | `cd.spec:283-293` listitems `toEqual(['Urgent','Bug'])` from card order `['lb3','lb1']`; `vm.spec:429-444` skips deleted ids (M22 killed). "No control" has no assertion (the code has none) | ⚠️ Weak conjunct → Fix 4 |
+| FCD-29 | Applied labels as chips in board label order, **no control to change them** | `cd.spec:283-293` listitems `toEqual(['Urgent','Bug'])` from card order `['lb3','lb1']`; `vm.spec:429-444` skips deleted ids (M22 killed). it. 2: `cd.spec:319-321` `within(labels.parentElement).queryAllByRole('button')` `toHaveLength(0)` (M52 killed) | ✅ (Fix 4) |
 | FCD-30 | "Criada em {date}", doc §14 format | `foot.spec:54-64` `'Criada em 3 out, 2026'`, `'Created Oct 3, 2026'` | ✅ |
 
 ### P1: Move and archive from the detail
@@ -91,7 +103,7 @@ Paths are relative to `front-end/test/`. Line numbers are read on `61a4f7b`. Sho
 
 | AC | Spec-defined outcome | `file:line` + assertion | Result |
 | -- | -------------------- | ----------------------- | ------ |
-| FCD-34 | Notice "Tarefa arquivada · somente leitura"; done, title, due, description **disabled and dimmed**; Restaurar + Excluir instead of Mover/Arquivar | `cd.spec:349-374` status text, the four fields `disabled` `true`, no "Mover para…"; `notice.spec:31-38`; `foot.spec:80-94` exactly 2 buttons, Restaurar/Excluir wired (M29, M34 killed). **Dim**: checkbox `data-disabled:opacity-45`, due and description `disabled:text-text-disabled`; the title input has no disabled style (`card-detail-title.tsx:78`); no test asserts dimming | ❌ Partial → Fix 3 |
+| FCD-34 | Notice "Tarefa arquivada · somente leitura"; done, title, due, description **disabled and dimmed**; Restaurar + Excluir instead of Mover/Arquivar | `cd.spec:349-374` status text, the four fields `disabled` `true`, no "Mover para…"; `notice.spec:31-38`; `foot.spec:80-94` exactly 2 buttons, Restaurar/Excluir wired (M29, M34 killed). **Dim**: checkbox `data-disabled:opacity-45` (`shared/ui/checkbox.tsx:26`), due and description `disabled:text-text-disabled` (`card-detail-due-date.tsx:43`, `shared/ui/text-field.tsx:12`). it. 2: the title gets the same style (`card-detail-title.tsx:78`, `bf99dd0`); `title.spec:202-210` disabled title `classList.contains('disabled:text-text-disabled')` `toBe(true)` (M51 killed). The other three dim through shared styles (read in code, no class assertion; UAT item) | ✅ (Fix 3) |
 | FCD-35 | Restaurar → `POST .../unarchive`, toast "Tarefa restaurada", editable at once | `vm.spec:850-865` mode `'editable'` before reply, toast, `post('unarchive')`; `e2e:217-219` | ✅ |
 | FCD-36 | Restored card at the end of its column | `cm.spec:350-364` ids `['c1','c2','c3']`, `position: 2`; `model.spec:128-145`; `e2e:221-223` titles `['Clean backlog','Tag release','Write notes']` (M5, M45 killed) | ✅ |
 | FCD-37 | Excluir → dialog title, text, Cancelar + Excluir definitivamente | `dlg.spec:42-67` `alertdialog` name, exact text, both buttons (PT-BR, EN); `cd.spec:212-232` opened from the footer | ✅ |
@@ -120,18 +132,38 @@ Paths are relative to `front-end/test/`. Line numbers are read on `61a4f7b`. Sho
 | AC | Spec-defined outcome | `file:line` + assertion | Result |
 | -- | -------------------- | ----------------------- | ------ |
 | FCD-47 | Network/5xx save → undo on screen + "Não foi possível salvar. Tente novamente." + Tentar novamente | `vm.spec:730-748` 500 → `done` back `false`, text exact, buttons `['Tentar novamente']`; `vm.spec:619-637` retry resends; rollback per hook `cm.spec:133-192`, `:281-330`, `:366-384`, `:418-437`; `notifier.spec:53-75` | ✅ |
-| FCD-48 | `409` → undo + "Este item foi arquivado. Recarregue para ver o estado atual." + Recarregar | `vm.spec:730-748` 409 → text exact, `done` back, buttons `['Recarregar']`; `notifier.spec:77-92` reload on click (shared). The detail's reload target is never exercised (M19 survived) | ⚠️ Weak conjunct → Fix 2 |
-| FCD-49 | `404` → undo + save-fail toast + refetch → "Esta tarefa não existe mais" | `vm.spec:750-764` toast, no button, status `'notFound'` | ✅ (M19 survives here because the settle refetch also reloads) |
+| FCD-48 | `409` → undo + "Este item foi arquivado. Recarregue para ver o estado atual." + Recarregar | `vm.spec:730-748` 409 → text exact, `done` back, buttons `['Recarregar']`; `notifier.spec:77-92` reload on click (shared). it. 2: `vm.spec:750-767` after the settle refetch of a `409` toggle, click **Recarregar** → `requests[cardUrl]` `toBe(before + 1)` and `requests[boardUrl]` `toBe(before + 1)` (M19, M19b killed; it. 1 M19 survived) | ✅ (Fix 2) |
+| FCD-49 | `404` → undo + save-fail toast + refetch → "Esta tarefa não existe mais" | `vm.spec:750-764` toast, no button, status `'notFound'` | ✅ (in it. 1 M19 survived here because the settle refetch also reloads; it. 2 Fix 2 kills it through FCD-48) |
 | FCD-50 | Failed title/description save keeps the text as a draft | `vm.spec:590-602` draft `' Write tests '`, title back, dirty; `:714-726` draft `'Notes'` (M11, M12 killed) | ✅ |
 | FCD-51 | Restore/delete `409` → undo + "A coluna de origem está arquivada. Restaure a coluna primeiro." | `vm.spec:867-879` restore, mode back `'archivedCard'`, `['Recarregar']`; `:937-946` delete; `notifier.spec:185-207` (M14, M49 killed) | ✅ |
 | FCD-52 | Any save → same values on the board tile without reload | `cm.spec:87-110` active list patched at once, neighbor untouched; `:112-131` archived list; `:252-267`, `:350-364`, `:406-416`; `e2e:162-168` tile checked and "Tomorrow" after close (M46, M47, M50 killed) | ✅ |
 | FCD-53 | Description of 5000 allowed; title of 100 after trim saved | `vm.spec:673-684` 5000 sent; `vm.spec:545-556` `' '+100+' '` → `patch({title})`; `model.spec:67-74` 4999/5000/5001 (M2 killed) | ✅ |
 
-**Status**: ❌ 49/53 fully evidenced; FCD-09 and FCD-34 partial; FCD-29 and FCD-48 have one weak conjunct each. No spec-precision gaps: every FCD text, request, path and rule is precise. "Centered" (FCD-03) and "dimmed" (FCD-34) are visual, so they are left for UAT or a class assertion.
+**Status (iteration 2)**: ✅ 53/53 fully evidenced. Iteration 1: ❌ 49/53 fully evidenced; FCD-09 and FCD-34 partial; FCD-29 and FCD-48 have one weak conjunct each. No spec-precision gaps: every FCD text, request, path and rule is precise. "Centered" (FCD-03) and "dimmed" (FCD-34) are visual, so they are left for UAT or a class assertion.
 
 ---
 
 ## Discrimination Sensor
+
+### Iteration 2 sensor
+
+Temporary `git worktree add --detach` at `<scratchpad>/cd-sensor2` on `29b6863`, with the root, `front-end` and `packages/api-contract` `node_modules` symlinked from the real tree (no `pnpm install`, no `pnpm` script). Same runner and restore method as iteration 1: `node ./node_modules/vitest/vitest.mjs run test/unit/features/board test/unit/pages test/unit/shared/ui test/unit/app` (89 files, **1253** tests, all green unmutated; 1250 + the 3 fix tests), old text checked to match exactly once, file restored (in-memory copy + `git checkout -- <file>`) after each mutant.
+
+| # | File:line | Mutation | Killed? (failing specs) |
+| - | --------- | -------- | ----------------------- |
+| M19 | `view-models/use-card-detail-view-model.ts:59` | reload invalidates `boardViewKeys.cards(boardId, false)`, not `all(boardId)` (same as it. 1) | ✅ (vm: `Recarregar after a 409 reloads the card and the board`) |
+| M19b | `view-models/use-card-detail-view-model.ts:59` | reload invalidates only `boardViewKeys.card(boardId, cardId)` (board left out) | ✅ (vm, same test) |
+| M24 | `components/card-detail.tsx:104` | skeleton line → `{null}` (same as it. 1) | ✅ (cd: `shows the skeleton while the card loads`) |
+| M51 | `components/card-detail-title.tsx:78` | `disabled:text-text-disabled` removed from the title (Fix 3 reverted) | ✅ (title: `dims the title input when disabled…`) |
+| M52 | `components/card-detail.tsx:151` | `<button type="button">+</button>` added in the labels block after the `ul` | ✅ (cd: `shows the label chips in board order, with no control`) |
+| M16 | `view-models/use-card-detail-view-model.ts:212` | toggle sends the current `done` (spot re-run) | ✅ (vm, cd) |
+| M22 | `view-models/use-card-detail-view-model.ts:78` | applied labels reversed (spot re-run) | ✅ (vm, cd) |
+| M30 | `components/card-detail-title.tsx:50-51` | title Esc no longer `preventDefault` / `stopPropagation` (spot re-run) | ✅ (title, cd) |
+
+**Outcome (iteration 2)**: 8/8 killed → ✅
+**Isolation**: real-tree `git status --porcelain` was empty before and after (diffed against the saved baseline: identical); the worktree's porcelain after the last restore listed only the three `node_modules` symlinks; the symlinks were unlinked, then `git worktree remove --force` and `git worktree prune` ran; `git worktree list` shows only the main tree on `main`; `find front-end/node_modules node_modules packages/api-contract/node_modules -maxdepth 2 -xtype l` → 0 broken links; `front-end/node_modules/vitest/vitest.mjs` still resolves. No `git stash` used.
+
+### Iteration 1 sensor
 
 Temporary `git worktree add --detach` at `<scratchpad>/cd-sensor` on `61a4f7b`, with the root, `front-end` and `packages/api-contract` `node_modules` symlinked from the real tree (no `pnpm install`, no `pnpm` script). Each mutant was applied by a script that checks the old text matches exactly once, ran `node ./node_modules/vitest/vitest.mjs run test/unit/features/board test/unit/pages test/unit/shared/ui test/unit/app` (89 files, **1250** tests, all green unmutated), then restored the file (in-memory copy + `git checkout -- <file>`) before the next one. Paths are relative to `front-end/src/features/board/` unless stated.
 
@@ -208,10 +240,10 @@ Not performed; the orchestrator decides. Worth a look: centered modal at ≥ 768
 | Surgical changes | ✅ Outside the feature: `mutations.ts` exports and one card-query patch in `useMoveCard` (FCD-32), `conflictMessage` option in the notifier (FCD-51), `isDisabled` on `TextAreaField`, `onOpen` on `CardTile` and its three parents, child route under `b/:boardId`. Removed tests are the replaced placeholder route rows and archived-tile "not focusable" assertions, which FCD-02 makes obsolete |
 | No scope creep | ✅ No checklist, no label popover, no due time, no shortcuts-dialog row (all out of scope) |
 | Matches patterns | ✅ FE-AD-009/-010 optimistic per-item revert via `useOptimisticBoardViewChange`; `useSaveFailureNotifier`; React Aria modal; i18n keys in both locales (FE-AD-004); tests mirror `src/` (FE-AD-007) |
-| Spec-anchored outcome check (asserted values match spec) | ⚠️ Texts, bodies, paths and statuses exact; FCD-09 composition and FCD-34 dim missing |
-| Per-layer Coverage Expectation met (tasks.md matrix) | ⚠️ Model, api and view model meet it; the composed screen misses the loading state (L-001 says test each derived child through the rendered screen) |
+| Spec-anchored outcome check (asserted values match spec) | ✅ it. 2: texts, bodies, paths and statuses exact; FCD-09 composition (`cd.spec:263-287`) and FCD-34 title dim (`title.spec:202-210`) added. It. 1: ⚠️ both missing |
+| Per-layer Coverage Expectation met (tasks.md matrix) | ✅ it. 2: the composed screen now covers the loading state (`cd.spec:263-287`). It. 1: ⚠️ model, api and view model met it; the composed screen missed the loading state (L-001) |
 | Every test maps to a spec requirement - no unclaimed tests | ✅ Spot-checked `vm.spec`, `cd.spec`, `tile.spec`: each test cites an FCD AC, an edge case or a T-task Done-when (e.g. `vm.spec:1028-1038` same-path navigation not blocked → T13; `q.spec:173` `gcTime: 0` → T3) |
-| Documented guidelines followed: `front-end/.specs/STATE.md` (FE-AD-004, -006, -007, -009, -010, -011), lesson L-001 | ⚠️ L-001 missed once (M24) |
+| Documented guidelines followed: `front-end/.specs/STATE.md` (FE-AD-004, -006, -007, -009, -010, -011), lesson L-001 | ✅ it. 2: L-001 gap closed by Fix 1. It. 1: ⚠️ L-001 missed once (M24) |
 
 No new `// SPEC_DEVIATION` markers in this feature (the two in the tree are from board-filters).
 
@@ -231,6 +263,15 @@ No new `// SPEC_DEVIATION` markers in this feature (the two in the tree are from
 
 ## Gate Check
 
+**Iteration 2** (real tree, repo root, on `29b6863`):
+
+- **Result**: exit 0. Lint (`oxlint --deny-warnings` + Prettier "All matched files use Prettier code style!"), `tsc --noEmit` clean, **114 test files, 1531 passed, 0 failed, 0 skipped**, `vite build` OK (main JS chunk 726.86 kB)
+- **E2E (CI, not run locally)**: run `41125334821` on `29b6863` (main, PR #333), conclusion success, all 12 jobs green; job `front-end (test:e2e)` (`124302216846`): "Running 26 tests using 2 workers", **26 passed (1.0m)**
+- **Test count**: 1528 → 1531 (+3: Fix 1 `cd.spec:263`, Fix 2 `vm.spec:750`, Fix 3 `title.spec:202`; Fix 4 adds an assertion to an existing test). No test removed; the only changed line is the renamed `cd.spec:309` title
+- **Skipped / failures**: none
+
+**Iteration 1**:
+
 - **Gate command**: `pnpm --filter front-end lint && pnpm --filter front-end typecheck && pnpm --filter front-end test && pnpm --filter front-end build` (real tree, repo root, on `61a4f7b`)
 - **Result**: exit 0. Lint (`oxlint --deny-warnings` + Prettier "All matched files use Prettier code style!"), `tsc --noEmit` clean, **114 test files, 1528 passed, 0 failed, 0 skipped**, `vite build` OK (main JS chunk 726.83 kB; 706 kB after board-filters, +21 kB)
 - **E2E (CI, not run locally)**: run `41117429464` on `61a4f7b` (main, PR #328), conclusion success, all 12 jobs green; job `front-end (test:e2e)` (`124275175272`): "Running 26 tests using 2 workers", **26 passed (1.1m)**. Board-filters PASS had 20, so +6: the six `card-detail.e2e-spec.ts` journeys
@@ -244,12 +285,12 @@ No new `// SPEC_DEVIATION` markers in this feature (the two in the tree are from
 
 ## Fix Plans
 
-| Fix | AC | Kind | Priority |
-| --- | -- | ---- | -------- |
-| Fix 1 | FCD-09 (M24) | test only | Minor |
-| Fix 2 | FCD-48/FCD-49 (M19) | test only | Minor |
-| Fix 3 | FCD-34 dim | src + test | Cosmetic |
-| Fix 4 | FCD-29 no control | test only | Minor |
+| Fix | AC | Kind | Priority | Iteration 2 |
+| --- | -- | ---- | -------- | ----------- |
+| Fix 1 | FCD-09 (M24) | test only | Minor | ✅ Done, PR #329 (`0032125`), M24 killed |
+| Fix 2 | FCD-48/FCD-49 (M19) | test only | Minor | ✅ Done, PR #331 (`8edcbb3`), M19 + M19b killed |
+| Fix 3 | FCD-34 dim | src + test | Cosmetic | ✅ Done, PR #332 (`bf99dd0`), M51 killed |
+| Fix 4 | FCD-29 no control | test only | Minor | ✅ Done, PR #333 (`d9cce54`), M52 killed |
 
 ### Fix 1: The composed detail shows the skeleton while loading (FCD-09) - M24
 
@@ -290,19 +331,31 @@ No new `// SPEC_DEVIATION` markers in this feature (the two in the tree are from
 
 ## Requirement Traceability Update
 
-| Requirement | Previous Status | Iteration 1 |
-| ----------- | --------------- | ----------- |
-| FCD-01 – FCD-08, FCD-10 – FCD-28, FCD-30 – FCD-33, FCD-35 – FCD-47, FCD-49 – FCD-53 | Pending | ✅ Verified |
-| FCD-09 | Pending | ❌ Needs Fix (Fix 1) |
-| FCD-29 | Pending | ❌ Needs Fix (Fix 4) |
-| FCD-34 | Pending | ❌ Needs Fix (Fix 3) |
-| FCD-48 | Pending | ❌ Needs Fix (Fix 2) |
+| Requirement | Previous Status | Iteration 1 | Iteration 2 |
+| ----------- | --------------- | ----------- | ----------- |
+| FCD-01 – FCD-08, FCD-10 – FCD-28, FCD-30 – FCD-33, FCD-35 – FCD-47, FCD-49 – FCD-53 | Pending | ✅ Verified | ✅ Verified |
+| FCD-09 | Pending | ❌ Needs Fix (Fix 1) | ✅ Verified |
+| FCD-29 | Pending | ❌ Needs Fix (Fix 4) | ✅ Verified |
+| FCD-34 | Pending | ❌ Needs Fix (Fix 3) | ✅ Verified |
+| FCD-48 | Pending | ❌ Needs Fix (Fix 2) | ✅ Verified |
 
-`spec.md` Requirement Traceability updated: Phase `Verify`, Status as above.
+`spec.md` Requirement Traceability updated: Phase `Verify`, all 53 `✅ Verified` (iteration 2).
 
 ---
 
 ## Summary
+
+**Overall (iteration 2)**: ✅ Ready
+
+**Spec-anchored check**: 53/53 ACs matched the spec outcome; 0 spec-precision gaps
+**Sensor**: iteration 2 8/8 killed (M19 and M24 now killed); iteration 1 46/48
+**Gate**: 1531 unit/component passed, 0 failed, 0 skipped (`29b6863`); 26 e2e passed in CI `41125334821`
+
+**Iteration 2 notes**: the fixes add tests and one CSS class only; no test was removed or weakened. UAT is still worth a look for the centered modal (FCD-03) and the dimmed read-only fields (FCD-34: the title has a class assertion; checkbox, due date and description dim through shared styles without one).
+
+**Lessons (iteration 2)**: clean PASS, nothing new recorded. Candidates L-017, L-018, L-019 stay `candidate`: they are grounded in this feature, and promotion needs a second distinct feature (`lessons.py` has no manual confirm).
+
+### Iteration 1 summary
 
 **Overall**: ❌ Not Ready (4 small gaps; 3 test-only, 1 cosmetic src change)
 
