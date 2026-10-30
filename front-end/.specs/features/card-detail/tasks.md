@@ -288,8 +288,8 @@ T20 → T21 → T22 → T23 → T24 → T25 → T26 → T27
 
 **Done when**:
 
-- [ ] Unit: with a cached card query, a move updates its `listId` at once and a failure restores it; without a cached card query nothing breaks; existing move tests pass unchanged
-- [ ] Build gate passes; test count only grows
+- [x] Unit: with a cached card query, a move updates its `listId` at once and a failure restores it; without a cached card query nothing breaks; existing move tests pass unchanged
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build

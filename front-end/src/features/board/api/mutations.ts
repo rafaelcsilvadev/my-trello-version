@@ -203,7 +203,20 @@ export function useMoveCard(boardId: string) {
       ),
     ({ id, body }) => {
       let previous: CardSpot | null = null;
+      let previousListId: string | null = null;
       return [
+        // Keeps the card detail header on the new column (FCD-32).
+        {
+          key: boardViewKeys.card(boardId, id),
+          apply: (card: Card) => {
+            previousListId = card.listId;
+            return { ...card, listId: body.listId ?? card.listId };
+          },
+          revert: (card: Card) =>
+            previousListId === null
+              ? card
+              : { ...card, listId: previousListId },
+        },
         {
           key: boardViewKeys.cards(boardId, false),
           apply: (cards: Card[]) => {
