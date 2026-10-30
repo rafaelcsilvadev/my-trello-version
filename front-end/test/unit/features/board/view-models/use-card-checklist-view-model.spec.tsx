@@ -490,3 +490,131 @@ describe('useCardChecklistViewModel — toggle', () => {
     await waitFor(() => expect(requests.items).toBeGreaterThan(loaded));
   });
 });
+
+function textOf(items: ChecklistItem[], id: string) {
+  return items.find((item) => item.id === id)?.text;
+}
+
+describe('useCardChecklistViewModel — edit text', () => {
+  it('sends the trimmed text, shows it at once and clears the draft', async () => {
+    checklistServer();
+    const hold = gate();
+    const requests = updateServer(async () => {
+      await hold.opened;
+      return HttpResponse.json({ ...seed[0], text: 'Comprar leite' });
+    });
+    const { result } = await setupReady();
+
+    act(() => result.current.actions.setDraft('i2', '  Comprar leite  '));
+    expect(result.current.state.drafts).toEqual({ i2: '  Comprar leite  ' });
+    act(() => result.current.actions.submitDraft('i2'));
+
+    expect(result.current.state.drafts).toEqual({});
+    await waitFor(() =>
+      expect(textOf(result.current.state.items, 'i2')).toBe('Comprar leite'),
+    );
+    expect(requests).toEqual([{ id: 'i2', body: { text: 'Comprar leite' } }]);
+    hold.open();
+    await waitFor(() => expect(result.current.state.pendingIds.size).toBe(0));
+    expect(screen.getByRole('status').textContent).toBe('');
+  });
+
+  it('sends nothing and clears the draft when the trimmed text is unchanged', async () => {
+    checklistServer();
+    const requests = updateServer();
+    const { result } = await setupReady();
+    const saved = textOf(result.current.state.items, 'i2');
+
+    act(() => result.current.actions.setDraft('i2', ` ${saved} `));
+    act(() => result.current.actions.submitDraft('i2'));
+
+    expect(result.current.state.drafts).toEqual({});
+    expect(result.current.state.error).toBeNull();
+    expect(requests).toEqual([]);
+  });
+
+  it.each([
+    ['   ', 'checklistItemRequired'],
+    ['a'.repeat(201), 'checklistItemTooLong'],
+  ])(
+    'rejects %j with %s, keeps the draft and sends nothing',
+    async (text, code) => {
+      checklistServer();
+      const requests = updateServer();
+      const { result } = await setupReady();
+
+      act(() => result.current.actions.setDraft('i2', text));
+      act(() => result.current.actions.submitDraft('i2'));
+
+      expect(result.current.state.error).toEqual({ target: 'i2', code });
+      expect(result.current.state.drafts).toEqual({ i2: text });
+      expect(requests).toEqual([]);
+    },
+  );
+
+  it('sends a text of exactly 200 characters', async () => {
+    checklistServer();
+    const requests = updateServer();
+    const { result } = await setupReady();
+    const text = 'a'.repeat(200);
+
+    act(() => result.current.actions.setDraft('i2', ` ${text} `));
+    act(() => result.current.actions.submitDraft('i2'));
+
+    await waitFor(() =>
+      expect(requests).toEqual([{ id: 'i2', body: { text } }]),
+    );
+    expect(result.current.state.error).toBeNull();
+  });
+
+  it('cancelDraft clears the draft and the error', async () => {
+    checklistServer();
+    const { result } = await setupReady();
+    act(() => result.current.actions.setDraft('i2', '   '));
+    act(() => result.current.actions.submitDraft('i2'));
+    expect(result.current.state.error).not.toBeNull();
+
+    act(() => result.current.actions.cancelDraft('i2'));
+
+    expect(result.current.state.drafts).toEqual({});
+    expect(result.current.state.error).toBeNull();
+  });
+
+  it('typing clears the error of that item only', async () => {
+    checklistServer();
+    const { result } = await setupReady();
+    act(() => result.current.actions.setDraft('i2', '   '));
+    act(() => result.current.actions.submitDraft('i2'));
+
+    act(() => result.current.actions.setDraft('i3', 'Outro'));
+    expect(result.current.state.error).toEqual({
+      target: 'i2',
+      code: 'checklistItemRequired',
+    });
+    act(() => result.current.actions.setDraft('i2', 'C'));
+
+    expect(result.current.state.error).toBeNull();
+  });
+
+  it('a failed save puts the typed text back and leaves other drafts alone', async () => {
+    checklistServer();
+    const requests = updateServer(() => problem(500));
+    const { result } = await setupReady();
+    act(() => result.current.actions.setDraft('i3', 'Rascunho'));
+    act(() => result.current.actions.setDraft('i2', ' Comprar leite '));
+    act(() => result.current.actions.submitDraft('i2'));
+
+    await screen.findByText(saveFail);
+    await waitFor(() =>
+      expect(result.current.state.drafts).toEqual({
+        i2: ' Comprar leite ',
+        i3: 'Rascunho',
+      }),
+    );
+    expect(textOf(result.current.state.items, 'i2')).toBe(seed[0].text);
+    act(() => screen.getByRole('button', { name: 'Tentar novamente' }).click());
+
+    await waitFor(() => expect(requests).toHaveLength(2));
+    expect(requests[1]).toEqual({ id: 'i2', body: { text: 'Comprar leite' } });
+  });
+});

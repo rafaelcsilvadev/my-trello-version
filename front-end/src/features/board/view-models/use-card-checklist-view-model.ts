@@ -11,7 +11,7 @@ import {
 import { useChecklistItems } from '../api/checklist-queries';
 import { boardViewKeys } from '../api/keys';
 import { usePendingItemIds } from '../api/mutations';
-import { checklistProgress } from '../model/checklist';
+import { checklistProgress, type ItemDrafts } from '../model/checklist';
 import type { ChecklistItem, ItemFieldError } from '../model/types';
 import { validateChecklistItemText } from '../model/validation';
 
@@ -38,6 +38,7 @@ export function useCardChecklistViewModel(boardId: string, cardId: string) {
       }),
   );
   const [newText, setNewText] = useState('');
+  const [drafts, setDrafts] = useState<ItemDrafts>({});
   const [error, setError] = useState<ChecklistFieldError | null>(null);
   const items = query.data ?? noItems;
   const progress = useMemo(() => checklistProgress(items), [items]);
@@ -78,12 +79,48 @@ export function useCardChecklistViewModel(boardId: string, cardId: string) {
     );
   }
 
+  function putDraft(id: string, text: string) {
+    setDrafts((current) => ({ ...current, [id]: text }));
+  }
+
+  function dropDraft(id: string) {
+    setDrafts(({ [id]: _dropped, ...rest }) => rest);
+  }
+
+  function clearErrorOf(target: string) {
+    setError((current) => (current?.target === target ? null : current));
+  }
+
+  // Follows the card title: the draft clears before the request, since the cache
+  // patch already shows the text; a failed save puts the typed text back (FCL-37).
+  function submitDraft(id: string) {
+    const item = items.find((current) => current.id === id);
+    const raw = drafts[id];
+    if (!item || raw === undefined) return;
+    const invalid = validateChecklistItemText(raw);
+    if (invalid) {
+      setError({ target: id, code: invalid });
+      return;
+    }
+    dropDraft(id);
+    clearErrorOf(id);
+    const text = raw.trim();
+    // Unchanged text sends nothing (FCL-19).
+    if (text === item.text) return;
+    const variables = { id, body: { text } };
+    updateMutation.mutateAsync(variables).catch((err: ApiError) => {
+      putDraft(id, raw);
+      notify(err, () => runChange(updateMutation.mutateAsync, variables, null));
+    });
+  }
+
   return {
     query,
     state: {
       status,
       items,
       progress,
+      drafts,
       newText,
       isCreating: createMutation.isPending,
       error,
@@ -94,10 +131,20 @@ export function useCardChecklistViewModel(boardId: string, cardId: string) {
       setNewText: (text: string) => {
         setNewText(text);
         // Typing clears only the add field's error (FCL-15).
-        setError((current) => (current?.target === 'new' ? null : current));
+        clearErrorOf('new');
       },
       add,
       toggle,
+      setDraft: (id: string, text: string) => {
+        putDraft(id, text);
+        clearErrorOf(id);
+      },
+      submitDraft,
+      // Esc restores the saved text (FCL-22).
+      cancelDraft: (id: string) => {
+        dropDraft(id);
+        clearErrorOf(id);
+      },
     },
   };
 }
