@@ -198,4 +198,14 @@ describe('CardDetailTitle', () => {
         .disabled,
     ).toBe(true);
   });
+
+  it('dims the title input when disabled, like the other read-only fields', () => {
+    renderTitle({ isDisabled: true });
+
+    expect(
+      screen
+        .getByRole('textbox', { name: 'Título' })
+        .classList.contains('disabled:text-text-disabled'),
+    ).toBe(true);
+  });
 });
