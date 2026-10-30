@@ -5,6 +5,8 @@ import { nextPosition } from '../model/card-detail';
 import type { Card, UpdateCardDto } from '../model/types';
 import { boardViewKeys } from './keys';
 import {
+  fieldsPatch,
+  inList,
   type ItemVariables,
   removal,
   useOptimisticBoardViewChange,
@@ -25,9 +27,9 @@ export function useUpdateCard(boardId: string) {
         }),
       ),
     ({ id, body }) => {
-      const detail = fieldsPatch(body);
-      const active = fieldsPatch(body);
-      const archived = fieldsPatch(body);
+      const detail = fieldsPatch<Card>(body);
+      const active = fieldsPatch<Card>(body);
+      const archived = fieldsPatch<Card>(body);
       return [
         { key: boardViewKeys.card(boardId, id), ...detail },
         { key: boardViewKeys.cards(boardId, false), ...inList(id, active) },
@@ -52,7 +54,7 @@ export function useArchiveCard(boardId: string) {
       return [
         {
           key: boardViewKeys.card(boardId, id),
-          ...fieldsPatch({ archivedAt }),
+          ...fieldsPatch<Card>({ archivedAt }),
         },
         { key: boardViewKeys.cards(boardId, false), ...active },
         {
@@ -82,7 +84,7 @@ export function useRestoreCard(boardId: string) {
       return [
         {
           key: boardViewKeys.card(boardId, id),
-          ...fieldsPatch({ archivedAt: null }),
+          ...fieldsPatch<Card>({ archivedAt: null }),
         },
         { key: boardViewKeys.cards(boardId, true), ...archived },
         {
@@ -121,33 +123,4 @@ export function useDeleteCard(boardId: string) {
       },
     ],
   );
-}
-
-type CardPatch = {
-  apply: (card: Card) => Card;
-  revert: (card: Card) => Card;
-};
-
-// Sets the fields of `body` and remembers only their old values, so a failed
-// update leaves the fields another pending update changed (FE-AD-010).
-function fieldsPatch(body: Partial<Card>): CardPatch {
-  let previous: Partial<Card> | null = null;
-  return {
-    apply: (card) => {
-      previous = Object.fromEntries(
-        Object.keys(body).map((field) => [field, card[field as keyof Card]]),
-      );
-      return { ...card, ...body };
-    },
-    revert: (card) => (previous ? { ...card, ...previous } : card),
-  };
-}
-
-function inList(id: string, patch: CardPatch) {
-  return {
-    apply: (cards: Card[]) =>
-      cards.map((card) => (card.id === id ? patch.apply(card) : card)),
-    revert: (cards: Card[]) =>
-      cards.map((card) => (card.id === id ? patch.revert(card) : card)),
-  };
 }
