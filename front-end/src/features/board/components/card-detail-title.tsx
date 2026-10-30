@@ -75,7 +75,7 @@ export function CardDetailTitle({
           <Input
             onKeyDown={onKeyDown}
             onBlur={onSubmit}
-            className={`-ml-1 min-h-9 rounded-sm border border-transparent bg-transparent px-2 py-1 font-display text-2xl leading-snug font-semibold tracking-tight outline-0 hover:bg-surface-hover focus:border-border-focus focus:bg-surface-card focus:shadow-focus disabled:hover:bg-transparent data-invalid:border-danger ${card.done ? 'text-text-tertiary line-through' : 'text-text-primary'}`}
+            className={`-ml-1 min-h-9 rounded-sm border border-transparent bg-transparent px-2 py-1 font-display text-2xl leading-snug font-semibold tracking-tight outline-0 hover:bg-surface-hover focus:border-border-focus focus:bg-surface-card focus:shadow-focus disabled:text-text-disabled disabled:hover:bg-transparent data-invalid:border-danger ${card.done ? 'text-text-tertiary line-through' : 'text-text-primary'}`}
           />
           <FieldError className="text-xs text-red-600">
             {error === null ? null : t(`board.fieldErrors.${error}`)}
