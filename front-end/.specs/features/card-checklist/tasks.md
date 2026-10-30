@@ -219,8 +219,8 @@ T18 → T19 → T20 → T21
 
 **Done when**:
 
-- [ ] Unit: sends `POST` with `{ text }`; nothing changes in any cache while in flight; on success the item is last in the checklist cache and the card's `total` grew by 1 in the three caches; on `409`/`5xx` no cache changed and the error is an `ApiError`
-- [ ] Build gate passes; test count only grows
+- [x] Unit: sends `POST` with `{ text }`; nothing changes in any cache while in flight; on success the item is last in the checklist cache and the card's `total` grew by 1 in the three caches; on `409`/`5xx` no cache changed and the error is an `ApiError`
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
