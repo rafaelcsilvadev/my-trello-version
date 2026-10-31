@@ -1,5 +1,10 @@
 import { SquareCheck } from 'lucide-react';
-import { ProgressBar } from 'react-aria-components';
+import { type KeyboardEvent, useRef } from 'react';
+import {
+  TextField as AriaTextField,
+  Input,
+  ProgressBar,
+} from 'react-aria-components';
 import { useTranslation } from 'react-i18next';
 
 import { LoadError } from '@/shared/ui/load-error';
@@ -24,10 +29,24 @@ export function CardDetailChecklist({
   isDisabled,
 }: CardDetailChecklistProps) {
   const { t } = useTranslation();
-  const { status, items, progress, drafts, error, pendingIds } = state;
+  const { status, items, progress, drafts, newText, error, pendingIds } = state;
+  const addInput = useRef<HTMLInputElement>(null);
   const progressText = `${progress.done}/${progress.total}`;
   // Hidden without items, shown in every mode (FCL-07, FCL-33).
   const hasProgress = status === 'ready' && progress.total > 0;
+
+  function onAddKeyDown(event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      actions.add();
+    }
+  }
+
+  function onDelete(id: string) {
+    actions.remove(id);
+    // The pressed button goes away with its row (FCL-25).
+    addInput.current?.focus();
+  }
 
   return (
     <section className="flex flex-col gap-2">
@@ -81,11 +100,34 @@ export function CardDetailChecklist({
               onChange={(text) => actions.setDraft(item.id, text)}
               onSubmit={() => actions.submitDraft(item.id)}
               onCancel={() => actions.cancelDraft(item.id)}
-              onDelete={() => actions.remove(item.id)}
+              onDelete={() => onDelete(item.id)}
             />
           ))}
+          {isDisabled ? null : (
+            <AriaTextField
+              value={newText}
+              onChange={actions.setNewText}
+              aria-label={t('board.cardDetail.checklist.addItem')}
+              isInvalid={error?.target === 'new'}
+              validationBehavior="aria"
+              className="flex"
+            >
+              <Input
+                ref={addInput}
+                placeholder={t('board.cardDetail.checklist.addItem')}
+                onKeyDown={onAddKeyDown}
+                className="h-8.5 min-w-0 flex-1 rounded-sm border border-dashed border-border-default bg-transparent px-2.5 text-md text-text-primary outline-0 placeholder:text-text-tertiary focus:border-solid focus:border-border-focus focus:bg-surface-card data-invalid:border-danger"
+              />
+            </AriaTextField>
+          )}
         </div>
       ) : null}
+      {/* One message for the add field and the rows (FCL-23). */}
+      {error === null ? null : (
+        <p role="alert" className="text-xs text-red-600">
+          {t(`board.fieldErrors.${error.code}`)}
+        </p>
+      )}
     </section>
   );
 }
