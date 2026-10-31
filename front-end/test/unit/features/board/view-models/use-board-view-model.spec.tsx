@@ -1272,6 +1272,10 @@ describe('useBoardViewModel', () => {
         ['Backlog', ['c3', 'c2', 'c1']],
       ]);
       held.open();
+      // Ending before the move settles would leave it running into the next test.
+      await waitFor(() =>
+        expect(result.current.state.pendingIds.has('c3')).toBe(false),
+      );
     });
   });
 
