@@ -545,8 +545,8 @@ T18 → T19 → T20 → T21
 
 **Done when**:
 
-- [ ] E2E: open a card with items → order and "1/3"; add an item → it shows last and the field is empty; Enter on empty → "Escreva o item"; tick → count changes; rename + Enter → kept after reload; delete → gone after reload; close → the tile shows the new "done/total"; item edit + Esc → discard dialog; archived card → items locked
-- [ ] Full gate passes
+- [x] E2E: open a card with items → order and "1/3"; add an item → it shows last and the field is empty; Enter on empty → "Escreva o item"; tick → count changes; rename + Enter → kept after reload; delete → gone after reload; close → the tile shows the new "done/total"; item edit + Esc → discard dialog; archived card → items locked
+- [x] Full gate passes
 
 **Tests**: e2e
 **Gate**: full
