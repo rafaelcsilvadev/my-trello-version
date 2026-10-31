@@ -419,9 +419,9 @@ T18 → T19 → T20 → T21
 
 **Done when**:
 
-- [ ] Unit: checklist `404` → `notFound`; checklist `5xx` keeps the detail `ready`; a changed item draft makes `isDirty` true and a close navigation is blocked; text only in the add field does not block; read-only modes never block
-- [ ] `card-detail.spec.tsx`, `use-card-detail-view-model.spec.tsx`, `card-detail-page.spec.tsx` and `board-screen.spec.tsx` setups answer the checklist request; no MSW unhandled-request warning in the run
-- [ ] Build gate passes; test count only grows
+- [x] Unit: checklist `404` → `notFound`; checklist `5xx` keeps the detail `ready`; a changed item draft makes `isDirty` true and a close navigation is blocked; text only in the add field does not block; read-only modes never block
+- [x] `card-detail.spec.tsx`, `use-card-detail-view-model.spec.tsx`, `card-detail-page.spec.tsx` and `board-screen.spec.tsx` setups answer the checklist request; no MSW unhandled-request warning in the run
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build

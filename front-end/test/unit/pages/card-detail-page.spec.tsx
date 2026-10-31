@@ -33,6 +33,9 @@ function boardApi() {
     http.get(`${apiOrigin}/api/v1/cards/${card.id}`, () =>
       HttpResponse.json(card),
     ),
+    http.get(`${apiOrigin}/api/v1/cards/:id/checklist-items`, () =>
+      HttpResponse.json([]),
+    ),
     http.get(`${apiOrigin}/api/v1/cards/gone`, () =>
       HttpResponse.json(
         { type: '/problems/404', title: 'Error', status: 404, detail: '' },

@@ -74,6 +74,9 @@ function boardApi(board: Board = boardFixture()) {
     http.get(`${apiOrigin}/api/v1/lists/:id/cards`, ({ params }) =>
       HttpResponse.json(seed.cards.filter((c) => c.listId === params.id)),
     ),
+    http.get(`${apiOrigin}/api/v1/cards/:id/checklist-items`, () =>
+      HttpResponse.json([]),
+    ),
     http.post(`${boardUrl}/lists`, async ({ request }) => {
       const { title } = (await request.json()) as { title: string };
       const list = listFixture('l3', { title, position: 2 });

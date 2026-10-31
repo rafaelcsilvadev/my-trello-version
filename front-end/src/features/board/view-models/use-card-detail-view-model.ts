@@ -28,6 +28,7 @@ import { todayParts } from '../model/due-date';
 import { mapTitleServerError } from '../model/errors';
 import type { ItemFieldError, UpdateCardDto } from '../model/types';
 import { validateCardTitle } from '../model/validation';
+import { useCardChecklistViewModel } from './use-card-checklist-view-model';
 
 export type CardDetailStatus = 'loading' | 'ready' | 'error' | 'notFound';
 
@@ -41,6 +42,8 @@ export function useCardDetailViewModel(boardId: string, cardId: string) {
   const queries = [card, board, lists, archivedLists, labels];
   // Only for the end position of a move; the detail does not wait for it.
   const activeCards = useCards(boardId, false);
+  // Not in `queries`: the section shows its own loading and error (FCL-03).
+  const checklist = useCardChecklistViewModel(boardId, cardId);
   // Read once, so the due labels do not change while the detail is open.
   const [today] = useState(() => todayParts());
   const { t } = useTranslation();
@@ -80,15 +83,24 @@ export function useCardDetailViewModel(boardId: string, cardId: string) {
 
   // A card whose list is in neither list of the board is of another board (FCD-11).
   let status: CardDetailStatus = 'ready';
-  if (queries.some((q) => q.error?.status === 404)) status = 'notFound';
+  // A checklist `404` means the card is gone too (FCL-04).
+  if (
+    queries.some((q) => q.error?.status === 404) ||
+    checklist.query.error?.status === 404
+  )
+    status = 'notFound';
   else if (queries.some((q) => q.isError && q.data === undefined))
     status = 'error';
   else if (queries.some((q) => q.isPending)) status = 'loading';
   else if (list === undefined) status = 'notFound';
 
   const dirty =
-    card.data !== undefined &&
-    isDirty(card.data, { title: titleDraft, description: descriptionDraft });
+    (card.data !== undefined &&
+      isDirty(card.data, {
+        title: titleDraft,
+        description: descriptionDraft,
+      })) ||
+    checklist.isDirty;
   // Every close path is a navigation, browser Back included, so one blocker
   // asks before any of them drops the drafts. Read-only modes never ask (FCD-42, FCD-45).
   const blocker = useBlocker(
@@ -207,6 +219,7 @@ export function useCardDetailViewModel(boardId: string, cardId: string) {
       isMoveOpen,
       isDeleteOpen,
       isDiscardOpen: blocker.state === 'blocked',
+      checklist: checklist.state,
     },
     actions: {
       toggleDone: () => card.data && save({ done: !card.data.done }),
@@ -246,6 +259,7 @@ export function useCardDetailViewModel(boardId: string, cardId: string) {
       // Leaves without sending the drafts (FCD-43).
       discard: () => blocker.proceed?.(),
       keepEditing: () => blocker.reset?.(),
+      checklist: checklist.actions,
       // Only the failed requests run again (FCD-10).
       retryLoad: () => {
         for (const query of queries) if (query.isError) void query.refetch();
