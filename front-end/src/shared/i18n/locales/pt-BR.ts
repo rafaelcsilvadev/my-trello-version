@@ -225,6 +225,10 @@ export const ptBR = {
       deleteForever: 'Excluir definitivamente',
       archivedNotice: 'Tarefa arquivada · somente leitura',
       boardArchivedNotice: 'Quadro arquivado · somente leitura',
+      checklist: {
+        editItem: 'Editar item “{{text}}”',
+        deleteItem: 'Excluir item “{{text}}”',
+      },
       notFound: {
         title: 'Esta tarefa não existe mais',
         detail: 'Ela pode ter sido excluída em outro dispositivo.',
