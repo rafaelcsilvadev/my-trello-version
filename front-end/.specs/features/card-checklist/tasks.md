@@ -470,8 +470,8 @@ T18 → T19 → T20 → T21
 
 **Done when**:
 
-- [ ] Unit: items in the given order; "2/3" and a progressbar named "Checklist" with `aria-valuetext="2/3"` and width 67 %; complete → green count and bar; no items → no count and no bar; loading → skeleton and no list; error → "Não foi possível carregar" whose **Tentar novamente** calls `retryLoad`; read-only still shows count and bar; each row receives its draft, invalid, pending and disabled props (L-001)
-- [ ] Build gate passes; test count only grows
+- [x] Unit: items in the given order; "2/3" and a progressbar named "Checklist" with `aria-valuetext="2/3"` and width 67 %; complete → green count and bar; no items → no count and no bar; loading → skeleton and no list; error → "Não foi possível carregar" whose **Tentar novamente** calls `retryLoad`; read-only still shows count and bar; each row receives its draft, invalid, pending and disabled props (L-001)
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
