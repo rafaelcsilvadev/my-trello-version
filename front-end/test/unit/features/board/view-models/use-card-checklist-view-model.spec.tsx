@@ -476,6 +476,22 @@ describe('useCardChecklistViewModel — toggle', () => {
     );
   });
 
+  // The settle refetch already reloads the checklist, so the count is taken
+  // after it ends: only a reload under the board key adds one more request.
+  it('Recarregar after a 409 reloads the checklist', async () => {
+    const requests = checklistServer();
+    updateServer(() => problem(409));
+    const { result, queryClient } = await setupReady();
+    act(() => result.current.actions.toggle('i2'));
+
+    await screen.findByText(conflict);
+    await waitFor(() => expect(queryClient.isFetching()).toBe(0));
+    const settled = requests.items;
+    act(() => screen.getByRole('button', { name: 'Recarregar' }).click());
+
+    await waitFor(() => expect(requests.items).toBe(settled + 1));
+  });
+
   it('a 404 shows the save-fail toast and refetches the checklist', async () => {
     const requests = checklistServer();
     updateServer(() => problem(404));
