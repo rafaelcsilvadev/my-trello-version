@@ -123,13 +123,14 @@ describe('CardDetailChecklistItem', () => {
     expect(onAncestorKeyDown).not.toHaveBeenCalled();
   });
 
-  it('checks the checkbox and strikes the text through when done (FCL-09)', () => {
+  it('checks the checkbox and strikes the text through and dims it when done (FCL-09)', () => {
     renderItem({
       item: checklistItem('i1', 'c1', { text: 'Escrever testes', done: true }),
     });
 
     expect(checkbox().checked).toBe(true);
     expect(textbox().classList.contains('line-through')).toBe(true);
+    expect(textbox().classList.contains('text-text-tertiary')).toBe(true);
   });
 
   it('leaves the checkbox clear and the text plain when not done', () => {
@@ -137,6 +138,7 @@ describe('CardDetailChecklistItem', () => {
 
     expect(checkbox().checked).toBe(false);
     expect(textbox().classList.contains('line-through')).toBe(false);
+    expect(textbox().classList.contains('text-text-tertiary')).toBe(false);
   });
 
   it('marks the field invalid only when isInvalid', () => {
