@@ -445,8 +445,8 @@ T18 → T19 → T20 → T21
 
 **Done when**:
 
-- [ ] Unit: the three names with the saved text; the field shows the draft when given; Enter and blur call `onSubmit`; Esc calls `onCancel` and does not reach a parent key handler; done → checkbox checked and text struck through; `isInvalid` → `aria-invalid="true"`; `isPending` disables checkbox and delete, not the text; `isDisabled` disables checkbox and text and renders no delete button
-- [ ] Build gate passes; test count only grows
+- [x] Unit: the three names with the saved text; the field shows the draft when given; Enter and blur call `onSubmit`; Esc calls `onCancel` and does not reach a parent key handler; done → checkbox checked and text struck through; `isInvalid` → `aria-invalid="true"`; `isPending` disables checkbox and delete, not the text; `isDisabled` disables checkbox and text and renders no delete button
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
