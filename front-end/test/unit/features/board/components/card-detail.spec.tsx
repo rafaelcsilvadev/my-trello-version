@@ -10,13 +10,14 @@ import { http, HttpResponse, type JsonBodyType } from 'msw';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { CardDetail } from '@/features/board';
-import type { Board, Card } from '@/features/board/model/types';
+import type { Board, Card, ChecklistItem } from '@/features/board/model/types';
 import { apiOrigin } from '@/shared/config';
 
 import {
   boardFixture,
   boardId,
   cardFixture,
+  checklistItem,
   labelFixture,
   listFixture,
 } from '../../../../support/fixtures/board';
@@ -45,7 +46,13 @@ function problem(status: number) {
   );
 }
 
-type Seed = { card: Card; board: Board };
+type Seed = {
+  card: Card;
+  board: Board;
+  items: ChecklistItem[];
+  // The board tiles, only drawn by `renderDetail({ withBoard: true })`.
+  tiles: Card[];
+};
 
 // The reads of the detail answer from `seed`; `writes` records every card change.
 function detailApi(overrides: Partial<Seed> = {}) {
@@ -56,6 +63,8 @@ function detailApi(overrides: Partial<Seed> = {}) {
       labelIds: ['lb3', 'lb1'],
     }),
     board: boardFixture(),
+    items: [],
+    tiles: [],
     ...overrides,
   };
   const writes: { method: string; path: string; body: unknown }[] = [];
@@ -71,8 +80,24 @@ function detailApi(overrides: Partial<Seed> = {}) {
       ),
     ),
     http.get(`${boardUrl}/labels`, reply([urgent, later, bug])),
-    http.get(`${boardUrl}/cards`, reply([])),
-    http.get(`${cardUrl}/checklist-items`, reply([])),
+    http.get(`${boardUrl}/cards`, ({ request }) =>
+      HttpResponse.json(
+        new URL(request.url).searchParams.get('archived') === 'true'
+          ? []
+          : seed.tiles,
+      ),
+    ),
+    http.get(`${cardUrl}/checklist-items`, () => HttpResponse.json(seed.items)),
+    http.patch(
+      `${apiOrigin}/api/v1/checklist-items/:id`,
+      async ({ params, request }) => {
+        const item = seed.items.find(({ id }) => id === params.id)!;
+        return HttpResponse.json({
+          ...item,
+          ...((await request.json()) as Partial<ChecklistItem>),
+        });
+      },
+    ),
     http.all(`${apiOrigin}/api/v1/cards/:id*`, async ({ request }) => {
       if (request.method === 'GET') return undefined;
       writes.push({
@@ -86,23 +111,26 @@ function detailApi(overrides: Partial<Seed> = {}) {
   return { seed, writes };
 }
 
-function renderDetail() {
+function renderDetail({ withBoard = false } = {}) {
   return renderApp({
     route: `${boardPath}/t/${cardId}`,
     token: 'token',
     prefs: { language: 'pt-BR' },
-    routes: [
-      { path: '/b/:boardId', element: <p>Quadro</p> },
-      {
-        path: '/b/:boardId/t/:cardId',
-        element: <CardDetail boardId={boardId} cardId={cardId} />,
-      },
-    ],
+    // With the board, the app's own routes open the detail over the tiles.
+    routes: withBoard
+      ? []
+      : [
+          { path: '/b/:boardId', element: <p>Quadro</p> },
+          {
+            path: '/b/:boardId/t/:cardId',
+            element: <CardDetail boardId={boardId} cardId={cardId} />,
+          },
+        ],
   });
 }
 
-async function renderReady() {
-  const services = renderDetail();
+async function renderReady(options?: Parameters<typeof renderDetail>[0]) {
+  const services = renderDetail(options);
   await screen.findByRole('textbox', { name: 'Título' });
   return services;
 }
@@ -401,5 +429,150 @@ describe('CardDetail', () => {
       expect(field).toHaveProperty('disabled', true);
     }
     expect(screen.queryByRole('button', { name: 'Mover para…' })).toBeNull();
+  });
+
+  describe('checklist', () => {
+    const items = [
+      checklistItem('i1', cardId, { text: 'Draft', done: true, position: 0 }),
+      checklistItem('i2', cardId, { text: 'Review', position: 1 }),
+      checklistItem('i3', cardId, { text: 'Send', position: 2 }),
+    ];
+    const withItems = {
+      card: cardFixture(cardId, backlog.id, {
+        title: 'Write the brief',
+        checklist: { total: 3, done: 1 },
+      }),
+      items,
+    };
+
+    function checklist() {
+      return screen
+        .getByRole('heading', { name: 'Checklist' })
+        .closest('section')!;
+    }
+
+    it('shows the items in order and the progress below the description', async () => {
+      detailApi(withItems);
+      await renderReady();
+
+      const section = await waitFor(() => {
+        const found = checklist();
+        expect(within(found).getAllByRole('checkbox')).toHaveLength(3);
+        return found;
+      });
+      expect(
+        within(section)
+          .getAllByRole('checkbox')
+          .map((box) => (box as HTMLInputElement).checked),
+      ).toEqual([true, false, false]);
+      expect(
+        within(section)
+          .getAllByRole('textbox')
+          .map((field) => (field as HTMLInputElement).value),
+      ).toEqual(['Draft', 'Review', 'Send', '']);
+      expect(within(section).getByText('1/3')).toBeTruthy();
+      const description = screen.getByRole('textbox', { name: 'Descrição' });
+      expect(
+        description.compareDocumentPosition(section) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+    });
+
+    it('updates the count and the board tile badge on a tick', async () => {
+      detailApi({ ...withItems, tiles: [withItems.card] });
+      await renderReady({ withBoard: true });
+      const tile = (
+        await screen.findByText('Write the brief', {
+          selector: '[data-card-id] *',
+        })
+      ).closest<HTMLElement>('[data-card-id]')!;
+      await waitFor(() => expect(within(tile).getByText('1/3')).toBeTruthy());
+
+      fireEvent.click(await screen.findByRole('checkbox', { name: 'Review' }));
+
+      await waitFor(() =>
+        expect(within(checklist()).getByText('2/3')).toBeTruthy(),
+      );
+      expect(within(tile).getByText('2/3')).toBeTruthy();
+    });
+
+    it.each([
+      [
+        'an archived card',
+        {
+          ...withItems,
+          card: { ...withItems.card, archivedAt: stamp },
+        },
+      ],
+      [
+        'an archived board',
+        { ...withItems, board: boardFixture({ archivedAt: stamp }) },
+      ],
+    ])('locks the items of %s', async (_, overrides) => {
+      detailApi(overrides);
+      await renderReady();
+
+      const section = await waitFor(() => {
+        const found = checklist();
+        expect(within(found).getAllByRole('checkbox')).toHaveLength(3);
+        return found;
+      });
+      for (const field of [
+        ...within(section).getAllByRole('checkbox'),
+        ...within(section).getAllByRole('textbox'),
+      ]) {
+        expect(field).toHaveProperty('disabled', true);
+      }
+      expect(within(section).queryAllByRole('button')).toHaveLength(0);
+      expect(
+        within(section).queryByRole('textbox', {
+          name: 'Adicionar item e apertar Enter',
+        }),
+      ).toBeNull();
+      expect(within(section).getByText('1/3')).toBeTruthy();
+    });
+
+    it('shows the card as gone on a checklist 404', async () => {
+      detailApi(withItems);
+      server.use(http.get(`${cardUrl}/checklist-items`, () => problem(404)));
+      renderDetail();
+
+      expect(
+        await screen.findByText('Esta tarefa não existe mais'),
+      ).toBeTruthy();
+    });
+
+    it('shows the error in the section on a checklist 5xx, with the title editable', async () => {
+      // 5xx is retried with backoff; fake timers skip the waits.
+      vi.useFakeTimers({ shouldAdvanceTime: true });
+      detailApi(withItems);
+      server.use(http.get(`${cardUrl}/checklist-items`, () => problem(500)));
+      await renderReady();
+
+      await vi.advanceTimersByTimeAsync(10_000);
+      const alert = await within(checklist()).findByRole('alert');
+      expect(within(alert).getByText('Não foi possível carregar')).toBeTruthy();
+      expect(screen.getByRole('textbox', { name: 'Título' })).toHaveProperty(
+        'disabled',
+        false,
+      );
+    });
+
+    it('asks before closing with an item edit', async () => {
+      detailApi(withItems);
+      await renderReady();
+      const review = await screen.findByRole('textbox', {
+        name: 'Editar item “Review”',
+      });
+      fireEvent.change(review, { target: { value: 'Review twice' } });
+
+      fireEvent.keyDown(detail(), { key: 'Escape' });
+
+      expect(
+        await screen.findByRole('alertdialog', {
+          name: 'Descartar alterações?',
+        }),
+      ).toBeTruthy();
+    });
   });
 });

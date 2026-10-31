@@ -7,6 +7,7 @@ import { Button } from '@/shared/ui/button';
 import { LoadError } from '@/shared/ui/load-error';
 
 import { useCardDetailViewModel } from '../view-models/use-card-detail-view-model';
+import { CardDetailChecklist } from './card-detail-checklist';
 import { CardDetailDescription } from './card-detail-description';
 import { DeleteCardDialog, DiscardChangesDialog } from './card-detail-dialogs';
 import { CardDetailDueDate } from './card-detail-due-date';
@@ -160,6 +161,11 @@ export function CardDetail({ boardId, cardId }: CardDetailProps) {
                   onChange={actions.setDescriptionDraft}
                   onSave={actions.saveDescription}
                   onCancel={actions.cancelDescription}
+                />
+                <CardDetailChecklist
+                  state={state.checklist}
+                  actions={actions.checklist}
+                  isDisabled={isDisabled}
                 />
               </div>
               <CardDetailFooter

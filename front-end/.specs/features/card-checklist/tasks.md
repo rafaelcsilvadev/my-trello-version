@@ -520,8 +520,8 @@ T18 → T19 → T20 → T21
 
 **Done when**:
 
-- [ ] Unit (rendered detail, L-001): items and progress show; ticking an item updates the count and the board tile badge; archived card and archived board → items disabled, no delete, no add field; checklist `404` → "Esta tarefa não existe mais"; checklist `5xx` → section error with the title still editable; an item edit + Esc on the detail → "Descartar alterações?"
-- [ ] Build gate passes; test count only grows
+- [x] Unit (rendered detail, L-001): items and progress show; ticking an item updates the count and the board tile badge; archived card and archived board → items disabled, no delete, no add field; checklist `404` → "Esta tarefa não existe mais"; checklist `5xx` → section error with the title still editable; an item edit + Esc on the detail → "Descartar alterações?"
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
