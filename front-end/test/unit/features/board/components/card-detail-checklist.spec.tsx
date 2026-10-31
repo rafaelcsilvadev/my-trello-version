@@ -76,6 +76,10 @@ const deleteButton = (text: string) =>
   screen.queryByRole<HTMLButtonElement>('button', {
     name: `Excluir item “${text}”`,
   });
+const addField = () =>
+  screen.queryByRole<HTMLInputElement>('textbox', {
+    name: 'Adicionar item e apertar Enter',
+  });
 
 describe('CardDetailChecklist', () => {
   it('shows the heading and the items in the given order (FCL-01)', () => {
@@ -84,7 +88,7 @@ describe('CardDetailChecklist', () => {
     expect(screen.getByRole('heading', { name: 'Checklist' })).toBeTruthy();
     expect(
       screen
-        .getAllByRole<HTMLInputElement>('textbox')
+        .getAllByRole<HTMLInputElement>('textbox', { name: /^Editar item/ })
         .map((field) => field.value),
     ).toEqual(['Escrever testes', 'Revisar PR', 'Publicar']);
   });
@@ -207,5 +211,66 @@ describe('CardDetailChecklist', () => {
 
     await user.click(deleteButton('Escrever testes')!);
     expect(props.actions.remove).toHaveBeenCalledWith('i1');
+  });
+
+  it('sends what is typed in the add field to the view model', async () => {
+    const { props } = renderChecklist();
+
+    await userEvent.setup().type(addField()!, 'N');
+
+    expect(addField()?.placeholder).toBe('Adicionar item e apertar Enter');
+    expect(props.actions.setNewText).toHaveBeenCalledWith('N');
+  });
+
+  it('adds on Enter and keeps focus in the add field (FCL-10, FCL-12)', async () => {
+    const { props } = renderChecklist({ state: { newText: 'Novo item' } });
+    const user = userEvent.setup();
+
+    await user.click(addField()!);
+    await user.keyboard('{Enter}');
+
+    expect(props.actions.add).toHaveBeenCalledOnce();
+    expect(document.activeElement).toBe(addField());
+  });
+
+  it('shows the add field error in an alert and marks the field invalid (FCL-13, FCL-23)', () => {
+    renderChecklist({
+      state: { error: { target: 'new', code: 'checklistItemRequired' } },
+    });
+
+    expect(screen.getByRole('alert').textContent).toBe('Escreva o item');
+    expect(addField()?.getAttribute('aria-invalid')).toBe('true');
+  });
+
+  it('shows an item error in the same alert without marking the add field (FCL-23)', () => {
+    renderChecklist({
+      state: { error: { target: 'i3', code: 'checklistItemTooLong' } },
+    });
+
+    expect(screen.getByRole('alert').textContent).toBe(
+      'Use até 200 caracteres',
+    );
+    expect(addField()?.getAttribute('aria-invalid')).toBeNull();
+  });
+
+  it('shows no alert without an error', () => {
+    renderChecklist();
+
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
+
+  it('moves focus to the add field after a delete (FCL-25)', async () => {
+    const { props } = renderChecklist();
+
+    await userEvent.setup().click(deleteButton('Publicar')!);
+
+    expect(props.actions.remove).toHaveBeenCalledWith('i3');
+    expect(document.activeElement).toBe(addField());
+  });
+
+  it('shows no add field when read-only (FCL-32)', () => {
+    renderChecklist({ isDisabled: true });
+
+    expect(addField()).toBeNull();
   });
 });

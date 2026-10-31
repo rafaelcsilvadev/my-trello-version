@@ -227,6 +227,7 @@ export const ptBR = {
       boardArchivedNotice: 'Quadro arquivado · somente leitura',
       checklist: {
         title: 'Checklist',
+        addItem: 'Adicionar item e apertar Enter',
         editItem: 'Editar item “{{text}}”',
         deleteItem: 'Excluir item “{{text}}”',
       },

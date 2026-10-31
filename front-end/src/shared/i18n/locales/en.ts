@@ -225,6 +225,7 @@ export const en = {
       boardArchivedNotice: 'Archived board · read-only',
       checklist: {
         title: 'Checklist',
+        addItem: 'Add an item and press Enter',
         editItem: 'Edit item “{{text}}”',
         deleteItem: 'Delete item “{{text}}”',
       },
