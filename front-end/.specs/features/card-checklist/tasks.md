@@ -495,8 +495,8 @@ T18 → T19 → T20 → T21
 
 **Done when**:
 
-- [ ] Unit: typing calls `setNewText`; Enter calls `add` and focus stays in the field; the error text shows in an alert and the field it belongs to is `aria-invalid`; activating a row's delete calls `remove` and moves focus to the add field; no add field when disabled
-- [ ] Build gate passes; test count only grows
+- [x] Unit: typing calls `setNewText`; Enter calls `add` and focus stays in the field; the error text shows in an alert and the field it belongs to is `aria-invalid`; activating a row's delete calls `remove` and moves focus to the add field; no add field when disabled
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
