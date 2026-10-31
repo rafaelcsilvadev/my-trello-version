@@ -72,6 +72,7 @@ function detailApi(overrides: Partial<Seed> = {}) {
     ),
     http.get(`${boardUrl}/labels`, reply([urgent, later, bug])),
     http.get(`${boardUrl}/cards`, reply([])),
+    http.get(`${cardUrl}/checklist-items`, reply([])),
     http.all(`${apiOrigin}/api/v1/cards/:id*`, async ({ request }) => {
       if (request.method === 'GET') return undefined;
       writes.push({

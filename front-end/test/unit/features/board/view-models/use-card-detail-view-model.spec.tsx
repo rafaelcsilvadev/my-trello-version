@@ -25,6 +25,7 @@ import {
   boardFixture,
   boardId,
   cardFixture,
+  checklistItem,
   labelFixture,
   listFixture,
 } from '../../../../support/fixtures/board';
@@ -39,6 +40,7 @@ const cardsUrl = `${boardUrl}/cards`;
 const cardId = 'c1';
 const cardUrl = `${baseUrl}/api/v1/cards/${cardId}`;
 const cardPath = `/api/v1/cards/${cardId}`;
+const checklistUrl = `${cardUrl}/checklist-items`;
 const boardPath = `/b/${boardId}`;
 
 const stamp = '2026-10-20T12:00:00.000Z';
@@ -80,20 +82,22 @@ function detailServer(overrides: Partial<Record<string, Reply>> = {}) {
       cardFixture('c2', doing.id, { position: 0 }),
       cardFixture('c3', doing.id, { position: 1 }),
     ],
+    [checklistUrl]: [],
   };
   async function reply(url: string) {
     requests[url] = (requests[url] ?? 0) + 1;
     return (await overrides[url]?.()) ?? HttpResponse.json(seed[url] ?? null);
   }
   server.use(
-    ...[cardUrl, boardUrl, listsUrl, labelsUrl, cardsUrl].map((url) =>
-      http.get(url, ({ request }) =>
-        reply(
-          new URL(request.url).searchParams.get('archived') === 'true'
-            ? `${url}?archived=true`
-            : url,
+    ...[cardUrl, boardUrl, listsUrl, labelsUrl, cardsUrl, checklistUrl].map(
+      (url) =>
+        http.get(url, ({ request }) =>
+          reply(
+            new URL(request.url).searchParams.get('archived') === 'true'
+              ? `${url}?archived=true`
+              : url,
+          ),
         ),
-      ),
     ),
   );
   return requests;
@@ -262,6 +266,18 @@ async function setupWithCards() {
   );
   return rendered;
 }
+// The detail does not wait for the checklist; item drafts need its items.
+async function setupChecklistReady() {
+  const rendered = await setupReady();
+  await waitFor(() =>
+    expect(rendered.result.current.state.checklist.status).toBe('ready'),
+  );
+  return rendered;
+}
+
+const withItem: Reply = () =>
+  HttpResponse.json([checklistItem('i1', cardId, { text: 'Buy milk' })]);
+
 const titleFieldError = [{ field: 'title', message: 'too long' }];
 
 afterEach(() => {
@@ -298,6 +314,7 @@ describe('useCardDetailViewModel', () => {
               archivedListsUrl,
               labelsUrl,
               cardsUrl,
+              checklistUrl,
             ].sort(),
           ),
         );
@@ -327,6 +344,23 @@ describe('useCardDetailViewModel', () => {
       const { result } = setup();
 
       await waitFor(() => expect(result.current.state.status).toBe('notFound'));
+    });
+
+    it('is notFound when the checklist answers 404', async () => {
+      detailServer({ [checklistUrl]: () => problem(404) });
+      const { result } = setup();
+
+      await waitFor(() => expect(result.current.state.status).toBe('notFound'));
+    });
+
+    it('stays ready when the checklist keeps failing with 500', async () => {
+      detailServer({ [checklistUrl]: () => problem(500) });
+      const { result } = setup();
+
+      await waitFor(() =>
+        expect(result.current.state.checklist.status).toBe('error'),
+      );
+      expect(result.current.state.status).toBe('ready');
     });
 
     it('is error when a query keeps failing with 500', async () => {
@@ -986,6 +1020,26 @@ describe('useCardDetailViewModel', () => {
       expect(result.current.state.isDirty).toBe(false);
     });
 
+    it('is true while a checklist item draft differs and false after cancelDraft', async () => {
+      detailServer({ [checklistUrl]: withItem });
+      const { result } = await setupChecklistReady();
+
+      act(() => result.current.actions.checklist.setDraft('i1', 'Sell milk'));
+      expect(result.current.state.isDirty).toBe(true);
+
+      act(() => result.current.actions.checklist.cancelDraft('i1'));
+      expect(result.current.state.isDirty).toBe(false);
+    });
+
+    it('is false with text only in the checklist add field', async () => {
+      detailServer();
+      const { result } = await setupChecklistReady();
+
+      act(() => result.current.actions.checklist.setNewText('Buy bread'));
+
+      expect(result.current.state.isDirty).toBe(false);
+    });
+
     it('is true while the description draft differs from the saved one', async () => {
       detailServer();
       const { result } = await setupReady();
@@ -1031,6 +1085,30 @@ describe('useCardDetailViewModel', () => {
         expect(result.current.state.isDiscardOpen).toBe(true),
       );
       expect(location.pathname).toBe(`${boardPath}/t/${cardId}`);
+    });
+
+    it('close with a changed checklist item opens the discard dialog', async () => {
+      detailServer({ [checklistUrl]: withItem });
+      const { result, location } = await setupChecklistReady();
+      act(() => result.current.actions.checklist.setDraft('i1', 'Sell milk'));
+
+      act(() => result.current.actions.close());
+
+      await waitFor(() =>
+        expect(result.current.state.isDiscardOpen).toBe(true),
+      );
+      expect(location.pathname).toBe(`${boardPath}/t/${cardId}`);
+    });
+
+    it('close with text only in the checklist add field goes to the board', async () => {
+      detailServer();
+      const { result, location } = await setupChecklistReady();
+      act(() => result.current.actions.checklist.setNewText('Buy bread'));
+
+      act(() => result.current.actions.close());
+
+      await waitFor(() => expect(location.pathname).toBe(boardPath));
+      expect(result.current.state.isDiscardOpen).toBe(false);
     });
 
     it('browser Back while dirty opens the discard dialog too', async () => {
@@ -1117,6 +1195,29 @@ describe('useCardDetailViewModel', () => {
       await waitFor(() => expect(location.pathname).toBe(boardPath));
       expect(result.current.state.isDiscardOpen).toBe(false);
     });
+
+    it.each([
+      ['an archived card', { [cardUrl]: archivedCard() }],
+      [
+        'a card of an archived board',
+        {
+          [boardUrl]: () =>
+            HttpResponse.json(boardFixture({ archivedAt: stamp })),
+        },
+      ],
+    ])(
+      'closes %s with a changed checklist item without asking',
+      async (_name, overrides) => {
+        detailServer({ ...overrides, [checklistUrl]: withItem });
+        const { result, location } = await setupChecklistReady();
+        act(() => result.current.actions.checklist.setDraft('i1', 'Sell milk'));
+
+        act(() => result.current.actions.close());
+
+        await waitFor(() => expect(location.pathname).toBe(boardPath));
+        expect(result.current.state.isDiscardOpen).toBe(false);
+      },
+    );
 
     it('confirmDelete is never blocked', async () => {
       detailServer({ [cardUrl]: archivedCard() });
