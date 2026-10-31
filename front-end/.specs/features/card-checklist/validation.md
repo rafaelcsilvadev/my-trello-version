@@ -3,9 +3,19 @@
 **Date**: 2026-10-30
 **Spec**: `front-end/.specs/features/card-checklist/spec.md`
 **Diff range**: `e2e9058..1fc2d8f` (`e2e9058` = merge of spec PR #336; `1fc2d8f` = merge of PR #357, main HEAD). 21 code/test commits (`b59bec0` T1 … `8e3bccd` T19) plus docs commits; `git diff --stat e2e9058..1fc2d8f -- front-end/src front-end/test front-end/e2e` → 29 files, +3440/−61 (`src/` 16 files, `test/` 13 files). Outside `src`/`test`: `README.md`, `ROADMAP.md`, `STATE.md`, `tasks.md` only.
-**Verifier**: independent sub-agent (author ≠ verifier), iteration 1
+**Iteration 2 diff range**: `1fc2d8f..a1ae7c1` (`a1ae7c1` = merge of PR #363, main HEAD). Test commits `cb2b51d` (Fix 1, PR #359), `0f28e37` (Fix 2, PR #360), `8d92b1f` (Fix 3, PR #361), `38c3f5f` (Fix 4, PR #362), `9260982`, `cc895bd`, `fc9e22d` (Fix 4 open item, PR #363); the rest are docs (`0db3df3`, `c4e87c0`, `eb22ba5`). `git diff --shortstat 1fc2d8f..a1ae7c1 -- front-end/src front-end/test front-end/e2e` → 6 files, +75/−2, all under `test/`; no `src` file changed.
+**Verifier**: independent pass (author ≠ verifier), iteration 2 (iteration 1 kept below)
 
-## Validation: Card Checklist - FAIL ❌ (iteration 1)
+## Validation: Card Checklist - PASS ✅ (iteration 2)
+
+**Result (iteration 2)**: PASS ✅. All three iteration-1 gaps are closed with discriminating evidence, and the optional Fix 4 is done. The build gate is green on `a1ae7c1`: **1669** unit/component tests (1666 + 3), lint, typecheck, build; 31 e2e green in CI run `41160769236`. The sensor re-ran S18, S19 and S23 exactly as in iteration 1 (all now **killed**) and spot re-ran S20, S21 and S30, whose killing specs (`cd.spec`, `dvm.spec`) the Fix 4 commits touched: 6/6 killed.
+
+1. **Fix 1 / FCL-35, FCL-36 edit path ✅**: `vm.spec:637-653` answers a text save with `409` and asserts the conflict text, **Recarregar**, no **Tentar novamente**, the draft back (`{ i2: 'Comprar leite' }`) and the cache text back to `seed[0].text`; `vm.spec:655-671` answers with `404` and asserts the save-fail text, no **Tentar novamente**, the draft back and `requests.items` growing. The cache revert on `404` is the same status-independent rollback the `409` and `5xx` tests assert (`vm.spec:615-634`). S19 killed (2 tests, `vm.spec`).
+2. **Fix 2 / FCL-35 Recarregar ✅**: `vm.spec:481-493` waits for the settle refetch of a `409` toggle (`queryClient.isFetching()` `0`), clicks **Recarregar** and asserts `requests.items` is exactly `settled + 1`. S18 killed (`vm.spec`).
+3. **Fix 3 / FCL-09 dimmed ✅**: `item.spec:126-134` asserts `text-text-tertiary` on a done item's text, `:136-142` asserts it is absent when not done. S23 killed (`item.spec`).
+4. **Fix 4 (optional) ✅**: see the Fix 4 result under Fix Plans. No test ends with a change in flight.
+
+### Iteration 1 verdict: Card Checklist - FAIL ❌
 
 **Result (iteration 1)**: FAIL ❌. The build gate is green on `1fc2d8f`: **1666** unit/component tests (1531 + 135), lint, typecheck, build; 31 e2e green in CI run `41154954795`. 37 of 40 FCL requirements have full discriminating evidence. The sensor ran 40 behavior-level mutants: **36 killed, 3 survived** (S18, S19, S23), 1 equivalent (S34). No code defect was found; all three gaps are test-only.
 
@@ -18,6 +28,7 @@
 | Iteration | Range | Gate | ACs | Sensor | Verdict |
 | --------- | ----- | ---- | --- | ------ | ------- |
 | 1 (2026-10-30) | `e2e9058..1fc2d8f` | ✅ 1666 unit (local), 31 e2e (CI `41154954795`) | 37/40 strong, 3 with a weak conjunct (FCL-09, FCL-35, FCL-36) | 36/40 killed, S18, S19, S23 survived, S34 equivalent | ❌ FAIL, Fixes 1–3 |
+| 2 (2026-10-30) | `1fc2d8f..a1ae7c1` | ✅ 1669 unit (local), 31 e2e (CI `41160769236`) | 40/40 strong | 6/6 killed (S18, S19, S23 re-run; S20, S21, S30 spot re-run) | ✅ PASS |
 
 ---
 
@@ -31,7 +42,7 @@
 
 ## Spec-Anchored Acceptance Criteria
 
-Paths are relative to `front-end/test/`. Line numbers are read on `1fc2d8f`. Short names: `model.spec` = `unit/features/board/model/checklist.spec.ts`; `val.spec` = `unit/features/board/model/validation.spec.ts`; `q.spec` = `unit/features/board/api/checklist-queries.spec.tsx`; `mut.spec` = `unit/features/board/api/checklist-mutations.spec.tsx`; `vm.spec` = `unit/features/board/view-models/use-card-checklist-view-model.spec.tsx` (PT-BR); `dvm.spec` = `unit/features/board/view-models/use-card-detail-view-model.spec.tsx` (EN); `item.spec` = `unit/features/board/components/card-detail-checklist-item.spec.tsx` (PT-BR); `cl.spec` = `unit/features/board/components/card-detail-checklist.spec.tsx` (PT-BR); `cd.spec` = `unit/features/board/components/card-detail.spec.tsx` (PT-BR); `e2e` = `e2e/card-checklist.e2e-spec.ts` (EN, real API). "Sx" points to a sensor mutant.
+Paths are relative to `front-end/test/`. Line numbers are read on `1fc2d8f`, except the iteration-2 evidence, read on `a1ae7c1` (the fixes shift `vm.spec` lines after `:480` by 16, and after `:620` by 52). Short names: `model.spec` = `unit/features/board/model/checklist.spec.ts`; `val.spec` = `unit/features/board/model/validation.spec.ts`; `q.spec` = `unit/features/board/api/checklist-queries.spec.tsx`; `mut.spec` = `unit/features/board/api/checklist-mutations.spec.tsx`; `vm.spec` = `unit/features/board/view-models/use-card-checklist-view-model.spec.tsx` (PT-BR); `dvm.spec` = `unit/features/board/view-models/use-card-detail-view-model.spec.tsx` (EN); `item.spec` = `unit/features/board/components/card-detail-checklist-item.spec.tsx` (PT-BR); `cl.spec` = `unit/features/board/components/card-detail-checklist.spec.tsx` (PT-BR); `cd.spec` = `unit/features/board/components/card-detail.spec.tsx` (PT-BR); `e2e` = `e2e/card-checklist.e2e-spec.ts` (EN, real API). "Sx" points to a sensor mutant.
 
 ### P1: See the checklist and its progress
 
@@ -45,7 +56,7 @@ Paths are relative to `front-end/test/`. Line numbers are read on `1fc2d8f`. Sho
 | FCL-06 | All done → count and bar green | `model.spec:62-71` `isComplete: true`, 100; `cl.spec:105-113` count `text-green-700`, width `'100%'`, `bg-green-500` (S2, S29 killed) | ✅ |
 | FCL-07 | No items → no count, no bar | `model.spec:27-34`; `cl.spec:115-121` `count('0/0')` `toBeNull()`, `progressBar()` `toBeNull()`, heading shown (S26 killed) | ✅ |
 | FCL-08 | Checkbox named by text; field "Editar item “{text}”"; button "Excluir item “{text}”"; names use the saved text | `item.spec:50-56` all three found by name with a different draft present (S33 killed) | ✅ |
-| FCL-09 | Done → checkbox checked, text struck through **and dimmed** | `item.spec:126-133` `checked` `true`, `line-through` `true`; `:135-140` not done → both false. Dimmed (`text-text-tertiary`, `card-detail-checklist-item.tsx:77`) not asserted: S23 survived | ❌ Needs Fix (Fix 3) |
+| FCL-09 | Done → checkbox checked, text struck through **and dimmed** | `item.spec:126-133` `checked` `true`, `line-through` `true`; `:135-140` not done → both false. Dimmed (`text-text-tertiary`, `card-detail-checklist-item.tsx:77`) not asserted: S23 survived. **Iteration 2**: `item.spec:126-134` `classList.contains('text-text-tertiary')` `true`; `:136-142` `false` (S23 killed) | ✅ (it. 2) |
 
 ### P1: Add an item
 
@@ -106,18 +117,38 @@ Paths are relative to `front-end/test/`. Line numbers are read on `1fc2d8f`. Sho
 | AC | Spec-defined outcome | `file:line` + assertion | Result |
 | -- | -------------------- | ----------------------- | ------ |
 | FCL-34 | Edit/toggle/delete network or 5xx → undo + "Não foi possível salvar. Tente novamente." + **Tentar novamente** | toggle `vm.spec:450-464` undo, retry resends `{done:true}`; edit `vm.spec:599-619` text restored, retry resends; delete `vm.spec:677-690` item back, retry resends; `mut.spec:423-461` only the failed toggle reverts, overlapping text edit kept; `mut.spec:600-624` item back at its index, progress restored (S9 killed) | ✅ |
-| FCL-35 | Create/edit/toggle/delete `409` → undo + "Este item foi arquivado. Recarregue para ver o estado atual." + **Recarregar** | create `vm.spec:370-383`, toggle `vm.spec:466-477`, delete `vm.spec:692-703`: exact text, **Recarregar** shown, no retry, undo. **Edit `409`: no test** (S19 survived). **Recarregar never clicked**: reload key unproven (S18 survived) | ❌ Needs Fix (Fixes 1, 2) |
-| FCL-36 | Edit/toggle/delete `404` → undo + save-fail toast + checklist refetch | toggle `vm.spec:479-491`, delete `vm.spec:705-717`: save-fail text, no retry button, `requests.items` grows. **Edit `404`: no test** (S19 survived) | ❌ Needs Fix (Fix 1) |
+| FCL-35 | Create/edit/toggle/delete `409` → undo + "Este item foi arquivado. Recarregue para ver o estado atual." + **Recarregar** | create `vm.spec:370-383`, toggle `vm.spec:466-477`, delete `vm.spec:692-703`: exact text, **Recarregar** shown, no retry, undo. **Edit `409`: no test** (S19 survived). **Recarregar never clicked**: reload key unproven (S18 survived). **Iteration 2**: edit `409` `vm.spec:637-653` conflict text, **Recarregar**, no retry, draft and cache text restored (S19 killed); **Recarregar** `vm.spec:481-493` `requests.items` `toBe(settled + 1)` (S18 killed) | ✅ (it. 2) |
+| FCL-36 | Edit/toggle/delete `404` → undo + save-fail toast + checklist refetch | toggle `vm.spec:479-491`, delete `vm.spec:705-717`: save-fail text, no retry button, `requests.items` grows. **Edit `404`: no test** (S19 survived). **Iteration 2**: edit `404` `vm.spec:655-671` save-fail text, no retry, draft restored, `requests.items` grows (S19 killed) | ✅ (it. 2) |
 | FCL-37 | Failed text save keeps the typed text as an unsaved edit | `vm.spec:599-619` drafts `{i2:' Comprar leite ', i3:'Rascunho'}` after a 5xx, cache text restored (S15 killed) | ✅ |
 | FCL-38 | Failed create keeps the add text + save-fail toast with **Tentar novamente** | `vm.spec:355-368` `newText` `' Comprar pão '` kept, retry → `bodies` twice trimmed, then cleared; `mut.spec:262-289` no cache change on 409/5xx | ✅ |
 | FCL-39 | Any save → tile "done/total" without reload | create `mut.spec:242-260` `{total:4, done:1}` in card, active and archived caches; toggle `mut.spec:364-398`; delete `mut.spec:562-582`; `cd.spec:481-497` tile "2/3" after a tick; `e2e:184-186` tile "1/2" after rename + delete (S7, S8 killed) | ✅ |
 | FCL-40 | Exactly 200 chars after trim → saved | `val.spec` 200 chars and 200 with outer spaces → `null`; `vm.spec:555-568` `requests` `[{id:'i2', body:{text}}]` with 200 chars | ✅ |
 
-**Status**: ❌ 37/40 fully evidenced; FCL-09, FCL-35, FCL-36 need a test each. 0 spec-precision gaps (every outcome in the spec is precise: texts, bodies, roles, percent rule).
+**Status (iteration 2)**: ✅ 40/40 fully evidenced.
+
+**Status (iteration 1)**: ❌ 37/40 fully evidenced; FCL-09, FCL-35, FCL-36 need a test each. 0 spec-precision gaps (every outcome in the spec is precise: texts, bodies, roles, percent rule).
 
 ---
 
 ## Discrimination Sensor
+
+### Iteration 2 sensor
+
+Temporary `git worktree add --detach` at `<scratchpad>/cc-sensor2` on `a1ae7c1`, with the root, `front-end` and `packages/api-contract` `node_modules` symlinked from the real tree (no `pnpm install`, no `pnpm` script). Same runner and restore method as iteration 1: `node ./node_modules/vitest/vitest.mjs run test/unit/features/board test/unit/pages` (**1268** tests, all green unmutated; 1265 + 3). Line numbers are unchanged since iteration 1 (no `src` change).
+
+| # | File:line | Mutation | Killed? (failing specs) |
+| - | --------- | -------- | ----------------------- |
+| S18 | `view-models/use-card-checklist-view-model.ts:43` | reload invalidates only `boardViewKeys.card` (same as it. 1) | ✅ (vm: `Recarregar after a 409 reloads the checklist`) |
+| S19 | `view-models/use-card-checklist-view-model.ts:119` | text-save failure always handled as `5xx` (same as it. 1) | ✅ (vm: edit `409` and `404` tests) |
+| S23 | `components/card-detail-checklist-item.tsx:77` | done text `text-text-primary` (same as it. 1) | ✅ (item: `…dims it when done (FCL-09)`) |
+| S20 | `view-models/use-card-detail-view-model.ts:87-89` | checklist `404` no longer means notFound (spot re-run) | ✅ (cd, dvm) |
+| S21 | `view-models/use-card-detail-view-model.ts:101-102` | checklist drafts not in `dirty` (spot re-run) | ✅ (cd, dvm) |
+| S30 | `components/card-detail.tsx:168` | checklist never read-only (spot re-run) | ✅ (cd) |
+
+**Outcome (iteration 2)**: 6/6 killed → ✅
+**Isolation**: real-tree `git status --porcelain` was empty before and after (diffed against the saved baseline: identical); the worktree's porcelain after the last restore listed only the three `node_modules` symlinks; the symlinks were unlinked, then `git worktree remove --force` and `git worktree prune` ran; `git worktree list` shows only the main tree; `find front-end/node_modules node_modules packages/api-contract/node_modules -maxdepth 2 -xtype l` → 0 broken links; `front-end/node_modules/vitest/vitest.mjs` still resolves. No `git stash` used.
+
+### Iteration 1 sensor
 
 Temporary `git worktree add --detach` at `<scratchpad>/cc-sensor` on `1fc2d8f`, with the root, `front-end` and `packages/api-contract` `node_modules` symlinked from the real tree (no `pnpm install`, no `pnpm` script). A script checked that each mutant's old text matched exactly once, applied it, ran `node ./node_modules/vitest/vitest.mjs run test/unit/features/board test/unit/pages` (79 files, **1265** tests, all green unmutated), then restored the file from an in-memory copy before the next mutant. Paths are relative to `front-end/src/features/board/`.
 
@@ -203,11 +234,20 @@ No `// SPEC_DEVIATION` markers in this feature.
 - [x] Tick of an item already done counts nothing: `mut.spec:400-421`
 - [x] Text typed while a create is in flight survives the 201: `vm.spec:308-325`
 - [x] Read-only modes never block close with an item draft: `dvm.spec:1199-1221`
-- [ ] Edit `409` / `404` toast and refetch: no evidence (Fix 1)
+- [x] Edit `409` / `404` toast and refetch: `vm.spec:637-653`, `vm.spec:655-671` (iteration 2, Fix 1)
 
 ---
 
 ## Gate Check
+
+**Iteration 2** (real tree, repo root, on `a1ae7c1`):
+
+- **Result**: exit 0. Lint (`oxlint --deny-warnings` + Prettier), `tsc --noEmit` clean, **120 test files, 1669 passed, 0 failed, 0 skipped**, `vite build` OK (main JS chunk 737.31 kB, unchanged)
+- **E2E (CI, not run locally)**: run `41160769236` on `a1ae7c1` (main, PR #363), conclusion success, all 12 jobs green; job `front-end (test:e2e)` (`124417586266`): **31 passed (1.2m)**
+- **Test count**: 1666 → 1669 (+3: Fix 1 `vm.spec:637`, `:655`; Fix 2 `vm.spec:481`; Fix 3 adds two assertions to existing tests; Fix 4 adds settle waits to four existing tests). No test removed or weakened; the only changed line is the renamed `item.spec:126` title
+- **Skipped / failures**: none
+
+**Iteration 1**:
 
 - **Gate command**: `pnpm --filter front-end lint && pnpm --filter front-end typecheck && pnpm --filter front-end test && pnpm --filter front-end build` (real tree, repo root, on `1fc2d8f`)
 - **Result**: exit 0. Lint (`oxlint --deny-warnings` + Prettier "All matched files use Prettier code style!"), `tsc --noEmit` clean, **120 test files, 1666 passed, 0 failed, 0 skipped**, `vite build` OK (main JS chunk 737.31 kB; 726.86 kB after card-detail, +10 kB)
@@ -272,18 +312,30 @@ No `// SPEC_DEVIATION` markers in this feature.
 
 ## Requirement Traceability Update
 
-| Requirement | Previous Status | Iteration 1 |
-| ----------- | --------------- | ----------- |
-| FCL-01 – FCL-08, FCL-10 – FCL-34, FCL-37 – FCL-40 | Pending | ✅ Verified |
-| FCL-09 | Pending | ❌ Needs Fix (Fix 3) |
-| FCL-35 | Pending | ❌ Needs Fix (Fixes 1, 2) |
-| FCL-36 | Pending | ❌ Needs Fix (Fix 1) |
+| Requirement | Previous Status | Iteration 1 | Iteration 2 |
+| ----------- | --------------- | ----------- | ----------- |
+| FCL-01 – FCL-08, FCL-10 – FCL-34, FCL-37 – FCL-40 | Pending | ✅ Verified | ✅ Verified |
+| FCL-09 | Pending | ❌ Needs Fix (Fix 3) | ✅ Verified |
+| FCL-35 | Pending | ❌ Needs Fix (Fixes 1, 2) | ✅ Verified |
+| FCL-36 | Pending | ❌ Needs Fix (Fix 1) | ✅ Verified |
 
-`spec.md` Requirement Traceability updated: Phase `Verify`; 37 `✅ Verified`, 3 `❌ Needs Fix`.
+`spec.md` Requirement Traceability updated: Phase `Verify`, all 40 `✅ Verified` (iteration 2).
 
 ---
 
 ## Summary
+
+**Overall (iteration 2)**: ✅ Ready
+
+**Spec-anchored check**: 40/40 ACs matched the spec outcome; 0 spec-precision gaps
+**Sensor**: iteration 2 6/6 killed (S18, S19, S23 now killed); iteration 1 36/39 (S34 equivalent)
+**Gate**: 1669 unit/component passed, 0 failed, 0 skipped (`a1ae7c1`); 31 e2e passed in CI `41160769236`
+
+**Iteration 2 notes**: the fixes add tests and assertions only; no `src` change, no test removed or weakened. UAT is still worth a look for the alert below the list (FCL-23), the dimmed done text (FCL-09) and the dimmed read-only rows (FCL-31).
+
+**Lessons (iteration 2)**: clean PASS, nothing new recorded. L-017 and L-018 stay `confirmed`; L-020 stays `candidate`.
+
+### Iteration 1 summary
 
 **Overall**: ❌ Not Ready (3 small gaps, all test-only)
 

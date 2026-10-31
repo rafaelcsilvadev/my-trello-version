@@ -221,7 +221,7 @@ The card detail (feature `card-detail`, 4a) shows the title, due date, descripti
 | FCL-06 | P1: See the checklist and its progress | Verify | ✅ Verified |
 | FCL-07 | P1: See the checklist and its progress | Verify | ✅ Verified |
 | FCL-08 | P1: See the checklist and its progress | Verify | ✅ Verified |
-| FCL-09 | P1: See the checklist and its progress | Verify | ❌ Needs Fix |
+| FCL-09 | P1: See the checklist and its progress | Verify | ✅ Verified |
 | FCL-10 | P1: Add an item | Verify | ✅ Verified |
 | FCL-11 | P1: Add an item | Verify | ✅ Verified |
 | FCL-12 | P1: Add an item | Verify | ✅ Verified |
@@ -247,14 +247,14 @@ The card detail (feature `card-detail`, 4a) shows the title, due date, descripti
 | FCL-32 | P1: Read-only checklist | Verify | ✅ Verified |
 | FCL-33 | P1: Read-only checklist | Verify | ✅ Verified |
 | FCL-34 | Edge cases | Verify | ✅ Verified |
-| FCL-35 | Edge cases | Verify | ❌ Needs Fix |
-| FCL-36 | Edge cases | Verify | ❌ Needs Fix |
+| FCL-35 | Edge cases | Verify | ✅ Verified |
+| FCL-36 | Edge cases | Verify | ✅ Verified |
 | FCL-37 | Edge cases | Verify | ✅ Verified |
 | FCL-38 | Edge cases | Verify | ✅ Verified |
 | FCL-39 | Edge cases | Verify | ✅ Verified |
 | FCL-40 | Edge cases | Verify | ✅ Verified |
 
-**Coverage:** 40 total, 40 mapped to tasks (T1–T19). Validation iteration 1: 37 ✅ Verified, 3 ❌ Needs Fix (FCL-09, FCL-35, FCL-36; see `validation.md` Fixes 1–3)
+**Coverage:** 40 total, 40 mapped to tasks (T1–T19). Validation iteration 2: 40 ✅ Verified (iteration 1 had 3 ❌ Needs Fix, FCL-09, FCL-35, FCL-36, closed by `validation.md` Fixes 1–3)
 
 ---
 
