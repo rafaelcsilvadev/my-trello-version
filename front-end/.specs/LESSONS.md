@@ -14,6 +14,18 @@ Corroborated across multiple features. Safe to apply as guidance.
 - evidence: M40-M43 front-end/src/features/boards/components/boards-screen.tsx:89,115,125,147 (components) (+1 more)
 - last seen: 2026-10-30T20:11:17Z
 
+### L-017 - Click each toast action such as Recarregar in a test and assert the exact queries it refetches, since a settle refetch can mask a wrong reload key
+- signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `view-models` · harmful: 0
+- features: card-detail, card-checklist
+- evidence: M19 use-card-detail-view-model.ts:59 (validation.md Fix 2) (view-models) (+1 more)
+- last seen: 2026-10-31T01:44:18Z
+
+### L-018 - Assert the visual state an AC names, such as dimmed, with a class or style check on every listed field, not only the disabled attribute
+- signal: `ac_gap` · recurrence: 2 feature(s) · scope: `components` · harmful: 0
+- features: card-detail, card-checklist
+- evidence: FCD-34 card-detail-title.tsx:78 (validation.md Fix 3) (components) (+1 more)
+- last seen: 2026-10-31T01:44:18Z
+
 ## Candidates (under observation - do NOT load as guidance yet)
 
 Seen once or not yet corroborated. Tracked, not trusted.
@@ -108,23 +120,17 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: SPEC_DEVIATION front-end/src/features/board/components/label-filter.tsx:63 (components)
 - last seen: 2026-10-29T18:09:54Z
 
-### L-017 - Click each toast action such as Recarregar in a test and assert the exact queries it refetches, since a settle refetch can mask a wrong reload key
-- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `view-models` · harmful: 0
-- features: card-detail
-- evidence: M19 use-card-detail-view-model.ts:59 (validation.md Fix 2) (view-models)
-- last seen: 2026-10-30T20:11:17Z
-
-### L-018 - Assert the visual state an AC names, such as dimmed, with a class or style check on every listed field, not only the disabled attribute
-- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `components` · harmful: 0
-- features: card-detail
-- evidence: FCD-34 card-detail-title.tsx:78 (validation.md Fix 3) (components)
-- last seen: 2026-10-30T20:11:17Z
-
 ### L-019 - Give each negative clause of an AC, such as no control or not shown, its own absence assertion
 - signal: `ac_gap` · recurrence: 1 feature(s) · scope: `components` · harmful: 0
 - features: card-detail
 - evidence: FCD-29 card-detail.spec.tsx:283-293 (validation.md Fix 4) (components)
 - last seen: 2026-10-30T20:11:17Z
+
+### L-020 - When an action handles its own save failure instead of the shared path, test every failure status through that action
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `view-models` · harmful: 0
+- features: card-checklist
+- evidence: S19 front-end/src/features/board/view-models/use-card-checklist-view-model.ts:117-120 (view-models) (view-models)
+- last seen: 2026-10-31T01:44:18Z
 
 ## Quarantined (failed when applied - ignore)
 

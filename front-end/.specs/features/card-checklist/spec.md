@@ -213,48 +213,48 @@ The card detail (feature `card-detail`, 4a) shows the title, due date, descripti
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| FCL-01 | P1: See the checklist and its progress | Specify | Pending |
-| FCL-02 | P1: See the checklist and its progress | Specify | Pending |
-| FCL-03 | P1: See the checklist and its progress | Specify | Pending |
-| FCL-04 | P1: See the checklist and its progress | Specify | Pending |
-| FCL-05 | P1: See the checklist and its progress | Specify | Pending |
-| FCL-06 | P1: See the checklist and its progress | Specify | Pending |
-| FCL-07 | P1: See the checklist and its progress | Specify | Pending |
-| FCL-08 | P1: See the checklist and its progress | Specify | Pending |
-| FCL-09 | P1: See the checklist and its progress | Specify | Pending |
-| FCL-10 | P1: Add an item | Specify | Pending |
-| FCL-11 | P1: Add an item | Specify | Pending |
-| FCL-12 | P1: Add an item | Specify | Pending |
-| FCL-13 | P1: Add an item | Specify | Pending |
-| FCL-14 | P1: Add an item | Specify | Pending |
-| FCL-15 | P1: Add an item | Specify | Pending |
-| FCL-16 | P1: Tick an item off | Specify | Pending |
-| FCL-17 | P1: Tick an item off | Specify | Pending |
-| FCL-18 | P1: Edit an item's text | Specify | Pending |
-| FCL-19 | P1: Edit an item's text | Specify | Pending |
-| FCL-20 | P1: Edit an item's text | Specify | Pending |
-| FCL-21 | P1: Edit an item's text | Specify | Pending |
-| FCL-22 | P1: Edit an item's text | Specify | Pending |
-| FCL-23 | P1: Edit an item's text | Specify | Pending |
-| FCL-24 | P1: Delete an item | Specify | Pending |
-| FCL-25 | P1: Delete an item | Specify | Pending |
-| FCL-26 | P1: Delete an item | Specify | Pending |
-| FCL-27 | P1: Close with an unsaved item edit | Specify | Pending |
-| FCL-28 | P1: Close with an unsaved item edit | Specify | Pending |
-| FCL-29 | P1: Close with an unsaved item edit | Specify | Pending |
-| FCL-30 | P1: Close with an unsaved item edit | Specify | Pending |
-| FCL-31 | P1: Read-only checklist | Specify | Pending |
-| FCL-32 | P1: Read-only checklist | Specify | Pending |
-| FCL-33 | P1: Read-only checklist | Specify | Pending |
-| FCL-34 | Edge cases | Specify | Pending |
-| FCL-35 | Edge cases | Specify | Pending |
-| FCL-36 | Edge cases | Specify | Pending |
-| FCL-37 | Edge cases | Specify | Pending |
-| FCL-38 | Edge cases | Specify | Pending |
-| FCL-39 | Edge cases | Specify | Pending |
-| FCL-40 | Edge cases | Specify | Pending |
+| FCL-01 | P1: See the checklist and its progress | Verify | ✅ Verified |
+| FCL-02 | P1: See the checklist and its progress | Verify | ✅ Verified |
+| FCL-03 | P1: See the checklist and its progress | Verify | ✅ Verified |
+| FCL-04 | P1: See the checklist and its progress | Verify | ✅ Verified |
+| FCL-05 | P1: See the checklist and its progress | Verify | ✅ Verified |
+| FCL-06 | P1: See the checklist and its progress | Verify | ✅ Verified |
+| FCL-07 | P1: See the checklist and its progress | Verify | ✅ Verified |
+| FCL-08 | P1: See the checklist and its progress | Verify | ✅ Verified |
+| FCL-09 | P1: See the checklist and its progress | Verify | ❌ Needs Fix |
+| FCL-10 | P1: Add an item | Verify | ✅ Verified |
+| FCL-11 | P1: Add an item | Verify | ✅ Verified |
+| FCL-12 | P1: Add an item | Verify | ✅ Verified |
+| FCL-13 | P1: Add an item | Verify | ✅ Verified |
+| FCL-14 | P1: Add an item | Verify | ✅ Verified |
+| FCL-15 | P1: Add an item | Verify | ✅ Verified |
+| FCL-16 | P1: Tick an item off | Verify | ✅ Verified |
+| FCL-17 | P1: Tick an item off | Verify | ✅ Verified |
+| FCL-18 | P1: Edit an item's text | Verify | ✅ Verified |
+| FCL-19 | P1: Edit an item's text | Verify | ✅ Verified |
+| FCL-20 | P1: Edit an item's text | Verify | ✅ Verified |
+| FCL-21 | P1: Edit an item's text | Verify | ✅ Verified |
+| FCL-22 | P1: Edit an item's text | Verify | ✅ Verified |
+| FCL-23 | P1: Edit an item's text | Verify | ✅ Verified |
+| FCL-24 | P1: Delete an item | Verify | ✅ Verified |
+| FCL-25 | P1: Delete an item | Verify | ✅ Verified |
+| FCL-26 | P1: Delete an item | Verify | ✅ Verified |
+| FCL-27 | P1: Close with an unsaved item edit | Verify | ✅ Verified |
+| FCL-28 | P1: Close with an unsaved item edit | Verify | ✅ Verified |
+| FCL-29 | P1: Close with an unsaved item edit | Verify | ✅ Verified |
+| FCL-30 | P1: Close with an unsaved item edit | Verify | ✅ Verified |
+| FCL-31 | P1: Read-only checklist | Verify | ✅ Verified |
+| FCL-32 | P1: Read-only checklist | Verify | ✅ Verified |
+| FCL-33 | P1: Read-only checklist | Verify | ✅ Verified |
+| FCL-34 | Edge cases | Verify | ✅ Verified |
+| FCL-35 | Edge cases | Verify | ❌ Needs Fix |
+| FCL-36 | Edge cases | Verify | ❌ Needs Fix |
+| FCL-37 | Edge cases | Verify | ✅ Verified |
+| FCL-38 | Edge cases | Verify | ✅ Verified |
+| FCL-39 | Edge cases | Verify | ✅ Verified |
+| FCL-40 | Edge cases | Verify | ✅ Verified |
 
-**Coverage:** 40 total, 0 mapped to tasks, 40 unmapped ⚠️ (mapped in the Tasks phase)
+**Coverage:** 40 total, 40 mapped to tasks (T1–T19). Validation iteration 1: 37 ✅ Verified, 3 ❌ Needs Fix (FCL-09, FCL-35, FCL-36; see `validation.md` Fixes 1–3)
 
 ---
 
