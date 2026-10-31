@@ -224,6 +224,7 @@ export const en = {
       archivedNotice: 'Archived task · read-only',
       boardArchivedNotice: 'Archived board · read-only',
       checklist: {
+        title: 'Checklist',
         editItem: 'Edit item “{{text}}”',
         deleteItem: 'Delete item “{{text}}”',
       },

@@ -226,6 +226,7 @@ export const ptBR = {
       archivedNotice: 'Tarefa arquivada · somente leitura',
       boardArchivedNotice: 'Quadro arquivado · somente leitura',
       checklist: {
+        title: 'Checklist',
         editItem: 'Editar item “{{text}}”',
         deleteItem: 'Excluir item “{{text}}”',
       },
