@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 20,
+  "next_id": 21,
   "lessons": [
     {
       "id": "L-001",
@@ -301,17 +301,19 @@
       "text": "Click each toast action such as Recarregar in a test and assert the exact queries it refetches, since a settle refetch can mask a wrong reload key",
       "signal": "surviving_mutant",
       "scope": "view-models",
-      "status": "candidate",
+      "status": "confirmed",
       "features": [
-        "card-detail"
+        "card-detail",
+        "card-checklist"
       ],
-      "recurrence": 1,
+      "recurrence": 2,
       "harmful": 0,
       "evidence": [
-        "M19 use-card-detail-view-model.ts:59 (validation.md Fix 2) (view-models)"
+        "M19 use-card-detail-view-model.ts:59 (validation.md Fix 2) (view-models)",
+        "S18 front-end/src/features/board/view-models/use-card-checklist-view-model.ts:43 (view-models) (view-models)"
       ],
       "created": "2026-10-30T20:11:17Z",
-      "last_seen": "2026-10-30T20:11:17Z"
+      "last_seen": "2026-10-31T01:44:18Z"
     },
     {
       "id": "L-018",
@@ -319,17 +321,19 @@
       "text": "Assert the visual state an AC names, such as dimmed, with a class or style check on every listed field, not only the disabled attribute",
       "signal": "ac_gap",
       "scope": "components",
-      "status": "candidate",
+      "status": "confirmed",
       "features": [
-        "card-detail"
+        "card-detail",
+        "card-checklist"
       ],
-      "recurrence": 1,
+      "recurrence": 2,
       "harmful": 0,
       "evidence": [
-        "FCD-34 card-detail-title.tsx:78 (validation.md Fix 3) (components)"
+        "FCD-34 card-detail-title.tsx:78 (validation.md Fix 3) (components)",
+        "FCL-09 S23 front-end/src/features/board/components/card-detail-checklist-item.tsx:77 (components) (components)"
       ],
       "created": "2026-10-30T20:11:17Z",
-      "last_seen": "2026-10-30T20:11:17Z"
+      "last_seen": "2026-10-31T01:44:18Z"
     },
     {
       "id": "L-019",
@@ -348,6 +352,24 @@
       ],
       "created": "2026-10-30T20:11:17Z",
       "last_seen": "2026-10-30T20:11:17Z"
+    },
+    {
+      "id": "L-020",
+      "key": "surviving_mutant::when an action handles its own save failure instead of the shared path test every failure status through that action",
+      "text": "When an action handles its own save failure instead of the shared path, test every failure status through that action",
+      "signal": "surviving_mutant",
+      "scope": "view-models",
+      "status": "candidate",
+      "features": [
+        "card-checklist"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "S19 front-end/src/features/board/view-models/use-card-checklist-view-model.ts:117-120 (view-models) (view-models)"
+      ],
+      "created": "2026-10-31T01:44:18Z",
+      "last_seen": "2026-10-31T01:44:18Z"
     }
   ]
 }
