@@ -488,12 +488,17 @@ describe('CardDetail', () => {
       ).closest<HTMLElement>('[data-card-id]')!;
       await waitFor(() => expect(within(tile).getByText('1/3')).toBeTruthy());
 
-      fireEvent.click(await screen.findByRole('checkbox', { name: 'Review' }));
+      const box = await screen.findByRole('checkbox', { name: 'Review' });
+
+      fireEvent.click(box);
 
       await waitFor(() =>
         expect(within(checklist()).getByText('2/3')).toBeTruthy(),
       );
       expect(within(tile).getByText('2/3')).toBeTruthy();
+      // The item stays disabled while the tick is in flight; ending before it
+      // settles would leave it running into the next test.
+      await waitFor(() => expect(box).toHaveProperty('disabled', false));
     });
 
     it.each([
