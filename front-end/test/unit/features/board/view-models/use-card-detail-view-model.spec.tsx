@@ -1229,6 +1229,9 @@ describe('useCardDetailViewModel', () => {
 
       await waitFor(() => expect(location.pathname).toBe(boardPath));
       expect(result.current.state.isDiscardOpen).toBe(false);
+      // The delete starts after the navigation; ending before it settles would
+      // let its toast fire once the next test, or the file's jsdom, is gone.
+      await screen.findByText('Tarefa excluída definitivamente');
     });
   });
 
