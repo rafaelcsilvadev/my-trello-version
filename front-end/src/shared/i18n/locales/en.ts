@@ -223,6 +223,10 @@ export const en = {
       deleteForever: 'Delete permanently',
       archivedNotice: 'Archived task · read-only',
       boardArchivedNotice: 'Archived board · read-only',
+      checklist: {
+        editItem: 'Edit item “{{text}}”',
+        deleteItem: 'Delete item “{{text}}”',
+      },
       notFound: {
         title: 'This task no longer exists',
         detail: 'It may have been deleted on another device.',
