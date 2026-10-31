@@ -595,8 +595,8 @@ T18 → T19 → T20 → T21
 
 **Done when**:
 
-- [ ] ROADMAP shows 4b Done and STATE Handoff points to `card-checklist-dnd` (4b2)
-- [ ] Build gate passes; test count unchanged
+- [x] ROADMAP shows 4b Done and STATE Handoff points to `card-checklist-dnd` (4b2)
+- [x] Build gate passes; test count unchanged
 
 **Tests**: none
 **Gate**: build
