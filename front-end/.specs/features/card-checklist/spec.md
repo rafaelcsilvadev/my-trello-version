@@ -161,7 +161,7 @@ The card detail (feature `card-detail`, 4a) shows the title, due date, descripti
 3. The system SHALL NOT count text in the field "Adicionar item e apertar Enter" as an unsaved edit.  <!-- FCL-29 -->
 4. WHEN the user presses Esc while an item's text field is being edited THEN the system SHALL close only that edit (FCL-22) and keep the detail open.  <!-- FCL-30 -->
 
-**Independent Test**: Type in an item's field, click the backdrop → "Descartar alterações?"; **Continuar editando** keeps the typed text.
+**Independent Test**: Clear an item's field, click the backdrop → "Descartar alterações?"; **Continuar editando** keeps the typed text. A valid draft is saved when the field loses focus (FCL-18), so the backdrop click closes the detail without the dialog and nothing is lost.
 
 ---
 

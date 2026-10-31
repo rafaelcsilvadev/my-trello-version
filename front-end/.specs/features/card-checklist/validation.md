@@ -203,7 +203,26 @@ Temporary `git worktree add --detach` at `<scratchpad>/cc-sensor` on `1fc2d8f`, 
 
 ## Interactive UAT Results
 
-Not performed; the orchestrator decides. Worth a look: the alert sits below the list (FCL-23), the done text is dimmed (FCL-09), and the read-only rows are dimmed (FCL-31).
+Performed 2026-10-30 in Chrome (Claude in Chrome) against the Docker API and the Vite dev server, logged in as the demo user on a fresh seed, board "Product launch", card "Polish the board screen". No console errors. The seed was reset afterwards.
+
+| Check | Requirement | Result |
+| ----- | ----------- | ------ |
+| Items in order, "2/3", bar at about 67 % | FCL-01, FCL-05, FCL-06 | ✅ |
+| Done text struck through and dimmed | FCL-09 | ✅ |
+| Enter on the empty add field → "Write the item" below the list, red border on the field | FCL-13, FCL-23 | ✅ |
+| Add with surrounding spaces → trimmed, shown last, field empty and still focused, "2/4" | FCL-10, FCL-12 | ✅ |
+| Tick → "3/4", bar grows; the board tile follows | FCL-16, FCL-39 | ✅ |
+| Rename + Enter → kept after reload | FCL-18 | ✅ |
+| Esc in an item field → saved text back, error cleared, detail stays | FCL-22, FCL-30 | ✅ |
+| Empty item draft + backdrop click → "Discard changes?"; **Keep editing** keeps the empty text | FCL-27, FCL-28 | ✅ |
+| Delete → focus moves to the add field; "3/3" count and bar turn green; kept after reload | FCL-06, FCL-24, FCL-25 | ✅ |
+| Archived card → checkboxes disabled, no delete, no add field, count and bar kept | FCL-31, FCL-32, FCL-33 | ✅ |
+
+**Notes**:
+
+- A valid item draft never reaches the discard dialog in a real browser: the backdrop click (and the close button) blurs the field first, which saves the draft (FCL-18), so the detail closes with nothing to discard and nothing lost. The dialog shows only when the draft cannot be saved (empty, over 200 characters, or a failed save). Behavior is correct; the P1 Independent Test in `spec.md` was reworded to match.
+- The archived-board mode was not exercised: the seed's archived board has no card with a checklist. It stays covered by the composed tests (`cd.spec`).
+- The extension's synthetic clicks did not open the board link or the card tile (fields, checkboxes and buttons responded); `element.click()` opened them, so the card was reached that way. Not reproduced with a physical mouse; the e2e suite opens cards by click.
 
 ---
 
@@ -331,7 +350,7 @@ No `// SPEC_DEVIATION` markers in this feature.
 **Sensor**: iteration 2 6/6 killed (S18, S19, S23 now killed); iteration 1 36/39 (S34 equivalent)
 **Gate**: 1669 unit/component passed, 0 failed, 0 skipped (`a1ae7c1`); 31 e2e passed in CI `41160769236`
 
-**Iteration 2 notes**: the fixes add tests and assertions only; no `src` change, no test removed or weakened. UAT is still worth a look for the alert below the list (FCL-23), the dimmed done text (FCL-09) and the dimmed read-only rows (FCL-31).
+**Iteration 2 notes**: the fixes add tests and assertions only; no `src` change, no test removed or weakened. Interactive UAT (2026-10-30) passed, including the alert below the list (FCL-23), the dimmed done text (FCL-09) and the read-only rows (FCL-31).
 
 **Lessons (iteration 2)**: clean PASS, nothing new recorded. L-017 and L-018 stay `confirmed`; L-020 stays `candidate`.
 
