@@ -261,6 +261,11 @@ No `// SPEC_DEVIATION` markers in this feature.
 - **Root cause**: unknown. A `runChange` failure in `use-card-detail-view-model.spec.tsx` resolves after the test environment is gone (CI run `41154529996`).
 - **Fix task**: run `dvm.spec` with `--sequence.shuffle` in a loop until it reproduces, then end the leaking test with its request settled (or a `cleanup()` + awaited settle in `afterEach`).
 - **Done when**: the source test is fixed or the flake is logged as not reproducible after N shuffled runs.
+- **Result**: fixed in `38c3f5f`. Not reproducible as is (0 of 15 runs of the last two tests), so the source was found with a temporary probe, since reverted: it listed every test that ended with a `runChange` still pending. Two did: `confirmDelete is never blocked` and the file's last test, `treats the local calendar date as today`, both holding that test's delete. `confirmDelete` navigates before the delete starts, and the test ended on the `pathname`, so the delete outlived the file; a failure then toasted into the gone jsdom (`notify` default branch, as in the CI stack). The test now awaits the "Tarefa excluída definitivamente" toast. After the fix the probe lists no pending change in `dvm.spec`, in order and in 3 `--sequence.shuffle` runs. Gate green, 1669 tests (+0).
+- **Open item (other files, not this feature)**: the same probe over the whole suite lists three tests that end with a change in flight; one settled in the next test as `status 0, Network error`, like the unhandled `POST /cards/c3/move` in the CI log. Harmless while none is the last test of its file:
+  - `use-board-view-model.spec.tsx` › "moves the card counters with a cross-column move, before and after the drop"
+  - `use-boards-view-model.spec.tsx` › "404 toasts saveFail without a button and refetches the lists, even with another change pending"
+  - `card-detail.spec.tsx` › "updates the count and the board tile badge on a tick"
 
 ---
 
