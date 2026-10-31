@@ -570,8 +570,8 @@ T18 → T19 → T20 → T21
 
 **Done when**:
 
-- [ ] README explains adding, ticking, renaming and deleting items and the read-only modes
-- [ ] Build gate passes; test count unchanged
+- [x] README explains adding, ticking, renaming and deleting items and the read-only modes
+- [x] Build gate passes; test count unchanged
 
 **Tests**: none
 **Gate**: build
