@@ -266,6 +266,7 @@ No `// SPEC_DEVIATION` markers in this feature.
   - `use-board-view-model.spec.tsx` › "moves the card counters with a cross-column move, before and after the drop"
   - `use-boards-view-model.spec.tsx` › "404 toasts saveFail without a button and refetches the lists, even with another change pending"
   - `card-detail.spec.tsx` › "updates the count and the board tile badge on a tick"
+- **Open item result**: closed in `9260982`, `cc895bd` and `fc9e22d`, one per test. Each test now waits for its change to settle before it ends: the move test until `c3` leaves `pendingIds`, the saveFail test until `pendingIds` is empty and the settle refetch is done, and the tick test until the `Review` checkbox is enabled again. The `runChange` probe (temporary, reverted) listed these three tests before the fix and none after, over the whole suite in order and in one `--sequence.shuffle` run. Gate green, 1669 tests (+0).
 
 ---
 

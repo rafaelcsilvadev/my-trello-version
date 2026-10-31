@@ -627,6 +627,13 @@ describe('useBoardsViewModel', () => {
       expect(result.current.vm.state.query.data).toEqual([]);
       expect(screen.queryByRole('button')).toBeNull();
       held.open();
+      // Ending before the archive settles would leave it running into the next test.
+      await waitFor(() =>
+        expect(result.current.vm.state.pendingIds).toEqual(new Set()),
+      );
+      await waitFor(() =>
+        expect(result.current.vm.state.query.isFetching).toBe(false),
+      );
     });
 
     it('401 on a change shows no toast', async () => {
