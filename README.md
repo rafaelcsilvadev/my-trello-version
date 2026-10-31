@@ -4,7 +4,7 @@
 
 **English** | [Português](README.PT.md)
 
-> 🚧 **Work in progress.** The back-end API is feature-complete (features 0 to 6). The web front-end has sign-up, log-in, the boards list, the board view, drag and drop, board filters and the card detail; the card checklist, labels and settings come next. The mobile app has not started yet.
+> 🚧 **Work in progress.** The back-end API is feature-complete (features 0 to 6). The web front-end has sign-up, log-in, the boards list, the board view, drag and drop, board filters, the card detail and its checklist; reordering checklist items, labels and settings come next. The mobile app has not started yet.
 
 A personal take on Trello: each user signs up and manages only their own boards, lists and cards.
 
@@ -29,7 +29,7 @@ The project has two goals:
 
 MVP = features 0 to 4. Full roadmap in [`back-end/.specs/ROADMAP.md`](back-end/.specs/ROADMAP.md).
 
-Web front-end: `foundation` (app shell, routes and auth guard, typed API client, theme, PT-BR/EN i18n, toasts, Docker service, CI) `auth` (sign-up, log-in, rate-limit notice, log-out) `boards` (active/archived tabs, create, edit, archive, restore, delete) and `board` (columns and cards, done flag, archived items, read-only archived board, phone layout) `board-dnd` (move cards and columns with the mouse or the keyboard, live region, "Move to…") `board-filters` (search, label and due-date filters, `/` shortcut, drag off while filtering) and `card-detail` (title, done flag, due date, description, move, archive, restore, delete, read-only modes, discard dialog) are done. The card checklist comes next, one feature at a time. Roadmap in [`front-end/.specs/ROADMAP.md`](front-end/.specs/ROADMAP.md).
+Web front-end: `foundation` (app shell, routes and auth guard, typed API client, theme, PT-BR/EN i18n, toasts, Docker service, CI) `auth` (sign-up, log-in, rate-limit notice, log-out) `boards` (active/archived tabs, create, edit, archive, restore, delete) and `board` (columns and cards, done flag, archived items, read-only archived board, phone layout) `board-dnd` (move cards and columns with the mouse or the keyboard, live region, "Move to…") `board-filters` (search, label and due-date filters, `/` shortcut, drag off while filtering) and `card-detail` (title, done flag, due date, description, move, archive, restore, delete, read-only modes, discard dialog) and `card-checklist` (add, tick, rename and delete items, progress bar, read-only modes) are done. Reordering checklist items comes next, one feature at a time. Roadmap in [`front-end/.specs/ROADMAP.md`](front-end/.specs/ROADMAP.md).
 
 ---
 
@@ -195,10 +195,16 @@ Opening a task:
 - Edit the title in place: Enter or leaving the field saves, Esc puts the saved title back. An empty title ("Give the task a title") or one over 100 characters is not saved.
 - Pick a date in **Due date** to set it, and **Remove due date** to clear it. Both save at once.
 - **Description** holds up to 5000 characters, with a counter under the field. **Save** and **Cancel** show only while the text differs from the saved one.
+- **Checklist**, below the description, lists the task's items. With at least one item, the heading shows the count ("2/3") and a progress bar, green once every item is done. If the items fail to load, **Try again** loads them again; the rest of the detail still works.
+- Type in "Add an item and press Enter" and press Enter to add an item at the end; the field clears and keeps the focus. An empty item ("Write the item") or one over 200 characters is not added.
+- Tick an item's checkbox to mark it done (its text is struck through) or not done; the count updates at once.
+- Edit an item's text in place: Enter or leaving the field saves, Esc puts the saved text back. An empty text or one over 200 characters is not saved.
+- The X next to an item deletes it at once, with no confirmation, and moves the focus to the add field.
 - The labels on the task show as chips; they can't be changed here yet. The footer shows when the task was created, **Move to…** (the same dialog as on the board; the detail stays open on the new column) and **Archive**.
 - An archived task opens read-only with the notice "Archived task · read-only"; open it from the **Archived** column (**Show archived**). **Restore** makes it editable again and puts it at the end of its column. **Delete permanently** asks for confirmation and then removes the task with its checklist. If the task's column is archived, both buttons are off until you restore the column.
 - A task of an archived board shows "Archived board · read-only", with every field off and no footer action.
-- Close the detail with X, Esc, a click outside it or the browser's Back button; focus returns to the task on the board. If the title or the description has unsaved edits, "Discard changes?" asks first: **Keep editing** keeps your text, **Discard** closes without saving.
+- In both read-only modes the checklist still shows the count and the progress bar, but the checkboxes and texts are off and there is no add field and no X.
+- Close the detail with X, Esc, a click outside it or the browser's Back button; focus returns to the task on the board. If the title, the description or a checklist item has unsaved edits, "Discard changes?" asks first: **Keep editing** keeps your text, **Discard** closes without saving.
 - While the detail is open, the `n` and `/` shortcuts are off.
 
 Changes show at once and are saved in the background. If saving fails, the change is undone and a toast offers **Try again**.
