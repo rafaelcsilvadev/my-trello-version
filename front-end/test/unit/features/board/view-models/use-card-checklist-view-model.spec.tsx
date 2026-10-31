@@ -617,6 +617,42 @@ describe('useCardChecklistViewModel — edit text', () => {
     await waitFor(() => expect(requests).toHaveLength(2));
     expect(requests[1]).toEqual({ id: 'i2', body: { text: 'Comprar leite' } });
   });
+
+  it('a 409 puts the typed text back and shows the conflict toast with Recarregar', async () => {
+    checklistServer();
+    updateServer(() => problem(409));
+    const { result } = await setupReady();
+    act(() => result.current.actions.setDraft('i2', 'Comprar leite'));
+    act(() => result.current.actions.submitDraft('i2'));
+
+    await screen.findByText(conflict);
+    expect(screen.getByRole('button', { name: 'Recarregar' })).toBeTruthy();
+    expect(
+      screen.queryByRole('button', { name: 'Tentar novamente' }),
+    ).toBeNull();
+    await waitFor(() =>
+      expect(result.current.state.drafts).toEqual({ i2: 'Comprar leite' }),
+    );
+    expect(textOf(result.current.state.items, 'i2')).toBe(seed[0].text);
+  });
+
+  it('a 404 puts the typed text back, shows the save-fail toast and refetches the checklist', async () => {
+    const requests = checklistServer();
+    updateServer(() => problem(404));
+    const { result } = await setupReady();
+    const loaded = requests.items;
+    act(() => result.current.actions.setDraft('i2', 'Comprar leite'));
+    act(() => result.current.actions.submitDraft('i2'));
+
+    await screen.findByText(saveFail);
+    expect(
+      screen.queryByRole('button', { name: 'Tentar novamente' }),
+    ).toBeNull();
+    await waitFor(() =>
+      expect(result.current.state.drafts).toEqual({ i2: 'Comprar leite' }),
+    );
+    await waitFor(() => expect(requests.items).toBeGreaterThan(loaded));
+  });
 });
 
 // Answers each item delete with the next queued reply, or with a 204.
