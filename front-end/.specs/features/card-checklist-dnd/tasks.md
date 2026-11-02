@@ -296,10 +296,10 @@ T11 → T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Unit: the row is not draggable until `pointerdown` on the grip; `pointerdown` on the text field, checkbox or delete button leaves it not draggable; `pointerup` disarms it
-- [ ] Unit: `dragstart` sets `text/plain` and calls `onStart('mouse')`; `dragover` above and below the middle calls `onHover('before')` and `onHover('after')`; `drop` calls `onDrop`; `dragend` calls `onEnd`
-- [ ] Unit: the source row has the `border-dashed` and `opacity-50` classes
-- [ ] Build gate passes; test count only grows
+- [x] Unit: the row is not draggable until `pointerdown` on the grip; `pointerdown` on the text field, checkbox or delete button leaves it not draggable; `pointerup` disarms it
+- [x] Unit: `dragstart` sets `text/plain` and calls `onStart('mouse')`; `dragover` above and below the middle calls `onHover('before')` and `onHover('after')`; `drop` calls `onDrop`; `dragend` calls `onEnd`
+- [x] Unit: the source row has the `border-dashed` and `opacity-50` classes
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
