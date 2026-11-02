@@ -132,7 +132,7 @@ graph TD
 ### `components/card-detail-checklist.tsx` (extend)
 
 - Renders `MoveBanner` between the progress bar and the list when `bannerText` is set (FCLD-08).
-- Renders the list from `preview.items`, a dashed placeholder (`h-9.5 rounded-sm border-2 border-dashed border-border-focus`, `data-testid="checklist-drop-placeholder"`) at `placeholderIndex` (FCLD-04), and an end zone after the last row that hovers `items.length` and accepts the drop.
+- Renders the list from `preview.items`, a dashed placeholder (`h-9.5 rounded-sm border-2 border-dashed border-border-focus`, `data-testid="checklist-drop-placeholder"`) at `placeholderIndex` (FCLD-04), and an end zone after the last row, shown during a mouse drag, that hovers `dropIndex(otherIds, null, 'after')` (past the other rows) and accepts the drop; the placeholder accepts the drop too.
 - Maps each row's `onHover(slot)` to `hover(dropIndex(otherIds, item.id, slot))`, where `otherIds` leaves out the dragged item.
 - Renders `MoveAnnouncer` inside the `<section>`, always mounted, and only when the section is mounted (FCLD-17).
 - Refocus `useLayoutEffect` over `[data-item-grip-id]`, copied from `board-columns.tsx` (FCLD-15).
