@@ -250,11 +250,12 @@ describe('replayItemMoves', () => {
   });
 
   it('replays several later moves in the order they were made', () => {
-    // A, B, C: C → 0 fails; then B → 0 and C → 2 hold.
+    // A, B, C: C → 0 fails; then A → 2 and B → 2 hold.
+    // In order: B, C, A then C, A, B. Newest first would give C, B, A.
     const current = [
-      item('b', { position: 0 }),
+      item('c', { position: 0 }),
       item('a', { position: 1 }),
-      item('c', { position: 2 }),
+      item('b', { position: 2 }),
     ];
 
     expect(
@@ -263,15 +264,15 @@ describe('replayItemMoves', () => {
           current,
           ['a', 'b', 'c'],
           [
-            { id: 'b', position: 0 },
-            { id: 'c', position: 2 },
+            { id: 'a', position: 2 },
+            { id: 'b', position: 2 },
           ],
         ),
       ),
     ).toEqual([
-      ['b', 0],
+      ['c', 0],
       ['a', 1],
-      ['c', 2],
+      ['b', 2],
     ]);
   });
 
