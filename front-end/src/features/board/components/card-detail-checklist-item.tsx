@@ -136,11 +136,15 @@ export function CardDetailChecklistItem({
           aria-label={t('board.cardDetail.checklist.reorderItem', {
             text: item.text,
           })}
-          disabled={!movable.canDrag && !movable.isPicked}
+          // aria-disabled, not disabled: a disabled button drops focus, and the
+          // grip keeps it while its drop is in flight (FCLD-15, FCLD-22).
+          aria-disabled={
+            !movable.canDrag && !movable.isPicked ? true : undefined
+          }
           onKeyDown={onGripKeyDown}
           onPointerDown={() => setArmed(true)}
           onPointerUp={() => setArmed(false)}
-          className="inline-flex flex-none cursor-grab rounded-xs text-text-tertiary focus-visible:outline-2 focus-visible:outline-border-focus disabled:cursor-default disabled:text-text-disabled"
+          className="inline-flex flex-none cursor-grab rounded-xs text-text-tertiary focus-visible:outline-2 focus-visible:outline-border-focus aria-disabled:cursor-default aria-disabled:text-text-disabled"
         >
           <GripVertical size={14} aria-hidden />
         </button>

@@ -206,7 +206,7 @@ describe('CardDetailChecklistItem', () => {
 
       expect(grip()).toBeTruthy();
       expect(grip()!.getAttribute('data-item-grip-id')).toBe('i1');
-      expect(grip()!.disabled).toBe(false);
+      expect(grip()!.hasAttribute('aria-disabled')).toBe(false);
       expect(grip()!.classList.contains('focus-visible:outline-2')).toBe(true);
     });
 
@@ -217,12 +217,23 @@ describe('CardDetailChecklistItem', () => {
     });
 
     it('disables the grip while the item cannot move, unless it is picked (FCLD-22)', () => {
+      // aria-disabled, not disabled: the grip keeps focus after a drop (FCLD-15).
       renderItem({ movable: move({ canDrag: false }) });
-      expect(grip()!.disabled).toBe(true);
+      expect(grip()!.getAttribute('aria-disabled')).toBe('true');
+      expect(grip()!.disabled).toBe(false);
+      expect(
+        grip()!.classList.contains('aria-disabled:text-text-disabled'),
+      ).toBe(true);
+      cleanup();
+
+      const blocked = move({ canDrag: false });
+      renderItem({ movable: blocked });
+      fireEvent.keyDown(grip()!, { key: ' ' });
+      expect(blocked.onStart).not.toHaveBeenCalled();
       cleanup();
 
       renderItem({ movable: move({ canDrag: false, isPicked: true }) });
-      expect(grip()!.disabled).toBe(false);
+      expect(grip()!.hasAttribute('aria-disabled')).toBe(false);
     });
 
     it('picks the item on Space (FCLD-07)', () => {

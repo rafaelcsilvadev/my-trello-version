@@ -351,11 +351,11 @@ T11 → T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Unit: Tab to a grip, Space, ↑, Space → the list order changes, the move request is sent, the live region text is inside the dialog, focus is on the grip
-- [ ] Unit: Esc while picked → order restored, the dialog stays open; a second Esc closes the detail
-- [ ] Unit: closing the detail while an item is picked sends no move request
-- [ ] Unit: an archived card shows no grip; a `500` on the move puts the item back and shows the retry toast
-- [ ] Build gate passes; test count only grows
+- [x] Unit: Tab to a grip, Space, ↑, Space → the list order changes, the move request is sent, the live region text is inside the dialog, focus is on the grip
+- [x] Unit: Esc while picked → order restored, the dialog stays open; a second Esc closes the detail
+- [x] Unit: closing the detail while an item is picked sends no move request
+- [x] Unit: an archived card shows no grip; a `500` on the move puts the item back and shows the retry toast
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build

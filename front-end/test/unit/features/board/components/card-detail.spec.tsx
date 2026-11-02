@@ -582,5 +582,170 @@ describe('CardDetail', () => {
         }),
       ).toBeTruthy();
     });
+
+    describe('reorder', () => {
+      const moveUrl = `${apiOrigin}/api/v1/checklist-items/:id/move`;
+
+      // Records each move body and saves it into `seed.items`, so the refetch
+      // after the move reads the new order.
+      function moveApi(seed: Seed, fail = false) {
+        const moves: { id: string; body: unknown }[] = [];
+        server.use(
+          http.post(moveUrl, async ({ params, request }) => {
+            const body = (await request.json()) as { position: number };
+            moves.push({ id: params.id as string, body });
+            if (fail) return problem(500);
+            const moved = seed.items.find(({ id }) => id === params.id)!;
+            const rest = seed.items.filter((item) => item !== moved);
+            rest.splice(body.position, 0, moved);
+            seed.items = rest.map((item, position) => ({ ...item, position }));
+            return HttpResponse.json(seed.items[body.position]);
+          }),
+        );
+        return moves;
+      }
+
+      async function readyItems() {
+        return waitFor(() => {
+          const found = checklist();
+          expect(within(found).getAllByRole('checkbox')).toHaveLength(3);
+          return found;
+        });
+      }
+
+      function order() {
+        return within(checklist())
+          .getAllByRole('textbox', { name: /^Editar item/ })
+          .map((field) => (field as HTMLInputElement).value);
+      }
+
+      function grip(text: string) {
+        return within(checklist()).getByRole('button', {
+          name: `Reordenar o item ${text}`,
+        });
+      }
+
+      async function tabTo(target: HTMLElement) {
+        for (
+          let tab = 0;
+          tab < 40 && document.activeElement !== target;
+          tab++
+        ) {
+          await userEvent.tab();
+        }
+        expect(document.activeElement).toBe(target);
+      }
+
+      it('moves an item with the keyboard and keeps focus on its grip', async () => {
+        const { seed } = detailApi(withItems);
+        const moves = moveApi(seed);
+        await renderReady();
+        await readyItems();
+
+        await tabTo(grip('Review'));
+        await userEvent.keyboard(' ');
+        await userEvent.keyboard('{ArrowUp}');
+        await userEvent.keyboard(' ');
+
+        expect(order()).toEqual(['Review', 'Draft', 'Send']);
+        await waitFor(() =>
+          expect(moves).toEqual([{ id: 'i2', body: { position: 0 } }]),
+        );
+        const live = within(detail())
+          .getAllByRole('status')
+          .find((region) => region.getAttribute('aria-live') === 'assertive')!;
+        expect(live.textContent).toBe('Item Review solto na posição 1 de 3');
+        expect(document.activeElement).toBe(grip('Review'));
+        // The optimistic reorder and the refetch move the row again.
+        await waitFor(() =>
+          expect(
+            within(checklist()).getByRole('checkbox', { name: 'Review' }),
+          ).toHaveProperty('disabled', false),
+        );
+        expect(order()).toEqual(['Review', 'Draft', 'Send']);
+        expect(document.activeElement).toBe(grip('Review'));
+      });
+
+      it('cancels the move on Esc and closes the detail on a second Esc', async () => {
+        const { seed } = detailApi(withItems);
+        const moves = moveApi(seed);
+        const services = await renderReady();
+        await readyItems();
+
+        await tabTo(grip('Review'));
+        await userEvent.keyboard(' ');
+        await userEvent.keyboard('{ArrowUp}');
+        await userEvent.keyboard('{Escape}');
+
+        expect(order()).toEqual(['Draft', 'Review', 'Send']);
+        expect(detail()).toBeTruthy();
+        expect(services.router.state.location.pathname).toBe(
+          `${boardPath}/t/${cardId}`,
+        );
+
+        await userEvent.keyboard('{Escape}');
+
+        expect(await closedPath(services)).toBe(boardPath);
+        expect(moves).toEqual([]);
+      });
+
+      it('sends no move when the detail closes with an item picked', async () => {
+        const { seed } = detailApi(withItems);
+        const moves = moveApi(seed);
+        const services = await renderReady();
+        await readyItems();
+
+        await tabTo(grip('Review'));
+        await userEvent.keyboard(' ');
+        await userEvent.keyboard('{ArrowUp}');
+        fireEvent.click(
+          within(detail()).getByRole('button', { name: 'Fechar' }),
+        );
+
+        expect(await closedPath(services)).toBe(boardPath);
+        expect(moves).toEqual([]);
+      });
+
+      it('shows no grip and no draggable row on an archived card', async () => {
+        detailApi({
+          ...withItems,
+          card: { ...withItems.card, archivedAt: stamp },
+        });
+        await renderReady();
+        const section = await readyItems();
+
+        expect(
+          within(section).queryAllByRole('button', { name: /^Reordenar/ }),
+        ).toHaveLength(0);
+        expect(section.querySelector('[data-item-grip-id]')).toBeNull();
+        expect(section.querySelector('[draggable]')).toBeNull();
+      });
+
+      it('puts the item back and offers a retry when the move fails', async () => {
+        const { seed } = detailApi(withItems);
+        const moves = moveApi(seed, true);
+        await renderReady();
+        await readyItems();
+
+        await tabTo(grip('Review'));
+        await userEvent.keyboard(' ');
+        await userEvent.keyboard('{ArrowUp}');
+        await userEvent.keyboard(' ');
+
+        const toast = await screen.findByText(
+          'Não foi possível salvar. Tente novamente.',
+        );
+        expect(moves).toEqual([{ id: 'i2', body: { position: 0 } }]);
+        expect(order()).toEqual(['Draft', 'Review', 'Send']);
+        // `hidden`: React Aria hides the toast region outside the modal (STATE P3).
+        const region = toast.closest<HTMLElement>('output')!;
+        expect(
+          within(region).getByRole('button', {
+            name: 'Tentar novamente',
+            hidden: true,
+          }),
+        ).toBeTruthy();
+      });
+    });
   });
 });
