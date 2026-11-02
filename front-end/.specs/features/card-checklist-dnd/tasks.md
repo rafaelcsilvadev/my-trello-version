@@ -323,11 +323,11 @@ T11 → T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Unit: the banner renders between the progress bar and the list only with `bannerText`; the live region is an `output` with `aria-live="assertive"` and the `sr-only` class carrying `announcement`
-- [ ] Unit: the placeholder (`border-dashed`) renders at `placeholderIndex`; hover over a row maps to `hover(dropIndex(...))`; a drop on the end zone hovers `items.length` and drops
-- [ ] Unit: after a step the picked grip has focus even when its node moved
-- [ ] Unit: read-only mode passes `movable` `null` to every row; loading and error render no grip
-- [ ] Build gate passes; test count only grows
+- [x] Unit: the banner renders between the progress bar and the list only with `bannerText`; the live region is an `output` with `aria-live="assertive"` and the `sr-only` class carrying `announcement`
+- [x] Unit: the placeholder (`border-dashed`) renders at `placeholderIndex`; hover over a row maps to `hover(dropIndex(...))`; a drop on the end zone hovers the index past the other rows (`items.length - 1`) and drops
+- [x] Unit: after a step the picked grip has focus even when its node moved
+- [x] Unit: read-only mode passes `movable` `null` to every row; loading and error render no grip
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build

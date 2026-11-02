@@ -419,7 +419,10 @@ describe('CardDetail', () => {
     detailApi(overrides);
     await renderReady();
 
-    expect(screen.getByRole('status').textContent).toContain(notice);
+    // The checklist move live region is a second status (FCLD-17).
+    expect(
+      screen.getAllByRole('status').map((region) => region.textContent),
+    ).toContainEqual(expect.stringContaining(notice));
     for (const field of [
       screen.getByRole('textbox', { name: 'Título' }),
       screen.getByRole('checkbox', { name: 'Concluída' }),
