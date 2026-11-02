@@ -552,8 +552,10 @@ describe('CardDetailChecklist', () => {
       );
       rerender({});
 
-      expect(grip('Revisar PR')!.disabled).toBe(true);
-      expect(grip('Publicar')!.disabled).toBe(false);
+      // aria-disabled keeps the grip focusable, so a drop keeps focus (FCLD-15).
+      expect(grip('Revisar PR')!.getAttribute('aria-disabled')).toBe('true');
+      expect(grip('Revisar PR')!.disabled).toBe(false);
+      expect(grip('Publicar')!.hasAttribute('aria-disabled')).toBe(false);
     });
 
     // jsdom keeps focus on a moved node; a browser can drop it to `body`.
