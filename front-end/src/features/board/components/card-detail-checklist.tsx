@@ -1,5 +1,11 @@
 import { SquareCheck } from 'lucide-react';
-import { type KeyboardEvent, useRef } from 'react';
+import {
+  type DragEvent,
+  Fragment,
+  type KeyboardEvent,
+  useLayoutEffect,
+  useRef,
+} from 'react';
 import {
   TextField as AriaTextField,
   Input,
@@ -9,8 +15,15 @@ import { useTranslation } from 'react-i18next';
 
 import { LoadError } from '@/shared/ui/load-error';
 
+import { dropIndex } from '../model/move';
+import type { ChecklistItem } from '../model/types';
 import type { useCardChecklistViewModel } from '../view-models/use-card-checklist-view-model';
-import { CardDetailChecklistItem } from './card-detail-checklist-item';
+import {
+  CardDetailChecklistItem,
+  type ItemMove,
+} from './card-detail-checklist-item';
+import { MoveAnnouncer } from './move-announcer';
+import { MoveBanner } from './move-banner';
 
 type ViewModel = ReturnType<typeof useCardChecklistViewModel>;
 
@@ -21,8 +34,7 @@ type CardDetailChecklistProps = {
   isDisabled: boolean;
 };
 
-// Port of the prototype checklist section (design/Task List.dc.html:698-722),
-// without the reorder banner, which belongs to the checklist reorder feature.
+// Port of the prototype checklist section (design/Task List.dc.html:698-722).
 export function CardDetailChecklist({
   state,
   actions,
@@ -30,7 +42,35 @@ export function CardDetailChecklist({
 }: CardDetailChecklistProps) {
   const { t } = useTranslation();
   const { status, items, progress, drafts, newText, error, pendingIds } = state;
+  const { preview, bannerText, announcement, keyboardItemId } = state.move;
   const addInput = useRef<HTMLInputElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  // The last keyboard item, refocused while the list re-renders after the session.
+  const focusItem = useRef<string | null>(null);
+  // The other rows of a mouse drag, which drop indexes count (FCLD-04).
+  const otherIds = items
+    .map((item) => item.id)
+    .filter((id) => id !== preview.sourceId);
+  // The row the placeholder renders before; `null` puts it last.
+  const placeholderBefore =
+    preview.placeholderIndex === null
+      ? undefined
+      : (otherIds[preview.placeholderIndex] ?? null);
+
+  // FCLD-15: a step reorders the picked row's node, which can drop focus to `body`.
+  useLayoutEffect(() => {
+    if (keyboardItemId) focusItem.current = keyboardItemId;
+    const id = focusItem.current;
+    if (!id) return;
+    // Focus elsewhere means the user moved it; after the session it also ends the refocus.
+    if (document.activeElement !== document.body) {
+      if (!keyboardItemId) focusItem.current = null;
+      return;
+    }
+    sectionRef.current
+      ?.querySelector<HTMLElement>(`[data-item-grip-id="${CSS.escape(id)}"]`)
+      ?.focus();
+  });
   const progressText = `${progress.done}/${progress.total}`;
   // Hidden without items, shown in every mode (FCL-07, FCL-33).
   const hasProgress = status === 'ready' && progress.total > 0;
@@ -48,8 +88,47 @@ export function CardDetailChecklist({
     addInput.current?.focus();
   }
 
+  // A drop target must cancel `dragover` to receive the drop.
+  function onTargetDragOver(event: DragEvent, index: number | null) {
+    event.preventDefault();
+    if (index !== null) actions.move.hover(index);
+  }
+
+  function movableOf(item: ChecklistItem): ItemMove | null {
+    if (isDisabled) return null;
+    return {
+      canDrag: actions.move.canDrag(item.id),
+      isSource: preview.sourceId === item.id,
+      isLifted: preview.liftedId === item.id,
+      isPicked: keyboardItemId === item.id,
+      onStart: (input) => actions.move.start(item.id, input),
+      onKey: (event) => {
+        if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+          actions.move.step(event.key);
+        } else if (event.key === 'Escape') {
+          actions.move.cancel();
+        } else {
+          actions.move.drop();
+        }
+      },
+      onHover: (slot) => actions.move.hover(dropIndex(otherIds, item.id, slot)),
+      onDrop: actions.move.drop,
+      // After a drop the session is gone, so this only cancels an abandoned drag.
+      onEnd: actions.move.cancel,
+    };
+  }
+
+  const dropPlaceholder = (
+    <div
+      data-testid="checklist-drop-placeholder"
+      onDragOver={(event) => onTargetDragOver(event, null)}
+      onDrop={actions.move.drop}
+      className="h-9.5 rounded-sm border-2 border-dashed border-border-focus"
+    />
+  );
+
   return (
-    <section className="flex flex-col gap-2">
+    <section ref={sectionRef} className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
         <SquareCheck size={16} aria-hidden className="text-text-secondary" />
         <h3 className="text-lg font-semibold text-text-primary">
@@ -76,6 +155,7 @@ export function CardDetailChecklist({
           />
         </ProgressBar>
       ) : null}
+      {bannerText ? <MoveBanner text={bannerText} /> : null}
       {status === 'error' ? <LoadError onRetry={actions.retryLoad} /> : null}
       {status === 'loading' ? (
         <div
@@ -88,22 +168,35 @@ export function CardDetailChecklist({
       ) : null}
       {status === 'ready' ? (
         <div className="flex flex-col">
-          {items.map((item) => (
-            <CardDetailChecklistItem
-              key={item.id}
-              item={item}
-              draft={drafts[item.id]}
-              isInvalid={error?.target === item.id}
-              isPending={pendingIds.has(item.id)}
-              isDisabled={isDisabled}
-              onToggle={() => actions.toggle(item.id)}
-              onChange={(text) => actions.setDraft(item.id, text)}
-              onSubmit={() => actions.submitDraft(item.id)}
-              onCancel={() => actions.cancelDraft(item.id)}
-              onDelete={() => onDelete(item.id)}
-              movable={null}
-            />
+          {preview.items.map((item) => (
+            <Fragment key={item.id}>
+              {placeholderBefore === item.id ? dropPlaceholder : null}
+              <CardDetailChecklistItem
+                item={item}
+                draft={drafts[item.id]}
+                isInvalid={error?.target === item.id}
+                isPending={pendingIds.has(item.id)}
+                isDisabled={isDisabled}
+                onToggle={() => actions.toggle(item.id)}
+                onChange={(text) => actions.setDraft(item.id, text)}
+                onSubmit={() => actions.submitDraft(item.id)}
+                onCancel={() => actions.cancelDraft(item.id)}
+                onDelete={() => onDelete(item.id)}
+                movable={movableOf(item)}
+              />
+            </Fragment>
           ))}
+          {placeholderBefore === null ? dropPlaceholder : null}
+          {preview.sourceId === null ? null : (
+            <div
+              data-testid="checklist-drop-end"
+              onDragOver={(event) =>
+                onTargetDragOver(event, dropIndex(otherIds, null, 'after'))
+              }
+              onDrop={actions.move.drop}
+              className="h-3"
+            />
+          )}
           {isDisabled ? null : (
             <AriaTextField
               value={newText}
@@ -123,6 +216,8 @@ export function CardDetailChecklist({
           )}
         </div>
       ) : null}
+      {/* Inside the dialog, where screen readers read it (FCLD-17). */}
+      <MoveAnnouncer text={announcement} />
       {/* One message for the add field and the rows (FCL-23). */}
       {error === null ? null : (
         <p role="alert" className="text-xs text-red-600">
