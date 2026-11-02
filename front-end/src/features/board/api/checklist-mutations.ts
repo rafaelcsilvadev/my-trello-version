@@ -1,9 +1,16 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRef } from 'react';
 
 import { useApi } from '@/shared/api/api-context';
 import { type ApiError, call } from '@/shared/api/api-error';
 
-import { placeItem, type ProgressDelta, sortItems } from '../model/checklist';
+import {
+  type ItemMove,
+  placeItem,
+  type ProgressDelta,
+  replayItemMoves,
+  sortItems,
+} from '../model/checklist';
 import type {
   Card,
   ChecklistItem,
@@ -14,6 +21,7 @@ import type {
 import { appendThenInvalidate } from './create-mutations';
 import { boardViewKeys } from './keys';
 import {
+  BOARD_VIEW_CHANGE_KEY,
   type CacheChange,
   fieldsPatch,
   inList,
@@ -127,9 +135,15 @@ export type MoveChecklistItemVariables = ItemVariables & {
   body: MoveChecklistItemDto;
 };
 
+// One logged move: where it puts the item, and the order it started from.
+type LoggedMove = ItemMove & { base: string[] };
+
 // Only the checklist cache changes: a move leaves `card.checklist` alone.
 export function useMoveChecklistItem(boardId: string, cardId: string) {
   const api = useApi();
+  const queryClient = useQueryClient();
+  // Moves applied since no board change was pending, oldest first (FCLD-21).
+  const log = useRef<LoggedMove[]>([]);
 
   return useOptimisticBoardViewChange<MoveChecklistItemVariables>(
     boardId,
@@ -141,19 +155,28 @@ export function useMoveChecklistItem(boardId: string, cardId: string) {
         }),
       ),
     ({ id, body }) => {
-      let previous: number | null = null;
+      // This move already counts as pending, so 1 means no other change is.
+      if (queryClient.isMutating({ mutationKey: BOARD_VIEW_CHANGE_KEY }) <= 1) {
+        log.current = [];
+      }
+      const entry: LoggedMove = { id, position: body.position, base: [] };
       return [
         {
           key: boardViewKeys.checklist(boardId, cardId),
           apply: (items: ChecklistItem[]) => {
-            previous = sortItems(items).findIndex((item) => item.id === id);
+            entry.base = sortItems(items).map((item) => item.id);
+            log.current.push(entry);
             return placeItem(items, id, body.position);
           },
-          // Puts back only this item, so an overlapping change survives (FCLD-21).
-          revert: (items: ChecklistItem[]) =>
-            previous === null || previous < 0
-              ? items
-              : placeItem(items, id, previous),
+          // Replays the later moves on the order before this one, so they stay
+          // where the user dropped them (FCLD-21).
+          revert: (items: ChecklistItem[]) => {
+            const index = log.current.indexOf(entry);
+            if (index < 0) return items;
+            const later = log.current.slice(index + 1);
+            log.current.splice(index, 1);
+            return replayItemMoves(items, entry.base, later);
+          },
         },
       ];
     },
