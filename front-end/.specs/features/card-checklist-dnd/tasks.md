@@ -162,10 +162,10 @@ T11 → T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Unit: the request carries `{ position }` for the item id; the checklist cache shows the new order before the response; the card caches are not touched
-- [ ] Unit: on `500` the item goes back to its old index; with an overlapping toggle of another item, a failed move reverts only the move
-- [ ] Unit: the item id is in `usePendingItemIds` while the request is in flight; the board queries refetch once after the last change settles
-- [ ] Build gate passes; test count only grows
+- [x] Unit: the request carries `{ position }` for the item id; the checklist cache shows the new order before the response; the card caches are not touched
+- [x] Unit: on `500` the item goes back to its old index; with an overlapping toggle of another item, a failed move reverts only the move
+- [x] Unit: the item id is in `usePendingItemIds` while the request is in flight; the board queries refetch once after the last change settles
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
