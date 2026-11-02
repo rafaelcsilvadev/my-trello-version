@@ -270,9 +270,9 @@ T11 → T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Unit: the grip shows with its name and the `focus-visible:outline-2` class; with `movable` `null` there is no grip; with `canDrag` `false` and not picked it is disabled
-- [ ] Unit: Space calls `onStart('keyboard')`; while picked, ↑ ↓ Space Enter Esc reach `onKey` with `preventDefault`; Esc does not bubble to a parent `keydown` listener; the picked row has `bg-brand-soft`
-- [ ] Build gate passes; test count only grows
+- [x] Unit: the grip shows with its name and the `focus-visible:outline-2` class; with `movable` `null` there is no grip; with `canDrag` `false` and not picked it is disabled
+- [x] Unit: Space calls `onStart('keyboard')`; while picked, ↑ ↓ Space Enter Esc reach `onKey` with `preventDefault`; Esc does not bubble to a parent `keydown` listener; the picked row has `bg-brand-soft`
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
