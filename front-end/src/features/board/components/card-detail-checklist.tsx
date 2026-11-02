@@ -101,6 +101,7 @@ export function CardDetailChecklist({
               onSubmit={() => actions.submitDraft(item.id)}
               onCancel={() => actions.cancelDraft(item.id)}
               onDelete={() => onDelete(item.id)}
+              movable={null}
             />
           ))}
           {isDisabled ? null : (
