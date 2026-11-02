@@ -44,7 +44,7 @@ graph TD
 | Component | Location | How to Use |
 | --------- | -------- | ---------- |
 | `useOptimisticBoardViewChange`, `usePendingItemIds` | `src/features/board/api/mutations.ts` | `useMoveChecklistItem` is one more change; the shared key marks the moving item pending (FCLD-22), disables its checkbox and delete (card-checklist pending rule) and refetches once the last change settles |
-| `CacheChange` (`apply` / `revert`) | `src/features/board/api/mutations.ts` | `apply` remembers the item's old index; `revert` puts only that item back (FCLD-21, FE-AD-010) |
+| `CacheChange` (`apply` / `revert`) | `src/features/board/api/mutations.ts` | `apply` remembers the order before the move; `revert` replays the moves made after it on that order, so only that item goes back (FCLD-21, FE-AD-010) |
 | `dropSlot`, `dropIndex`, `DropSlot` | `src/features/board/model/move.ts:57-81` | The vertical slot and the index among the other items, unchanged |
 | `byPosition`, `sortItems` | `src/features/board/model/columns.ts`, `model/checklist.ts` | `placeItem` sorts before splicing; the query's `select` already sorts what the screen reads |
 | `useSaveFailureNotifier.runChange` | `src/shared/ui/toast/use-save-failure-notifier.ts` | `null` success message (silent move); default texts give FCLD-18 (retry), FCLD-19 (`409` + Recarregar), FCLD-20 (`404` + refetch) with the checklist view-model's existing `reload` |
@@ -91,7 +91,7 @@ graph TD
 - **Purpose**: The optimistic move request.
 - **Interfaces**:
   - `type MoveChecklistItemVariables = ItemVariables & { body: MoveChecklistItemDto }`
-  - `useMoveChecklistItem(boardId: string, cardId: string)` - `POST /api/v1/checklist-items/{id}/move`; one `CacheChange` on `boardViewKeys.checklist(boardId, cardId)`: `apply` records the item's current index in the sorted list and calls `placeItem(items, id, body.position)`; `revert` calls `placeItem(items, id, previous)` (FCLD-05, FCLD-21)
+  - `useMoveChecklistItem(boardId: string, cardId: string)` - `POST /api/v1/checklist-items/{id}/move`; one `CacheChange` on `boardViewKeys.checklist(boardId, cardId)`: `apply` logs the move with the sorted id order before it (the log is cleared first when no other board change is pending) and calls `placeItem(items, id, body.position)`; `revert` drops the move from the log and calls `replayItemMoves(items, base, laterMoves)`, which re-sorts the current items by the base order and re-applies the moves logged after it (FCLD-05, FCLD-21)
 - **Reuses**: `useOptimisticBoardViewChange`, `call`, `useApi`
 
 ### `view-models/use-checklist-move.ts` (new)
@@ -166,7 +166,7 @@ No new entities. `MoveChecklistItemDto = { position: number }` comes from the AP
 | `409` (card, column or board archived elsewhere) | `revert`; conflict toast with Recarregar → `reload` invalidates every board query | "Este item foi arquivado. Recarregue para ver o estado atual." (FCLD-19) |
 | `404` (item deleted elsewhere) | `revert`; toast without a button; `reload` refetches, which includes the checklist | "Não foi possível salvar. Tente novamente."; the item disappears after the refetch (FCLD-20) |
 | `401` | Foundation session-expiry flow; `saveFailureKind` returns `sessionExpired` and no toast shows | Redirect to login (FND-16) |
-| Two moves in flight, one fails | Each `CacheChange` reverts only its own item (FE-AD-010) | The other move stays on screen (FCLD-21) |
+| Two moves in flight, one fails | The failed move's `revert` replays the later moves on the order before it (FE-AD-010) | The other move stays on screen; the order matches the server (FCLD-21) |
 | Detail closes mid-session | Unmount drops the session | Nothing sent (FCLD-16) |
 
 ---
