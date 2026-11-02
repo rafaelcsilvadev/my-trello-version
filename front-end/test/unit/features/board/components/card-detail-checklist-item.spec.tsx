@@ -201,13 +201,21 @@ describe('CardDetailChecklistItem', () => {
   });
 
   describe('grip', () => {
-    it('names the grip by the item text and shows the focus outline (FCLD-01, FCLD-07)', () => {
+    it('names the grip by the item text, shows the grip icon and the purple focus outline (FCLD-01, FCLD-07)', () => {
       renderItem({ movable: move() });
 
       expect(grip()).toBeTruthy();
       expect(grip()!.getAttribute('data-item-grip-id')).toBe('i1');
       expect(grip()!.hasAttribute('aria-disabled')).toBe(false);
       expect(grip()!.classList.contains('focus-visible:outline-2')).toBe(true);
+      expect(
+        grip()!.classList.contains('focus-visible:outline-border-focus'),
+      ).toBe(true);
+      expect(
+        grip()!
+          .querySelector('svg')!
+          .classList.contains('lucide-grip-vertical'),
+      ).toBe(true);
     });
 
     it('renders no grip in the read-only modes (FCLD-24)', () => {
