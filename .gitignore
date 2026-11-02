@@ -7,3 +7,6 @@ coverage/
 *.tsbuildinfo
 test-results/
 playwright-report/
+
+# claude-kit: machine-local skill symlinks
+**/.claude/skills/
