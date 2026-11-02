@@ -169,13 +169,19 @@ export function useMoveChecklistItem(boardId: string, cardId: string) {
             return placeItem(items, id, body.position);
           },
           // Replays the later moves on the order before this one, so they stay
-          // where the user dropped them (FCLD-21).
+          // where the user dropped them (FCLD-21). Each later move is rebased
+          // on that replay, so a later failure never brings this move back.
           revert: (items: ChecklistItem[]) => {
             const index = log.current.indexOf(entry);
             if (index < 0) return items;
             const later = log.current.slice(index + 1);
             log.current.splice(index, 1);
-            return replayItemMoves(items, entry.base, later);
+            let current = replayItemMoves(items, entry.base, []);
+            for (const move of later) {
+              move.base = current.map((item) => item.id);
+              current = placeItem(current, move.id, move.position);
+            }
+            return current;
           },
         },
       ];

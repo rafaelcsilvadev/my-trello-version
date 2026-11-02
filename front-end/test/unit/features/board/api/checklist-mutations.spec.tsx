@@ -793,6 +793,54 @@ describe('useMoveChecklistItem', () => {
     ).toHaveLength(1);
   });
 
+  it.each([
+    { first: itemC.id, second: itemA.id, label: 'C fails first' },
+    { first: itemA.id, second: itemC.id, label: 'A fails first' },
+  ])(
+    'keeps the server order when both overlapping moves fail ($label)',
+    async ({ first, second }) => {
+      const failMove = new Map<string, () => void>();
+      server.use(
+        http.post(moveUrl, async ({ params }) => {
+          await new Promise<void>((resolve) =>
+            failMove.set(String(params.id), resolve),
+          );
+          return HttpResponse.json({}, { status: 500 });
+        }),
+      );
+      const { wrapper, queryClient } = setupThree();
+      const { result } = renderHook(
+        () => useMoveChecklistItem(boardId, card.id),
+        { wrapper },
+      );
+
+      act(() => result.current.mutate({ id: itemC.id, body: { position: 0 } }));
+      await waitFor(() =>
+        expect(order(queryClient)).toEqual(['c0', 'a1', 'b2']),
+      );
+      act(() => result.current.mutate({ id: itemA.id, body: { position: 2 } }));
+      await waitFor(() =>
+        expect(order(queryClient)).toEqual(['c0', 'b1', 'a2']),
+      );
+      await waitFor(() => expect(failMove.size).toBe(2));
+
+      act(() => failMove.get(first)?.());
+      await waitFor(() =>
+        expect(
+          queryClient.getMutationCache().findAll({ status: 'pending' }),
+        ).toHaveLength(1),
+      );
+      act(() => failMove.get(second)?.());
+
+      await waitFor(() =>
+        expect(
+          queryClient.getMutationCache().findAll({ status: 'pending' }),
+        ).toHaveLength(0),
+      );
+      expect(order(queryClient)).toEqual(['a0', 'b1', 'c2']);
+    },
+  );
+
   it('marks the item id as pending while the move is in flight', async () => {
     server.use(http.post(moveUrl, () => delay('infinite')));
     const { wrapper } = setupThree();
