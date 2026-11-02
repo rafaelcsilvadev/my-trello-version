@@ -228,6 +228,11 @@ export const en = {
         addItem: 'Add an item and press Enter',
         editItem: 'Edit item “{{text}}”',
         deleteItem: 'Delete item “{{text}}”',
+        reorderItem: 'Reorder the item {{text}}',
+        moveBanner:
+          'Moving “{{text}}”: position {{i}} of {{n}}. ↑ ↓ move, Space drops, Esc cancels.',
+        moveAnnounce: 'Item {{text}}, position {{i}} of {{n}}',
+        moveDropped: 'Item {{text}} dropped at position {{i}} of {{n}}',
       },
       notFound: {
         title: 'This task no longer exists',
