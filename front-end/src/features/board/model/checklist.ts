@@ -1,5 +1,5 @@
 import { byPosition } from './columns';
-import type { ChecklistItem } from './types';
+import type { ChecklistItem, MoveChecklistItemDto } from './types';
 
 export type ChecklistProgress = {
   done: number;
@@ -38,4 +38,23 @@ export function isChecklistDirty(
     const draft = drafts[item.id];
     return draft !== undefined && draft.trim() !== item.text;
   });
+}
+
+// One position up or down, capped at both ends (FCLD-09).
+export function stepItem(
+  count: number,
+  index: number,
+  key: 'ArrowUp' | 'ArrowDown',
+): number {
+  if (key === 'ArrowUp') return Math.max(0, index - 1);
+  return Math.min(count - 1, index + 1);
+}
+
+// A drop on the starting index, or before any hover, sends nothing (FCLD-06, FCLD-13).
+export function itemMoveBody(
+  origin: number,
+  target: number | null,
+): MoveChecklistItemDto | null {
+  if (target === null || target === origin) return null;
+  return { position: target };
 }

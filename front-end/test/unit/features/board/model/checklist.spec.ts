@@ -3,7 +3,9 @@ import { describe, expect, it } from 'vitest';
 import {
   checklistProgress,
   isChecklistDirty,
+  itemMoveBody,
   sortItems,
+  stepItem,
 } from '@/features/board/model/checklist';
 import type { ChecklistItem } from '@/features/board/model/types';
 
@@ -114,5 +116,46 @@ describe('isChecklistDirty', () => {
 
   it('is not dirty for a draft of an unknown item', () => {
     expect(isChecklistDirty(items, { gone: 'Ship it' })).toBe(false);
+  });
+});
+
+describe('stepItem', () => {
+  it('moves one position up on ArrowUp', () => {
+    expect(stepItem(3, 1, 'ArrowUp')).toBe(0);
+  });
+
+  it('moves one position down on ArrowDown', () => {
+    expect(stepItem(3, 1, 'ArrowDown')).toBe(2);
+  });
+
+  it('stays at the first position on ArrowUp', () => {
+    expect(stepItem(3, 0, 'ArrowUp')).toBe(0);
+  });
+
+  it('stays at the last position on ArrowDown', () => {
+    expect(stepItem(3, 2, 'ArrowDown')).toBe(2);
+  });
+
+  it('keeps a single item at the first position both ways', () => {
+    expect(stepItem(1, 0, 'ArrowUp')).toBe(0);
+    expect(stepItem(1, 0, 'ArrowDown')).toBe(0);
+  });
+});
+
+describe('itemMoveBody', () => {
+  it('sends nothing before a target exists', () => {
+    expect(itemMoveBody(1, null)).toBeNull();
+  });
+
+  it('sends nothing when the target is the starting index', () => {
+    expect(itemMoveBody(1, 1)).toBeNull();
+  });
+
+  it('sends the target as position', () => {
+    expect(itemMoveBody(0, 2)).toEqual({ position: 2 });
+  });
+
+  it('sends position 0 for a move to the top', () => {
+    expect(itemMoveBody(2, 0)).toEqual({ position: 0 });
   });
 });
