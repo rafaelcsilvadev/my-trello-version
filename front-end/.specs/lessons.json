@@ -441,10 +441,11 @@
       "recurrence": 1,
       "harmful": 0,
       "evidence": [
-        "M19 front-end/src/features/board/api/checklist-mutations.ts:177; probe P2 (both moves fail) (api)"
+        "M19 front-end/src/features/board/api/checklist-mutations.ts:177; probe P2 (both moves fail) (api)",
+        "M25 front-end/src/features/board/api/checklist-mutations.ts:179 (mut.spec:796-842 asserts only the end order); iteration 3 (api)"
       ],
       "created": "2026-11-02T16:02:01Z",
-      "last_seen": "2026-11-02T16:02:01Z"
+      "last_seen": "2026-11-02T18:04:29Z"
     }
   ]
 }
