@@ -5,10 +5,9 @@ import { useApi } from '@/shared/api/api-context';
 import { type ApiError, call } from '@/shared/api/api-error';
 
 import {
-  type ItemMove,
   placeItem,
   type ProgressDelta,
-  replayItemMoves,
+  restoreItemOrder,
   sortItems,
 } from '../model/checklist';
 import type {
@@ -136,7 +135,7 @@ export type MoveChecklistItemVariables = ItemVariables & {
 };
 
 // One logged move: where it puts the item, and the order it started from.
-type LoggedMove = ItemMove & { base: string[] };
+type LoggedMove = { id: string; position: number; base: string[] };
 
 // Only the checklist cache changes: a move leaves `card.checklist` alone.
 export function useMoveChecklistItem(boardId: string, cardId: string) {
@@ -168,15 +167,16 @@ export function useMoveChecklistItem(boardId: string, cardId: string) {
             log.current.push(entry);
             return placeItem(items, id, body.position);
           },
-          // Replays the later moves on the order before this one, so they stay
-          // where the user dropped them (FCLD-21). Each later move is rebased
-          // on that replay, so a later failure never brings this move back.
+          // Restores the order before this move and places the later moves on
+          // it again, so they stay where the user dropped them (FCLD-21). Each
+          // later move is rebased on that order, so a later failure never
+          // brings this move back.
           revert: (items: ChecklistItem[]) => {
             const index = log.current.indexOf(entry);
             if (index < 0) return items;
             const later = log.current.slice(index + 1);
             log.current.splice(index, 1);
-            let current = replayItemMoves(items, entry.base, []);
+            let current = restoreItemOrder(items, entry.base);
             for (const move of later) {
               move.base = current.map((item) => item.id);
               current = placeItem(current, move.id, move.position);
