@@ -19,6 +19,7 @@ import {
 } from '../model/checklist';
 import type { ChecklistItem, ItemFieldError } from '../model/types';
 import { validateChecklistItemText } from '../model/validation';
+import { useChecklistMove } from './use-checklist-move';
 
 export type CardChecklistStatus = 'loading' | 'error' | 'ready';
 
@@ -37,12 +38,11 @@ export function useCardChecklistViewModel(boardId: string, cardId: string) {
   const updateMutation = useUpdateChecklistItem(boardId, cardId);
   const deleteMutation = useDeleteChecklistItem(boardId, cardId);
   const pendingIds = usePendingItemIds();
-  const { notify, runChange } = useSaveFailureNotifier(
-    () =>
-      void queryClient.invalidateQueries({
-        queryKey: boardViewKeys.all(boardId),
-      }),
-  );
+  const reload = () =>
+    void queryClient.invalidateQueries({
+      queryKey: boardViewKeys.all(boardId),
+    });
+  const { notify, runChange } = useSaveFailureNotifier(reload);
   const [newText, setNewText] = useState('');
   const [drafts, setDrafts] = useState<ItemDrafts>({});
   const [error, setError] = useState<ChecklistFieldError | null>(null);
@@ -53,6 +53,13 @@ export function useCardChecklistViewModel(boardId: string, cardId: string) {
   let status: CardChecklistStatus = 'ready';
   if (query.isError && query.data === undefined) status = 'error';
   else if (query.isPending) status = 'loading';
+
+  const move = useChecklistMove(boardId, cardId, {
+    items,
+    canMove: status === 'ready',
+    pendingIds,
+    reload,
+  });
 
   // The text stays in the field until the create succeeds (FCL-38), and is cleared
   // only if the user has not typed something else meanwhile.
@@ -140,6 +147,12 @@ export function useCardChecklistViewModel(boardId: string, cardId: string) {
       isCreating: createMutation.isPending,
       error,
       pendingIds,
+      move: {
+        preview: move.preview,
+        bannerText: move.bannerText,
+        announcement: move.announcement,
+        keyboardItemId: move.keyboardItemId,
+      },
     },
     actions: {
       retryLoad: () => void query.refetch(),
@@ -161,6 +174,14 @@ export function useCardChecklistViewModel(boardId: string, cardId: string) {
         clearErrorOf(id);
       },
       remove,
+      move: {
+        canDrag: move.canDrag,
+        start: move.start,
+        step: move.step,
+        hover: move.hover,
+        drop: move.drop,
+        cancel: move.cancel,
+      },
     },
   };
 }
