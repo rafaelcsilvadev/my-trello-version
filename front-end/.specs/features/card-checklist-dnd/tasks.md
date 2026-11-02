@@ -407,8 +407,8 @@ T11 → T12 → T13 → T14
 
 **Done when**:
 
-- [ ] README explains the grip, mouse drag and the keys (Espaço, ↑ ↓, Esc), and that touch has no reorder
-- [ ] Build gate passes; test count unchanged
+- [x] README explains the grip, mouse drag and the keys (Espaço, ↑ ↓, Esc), and that touch has no reorder
+- [x] Build gate passes; test count unchanged
 
 **Tests**: none
 **Gate**: build
