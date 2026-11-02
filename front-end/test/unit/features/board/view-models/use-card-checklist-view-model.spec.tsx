@@ -821,3 +821,92 @@ describe('useCardChecklistViewModel — dirty', () => {
     await waitFor(() => expect(result.current.state.pendingIds.size).toBe(0));
   });
 });
+
+// Records each move request; answers 200 unless a reply is queued.
+function moveServer(...replies: (() => Response | Promise<Response>)[]) {
+  const requests: { id: string; body: unknown }[] = [];
+  server.use(
+    http.post(
+      `${baseUrl}/api/v1/checklist-items/:id/move`,
+      async ({ params, request }) => {
+        requests.push({ id: String(params.id), body: await request.json() });
+        return (replies.shift() ?? (() => HttpResponse.json({})))();
+      },
+    ),
+  );
+  return requests;
+}
+
+describe('useCardChecklistViewModel — move', () => {
+  it('cannot drag while the items load', async () => {
+    const hold = gate();
+    checklistServer(async () => {
+      await hold.opened;
+      return HttpResponse.json(seed);
+    });
+
+    const { result } = setup();
+
+    expect(result.current.state.status).toBe('loading');
+    expect(result.current.actions.move.canDrag('i1')).toBe(false);
+    hold.open();
+    await waitFor(() => expect(result.current.state.status).toBe('ready'));
+  });
+
+  it('cannot drag on a load error', async () => {
+    checklistServer(...Array.from({ length: 4 }, () => () => problem(500)));
+
+    const { result } = setup();
+
+    await waitFor(() => expect(result.current.state.status).toBe('error'));
+    expect(result.current.actions.move.canDrag('i1')).toBe(false);
+  });
+
+  it('can drag once ready', async () => {
+    checklistServer();
+
+    const { result } = await setupReady();
+
+    expect(result.current.actions.move.canDrag('i1')).toBe(true);
+  });
+
+  it('cannot drag an item whose toggle is in flight, and only that item', async () => {
+    checklistServer();
+    const hold = gate();
+    updateServer(async () => {
+      await hold.opened;
+      return HttpResponse.json({ ...seed[0], done: true });
+    });
+    const { result } = await setupReady();
+
+    act(() => result.current.actions.toggle('i2'));
+
+    await waitFor(() =>
+      expect(result.current.actions.move.canDrag('i2')).toBe(false),
+    );
+    expect(result.current.actions.move.canDrag('i3')).toBe(true);
+    hold.open();
+    await waitFor(() =>
+      expect(result.current.actions.move.canDrag('i2')).toBe(true),
+    );
+  });
+
+  it('a keyboard move reorders the preview and the drop sends it', async () => {
+    checklistServer();
+    const requests = moveServer();
+    const { result } = await setupReady();
+
+    act(() => result.current.actions.move.start('i2', 'keyboard'));
+    act(() => result.current.actions.move.step('ArrowUp'));
+
+    expect(result.current.state.move.preview.items.map(({ id }) => id)).toEqual(
+      ['i2', 'i1', 'i3'],
+    );
+    expect(result.current.state.move.keyboardItemId).toBe('i2');
+    act(() => result.current.actions.move.drop());
+
+    await waitFor(() =>
+      expect(requests).toEqual([{ id: 'i2', body: { position: 0 } }]),
+    );
+  });
+});

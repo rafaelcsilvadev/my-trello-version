@@ -5,7 +5,11 @@ import { I18nextProvider } from 'react-i18next';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { CardDetailChecklist } from '@/features/board/components/card-detail-checklist';
-import { checklistProgress } from '@/features/board/model/checklist';
+import {
+  checklistProgress,
+  previewItems,
+} from '@/features/board/model/checklist';
+import type { MoveInput } from '@/features/board/model/move';
 import type { ChecklistItem } from '@/features/board/model/types';
 import { createI18n } from '@/shared/i18n/i18n';
 
@@ -40,6 +44,13 @@ function renderChecklist({
       isCreating: false,
       error: null,
       pendingIds: new Set<string>(),
+      // No move session: the components that drive it come in later tasks.
+      move: {
+        preview: previewItems(items, null),
+        bannerText: null,
+        announcement: '',
+        keyboardItemId: null,
+      },
       ...state,
     },
     actions: {
@@ -51,6 +62,14 @@ function renderChecklist({
       submitDraft: vi.fn<(id: string) => void>(),
       cancelDraft: vi.fn<(id: string) => void>(),
       remove: vi.fn<(id: string) => void>(),
+      move: {
+        canDrag: vi.fn<(id: string) => boolean>(() => true),
+        start: vi.fn<(id: string, input: MoveInput) => void>(),
+        step: vi.fn<(key: 'ArrowUp' | 'ArrowDown') => void>(),
+        hover: vi.fn<(index: number) => void>(),
+        drop: vi.fn<() => void>(),
+        cancel: vi.fn<() => void>(),
+      },
     },
     isDisabled,
   };
