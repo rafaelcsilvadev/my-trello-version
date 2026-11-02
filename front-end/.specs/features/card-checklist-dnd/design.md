@@ -91,7 +91,7 @@ graph TD
 - **Purpose**: The optimistic move request.
 - **Interfaces**:
   - `type MoveChecklistItemVariables = ItemVariables & { body: MoveChecklistItemDto }`
-  - `useMoveChecklistItem(boardId: string, cardId: string)` - `POST /api/v1/checklist-items/{id}/move`; one `CacheChange` on `boardViewKeys.checklist(boardId, cardId)`: `apply` logs the move with the sorted id order before it (the log is cleared first when no other board change is pending) and calls `placeItem(items, id, body.position)`; `revert` drops the move from the log and calls `replayItemMoves(items, base, laterMoves)`, which re-sorts the current items by the base order and re-applies the moves logged after it; it then rebases each later move: its `base` becomes the failed move's `base` with the later moves before it replayed, so a later failure never replays the failed move (FCLD-05, FCLD-21)
+  - `useMoveChecklistItem(boardId: string, cardId: string)` - `POST /api/v1/checklist-items/{id}/move`; one `CacheChange` on `boardViewKeys.checklist(boardId, cardId)`: `apply` logs the move with the sorted id order before it (the log is cleared first when no other board change is pending) and calls `placeItem(items, id, body.position)`; `revert` drops the move from the log and calls `restoreItemOrder(items, base)`, which re-sorts the current items by the failed move's base order and renumbers them; it then walks the moves logged after it in order: each one gets the current order as its new `base` and is placed again with `placeItem`, so the later moves stay where the user dropped them and a later failure never brings the failed move back (FCLD-05, FCLD-21)
 - **Reuses**: `useOptimisticBoardViewChange`, `call`, `useApi`
 
 ### `view-models/use-checklist-move.ts` (new)
