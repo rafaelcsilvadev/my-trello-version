@@ -137,8 +137,8 @@ T11 → T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Unit: no session → items unchanged and every marker `null`; mouse session → items unchanged, `sourceId` = the dragged id, `placeholderIndex` = `target` (`null` before the first hover), `liftedId` `null`; keyboard session → the picked item rendered at `target ?? origin`, `liftedId` = its id, `sourceId` and `placeholderIndex` `null`
-- [ ] Build gate passes; test count only grows
+- [x] Unit: no session → items unchanged and every marker `null`; mouse session → items unchanged, `sourceId` = the dragged id, `placeholderIndex` = `target` (`null` before the first hover), `liftedId` `null`; keyboard session → the picked item rendered at `target ?? origin`, `liftedId` = its id, `sourceId` and `placeholderIndex` `null`
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
