@@ -189,11 +189,11 @@ T11 → T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Unit: `start(id, 'keyboard')` sets the banner "Movendo “B”: posição 2 de 3. ↑ ↓ movem, Espaço solta, Esc cancela." and announces "Item B, posição 2 de 3"
-- [ ] Unit: ↑ / ↓ update the preview order, the banner and the announcement; the ends do not wrap
-- [ ] Unit: `drop()` announces "Item B solto na posição 1 de 3", clears the banner and sends `{ position: 0 }`; a drop at the start index sends nothing
-- [ ] Unit: `cancel()` announces "Movimento cancelado", restores the order and sends nothing
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `start(id, 'keyboard')` sets the banner "Movendo “B”: posição 2 de 3. ↑ ↓ movem, Espaço solta, Esc cancela." and announces "Item B, posição 2 de 3"
+- [x] Unit: ↑ / ↓ update the preview order, the banner and the announcement; the ends do not wrap
+- [x] Unit: `drop()` announces "Item B solto na posição 1 de 3", clears the banner and sends `{ position: 0 }`; a drop at the start index sends nothing
+- [x] Unit: `cancel()` announces "Movimento cancelado", restores the order and sends nothing
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
