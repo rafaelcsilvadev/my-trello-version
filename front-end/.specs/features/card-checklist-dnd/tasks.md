@@ -379,11 +379,11 @@ T11 → T12 → T13 → T14
 
 **Done when**:
 
-- [ ] E2E: drag "C" by its grip above "A" → order "C, A, B" kept after a reload
-- [ ] E2E: grip of "A", Space, ↓, ↓, Space → banner shown while moving, order "B, C, A" kept after a reload
-- [ ] E2E: Space, ↓, Esc → order unchanged and the detail still open
-- [ ] E2E: archived card → no grip
-- [ ] Full gate passes
+- [x] E2E: drag "C" by its grip above "A" → order "C, A, B" kept after a reload
+- [x] E2E: grip of "A", Space, ↓, ↓, Space → banner shown while moving, order "B, C, A" kept after a reload
+- [x] E2E: Space, ↓, Esc → order unchanged and the detail still open
+- [x] E2E: archived card → no grip
+- [x] Full gate passes
 
 **Tests**: e2e
 **Gate**: full
