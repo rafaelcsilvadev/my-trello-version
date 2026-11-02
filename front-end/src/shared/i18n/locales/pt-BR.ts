@@ -230,6 +230,11 @@ export const ptBR = {
         addItem: 'Adicionar item e apertar Enter',
         editItem: 'Editar item “{{text}}”',
         deleteItem: 'Excluir item “{{text}}”',
+        reorderItem: 'Reordenar o item {{text}}',
+        moveBanner:
+          'Movendo “{{text}}”: posição {{i}} de {{n}}. ↑ ↓ movem, Espaço solta, Esc cancela.',
+        moveAnnounce: 'Item {{text}}, posição {{i}} de {{n}}',
+        moveDropped: 'Item {{text}} solto na posição {{i}} de {{n}}',
       },
       notFound: {
         title: 'Esta tarefa não existe mais',
