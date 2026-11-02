@@ -2,17 +2,14 @@
 
 **Date**: 2026-11-02
 **Spec**: `front-end/.specs/features/card-checklist-dnd/spec.md`
-**Diff range**: iteration 3 fix surface `05234e5..8bd8267` (`05234e5` = merge of PR #383, iteration 2 head; `8bd8267` = head of PR #387, merged). Fix commits: `c537e1a` (Fix 3, order-sensitive replay test, PR #385), `0995fea` (Fix 4 spec, FCLD-21 order after two failures, PR #386), `8bd8267` (Fix 4 code + test, revert rebases later moves, PR #387); plus the iteration 2 docs `d87460d`, `9b5c9b5`. `git diff --stat 05234e5..8bd8267 -- front-end/src front-end/test` → 3 files (`src/` 1, `test/` 2), +71 −15. Whole feature re-checked over `c0e4845..8bd8267` for regressions; the e2e, view-model and component specs are unchanged since iteration 2.
-**Verifier**: independent pass (author ≠ verifier), iteration 3 (last before escalation)
+**Diff range**: iteration 4 fix surface `8bd8267..c41f213` (`8bd8267` = iteration 3 head; `c41f213` = merge of PR #389). Fix commit: `745bb22` (Fix 5, assert the order between two failed moves, PR #389); plus the iteration 3 docs `bf3caa2`, `320f6eb`. `git diff --stat 8bd8267..c41f213 -- front-end/src front-end/test` → 1 file (`test/` only), +14 −3; no `src` change. Whole feature re-checked over `c0e4845..c41f213` for regressions (17 files, +2619 −43 in `src`/`test`); the e2e, model, view-model and component specs are unchanged since iteration 3.
+**Verifier**: independent pass (author ≠ verifier), iteration 4 (re-check after the user took Fix 5)
 
-## Validation: Card Checklist Drag and Drop - FAIL ❌ (iteration 3, escalated)
+## Validation: Card Checklist Drag and Drop - PASS ✅ (iteration 4)
 
-**Result (iteration 3)**: FAIL ❌ on one cosmetic test gap; the behaviour is right. Fixes 3 and 4 landed and hold. The spec now names all four orders (FCLD-21, `spec.md:120`). The revert rebases the later moves (`api/checklist-mutations.ts:174-185`), and the new two-failure test (`mut.spec:796-842`, both orders) asserts the end order `A, B, C` (`:840`). Probes P2 and P3 now end at `A, B, C`. M18 and M19 are killed. The build gate is green on `8bd8267`: **1780** unit/component tests (+2), lint, typecheck, build; CI run `41495208301` on the branch is 12/12 green, including `front-end (test:e2e)` (job `125448226143`). The sensor ran 8 mutants: **6 killed, 2 survived** (M21, M25).
+**Result (iteration 4)**: PASS ✅. Fix 5 landed and holds. The two-failure test now carries an `afterFirst` order per row (`mut.spec:796-809`) and asserts it after the first failure (`mut.spec:843` - `expect(order(queryClient)).toEqual(afterFirst)`), so all four FCLD-21 orders named in `spec.md:120` are asserted exactly. M25 is killed, and it fails exactly at `mut.spec:843`. No `src` file changed since iteration 3. The build gate is green on `c41f213`: **1780** unit/component tests (+0, as Fix 5 planned), lint, typecheck, build. CI is green on both the branch (run `41499575849`, `745bb22`, 12/12, `front-end (test:e2e)` job `125463266968`) and main (run `41500094477`, `c41f213`, 12/12, `front-end (test:e2e)` job `125465042986`). The sensor ran 8 mutants: **8 killed, 0 survived** (M25, M18, M19 again, plus 5 fresh ones).
 
-1. **The order after the first failure when A fails first is not asserted (test only)**: the spec names `A fails first → C, A, B` (`spec.md:120`). The two-failure test waits between the failures on the pending count only (`mut.spec:828-832`) and asserts the order once, at the end (`:840`). M25 (a revert of the newest move rebuilds from the oldest pending base, so C's still-pending move vanishes: `A, B, C` instead of `C, A, B`) passes every test. Probe P3 on the real code reads `c0,a1,b2` after A fails, so the code is right; only the assertion is missing. Fix 5.
-2. **M21 (note, not a gap)**: rebasing each later move on the failed move's own base instead of the running order survives. With two moves it is equivalent (the running order equals that base), and FCLD-21 speaks of two moves. A three-move probe (P5) shows the real code keeps the server order (`B, C, A`) where M21 gives `A, B, C`. Recorded for the author; no fix task, because no AC names three overlapping moves.
-
-This is iteration 3 of 3: per the fix→re-verify bound the gap goes to the user instead of a fourth loop. Fix 5 is a two-line test change.
+M21 stays a note, not a gap: it is equivalent with two moves, and FCLD-21 speaks of two moves (see the iteration 3 sensor note).
 
 ## Iteration History
 
@@ -21,6 +18,16 @@ This is iteration 3 of 3: per the fix→re-verify bound the gap goes to the user
 | 1 (2026-11-02) | `c0e4845..69f8350` | ✅ 1770 unit (local), 35 e2e (local + CI `41467667539`) | 23/25 strong; FCLD-21 gap + spec-precision gap; FCLD-01 weak conjunct (icon) | 10/11 killed, M10 survived; FCLD-21 probe failed | ❌ FAIL, Fixes 1–2 |
 | 2 (2026-11-02) | `69f8350..05234e5` (feature `c0e4845..05234e5`) | ✅ 1778 unit (local), e2e CI `41475658690` / `41474644734` | 25/25 evidenced for the cases the ACs name; FCLD-21 consecutive failures: probe fails + spec-precision gap | 7/9 killed, M18 and M19 survived; iteration 1 probe now passes | ❌ FAIL, Fixes 3–4 (Fixes 1–2 closed) |
 | 3 (2026-11-02) | `05234e5..8bd8267` (feature `c0e4845..8bd8267`) | ✅ 1780 unit (local), e2e CI `41495208301` | 25/25 evidenced; FCLD-21 spec-precision gap closed; 3 of 4 named FCLD-21 orders asserted, `A fails first → C, A, B` not asserted | 6/8 killed, M21 (equivalent with two moves) and M25 survived; P2, P3 end at `A, B, C` | ❌ FAIL, Fix 5 (Fixes 3–4 closed); escalated (iteration 3 of 3) |
+| 4 (2026-11-02) | `8bd8267..c41f213` (feature `c0e4845..c41f213`) | ✅ 1780 unit (local), e2e CI `41499575849` (branch), `41500094477` (main) | 25/25 evidenced; all 4 named FCLD-21 orders asserted | 8/8 killed (M25, M18, M19 re-run; M26–M30 fresh) | ✅ PASS (Fix 5 closed; the user took Fix 5 after the escalation) |
+
+### Iteration 3 result (history)
+
+FAIL ❌ on one cosmetic test gap; the behaviour was right. Fixes 3 and 4 landed and held. The spec named all four orders (FCLD-21, `spec.md:120`). The revert rebased the later moves (`api/checklist-mutations.ts:174-185`), and the new two-failure test (`mut.spec:796-842` on `8bd8267`, both orders) asserted the end order `A, B, C`. Probes P2 and P3 ended at `A, B, C`. M18 and M19 were killed. The build gate was green on `8bd8267`: **1780** unit/component tests (+2); CI run `41495208301` 12/12 green. The sensor ran 8 mutants: **6 killed, 2 survived** (M21, M25).
+
+1. **The order after the first failure when A fails first was not asserted (test only)**: the test waited between the failures on the pending count only and asserted the order once, at the end. M25 (a revert of the newest move rebuilds from the oldest pending base, so C's still-pending move vanishes: `A, B, C` instead of `C, A, B`) passed every test. Probe P3 on the real code read `c0,a1,b2` after A failed, so only the assertion was missing. Fix 5.
+2. **M21 (note, not a gap)**: rebasing each later move on the failed move's own base instead of the running order survives. With two moves it is equivalent, and FCLD-21 speaks of two moves. Probe P5 (three moves) showed the real code keeps the server order. No fix task.
+
+Iteration 3 was the last of the 3-iteration bound, so the gap went to the user, who took Fix 5 (PR #389); iteration 4 is the re-check.
 
 ### Iteration 2 result (history)
 
@@ -44,12 +51,13 @@ FAIL ❌. Gate green on `69f8350` (1770 unit/component, 35 e2e). 23 of 25 FCLD r
 | Fix 2 | ✅ Done | PR #383: `1027920` two assertions in `item.spec` |
 | Fix 3 | ✅ Done | PR #385: `c537e1a` replay test uses A → 2 then B → 2 (`model.spec:252-277`) |
 | Fix 4 | ✅ Done | PR #386: `0995fea` spec FCLD-21; PR #387: `8bd8267` revert rebases later moves + two-failure test (2 cases) |
+| Fix 5 | ✅ Done | PR #389: `745bb22` `afterFirst` per row + one assertion after the first failure (`mut.spec:796-809`, `:843`); test only, +0 tests |
 
 ---
 
 ## Spec-Anchored Acceptance Criteria
 
-Paths are relative to `front-end/test/`. Line numbers are read on `8bd8267` (iteration 3; `mut.spec` lines after 794 moved by +48 and `model.spec` lines after 262 by +1 since iteration 2). Short names: `model.spec` = `unit/features/board/model/checklist.spec.ts`; `mut.spec` = `unit/features/board/api/checklist-mutations.spec.tsx`; `move.spec` = `unit/features/board/view-models/use-checklist-move.spec.tsx` (PT-BR); `vm.spec` = `unit/features/board/view-models/use-card-checklist-view-model.spec.tsx` (PT-BR); `item.spec` = `unit/features/board/components/card-detail-checklist-item.spec.tsx` (PT-BR); `cl.spec` = `unit/features/board/components/card-detail-checklist.spec.tsx` (PT-BR); `cd.spec` = `unit/features/board/components/card-detail.spec.tsx` (EN, composed detail with MSW); `e2e` = `e2e/card-checklist-dnd.e2e-spec.ts` (EN, real API). "Mx" points to a sensor mutant.
+Paths are relative to `front-end/test/`. Line numbers are read on `c41f213` (iteration 4; `mut.spec` lines after 797 moved by +10 since iteration 3 and lines after 832 by +11, from the Fix 5 rows and assertion; no other spec file changed). Short names: `model.spec` = `unit/features/board/model/checklist.spec.ts`; `mut.spec` = `unit/features/board/api/checklist-mutations.spec.tsx`; `move.spec` = `unit/features/board/view-models/use-checklist-move.spec.tsx` (PT-BR); `vm.spec` = `unit/features/board/view-models/use-card-checklist-view-model.spec.tsx` (PT-BR); `item.spec` = `unit/features/board/components/card-detail-checklist-item.spec.tsx` (PT-BR); `cl.spec` = `unit/features/board/components/card-detail-checklist.spec.tsx` (PT-BR); `cd.spec` = `unit/features/board/components/card-detail.spec.tsx` (EN, composed detail with MSW); `e2e` = `e2e/card-checklist-dnd.e2e-spec.ts` (EN, real API). "Mx" points to a sensor mutant.
 
 ### P1: Reorder items with the mouse
 
@@ -85,8 +93,8 @@ Paths are relative to `front-end/test/`. Line numbers are read on `8bd8267` (ite
 | FCLD-18 | Network/5xx → item back at its old index, toast "Não foi possível salvar. Tente novamente." + **Tentar novamente** resending the same move | `mut.spec:687-706` cache `[itemA,itemB,itemC]` after `500` (the new revert keeps this: M14/M15 run it); `move.spec:378-390` toast text, retry `moves[1]` `toEqual(moves[0])`; `cd.spec:724-748` | ✅ |
 | FCLD-19 | `409` → back, "Este item foi arquivado. Recarregue para ver o estado atual." + **Recarregar** | `move.spec:392-404`; revert is status-independent (`mut.spec:687-706`) | ✅ |
 | FCLD-20 | `404` → back, save-fail toast without a button, refetch | `move.spec:406-417` `queryByRole('button')` `null`, `reload` called once | ✅ |
-| FCLD-21 | Two moves in flight, one fails → only the failed item goes back; the screen shows the order before the first move with every move that has not failed replayed in order, after each failure (`A, B, C`, C → 0 then A → 2: C fails → `B, C, A`, then A fails → `A, B, C`; A fails first → `C, A, B`, then C fails → `A, B, C`; `spec.md:120`) | (1) C fails → `B, C, A`: `mut.spec:768-794` `expect(order(queryClient)).toEqual(['b0', 'c1', 'a2'])` (`:790`), one move still pending (`:791-793`). (2) then A fails → `A, B, C`: `mut.spec:796-842` case `C fails first`, `expect(order(queryClient)).toEqual(['a0', 'b1', 'c2'])` (`:840`); M20, M22 killed. (3) A fails first → `C, A, B`: **no assertion**; the test waits on the pending count only (`:828-832`); M25 survived; probe P3 reads `c0,a1,b2` on the real code. (4) then C fails → `A, B, C`: `mut.spec:796-842` case `A fails first`, `:840`; M19 killed. Helper: `model.spec:240-250` one later move; `model.spec:252-277` two later moves whose order matters → `[['c',0],['a',1],['b',2]]` (M18 killed); `model.spec:299-311` (M17) | ⚠️ 3 of 4 named orders asserted; `C, A, B` after A fails first → Fix 5 (behaviour right) |
-| FCLD-22 | Request in flight → grip disabled, no drag | `mut.spec:844-862` move id in `usePendingItemIds`; `vm.spec:873-892`; `move.spec:365-374`; `item.spec:227-245` `aria-disabled` `'true'`; `item.spec:372-378`; `cl.spec:547-559` | ✅ |
+| FCLD-21 | Two moves in flight, one fails → only the failed item goes back; the screen shows the order before the first move with every move that has not failed replayed in order, after each failure (`A, B, C`, C → 0 then A → 2: C fails → `B, C, A`, then A fails → `A, B, C`; A fails first → `C, A, B`, then C fails → `A, B, C`; `spec.md:120`) | (1) C fails → `B, C, A`: `mut.spec:768-794` `expect(order(queryClient)).toEqual(['b0', 'c1', 'a2'])` (`:790`), one move still pending (`:791-793`). (2) then A fails → `A, B, C`: `mut.spec:796-853` case `C fails first`, `expect(order(queryClient)).toEqual(['a0', 'b1', 'c2'])` (`:851`); its `afterFirst` `['b0', 'c1', 'a2']` (`:800`) is asserted at `:843`, so `B, C, A` is read again on the way; M20, M22 killed. (3) A fails first → `C, A, B`: `mut.spec:796-853` case `A fails first`, `afterFirst` `['c0', 'a1', 'b2']` (`:806`), `expect(order(queryClient)).toEqual(afterFirst)` (`:843`), after the wait for one pending move (`:838-842`); M25 killed at `:843` (iteration 4). (4) then C fails → `A, B, C`: same case, `:851`; M19 killed. Helper: `model.spec:240-250` one later move; `model.spec:252-277` two later moves whose order matters → `[['c',0],['a',1],['b',2]]` (M18 killed); `model.spec:299-311` (M17) | ✅ all 4 named orders asserted (Fix 5 closed) |
+| FCLD-22 | Request in flight → grip disabled, no drag | `mut.spec:855-873` move id in `usePendingItemIds`; `vm.spec:873-892`; `move.spec:365-374`; `item.spec:227-245` `aria-disabled` `'true'`; `item.spec:372-378`; `cl.spec:547-559` | ✅ |
 | FCLD-23 | While picked: Space on other grips ignored, no mouse drag | `move.spec:351-363` second `start('b')` ignored, `keyboardItemId` stays `'a'`; `item.spec:227-240`; `item.spec:372-378` | ✅ |
 | FCLD-24 | Archived-card / archived-board mode → no grip, no draggable row | `item.spec:221-225` `movable: null` → no grip; `cl.spec:601-607`; `cd.spec:709-722` no `[data-item-grip-id]`, no `[draggable]`; `e2e:185-198` count `0` | ✅ |
 | FCLD-25 | Loading or load error → no grip | `cl.spec:609-620`; `vm.spec:841-863` | ✅ |
@@ -97,19 +105,38 @@ Paths are relative to `front-end/test/`. Line numbers are read on `8bd8267` (ite
 - [ ] Item with an unsaved text draft moved keeps its draft: no dnd test; drafts are keyed by item id (`use-card-checklist-view-model.ts`); not asserted (minor, not a requirement)
 - [x] Move plus a toggle of another item; failure undoes only the move: `mut.spec:725-766`
 - [x] Two moves, the first fails, the second holds: `mut.spec:768-794` (new in iteration 2)
-- [x] Two moves, both fail, either order: `mut.spec:796-842` end order `['a0','b1','c2']` (new in iteration 3); the order between the two failures is asserted only through `mut.spec:790` for C first (Fix 5 for A first)
+- [x] Two moves, both fail, either order: `mut.spec:796-853` order after the first failure (`:843`, Fix 5) and end order `['a0','b1','c2']` (`:851`)
 - [x] Card archived elsewhere → `409` path: `move.spec:392-404`
 - [x] Item deleted elsewhere → `404` path: `move.spec:406-417`; an item gone from the cache is dropped from the replay: `model.spec:299-324`
 - [ ] `401` on a move goes through FND-16, no move toast: no dnd test; `runChange` is the shared notifier
-- [x] Settle refetch once after the last pending change: `mut.spec:864-896`
+- [x] Settle refetch once after the last pending change: `mut.spec:875-907`
 
-**Status (iteration 3)**: ⚠️ 25/25 ACs evidenced; the FCLD-21 spec-precision gap is closed (the spec names all four orders) and both-fail is right and tested. One named intermediate order (`A fails first → C, A, B`) has no assertion (Fix 5).
+**Status (iteration 4)**: ✅ 25/25 ACs evidenced with assertions on the spec-defined outcome; every FCLD-21 order the spec names is asserted exactly (`mut.spec:790`, `:843` ×2, `:851` ×2). No spec-precision gap is open. The two unticked edge cases are not requirements (unchanged since iteration 1).
 
 ---
 
 ## Discrimination Sensor
 
-### Iteration 3
+### Iteration 4
+
+Temporary `git worktree add --detach` at `<scratchpad>/vwt4` on `c41f213`, with the root, `front-end` and `packages/api-contract` `node_modules` symlinked from the real tree (no `pnpm install`, no `pnpm` command in the worktree). A script kept outside the worktree checked that each mutant's old text matched exactly once, applied it, ran `node ./node_modules/vitest/vitest.mjs run test/unit/features/board` (73 files, **1338** tests, all green unmutated; runner root printed the worktree path), then restored the file with `git checkout --` and checked it matched the original. Paths are relative to `front-end/src/features/board/`.
+
+| # | File:line | Mutation | Killed? (failing tests) |
+| - | --------- | -------- | ----------------------- |
+| M25 | `api/checklist-mutations.ts:179` | the newest move's revert rebuilds from the oldest pending base when no later move exists (iteration 3 survivor) | ✅ (`mut.spec:796` A fails first; fails at `mut.spec:843` `toEqual(afterFirst)`) |
+| M18 | `model/checklist.ts:97` | `moves.reduce` → `moves.reduceRight` (re-run) | ✅ (`model.spec:252`) |
+| M19 | `api/checklist-mutations.ts:178` | drop `log.current.splice(index, 1)` (re-run) | ✅ (`mut.spec:796` A fails first) |
+| M26 | `api/checklist-mutations.ts:176` | `index < 0` → `index <= 0` (the oldest logged move is never reverted) | ✅ 5 tests (`mut.spec:687`, `:725`, `:768`, `:796` ×2) |
+| M27 | `view-models/use-checklist-move.ts:46` | `n: items.length` → `items.length - 1` (wrong "de {n}") | ✅ 10 tests (`move.spec` keyboard session incl. `:224`, `cd.spec` keyboard reorder) |
+| M28 | `view-models/use-checklist-move.ts:101` | cancel announces for a mouse session too (`session?.input === 'keyboard'` → `session`) | ✅ (`move.spec:307` cancels silently) |
+| M29 | `view-models/use-checklist-move.ts:83` | hover moves a keyboard session too (`current?.input === 'mouse'` → `current`) | ✅ (`move.spec:322`) |
+| M30 | `model/checklist.ts:94-96` | `replayItemMoves` skips renumbering the positions | ✅ 9 tests (`mut.spec:687`, `:725`, `:768`, `:796` ×2, `model.spec:299`, …) |
+
+**Sensor depth**: lightweight-plus (UI feature, not P0; 3 re-runs of earlier survivors plus 5 fresh mutants on the revert guard, the replay helper and the view-model's session rules)
+**Outcome**: 8/8 killed → ✅
+**Isolation**: real-tree `git status --porcelain` empty before and after (diffed against the saved baseline: identical); the worktree's porcelain listed only the three `node_modules` symlinks after each restore; the symlinks were unlinked, then `git worktree remove --force` and `git worktree prune`; `git worktree list` shows only the main tree; `find front-end/node_modules node_modules -maxdepth 2 -xtype l` → 0 broken links; `front-end/node_modules/vitest/vitest.mjs` still resolves. No `git stash`, no `pnpm` in the worktree.
+
+### Iteration 3 (history)
 
 Temporary `git worktree add --detach` at `<scratchpad>/vwt` on `8bd8267`, with the root, `front-end` and `packages/api-contract` `node_modules` symlinked from the real tree (no `pnpm install`, no `pnpm` command in the worktree). A script checked that each mutant's old text matched exactly once, applied it, ran `node ./node_modules/vitest/vitest.mjs run test/unit/features/board` (73 files, **1338** tests, all green unmutated; runner root printed the worktree path), then restored the file with `git checkout --` and checked it matched the original. Paths are relative to `front-end/src/features/board/`.
 
@@ -197,19 +224,19 @@ Not performed by the Verifier (out of scope for this pass). Recommended: mouse d
 
 ## Code Quality
 
-Scope: the iteration 3 diff `05234e5..8bd8267` (1 `src` file, 2 test files, spec/design).
+Scope: the iteration 4 diff `8bd8267..c41f213` (1 test file, no `src` change), with the whole feature `c0e4845..c41f213` re-read for regressions.
 
 | Principle | Status |
 | --------- | ------ |
-| Minimum code | ✅ The revert gains a 5-line rebase walk (`api/checklist-mutations.ts:179-184`); nothing else in `src` |
-| Surgical changes | ✅ Only `checklist-mutations.ts` in `src`; tests only added or sharpened (+48 lines `mut.spec`, the `model.spec` replay test rewritten with order-sensitive moves, same count); spec and design updated in their own commits |
-| No scope creep | ✅ Nothing beyond Fixes 3–4 |
-| Matches patterns | ✅ Stays inside `CacheChange` (FE-AD-010); `placeItem` reused for each later move |
-| Would a senior engineer approve? | ⚠️ Yes for the behaviour. Two nits: `replayItemMoves` is now always called with `moves = []` in production (`:179`), so its replay branch only serves its own tests; and `design.md:94` still says the revert calls `replayItemMoves(items, base, laterMoves)`. Neither is a gap |
-| Spec-anchored outcome check (asserted values match spec) | ⚠️ `mut.spec:790` and `:840` assert the exact spec orders; the named `C, A, B` after A fails first is not asserted (Fix 5) |
-| Per-layer Coverage Expectation met (tasks.md matrix) | ⚠️ api row: two failures are tested in both orders, but only the end state (M25) |
-| Every test maps to a spec requirement - no unclaimed tests | ✅ The two new cases map to FCLD-21's named orders |
-| Documented guidelines followed: `front-end/.specs/STATE.md` (FE-AD-007, -010), lessons L-021..L-024 | ⚠️ L-022 applied (spec names every order), L-023 applied (M18 killed). L-024 ("assert the cache after each failure") was half applied: both orders run, the cache is asserted only after the second failure |
+| Minimum code | ✅ Fix 5 adds one value per `it.each` row and one assertion (`mut.spec:796-809`, `:843`); nothing in `src` |
+| Surgical changes | ✅ Only `checklist-mutations.spec.tsx` (+14 −3); the iteration 3 docs in their own commits |
+| No scope creep | ✅ Nothing beyond Fix 5 |
+| Matches patterns | ✅ Same `it.each` row shape and `order(queryClient)` helper the file already uses |
+| Would a senior engineer approve? | ✅ Yes. Two nits carried from iteration 3, neither a gap: `replayItemMoves` is always called with `moves = []` in production (`api/checklist-mutations.ts:179`), so its replay branch only serves its own tests; and `design.md:94` still says the revert calls `replayItemMoves(items, base, laterMoves)` |
+| Spec-anchored outcome check (asserted values match spec) | ✅ `mut.spec:790`, `:843` (both rows) and `:851` (both rows) assert the exact orders named in `spec.md:120` |
+| Per-layer Coverage Expectation met (tasks.md matrix) | ✅ api row: two failures run in both orders and the cache is asserted after each failure |
+| Every test maps to a spec requirement - no unclaimed tests | ✅ The new assertion maps to FCLD-21's named intermediate orders |
+| Documented guidelines followed: `front-end/.specs/STATE.md` (FE-AD-007, -010), lessons L-021..L-024 | ✅ L-024 ("assert the cache after each failure") is now fully applied; L-022 and L-023 held |
 
 No `// SPEC_DEVIATION` markers in this feature.
 
@@ -217,13 +244,13 @@ No `// SPEC_DEVIATION` markers in this feature.
 
 ## Gate Check
 
-- **Gate command**: `pnpm --filter front-end lint && pnpm --filter front-end typecheck && pnpm --filter front-end test && pnpm --filter front-end build` (real tree, repo root, branch `fix/card-checklist-dnd-two-failures` = `8bd8267`)
-- **Result**: exit 0. Lint (`oxlint --deny-warnings` + "All matched files use Prettier code style!"), `tsc --noEmit` clean, **121 test files, 1780 passed, 0 failed, 0 skipped**, `vite build` OK (main JS chunk 743.51 kB, +0.08 kB vs iteration 2)
-- **E2E**: not run locally (stack not started by the Verifier); `e2e/card-checklist-dnd.e2e-spec.ts` is unchanged since `69f8350`. CI run `41495208301` (`8bd8267`, branch `fix/card-checklist-dnd-two-failures`) 12/12 jobs green, job `front-end (test:e2e)` `125448226143` success; run `41492974542` (branch `test/card-checklist-dnd-replay-order`) success
+- **Gate command**: `pnpm --filter front-end lint && pnpm --filter front-end typecheck && pnpm --filter front-end test && pnpm --filter front-end build` (real tree, repo root, branch `docs/card-checklist-dnd-validation-iteration-4` = `c41f213`)
+- **Result**: exit 0. Lint (`oxlint --deny-warnings` + "All matched files use Prettier code style!"), `tsc --noEmit` clean, **121 test files, 1780 passed, 0 failed, 0 skipped**, `vite build` OK (main JS chunk 743.51 kB, unchanged vs iteration 3)
+- **E2E**: not run locally (CI covers it); `e2e/card-checklist-dnd.e2e-spec.ts` is unchanged since `69f8350`. CI run `41499575849` (`745bb22`, branch `test/card-checklist-dnd-order-between-failures`) 12/12 jobs green, job `front-end (test:e2e)` `125463266968` success; CI run `41500094477` (`c41f213`, push to main) 12/12 jobs green, job `front-end (test:e2e)` `125465042986` success
 - **Test count before feature**: 1669
-- **Test count at iteration 1 / 2**: 1770 / 1778
-- **Test count after iteration 3**: 1780
-- **Delta**: +2 since iteration 2 (the two-failure `it.each`, 2 cases; Fix 3 rewrote one test, +0); +111 for the feature; no test removed or weakened (the replay test now asserts a stricter, order-sensitive result)
+- **Test count at iteration 1 / 2 / 3**: 1770 / 1778 / 1780
+- **Test count after iteration 4**: 1780
+- **Delta**: +0 since iteration 3 (Fix 5 adds an assertion to an existing `it.each`, as planned); +111 for the feature; no test removed or weakened (the two-failure test now asserts more)
 - **Skipped tests**: none
 - **Failures**: none
 
@@ -237,7 +264,7 @@ No `// SPEC_DEVIATION` markers in this feature.
 | Fix 2 | FCLD-01 icon (M10), FCLD-07 colour | test only | Cosmetic | ✅ Closed in iteration 2 (`1027920`; `item.spec:211-218`; M10, M12 killed) |
 | Fix 3 | FCLD-21 replay order (M18) | test only | Cosmetic | ✅ Closed in iteration 3 (`c537e1a`; `model.spec:252-277`; M18 killed; +0 tests) |
 | Fix 4 | FCLD-21 neighbour: both moves fail (probe P2, M19) + spec-precision gap | spec + code + test | Minor | ✅ Closed in iteration 3 (`0995fea` spec `spec.md:120`; `8bd8267` rebase `api/checklist-mutations.ts:179-184` + `mut.spec:796-842`; P2 → `A, B, C`; M19 killed; +2 tests) |
-| Fix 5 | FCLD-21 named order `A fails first → C, A, B` not asserted (M25) | test only | Cosmetic (behaviour right, probe P3) | ❌ Open, escalated to the user (iteration 3 of 3) |
+| Fix 5 | FCLD-21 named order `A fails first → C, A, B` not asserted (M25) | test only | Cosmetic (behaviour right, probe P3) | ✅ Closed in iteration 4 (`745bb22`; `mut.spec:796-809`, `:843`; M25 killed; +0 tests) |
 
 ### Fix 1: A failed move keeps an overlapping move on screen (FCLD-21) - closed
 
@@ -271,7 +298,10 @@ Landed: `0995fea` (FCLD-21 names all four orders), `8bd8267` (the revert rebases
   - **Verify**: the "C first" test fails on `05234e5` (`c0,a1,b2`); the "A first" test fails with M19 applied; both pass after the fix; `mut.spec:687-706`, `:725-766`, `:768-794` stay green; build gate passes.
   - **Done when**: P2 ends at `A, B, C`; M19 is killed; test count +2.
 
-### Fix 5: Assert the order between the two failures (FCLD-21, M25)
+### Fix 5: Assert the order between the two failures (FCLD-21, M25) - closed
+
+Landed in `745bb22` (PR #389): each `it.each` row carries `afterFirst` (`mut.spec:800`, `:806`), asserted after the first failure (`:843`). M25 is killed at `:843`. The original plan follows (line numbers on `8bd8267`).
+
 
 - **Root cause**: `mut.spec:796-842` releases the first failure, waits for one pending mutation (`:828-832`), releases the second, and asserts the order only at the end (`:840`). The spec names the order after the first failure too; for `A fails first` (`C, A, B`) no test reads it, so M25 (the newest move's revert rebuilds from the oldest pending base and hides C's pending move) passes.
 - **Fix task**:
@@ -284,29 +314,29 @@ Landed: `0995fea` (FCLD-21 names all four orders), `8bd8267` (the revert rebases
 
 ## Requirement Traceability Update
 
-| Requirement | Iteration 1 | Iteration 2 | Iteration 3 |
-| ----------- | ----------- | ----------- | ----------- |
-| FCLD-01 | ❌ Needs Fix (Fix 2) | ✅ Verified | ✅ Verified |
-| FCLD-02..FCLD-06 | ✅ Verified | ✅ Verified | ✅ Verified |
-| FCLD-07 | ✅ Verified (colour nit) | ✅ Verified (colour asserted) | ✅ Verified |
-| FCLD-08..FCLD-20 | ✅ Verified | ✅ Verified | ✅ Verified |
-| FCLD-21 | ❌ Needs Fix (Fix 1) | ❌ Needs Fix (Fixes 3–4; the named one-failure case is verified) | ⚠️ Behaviour verified (P2, P3, P5); 3 of 4 named orders asserted; Fix 5 (test only) escalated |
-| FCLD-22..FCLD-25 | ✅ Verified | ✅ Verified | ✅ Verified |
+| Requirement | Iteration 1 | Iteration 2 | Iteration 3 | Iteration 4 |
+| ----------- | ----------- | ----------- | ----------- | ----------- |
+| FCLD-01 | ❌ Needs Fix (Fix 2) | ✅ Verified | ✅ Verified | ✅ Verified |
+| FCLD-02..FCLD-06 | ✅ Verified | ✅ Verified | ✅ Verified | ✅ Verified |
+| FCLD-07 | ✅ Verified (colour nit) | ✅ Verified (colour asserted) | ✅ Verified | ✅ Verified |
+| FCLD-08..FCLD-20 | ✅ Verified | ✅ Verified | ✅ Verified | ✅ Verified |
+| FCLD-21 | ❌ Needs Fix (Fix 1) | ❌ Needs Fix (Fixes 3–4; the named one-failure case is verified) | ⚠️ Behaviour verified (P2, P3, P5); 3 of 4 named orders asserted; Fix 5 (test only) escalated | ✅ Verified (all 4 named orders asserted; M25 killed) |
+| FCLD-22..FCLD-25 | ✅ Verified | ✅ Verified | ✅ Verified | ✅ Verified |
 
-The Verifier reports only; `spec.md` traceability is left for the author to update.
+`spec.md` Requirement Traceability is updated to `Verify` / `✅ Verified` for all 25 FCLD requirements.
 
 ---
 
 ## Summary
 
-**Overall**: ❌ Not Ready on evidence, ✅ right in behaviour. One cosmetic test gap (Fix 5). Iteration 3 of 3: escalated to the user.
+**Overall**: ✅ Ready. PASS after 4 iterations; the fixes were test-only except Fix 1 and Fix 4 (the revert, PRs #382, #387).
 
-**Spec-anchored check**: 25/25 ACs evidenced; the FCLD-21 spec-precision gap is closed (the spec names all four orders); 3 of the 4 named FCLD-21 orders are asserted exactly (`mut.spec:790`, `:840` ×2); `A fails first → C, A, B` has no assertion
-**Sensor**: 6/8 killed (M25 survived → Fix 5; M21 survived but is equivalent with two moves); M18 and M19 from iteration 2 killed; probes P2, P3, P5 match the server order
-**Gate**: 1780 unit/component passed, 0 failed, 0 skipped (`8bd8267`); e2e green in CI `41495208301`
+**Spec-anchored check**: 25/25 ACs matched the spec outcome; no spec-precision gap open; all 4 named FCLD-21 orders asserted exactly (`mut.spec:790`, `:843` ×2, `:851` ×2)
+**Sensor**: 8/8 killed in iteration 4 (M25 killed at `mut.spec:843`; M18, M19 still killed; M26–M30 fresh); M21 is equivalent within the spec's two-move scope (note)
+**Gate**: 1780 unit/component passed, 0 failed, 0 skipped (`c41f213`); e2e green in CI `41499575849` (branch) and `41500094477` (main)
 
-**What works**: everything verified in iterations 1–2, plus: a second failure never brings a failed move back, in either order; the replay helper's order is pinned; with three overlapping moves the real code still shows the server order.
+**What works**: mouse and keyboard reorder with the banner, live announcements and focus rules; no-op drops send nothing; failed moves go back with the right toast per status; overlapping moves keep the server order after each failure, in either order; grips are hidden or disabled where the spec says.
 
-**Next steps**: the user decides: take Fix 5 (one small test PR, then a short re-check of M25) or accept FCLD-21 with the intermediate `C, A, B` evidenced by probe P3 only. Optional nits: drop the unused `moves` path of `replayItemMoves` or keep it on purpose; align `design.md:94` with the rebase walk.
+**Next steps**: none required. Optional: interactive UAT (mouse drag in a real browser, screen-reader pass of the live region); the two nits (`replayItemMoves` unused `moves` path, `design.md:94` wording).
 
-**Lessons**: L-023 (order-sensitive steps) held: M18 killed. L-024 (assert the cache after each failure) was half applied and its signal recurred (M25); evidence added to L-024. M21 is out of the spec's scope; no lesson.
+**Lessons**: clean PASS, no new signal, no lesson recorded. L-024 (assert the cache after each failure) is now applied and its mutant M25 is killed; L-021..L-024 stay candidates until a second feature corroborates them.

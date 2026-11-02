@@ -158,33 +158,33 @@ The card detail (features `card-detail`, 4a, and `card-checklist`, 4b) shows the
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| FCLD-01 | P1: Reorder items with the mouse | - | Pending |
-| FCLD-02 | P1: Reorder items with the mouse | - | Pending |
-| FCLD-03 | P1: Reorder items with the mouse | - | Pending |
-| FCLD-04 | P1: Reorder items with the mouse | - | Pending |
-| FCLD-05 | P1: Reorder items with the mouse | - | Pending |
-| FCLD-06 | P1: Reorder items with the mouse | - | Pending |
-| FCLD-07 | P1: Reorder items with the keyboard | - | Pending |
-| FCLD-08 | P1: Reorder items with the keyboard | - | Pending |
-| FCLD-09 | P1: Reorder items with the keyboard | - | Pending |
-| FCLD-10 | P1: Reorder items with the keyboard | - | Pending |
-| FCLD-11 | P1: Reorder items with the keyboard | - | Pending |
-| FCLD-12 | P1: Reorder items with the keyboard | - | Pending |
-| FCLD-13 | P1: Reorder items with the keyboard | - | Pending |
-| FCLD-14 | P1: Reorder items with the keyboard | - | Pending |
-| FCLD-15 | P1: Reorder items with the keyboard | - | Pending |
-| FCLD-16 | P1: Reorder items with the keyboard | - | Pending |
-| FCLD-17 | P1: Reorder items with the keyboard | - | Pending |
-| FCLD-18 | P1: Failed and blocked moves | - | Pending |
-| FCLD-19 | P1: Failed and blocked moves | - | Pending |
-| FCLD-20 | P1: Failed and blocked moves | - | Pending |
-| FCLD-21 | P1: Failed and blocked moves | - | Pending |
-| FCLD-22 | P1: Failed and blocked moves | - | Pending |
-| FCLD-23 | P1: Failed and blocked moves | - | Pending |
-| FCLD-24 | P1: Failed and blocked moves | - | Pending |
-| FCLD-25 | P1: Failed and blocked moves | - | Pending |
+| FCLD-01 | P1: Reorder items with the mouse | Verify | ✅ Verified |
+| FCLD-02 | P1: Reorder items with the mouse | Verify | ✅ Verified |
+| FCLD-03 | P1: Reorder items with the mouse | Verify | ✅ Verified |
+| FCLD-04 | P1: Reorder items with the mouse | Verify | ✅ Verified |
+| FCLD-05 | P1: Reorder items with the mouse | Verify | ✅ Verified |
+| FCLD-06 | P1: Reorder items with the mouse | Verify | ✅ Verified |
+| FCLD-07 | P1: Reorder items with the keyboard | Verify | ✅ Verified |
+| FCLD-08 | P1: Reorder items with the keyboard | Verify | ✅ Verified |
+| FCLD-09 | P1: Reorder items with the keyboard | Verify | ✅ Verified |
+| FCLD-10 | P1: Reorder items with the keyboard | Verify | ✅ Verified |
+| FCLD-11 | P1: Reorder items with the keyboard | Verify | ✅ Verified |
+| FCLD-12 | P1: Reorder items with the keyboard | Verify | ✅ Verified |
+| FCLD-13 | P1: Reorder items with the keyboard | Verify | ✅ Verified |
+| FCLD-14 | P1: Reorder items with the keyboard | Verify | ✅ Verified |
+| FCLD-15 | P1: Reorder items with the keyboard | Verify | ✅ Verified |
+| FCLD-16 | P1: Reorder items with the keyboard | Verify | ✅ Verified |
+| FCLD-17 | P1: Reorder items with the keyboard | Verify | ✅ Verified |
+| FCLD-18 | P1: Failed and blocked moves | Verify | ✅ Verified |
+| FCLD-19 | P1: Failed and blocked moves | Verify | ✅ Verified |
+| FCLD-20 | P1: Failed and blocked moves | Verify | ✅ Verified |
+| FCLD-21 | P1: Failed and blocked moves | Verify | ✅ Verified |
+| FCLD-22 | P1: Failed and blocked moves | Verify | ✅ Verified |
+| FCLD-23 | P1: Failed and blocked moves | Verify | ✅ Verified |
+| FCLD-24 | P1: Failed and blocked moves | Verify | ✅ Verified |
+| FCLD-25 | P1: Failed and blocked moves | Verify | ✅ Verified |
 
-**Coverage:** 25 total, 0 mapped to tasks, 25 unmapped ⚠️ (mapped at Tasks)
+**Coverage:** 25 total, 25 mapped to tasks (T1–T14). Validation iteration 4: 25 ✅ Verified (iterations 1–3 had FCLD-01 and FCLD-21 ❌ Needs Fix, closed by `validation.md` Fixes 1–5)
 
 ---
 
