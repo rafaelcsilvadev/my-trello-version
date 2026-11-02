@@ -6,6 +6,7 @@ import {
   itemMoveBody,
   placeItem,
   previewItems,
+  replayItemMoves,
   sortItems,
   stepItem,
 } from '@/features/board/model/checklist';
@@ -223,6 +224,111 @@ describe('placeItem', () => {
       ['c', 1],
       ['a', 2],
     ]);
+  });
+});
+
+describe('replayItemMoves', () => {
+  const order = (list: ChecklistItem[]) =>
+    list.map((entry) => [entry.id, entry.position]);
+  // Cache after C → 0 then A → 2 on A, B, C.
+  const moved = () => [
+    item('c', { position: 0 }),
+    item('b', { position: 1 }),
+    item('a', { position: 2 }),
+  ];
+
+  it('replays the later moves on the base order (FCLD-21)', () => {
+    expect(
+      order(
+        replayItemMoves(moved(), ['a', 'b', 'c'], [{ id: 'a', position: 2 }]),
+      ),
+    ).toEqual([
+      ['b', 0],
+      ['c', 1],
+      ['a', 2],
+    ]);
+  });
+
+  it('replays several later moves in the order they were made', () => {
+    // A, B, C: C → 0 fails; then B → 0 and C → 2 hold.
+    const current = [
+      item('b', { position: 0 }),
+      item('a', { position: 1 }),
+      item('c', { position: 2 }),
+    ];
+
+    expect(
+      order(
+        replayItemMoves(
+          current,
+          ['a', 'b', 'c'],
+          [
+            { id: 'b', position: 0 },
+            { id: 'c', position: 2 },
+          ],
+        ),
+      ),
+    ).toEqual([
+      ['b', 0],
+      ['a', 1],
+      ['c', 2],
+    ]);
+  });
+
+  it('restores the base order when no move came later', () => {
+    expect(order(replayItemMoves(moved(), ['a', 'b', 'c'], []))).toEqual([
+      ['a', 0],
+      ['b', 1],
+      ['c', 2],
+    ]);
+  });
+
+  it('keeps the current fields of each item', () => {
+    const current = [
+      item('c', { position: 0 }),
+      item('a', { position: 1, done: true }),
+      item('b', { position: 2 }),
+    ];
+
+    const result = replayItemMoves(current, ['a', 'b', 'c'], []);
+
+    expect(result.find((entry) => entry.id === 'a')?.done).toBe(true);
+  });
+
+  it('drops ids that left the cache and appends items the base did not know', () => {
+    const current = [
+      item('d', { position: 0 }),
+      item('c', { position: 1 }),
+      item('a', { position: 2 }),
+    ];
+
+    expect(order(replayItemMoves(current, ['a', 'b', 'c'], []))).toEqual([
+      ['a', 0],
+      ['c', 1],
+      ['d', 2],
+    ]);
+  });
+
+  it('skips a later move of an item that left the cache', () => {
+    const current = [item('a', { position: 0 }), item('c', { position: 1 })];
+
+    expect(
+      order(
+        replayItemMoves(current, ['c', 'b', 'a'], [{ id: 'b', position: 0 }]),
+      ),
+    ).toEqual([
+      ['c', 0],
+      ['a', 1],
+    ]);
+  });
+
+  it('does not mutate the input array or its items', () => {
+    const input = moved();
+    const snapshot = structuredClone(input);
+
+    replayItemMoves(input, ['a', 'b', 'c'], [{ id: 'a', position: 2 }]);
+
+    expect(input).toEqual(snapshot);
   });
 });
 

@@ -76,6 +76,30 @@ export function placeItem(
   );
 }
 
+export type ItemMove = { id: string; position: number };
+
+// The order the server holds once a move fails: the order before it, with the
+// moves made after it placed again (FCLD-21). Ids no longer cached are dropped;
+// items the base did not know keep their order at the end.
+export function replayItemMoves(
+  items: ChecklistItem[],
+  base: string[],
+  moves: ItemMove[],
+): ChecklistItem[] {
+  const rank = new Map(base.map((id, index) => [id, index]));
+  const ordered = sortItems(items).sort(
+    (left, right) =>
+      (rank.get(left.id) ?? base.length) - (rank.get(right.id) ?? base.length),
+  );
+  const renumbered = ordered.map((entry, position) =>
+    entry.position === position ? entry : { ...entry, position },
+  );
+  return moves.reduce(
+    (current, { id, position }) => placeItem(current, id, position),
+    renumbered,
+  );
+}
+
 // `target` stays `null` until the first drag over or keyboard step.
 export type ItemMoveSession = {
   id: string;
