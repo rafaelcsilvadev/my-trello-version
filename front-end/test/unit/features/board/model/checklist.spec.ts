@@ -5,9 +5,11 @@ import {
   isChecklistDirty,
   itemMoveBody,
   placeItem,
+  previewItems,
   sortItems,
   stepItem,
 } from '@/features/board/model/checklist';
+import type { ItemMoveSession } from '@/features/board/model/checklist';
 import type { ChecklistItem } from '@/features/board/model/types';
 
 function item(
@@ -221,5 +223,83 @@ describe('placeItem', () => {
       ['c', 1],
       ['a', 2],
     ]);
+  });
+});
+
+describe('previewItems', () => {
+  const items = () => [
+    item('a', { position: 0 }),
+    item('b', { position: 1 }),
+    item('c', { position: 2 }),
+  ];
+  const ids = (list: ChecklistItem[]) => list.map((entry) => entry.id);
+  const session = (
+    overrides: Partial<ItemMoveSession> = {},
+  ): ItemMoveSession => ({
+    id: 'b',
+    input: 'mouse',
+    origin: 1,
+    target: null,
+    ...overrides,
+  });
+
+  it('returns the items unchanged with every marker null without a session', () => {
+    const input = items();
+
+    expect(previewItems(input, null)).toEqual({
+      items: input,
+      sourceId: null,
+      placeholderIndex: null,
+      liftedId: null,
+    });
+    expect(previewItems(input, null).items).toBe(input);
+  });
+
+  it('keeps the items and marks the source with no placeholder before the first hover', () => {
+    const input = items();
+    const preview = previewItems(input, session());
+
+    expect(preview.items).toBe(input);
+    expect(preview).toMatchObject({
+      sourceId: 'b',
+      placeholderIndex: null,
+      liftedId: null,
+    });
+  });
+
+  it('puts the placeholder at the mouse target and leaves the items in place', () => {
+    const input = items();
+    const preview = previewItems(input, session({ target: 3 }));
+
+    expect(preview.items).toBe(input);
+    expect(preview).toMatchObject({
+      sourceId: 'b',
+      placeholderIndex: 3,
+      liftedId: null,
+    });
+  });
+
+  it('renders the keyboard-picked item at its target and lifts it', () => {
+    const preview = previewItems(
+      items(),
+      session({ input: 'keyboard', target: 0 }),
+    );
+
+    expect(ids(preview.items)).toEqual(['b', 'a', 'c']);
+    expect(preview).toMatchObject({
+      sourceId: null,
+      placeholderIndex: null,
+      liftedId: 'b',
+    });
+  });
+
+  it('renders the keyboard-picked item at its origin before the first step', () => {
+    const preview = previewItems(
+      items(),
+      session({ input: 'keyboard', target: null }),
+    );
+
+    expect(ids(preview.items)).toEqual(['a', 'b', 'c']);
+    expect(preview.liftedId).toBe('b');
   });
 });

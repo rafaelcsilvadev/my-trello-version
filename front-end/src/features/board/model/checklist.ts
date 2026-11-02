@@ -1,4 +1,5 @@
 import { byPosition } from './columns';
+import type { MoveInput } from './move';
 import type { ChecklistItem, MoveChecklistItemDto } from './types';
 
 export type ChecklistProgress = {
@@ -73,4 +74,40 @@ export function placeItem(
   return others.map((entry, position) =>
     entry.position === position ? entry : { ...entry, position },
   );
+}
+
+// `target` stays `null` until the first drag over or keyboard step.
+export type ItemMoveSession = {
+  id: string;
+  input: MoveInput;
+  origin: number;
+  target: number | null;
+};
+
+// What the checklist renders while a session runs.
+export type ChecklistPreview = {
+  items: ChecklistItem[];
+  sourceId: string | null;
+  placeholderIndex: number | null;
+  liftedId: string | null;
+};
+
+// Mouse: the source stays in place and a placeholder marks the target (FCLD-04).
+// Keyboard: the picked item renders at its target, lifted (FCLD-08, FCLD-09).
+export function previewItems(
+  items: ChecklistItem[],
+  session: ItemMoveSession | null,
+): ChecklistPreview {
+  const none = { sourceId: null, placeholderIndex: null, liftedId: null };
+  if (!session) return { items, ...none };
+
+  const { id, origin, target } = session;
+  if (session.input === 'mouse') {
+    return { ...none, items, sourceId: id, placeholderIndex: target };
+  }
+  return {
+    ...none,
+    items: placeItem(items, id, target ?? origin),
+    liftedId: id,
+  };
 }
