@@ -217,10 +217,10 @@ T11 → T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Unit: a mouse session never announces and has no banner; `hover(i)` sets the placeholder; `drop()` sends `{ position: i }`; a drop before any hover or at the start index sends nothing; `cancel()` is silent
-- [ ] Unit: `canDrag` is `false` when `canMove` is `false`, while a session runs, and for a pending id; `start` is ignored in those cases
-- [ ] Unit: `500` → "Não foi possível salvar. Tente novamente." and clicking Tentar novamente sends the same body again; `409` → the conflict toast and Recarregar refetches the board queries; `404` → the toast without a button and the checklist refetches
-- [ ] Build gate passes; test count only grows
+- [x] Unit: a mouse session never announces and has no banner; `hover(i)` sets the placeholder; `drop()` sends `{ position: i }`; a drop before any hover or at the start index sends nothing; `cancel()` is silent
+- [x] Unit: `canDrag` is `false` when `canMove` is `false`, while a session runs, and for a pending id; `start` is ignored in those cases
+- [x] Unit: `500` → "Não foi possível salvar. Tente novamente." and clicking Tentar novamente sends the same body again; `409` → the conflict toast and Recarregar refetches the board queries; `404` → the toast without a button and the checklist refetches
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
