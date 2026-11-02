@@ -432,8 +432,8 @@ T11 → T12 → T13 → T14
 
 **Done when**:
 
-- [ ] ROADMAP shows 4b2 Done and STATE Handoff points to `card-labels` (4c)
-- [ ] Build gate passes; test count unchanged
+- [x] ROADMAP shows 4b2 Done and STATE Handoff points to `card-labels` (4c)
+- [x] Build gate passes; test count unchanged
 
 **Tests**: none
 **Gate**: build
