@@ -141,8 +141,20 @@ Seen once or not yet corroborated. Tracked, not trusted.
 ### L-022 - When an optimistic reorder can overlap another reorder, the spec must state the exact order the screen shows after one of them fails
 - signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec` · harmful: 0
 - features: card-checklist-dnd
-- evidence: FCLD-21 (spec)
-- last seen: 2026-11-02T15:14:03Z
+- evidence: FCLD-21 (spec) (+1 more)
+- last seen: 2026-11-02T16:02:01Z
+
+### L-023 - When a test claims steps are applied in order, pick steps whose order changes the result
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `tests` · harmful: 0
+- features: card-checklist-dnd
+- evidence: M18 front-end/src/features/board/model/checklist.ts:97 (model.spec:252-276) (tests)
+- last seen: 2026-11-02T16:02:01Z
+
+### L-024 - Test overlapping optimistic changes failing one after another in both orders, asserting the cache after each failure
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `api` · harmful: 0
+- features: card-checklist-dnd
+- evidence: M19 front-end/src/features/board/api/checklist-mutations.ts:177; probe P2 (both moves fail) (api)
+- last seen: 2026-11-02T16:02:01Z
 
 ## Quarantined (failed when applied - ignore)
 

@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 23,
+  "next_id": 25,
   "lessons": [
     {
       "id": "L-001",
@@ -404,10 +404,47 @@
       "recurrence": 1,
       "harmful": 0,
       "evidence": [
-        "FCLD-21 (spec)"
+        "FCLD-21 (spec)",
+        "FCLD-21 spec.md:120 (order after a second failure) (spec)"
       ],
       "created": "2026-11-02T15:14:03Z",
-      "last_seen": "2026-11-02T15:14:03Z"
+      "last_seen": "2026-11-02T16:02:01Z"
+    },
+    {
+      "id": "L-023",
+      "key": "surviving_mutant::when a test claims steps are applied in order pick steps whose order changes the result",
+      "text": "When a test claims steps are applied in order, pick steps whose order changes the result",
+      "signal": "surviving_mutant",
+      "scope": "tests",
+      "status": "candidate",
+      "features": [
+        "card-checklist-dnd"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M18 front-end/src/features/board/model/checklist.ts:97 (model.spec:252-276) (tests)"
+      ],
+      "created": "2026-11-02T16:02:01Z",
+      "last_seen": "2026-11-02T16:02:01Z"
+    },
+    {
+      "id": "L-024",
+      "key": "surviving_mutant::test overlapping optimistic changes failing one after another in both orders asserting the cache after each failure",
+      "text": "Test overlapping optimistic changes failing one after another in both orders, asserting the cache after each failure",
+      "signal": "surviving_mutant",
+      "scope": "api",
+      "status": "candidate",
+      "features": [
+        "card-checklist-dnd"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M19 front-end/src/features/board/api/checklist-mutations.ts:177; probe P2 (both moves fail) (api)"
+      ],
+      "created": "2026-11-02T16:02:01Z",
+      "last_seen": "2026-11-02T16:02:01Z"
     }
   ]
 }
