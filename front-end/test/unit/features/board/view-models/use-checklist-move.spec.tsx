@@ -1,5 +1,12 @@
 import { QueryClientProvider } from '@tanstack/react-query';
-import { act, cleanup, renderHook, waitFor } from '@testing-library/react';
+import {
+  act,
+  cleanup,
+  fireEvent,
+  renderHook,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import type { ReactNode } from 'react';
 import { I18nextProvider } from 'react-i18next';
@@ -29,14 +36,27 @@ const b = checklistItem('b', cardId, { text: 'B', position: 1 });
 const c = checklistItem('c', cardId, { text: 'C', position: 2 });
 const items = [a, b, c];
 
+const saveFail = 'Não foi possível salvar. Tente novamente.';
+const conflict = 'Este item foi arquivado. Recarregue para ver o estado atual.';
+
 type MoveRequest = { id: string; body: unknown };
 
-function moveWrites() {
+function problem(status: number) {
+  return HttpResponse.json(
+    { type: `/problems/${status}`, title: 'Error', status, detail: '' },
+    {
+      status,
+      headers: { 'Content-Type': 'application/problem+json' },
+    },
+  );
+}
+
+function moveWrites(reply: () => Response = () => HttpResponse.json({})) {
   const moves: MoveRequest[] = [];
   server.use(
     http.post(moveUrl, async ({ params, request }) => {
       moves.push({ id: String(params.id), body: await request.json() });
-      return HttpResponse.json({});
+      return reply();
     }),
   );
   return moves;
@@ -70,7 +90,7 @@ function setup(overrides: Partial<ChecklistMoveOptions> = {}) {
     (props: ChecklistMoveOptions) => useChecklistMove(boardId, cardId, props),
     { wrapper, initialProps },
   );
-  return { ...view, queryClient };
+  return { ...view, queryClient, reload: initialProps.reload };
 }
 
 function savedOrder(queryClient: ReturnType<typeof setup>['queryClient']) {
@@ -216,5 +236,183 @@ describe('useChecklistMove keyboard session', () => {
     await act(() => Promise.resolve());
     expect(moves).toEqual([]);
     expect(savedOrder(queryClient)).toEqual(['A:0', 'B:1', 'C:2']);
+  });
+});
+
+describe('useChecklistMove mouse session', () => {
+  it('never announces and shows no banner', () => {
+    const { result } = setup();
+
+    act(() => result.current.start('b', 'mouse'));
+    act(() => result.current.hover(0));
+
+    expect(result.current.announcement).toBe('');
+    expect(result.current.bannerText).toBeNull();
+    expect(result.current.keyboardItemId).toBeNull();
+    expect(result.current.preview.sourceId).toBe('b');
+  });
+
+  it('sets the placeholder at the hovered index and keeps the order', () => {
+    const { result } = setup();
+
+    act(() => result.current.start('b', 'mouse'));
+    expect(result.current.preview.placeholderIndex).toBeNull();
+
+    act(() => result.current.hover(2));
+
+    expect(result.current.preview.placeholderIndex).toBe(2);
+    expect(order(result)).toEqual(['A', 'B', 'C']);
+  });
+
+  it('drops the item and sends the hovered index', async () => {
+    const moves = moveWrites();
+    const { result } = setup();
+
+    act(() => result.current.start('a', 'mouse'));
+    act(() => result.current.hover(2));
+    act(() => result.current.drop());
+
+    expect(result.current.announcement).toBe('');
+    expect(result.current.preview.sourceId).toBeNull();
+    await waitFor(() => {
+      expect(moves).toEqual([{ id: 'a', body: { position: 2 } }]);
+    });
+  });
+
+  it('sends nothing for a drop before any hover', async () => {
+    const moves = moveWrites();
+    const { result } = setup();
+
+    act(() => result.current.start('b', 'mouse'));
+    act(() => result.current.drop());
+
+    await act(() => Promise.resolve());
+    expect(moves).toEqual([]);
+  });
+
+  it('sends nothing for a drop at the start index', async () => {
+    const moves = moveWrites();
+    const { result, queryClient } = setup();
+
+    act(() => result.current.start('b', 'mouse'));
+    act(() => result.current.hover(0));
+    act(() => result.current.hover(1));
+    act(() => result.current.drop());
+
+    await act(() => Promise.resolve());
+    expect(moves).toEqual([]);
+    expect(savedOrder(queryClient)).toEqual(['A:0', 'B:1', 'C:2']);
+  });
+
+  it('cancels silently and sends nothing', async () => {
+    const moves = moveWrites();
+    const { result } = setup();
+
+    act(() => result.current.start('b', 'mouse'));
+    act(() => result.current.hover(0));
+    act(() => result.current.cancel());
+
+    expect(result.current.announcement).toBe('');
+    expect(result.current.preview.sourceId).toBeNull();
+    expect(result.current.preview.placeholderIndex).toBeNull();
+    await act(() => Promise.resolve());
+    expect(moves).toEqual([]);
+  });
+
+  it('ignores a hover during a keyboard session', () => {
+    const { result } = setup();
+
+    act(() => result.current.start('b', 'keyboard'));
+    act(() => result.current.hover(0));
+
+    expect(order(result)).toEqual(['A', 'B', 'C']);
+    expect(result.current.preview.placeholderIndex).toBeNull();
+  });
+});
+
+describe('useChecklistMove guards', () => {
+  it('lets an idle, settled item be dragged', () => {
+    const { result } = setup();
+
+    expect(result.current.canDrag('a')).toBe(true);
+  });
+
+  it('blocks every item and ignores start when moves are off', () => {
+    const { result } = setup({ canMove: false });
+
+    expect(result.current.canDrag('a')).toBe(false);
+
+    act(() => result.current.start('a', 'keyboard'));
+
+    expect(result.current.keyboardItemId).toBeNull();
+    expect(result.current.announcement).toBe('');
+  });
+
+  it('blocks every item and ignores another start while a session runs', () => {
+    const { result } = setup();
+
+    act(() => result.current.start('a', 'keyboard'));
+
+    expect(result.current.canDrag('a')).toBe(false);
+    expect(result.current.canDrag('b')).toBe(false);
+
+    act(() => result.current.start('b', 'keyboard'));
+
+    expect(result.current.keyboardItemId).toBe('a');
+    expect(result.current.announcement).toBe('Item A, posição 1 de 3');
+  });
+
+  it('blocks a pending item and ignores its start', () => {
+    const { result } = setup({ pendingIds: new Set(['b']) });
+
+    expect(result.current.canDrag('b')).toBe(false);
+    expect(result.current.canDrag('a')).toBe(true);
+
+    act(() => result.current.start('b', 'mouse'));
+
+    expect(result.current.preview.sourceId).toBeNull();
+  });
+});
+
+describe('useChecklistMove failures', () => {
+  it('shows the retry toast and sends the same body again', async () => {
+    const moves = moveWrites(() => problem(500));
+    const { result } = setup();
+
+    act(() => result.current.start('a', 'mouse'));
+    act(() => result.current.hover(2));
+    act(() => result.current.drop());
+
+    await screen.findByText(saveFail);
+    fireEvent.click(screen.getByRole('button', { name: 'Tentar novamente' }));
+    await waitFor(() => expect(moves).toHaveLength(2));
+    expect(moves[1]).toEqual(moves[0]);
+  });
+
+  it('shows the conflict toast and Recarregar reloads', async () => {
+    moveWrites(() => problem(409));
+    const { result, reload } = setup();
+
+    act(() => result.current.start('a', 'mouse'));
+    act(() => result.current.hover(2));
+    act(() => result.current.drop());
+
+    await screen.findByText(conflict);
+    expect(reload).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'Recarregar' }));
+    expect(reload).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows the toast without a button and reloads on a 404', async () => {
+    moveWrites(() => problem(404));
+    const { result, reload } = setup();
+
+    act(() => result.current.start('a', 'mouse'));
+    act(() => result.current.hover(2));
+    act(() => result.current.drop());
+
+    await screen.findByText(saveFail);
+    expect(screen.queryByRole('button')).toBeNull();
+    expect(reload).toHaveBeenCalledTimes(1);
   });
 });

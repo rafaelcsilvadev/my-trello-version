@@ -27,7 +27,7 @@ type MoveText = 'moveBanner' | 'moveAnnounce' | 'moveDropped';
 export function useChecklistMove(
   boardId: string,
   cardId: string,
-  { items, reload }: ChecklistMoveOptions,
+  { items, canMove, pendingIds, reload }: ChecklistMoveOptions,
 ) {
   const { t } = useTranslation();
   const moveMutation = useMoveChecklistItem(boardId, cardId);
@@ -54,8 +54,14 @@ export function useChecklistMove(
     }
   }
 
-  // FCLD-08.
+  // FCLD-22, FCLD-23.
+  function canDrag(id: string) {
+    return canMove && !session && !pendingIds.has(id);
+  }
+
+  // FCLD-08; ignored unless `canDrag(id)`.
   function start(id: string, input: MoveInput) {
+    if (!canDrag(id)) return;
     const origin = items.findIndex((item) => item.id === id);
     const next: ItemMoveSession = { id, input, origin, target: null };
     setSession(next);
@@ -71,7 +77,14 @@ export function useChecklistMove(
     announce(next, 'moveAnnounce');
   }
 
-  // No success toast: the list already shows the move. A `null` body means the same index (FCLD-11–FCLD-13).
+  // FCLD-04: the mouse only marks the drop index; the list keeps its order.
+  function hover(index: number) {
+    setSession((current) =>
+      current?.input === 'mouse' ? { ...current, target: index } : current,
+    );
+  }
+
+  // No success toast: the list already shows the move. A `null` body means the same index (FCLD-05, FCLD-06, FCLD-11–FCLD-13); failures toast through `runChange` (FCLD-18–FCLD-20).
   function drop() {
     setSession(null);
     announce(session, 'moveDropped');
@@ -82,7 +95,7 @@ export function useChecklistMove(
     }
   }
 
-  // FCLD-14.
+  // FCLD-14; a mouse cancel is silent (FCLD-06).
   function cancel() {
     setSession(null);
     if (session?.input === 'keyboard') {
@@ -97,8 +110,10 @@ export function useChecklistMove(
     bannerText: keyboardSession && moveText(keyboardSession, 'moveBanner'),
     announcement,
     keyboardItemId: keyboardSession?.id ?? null,
+    canDrag,
     start,
     step,
+    hover,
     drop,
     cancel,
   };
