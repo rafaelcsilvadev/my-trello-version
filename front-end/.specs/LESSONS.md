@@ -153,8 +153,8 @@ Seen once or not yet corroborated. Tracked, not trusted.
 ### L-024 - Test overlapping optimistic changes failing one after another in both orders, asserting the cache after each failure
 - signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `api` · harmful: 0
 - features: card-checklist-dnd
-- evidence: M19 front-end/src/features/board/api/checklist-mutations.ts:177; probe P2 (both moves fail) (api)
-- last seen: 2026-11-02T16:02:01Z
+- evidence: M19 front-end/src/features/board/api/checklist-mutations.ts:177; probe P2 (both moves fail) (api) (+1 more)
+- last seen: 2026-11-02T18:04:29Z
 
 ## Quarantined (failed when applied - ignore)
 
