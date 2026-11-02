@@ -8,6 +8,7 @@ import {
   progressChange,
   useCreateChecklistItem,
   useDeleteChecklistItem,
+  useMoveChecklistItem,
   useUpdateChecklistItem,
 } from '@/features/board/api/checklist-mutations';
 import { boardViewKeys } from '@/features/board/api/keys';
@@ -622,5 +623,199 @@ describe('useDeleteChecklistItem', () => {
     ]);
     const restored = { total: 3, done: 1 };
     expect(progressOf(queryClient)).toEqual([restored, restored, restored]);
+  });
+});
+
+describe('useMoveChecklistItem', () => {
+  const moveUrl = `${baseUrl}/api/v1/checklist-items/:id/move`;
+  const itemA = checklistItem('a', card.id, { position: 0 });
+  const itemB = checklistItem('b', card.id, { position: 1 });
+  const itemC = checklistItem('c', card.id, { position: 2 });
+
+  function setupThree() {
+    const context = setup();
+    context.queryClient.setQueryData(checklistKey, [itemA, itemB, itemC]);
+    return context;
+  }
+
+  function order(queryClient: ReturnType<typeof createQueryClient>) {
+    return queryClient
+      .getQueryData<ChecklistItem[]>(checklistKey)
+      ?.map(({ id, position }) => `${id}${position}`);
+  }
+
+  it('posts the position to the move route of the item', async () => {
+    const calls: { id: unknown; body: unknown }[] = [];
+    server.use(
+      http.post(moveUrl, async ({ params, request }) => {
+        calls.push({ id: params.id, body: await request.json() });
+        return HttpResponse.json({ ...itemC, position: 0 });
+      }),
+    );
+    const { wrapper } = setupThree();
+    const { result } = renderHook(
+      () => useMoveChecklistItem(boardId, card.id),
+      { wrapper },
+    );
+
+    await act(() =>
+      result.current.mutateAsync({ id: itemC.id, body: { position: 0 } }),
+    );
+
+    expect(calls).toEqual([{ id: itemC.id, body: { position: 0 } }]);
+  });
+
+  it('shows the new order before the response and leaves the card caches alone', async () => {
+    server.use(http.post(moveUrl, () => delay('infinite')));
+    const { wrapper, queryClient } = setupThree();
+    const { result } = renderHook(
+      () => useMoveChecklistItem(boardId, card.id),
+      { wrapper },
+    );
+
+    act(() => result.current.mutate({ id: itemC.id, body: { position: 0 } }));
+
+    await waitFor(() => expect(order(queryClient)).toEqual(['c0', 'a1', 'b2']));
+    const { card: detail, active, archived } = snapshot(queryClient);
+    expect({ card: detail, active, archived }).toEqual({
+      card,
+      active: [card, other],
+      archived: [archivedCard],
+    });
+  });
+
+  it('puts the item back at its old index on failure', async () => {
+    server.use(
+      http.post(moveUrl, () => HttpResponse.json({}, { status: 500 })),
+    );
+    const { wrapper, queryClient } = setupThree();
+    const { result } = renderHook(
+      () => useMoveChecklistItem(boardId, card.id),
+      { wrapper },
+    );
+
+    act(() => result.current.mutate({ id: itemA.id, body: { position: 2 } }));
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(result.current.error).toBeInstanceOf(ApiError);
+    expect(queryClient.getQueryData(checklistKey)).toEqual([
+      itemA,
+      itemB,
+      itemC,
+    ]);
+  });
+
+  it('leaves the checklist alone on failure when the item was not cached', async () => {
+    server.use(
+      http.post(moveUrl, () => HttpResponse.json({}, { status: 500 })),
+    );
+    const { wrapper, queryClient } = setup();
+    queryClient.setQueryData(checklistKey, [itemA, itemB]);
+    const { result } = renderHook(
+      () => useMoveChecklistItem(boardId, card.id),
+      { wrapper },
+    );
+
+    act(() => result.current.mutate({ id: itemC.id, body: { position: 0 } }));
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(queryClient.getQueryData(checklistKey)).toEqual([itemA, itemB]);
+  });
+
+  it('reverts only the failed move and keeps an overlapping toggle of another item', async () => {
+    let failMove: (() => void) | undefined;
+    server.use(
+      http.post(moveUrl, async () => {
+        await new Promise<void>((resolve) => (failMove = resolve));
+        return HttpResponse.json({}, { status: 500 });
+      }),
+      http.patch(itemUrl, () => delay('infinite')),
+    );
+    const { wrapper, queryClient } = setupThree();
+    const { result } = renderHook(
+      () => ({
+        move: useMoveChecklistItem(boardId, card.id),
+        toggle: useUpdateChecklistItem(boardId, card.id),
+      }),
+      { wrapper },
+    );
+
+    act(() =>
+      result.current.move.mutate({ id: itemC.id, body: { position: 0 } }),
+    );
+    await waitFor(() => expect(order(queryClient)).toEqual(['c0', 'a1', 'b2']));
+    act(() =>
+      result.current.toggle.mutate({ id: itemB.id, body: { done: true } }),
+    );
+    await waitFor(() =>
+      expect(
+        queryClient
+          .getQueryData<ChecklistItem[]>(checklistKey)
+          ?.find((item) => item.id === itemB.id)?.done,
+      ).toBe(true),
+    );
+    await waitFor(() => expect(failMove).toBeDefined());
+    act(() => failMove?.());
+
+    await waitFor(() => expect(result.current.move.isError).toBe(true));
+    expect(queryClient.getQueryData(checklistKey)).toEqual([
+      itemA,
+      { ...itemB, done: true },
+      itemC,
+    ]);
+  });
+
+  it('marks the item id as pending while the move is in flight', async () => {
+    server.use(http.post(moveUrl, () => delay('infinite')));
+    const { wrapper } = setupThree();
+    const { result } = renderHook(
+      () => ({
+        move: useMoveChecklistItem(boardId, card.id),
+        pending: usePendingItemIds(),
+      }),
+      { wrapper },
+    );
+
+    act(() =>
+      result.current.move.mutate({ id: itemB.id, body: { position: 0 } }),
+    );
+
+    await waitFor(() =>
+      expect(result.current.pending).toEqual(new Set([itemB.id])),
+    );
+  });
+
+  it('refetches the board once, after the last pending change settles', async () => {
+    let releaseToggle: (() => void) | undefined;
+    server.use(
+      http.post(moveUrl, () => HttpResponse.json({ ...itemC, position: 0 })),
+      http.patch(itemUrl, async () => {
+        await new Promise<void>((resolve) => (releaseToggle = resolve));
+        return HttpResponse.json({ ...itemA, done: true });
+      }),
+    );
+    const { wrapper, queryClient } = setupThree();
+    const { result } = renderHook(
+      () => ({
+        move: useMoveChecklistItem(boardId, card.id),
+        toggle: useUpdateChecklistItem(boardId, card.id),
+      }),
+      { wrapper },
+    );
+
+    act(() =>
+      result.current.toggle.mutate({ id: itemA.id, body: { done: true } }),
+    );
+    await act(() =>
+      result.current.move.mutateAsync({ id: itemC.id, body: { position: 0 } }),
+    );
+    await waitFor(() => expect(releaseToggle).toBeDefined());
+    expect(queryClient.getQueryState(checklistKey)?.isInvalidated).toBe(false);
+
+    act(() => releaseToggle?.());
+
+    await waitFor(() =>
+      expect(queryClient.getQueryState(checklistKey)?.isInvalidated).toBe(true),
+    );
   });
 });

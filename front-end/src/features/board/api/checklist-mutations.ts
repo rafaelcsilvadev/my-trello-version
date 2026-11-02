@@ -3,11 +3,12 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApi } from '@/shared/api/api-context';
 import { type ApiError, call } from '@/shared/api/api-error';
 
-import type { ProgressDelta } from '../model/checklist';
+import { placeItem, type ProgressDelta, sortItems } from '../model/checklist';
 import type {
   Card,
   ChecklistItem,
   CreateChecklistItemDto,
+  MoveChecklistItemDto,
   UpdateChecklistItemDto,
 } from '../model/types';
 import { appendThenInvalidate } from './create-mutations';
@@ -117,6 +118,43 @@ export function useDeleteChecklistItem(boardId: string, cardId: string) {
       return [
         { key: boardViewKeys.checklist(boardId, cardId), ...items },
         ...progressChange(boardId, cardId, removed),
+      ];
+    },
+  );
+}
+
+export type MoveChecklistItemVariables = ItemVariables & {
+  body: MoveChecklistItemDto;
+};
+
+// Only the checklist cache changes: a move leaves `card.checklist` alone.
+export function useMoveChecklistItem(boardId: string, cardId: string) {
+  const api = useApi();
+
+  return useOptimisticBoardViewChange<MoveChecklistItemVariables>(
+    boardId,
+    ({ id, body }) =>
+      call(
+        api.POST('/api/v1/checklist-items/{id}/move', {
+          params: { path: { id } },
+          body,
+        }),
+      ),
+    ({ id, body }) => {
+      let previous: number | null = null;
+      return [
+        {
+          key: boardViewKeys.checklist(boardId, cardId),
+          apply: (items: ChecklistItem[]) => {
+            previous = sortItems(items).findIndex((item) => item.id === id);
+            return placeItem(items, id, body.position);
+          },
+          // Puts back only this item, so an overlapping change survives (FCLD-21).
+          revert: (items: ChecklistItem[]) =>
+            previous === null || previous < 0
+              ? items
+              : placeItem(items, id, previous),
+        },
       ];
     },
   );
