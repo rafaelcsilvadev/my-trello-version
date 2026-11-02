@@ -86,9 +86,9 @@ T11 → T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Unit: `stepItem` moves one up and one down; stays at `0` on ↑ and at `count - 1` on ↓; a single item stays at `0` both ways
-- [ ] Unit: `itemMoveBody` returns `null` for a `null` target and for `target === origin`; returns `{ position: target }` otherwise, including `0`
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `stepItem` moves one up and one down; stays at `0` on ↑ and at `count - 1` on ↓; a single item stays at `0` both ways
+- [x] Unit: `itemMoveBody` returns `null` for a `null` target and for `target === origin`; returns `{ position: target }` otherwise, including `0`
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
