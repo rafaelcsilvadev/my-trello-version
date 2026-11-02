@@ -112,8 +112,8 @@ T11 → T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Unit: `[A0, B1, C2]` with C to `0` → `[C0, A1, B2]`; A to `2` → `[B0, C1, A2]`; input given out of position order is sorted first; the input array and its items are not mutated; an unknown id returns the input unchanged; an index beyond the end places the item last
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `[A0, B1, C2]` with C to `0` → `[C0, A1, B2]`; A to `2` → `[B0, C1, A2]`; input given out of position order is sorted first; the input array and its items are not mutated; an unknown id returns the input unchanged; an index beyond the end places the item last
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
