@@ -1,4 +1,10 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import {
+  cleanup,
+  createEvent,
+  fireEvent,
+  render,
+  screen,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ComponentProps, KeyboardEvent } from 'react';
 import { I18nextProvider } from 'react-i18next';
@@ -8,7 +14,7 @@ import {
   CardDetailChecklistItem,
   type ItemMove,
 } from '@/features/board/components/card-detail-checklist-item';
-import type { MoveInput } from '@/features/board/model/move';
+import type { DropSlot, MoveInput } from '@/features/board/model/move';
 import { createI18n } from '@/shared/i18n/i18n';
 
 import { checklistItem } from '../../../../support/fixtures/board';
@@ -54,10 +60,14 @@ const deleteButton = () =>
 function move(overrides: Partial<ItemMove> = {}): ItemMove {
   return {
     canDrag: true,
+    isSource: false,
     isLifted: false,
     isPicked: false,
     onStart: vi.fn<(input: MoveInput) => void>(),
     onKey: vi.fn<(event: KeyboardEvent<HTMLButtonElement>) => void>(),
+    onHover: vi.fn<(slot: DropSlot) => void>(),
+    onDrop: vi.fn<() => void>(),
+    onEnd: vi.fn<() => void>(),
     ...overrides,
   };
 }
@@ -294,6 +304,123 @@ describe('CardDetailChecklistItem', () => {
       expect(grip()!.parentElement!.classList.contains('bg-brand-soft')).toBe(
         false,
       );
+    });
+  });
+
+  describe('mouse drag', () => {
+    // jsdom has no DataTransfer.
+    function dataTransferStub() {
+      return {
+        effectAllowed: 'none',
+        dropEffect: 'none',
+        setData: vi.fn<(format: string, data: string) => void>(),
+        getData: vi.fn<(format: string) => string>(() => ''),
+      };
+    }
+
+    const row = () => grip()!.parentElement!;
+
+    // jsdom has no DragEvent, so the plain event it builds drops `clientY`.
+    function dragOver(clientY: number) {
+      const event = createEvent.dragOver(row(), {
+        dataTransfer: dataTransferStub(),
+      });
+      Object.defineProperty(event, 'clientY', { value: clientY });
+      return fireEvent(row(), event);
+    }
+
+    it('makes the row draggable only while the grip is pressed (FCLD-02)', () => {
+      renderItem({ movable: move() });
+      expect(row().getAttribute('draggable')).not.toBe('true');
+
+      fireEvent.pointerDown(grip()!);
+      expect(row().getAttribute('draggable')).toBe('true');
+
+      fireEvent.pointerUp(grip()!);
+      expect(row().getAttribute('draggable')).not.toBe('true');
+    });
+
+    it('keeps the row not draggable on a press on the field, checkbox or delete button (FCLD-03)', () => {
+      renderItem({ movable: move() });
+
+      fireEvent.pointerDown(textbox());
+      fireEvent.pointerDown(checkbox());
+      fireEvent.pointerDown(deleteButton()!);
+
+      expect(row().getAttribute('draggable')).not.toBe('true');
+    });
+
+    it('keeps the row not draggable while the item cannot move (FCLD-22, FCLD-23)', () => {
+      renderItem({ movable: move({ canDrag: false, isPicked: true }) });
+
+      fireEvent.pointerDown(grip()!);
+
+      expect(row().getAttribute('draggable')).not.toBe('true');
+    });
+
+    it('disarms the row when the drag ends', () => {
+      renderItem({ movable: move() });
+      fireEvent.pointerDown(grip()!);
+
+      fireEvent.dragEnd(row(), { dataTransfer: dataTransferStub() });
+
+      expect(row().getAttribute('draggable')).not.toBe('true');
+    });
+
+    it('sets text/plain and starts a mouse move on dragstart (FCLD-02)', () => {
+      const movable = move();
+      renderItem({ movable });
+      fireEvent.pointerDown(grip()!);
+      const dataTransfer = dataTransferStub();
+
+      fireEvent.dragStart(row(), { dataTransfer });
+
+      expect(dataTransfer.setData).toHaveBeenCalledExactlyOnceWith(
+        'text/plain',
+        'i1',
+      );
+      expect(dataTransfer.effectAllowed).toBe('move');
+      expect(movable.onStart).toHaveBeenCalledExactlyOnceWith('mouse');
+    });
+
+    it('hovers before above the middle and after below it, allowing the drop (FCLD-04)', () => {
+      const movable = move();
+      renderItem({ movable });
+      vi.spyOn(row(), 'getBoundingClientRect').mockReturnValue({
+        top: 100,
+        height: 40,
+      } as DOMRect);
+
+      const allowedAbove = !dragOver(110);
+      expect(allowedAbove).toBe(true);
+      expect(movable.onHover).toHaveBeenLastCalledWith('before');
+
+      dragOver(130);
+      expect(movable.onHover).toHaveBeenLastCalledWith('after');
+      expect(movable.onHover).toHaveBeenCalledTimes(2);
+    });
+
+    it('drops on drop and ends on dragend', () => {
+      const movable = move();
+      renderItem({ movable });
+
+      fireEvent.drop(row(), { dataTransfer: dataTransferStub() });
+      expect(movable.onDrop).toHaveBeenCalledOnce();
+      expect(movable.onEnd).not.toHaveBeenCalled();
+
+      fireEvent.dragEnd(row(), { dataTransfer: dataTransferStub() });
+      expect(movable.onEnd).toHaveBeenCalledOnce();
+    });
+
+    it('shows the source row dashed and translucent (FCLD-04)', () => {
+      renderItem({ movable: move({ isSource: true }) });
+      expect(row().classList.contains('border-dashed')).toBe(true);
+      expect(row().classList.contains('opacity-50')).toBe(true);
+      cleanup();
+
+      renderItem({ movable: move() });
+      expect(row().classList.contains('border-dashed')).toBe(false);
+      expect(row().classList.contains('opacity-50')).toBe(false);
     });
   });
 });

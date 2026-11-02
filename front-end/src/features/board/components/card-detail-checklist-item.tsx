@@ -1,12 +1,12 @@
 import { GripVertical, X } from 'lucide-react';
-import type { KeyboardEvent } from 'react';
+import { type DragEvent, type KeyboardEvent, useState } from 'react';
 import { TextField as AriaTextField, Input } from 'react-aria-components';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/shared/ui/button';
 import { Checkbox } from '@/shared/ui/checkbox';
 
-import type { MoveInput } from '../model/move';
+import { type DropSlot, dropSlot, type MoveInput } from '../model/move';
 import type { ChecklistItem } from '../model/types';
 
 // Keys a picked grip hands to the move session (FCLD-08, FCLD-11, FCLD-14).
@@ -22,12 +22,17 @@ const PICKED_KEYS: ReadonlySet<string> = new Set([
 export type ItemMove = {
   // `false` while the item cannot move or another move runs (FCLD-22, FCLD-23).
   canDrag: boolean;
+  // The item being dragged with the mouse (FCLD-04).
+  isSource: boolean;
   // Rendered at the keyboard target (FCLD-08).
   isLifted: boolean;
   // This item's keyboard session runs.
   isPicked: boolean;
   onStart: (input: MoveInput) => void;
   onKey: (event: KeyboardEvent<HTMLButtonElement>) => void;
+  onHover: (slot: DropSlot) => void;
+  onDrop: () => void;
+  onEnd: () => void;
 };
 
 type CardDetailChecklistItemProps = {
@@ -63,6 +68,8 @@ export function CardDetailChecklistItem({
   movable,
 }: CardDetailChecklistItemProps) {
   const { t } = useTranslation();
+  // Only a press on the grip makes the row draggable (FCLD-02, FCLD-03).
+  const [armed, setArmed] = useState(false);
 
   function onKeyDown(event: KeyboardEvent) {
     if (event.key === 'Enter') {
@@ -90,9 +97,37 @@ export function CardDetailChecklistItem({
     }
   }
 
+  // Firefox starts a drag only with data set.
+  function onDragStart(event: DragEvent<HTMLDivElement>) {
+    event.dataTransfer.setData('text/plain', item.id);
+    event.dataTransfer.effectAllowed = 'move';
+    movable?.onStart('mouse');
+  }
+
+  function onDragOver(event: DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    movable?.onHover(
+      dropSlot(event.currentTarget.getBoundingClientRect(), event.clientY),
+    );
+  }
+
+  function onDragEnd() {
+    setArmed(false);
+    movable?.onEnd();
+  }
+
   return (
     <div
-      className={`flex min-h-9.5 items-center gap-2 rounded-sm px-0.5 ${movable?.isLifted ? 'bg-brand-soft' : 'hover:bg-surface-hover'}`}
+      {...(movable
+        ? {
+            draggable: armed && movable.canDrag,
+            onDragStart,
+            onDragOver,
+            onDrop: movable.onDrop,
+            onDragEnd,
+          }
+        : {})}
+      className={`flex min-h-9.5 items-center gap-2 rounded-sm px-0.5 ${movable?.isSource ? 'border border-dashed border-border-focus opacity-50' : ''} ${movable?.isLifted ? 'bg-brand-soft' : 'hover:bg-surface-hover'}`}
     >
       {movable ? (
         <button
@@ -103,6 +138,8 @@ export function CardDetailChecklistItem({
           })}
           disabled={!movable.canDrag && !movable.isPicked}
           onKeyDown={onGripKeyDown}
+          onPointerDown={() => setArmed(true)}
+          onPointerUp={() => setArmed(false)}
           className="inline-flex flex-none cursor-grab rounded-xs text-text-tertiary focus-visible:outline-2 focus-visible:outline-border-focus disabled:cursor-default disabled:text-text-disabled"
         >
           <GripVertical size={14} aria-hidden />
