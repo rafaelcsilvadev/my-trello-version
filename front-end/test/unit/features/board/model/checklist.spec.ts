@@ -4,6 +4,7 @@ import {
   checklistProgress,
   isChecklistDirty,
   itemMoveBody,
+  placeItem,
   sortItems,
   stepItem,
 } from '@/features/board/model/checklist';
@@ -157,5 +158,68 @@ describe('itemMoveBody', () => {
 
   it('sends position 0 for a move to the top', () => {
     expect(itemMoveBody(2, 0)).toEqual({ position: 0 });
+  });
+});
+
+describe('placeItem', () => {
+  const items = () => [
+    item('a', { position: 0 }),
+    item('b', { position: 1 }),
+    item('c', { position: 2 }),
+  ];
+  const order = (list: ChecklistItem[]) =>
+    list.map((entry) => [entry.id, entry.position]);
+
+  it('moves the last item to the top and renumbers', () => {
+    expect(order(placeItem(items(), 'c', 0))).toEqual([
+      ['c', 0],
+      ['a', 1],
+      ['b', 2],
+    ]);
+  });
+
+  it('moves the first item to the end and renumbers', () => {
+    expect(order(placeItem(items(), 'a', 2))).toEqual([
+      ['b', 0],
+      ['c', 1],
+      ['a', 2],
+    ]);
+  });
+
+  it('sorts an input given out of position order first', () => {
+    const shuffled = [
+      item('c', { position: 2 }),
+      item('a', { position: 0 }),
+      item('b', { position: 1 }),
+    ];
+
+    expect(order(placeItem(shuffled, 'b', 0))).toEqual([
+      ['b', 0],
+      ['a', 1],
+      ['c', 2],
+    ]);
+  });
+
+  it('does not mutate the input array or its items', () => {
+    const input = items();
+    const snapshot = structuredClone(input);
+
+    placeItem(input, 'c', 0);
+
+    expect(input).toEqual(snapshot);
+  });
+
+  it('returns the input unchanged for an unknown id', () => {
+    const input = items();
+
+    expect(placeItem(input, 'missing', 0)).toBe(input);
+  });
+
+  it('places the item last for an index beyond the end', () => {
+    expect(order(placeItem(items(), 'a', 9))).toEqual([
+      ['b', 0],
+      ['c', 1],
+      ['a', 2],
+    ]);
   });
 });

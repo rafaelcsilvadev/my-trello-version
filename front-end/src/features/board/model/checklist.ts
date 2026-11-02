@@ -58,3 +58,19 @@ export function itemMoveBody(
   if (target === null || target === origin) return null;
   return { position: target };
 }
+
+// The server renumbers the same way, so the optimistic order matches (FCLD-05).
+export function placeItem(
+  items: ChecklistItem[],
+  id: string,
+  index: number,
+): ChecklistItem[] {
+  const moving = items.find((entry) => entry.id === id);
+  if (!moving) return items;
+
+  const others = sortItems(items).filter((entry) => entry.id !== id);
+  others.splice(index, 0, moving);
+  return others.map((entry, position) =>
+    entry.position === position ? entry : { ...entry, position },
+  );
+}
