@@ -794,11 +794,21 @@ describe('useMoveChecklistItem', () => {
   });
 
   it.each([
-    { first: itemC.id, second: itemA.id, label: 'C fails first' },
-    { first: itemA.id, second: itemC.id, label: 'A fails first' },
+    {
+      first: itemC.id,
+      second: itemA.id,
+      afterFirst: ['b0', 'c1', 'a2'],
+      label: 'C fails first',
+    },
+    {
+      first: itemA.id,
+      second: itemC.id,
+      afterFirst: ['c0', 'a1', 'b2'],
+      label: 'A fails first',
+    },
   ])(
     'keeps the server order when both overlapping moves fail ($label)',
-    async ({ first, second }) => {
+    async ({ first, second, afterFirst }) => {
       const failMove = new Map<string, () => void>();
       server.use(
         http.post(moveUrl, async ({ params }) => {
@@ -830,6 +840,7 @@ describe('useMoveChecklistItem', () => {
           queryClient.getMutationCache().findAll({ status: 'pending' }),
         ).toHaveLength(1),
       );
+      expect(order(queryClient)).toEqual(afterFirst);
       act(() => failMove.get(second)?.());
 
       await waitFor(() =>
