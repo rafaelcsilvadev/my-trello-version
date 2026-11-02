@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 21,
+  "next_id": 23,
   "lessons": [
     {
       "id": "L-001",
@@ -193,17 +193,19 @@
       "text": "When the spec names a specific icon, assert that icon's identity, not only that some svg is present",
       "signal": "surviving_mutant",
       "scope": "tests",
-      "status": "candidate",
+      "status": "confirmed",
       "features": [
-        "board"
+        "board",
+        "card-checklist-dnd"
       ],
-      "recurrence": 1,
+      "recurrence": 2,
       "harmful": 0,
       "evidence": [
-        "N4 front-end/test/unit/features/board/components/archived-cards-column.spec.tsx:88 (archived-cards-column.tsx:36) (tests)"
+        "N4 front-end/test/unit/features/board/components/archived-cards-column.spec.tsx:88 (archived-cards-column.tsx:36) (tests)",
+        "M10 card-detail-checklist-item.tsx:149 (components)"
       ],
       "created": "2026-10-28T14:08:17Z",
-      "last_seen": "2026-10-28T14:08:17Z"
+      "last_seen": "2026-11-02T15:14:03Z"
     },
     {
       "id": "L-012",
@@ -370,6 +372,42 @@
       ],
       "created": "2026-10-31T01:44:18Z",
       "last_seen": "2026-10-31T01:44:18Z"
+    },
+    {
+      "id": "L-021",
+      "key": "ac_gap::test the exact concurrent scenario an acceptance criterion names such as two moves in flight not a substitute overlap with another kind of change",
+      "text": "Test the exact concurrent scenario an acceptance criterion names, such as two moves in flight, not a substitute overlap with another kind of change",
+      "signal": "ac_gap",
+      "scope": "api",
+      "status": "candidate",
+      "features": [
+        "card-checklist-dnd"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "FCLD-21 api/checklist-mutations.ts:149-156 (api)"
+      ],
+      "created": "2026-11-02T15:14:03Z",
+      "last_seen": "2026-11-02T15:14:03Z"
+    },
+    {
+      "id": "L-022",
+      "key": "spec_precision_gap::when an optimistic reorder can overlap another reorder the spec must state the exact order the screen shows after one of them fails",
+      "text": "When an optimistic reorder can overlap another reorder, the spec must state the exact order the screen shows after one of them fails",
+      "signal": "spec_precision_gap",
+      "scope": "spec",
+      "status": "candidate",
+      "features": [
+        "card-checklist-dnd"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "FCLD-21 (spec)"
+      ],
+      "created": "2026-11-02T15:14:03Z",
+      "last_seen": "2026-11-02T15:14:03Z"
     }
   ]
 }

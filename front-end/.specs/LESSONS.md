@@ -14,6 +14,12 @@ Corroborated across multiple features. Safe to apply as guidance.
 - evidence: M40-M43 front-end/src/features/boards/components/boards-screen.tsx:89,115,125,147 (components) (+1 more)
 - last seen: 2026-10-30T20:11:17Z
 
+### L-011 - When the spec names a specific icon, assert that icon's identity, not only that some svg is present
+- signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `tests` · harmful: 0
+- features: board, card-checklist-dnd
+- evidence: N4 front-end/test/unit/features/board/components/archived-cards-column.spec.tsx:88 (archived-cards-column.tsx:36) (tests) (+1 more)
+- last seen: 2026-11-02T15:14:03Z
+
 ### L-017 - Click each toast action such as Recarregar in a test and assert the exact queries it refetches, since a settle refetch can mask a wrong reload key
 - signal: `surviving_mutant` · recurrence: 2 feature(s) · scope: `view-models` · harmful: 0
 - features: card-detail, card-checklist
@@ -84,12 +90,6 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: S47b front-end/test/unit/features/board/components/archived-cards-column.spec.tsx:86 (archived-cards-column.tsx:36) (tests)
 - last seen: 2026-10-28T13:54:53Z
 
-### L-011 - When the spec names a specific icon, assert that icon's identity, not only that some svg is present
-- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `tests` · harmful: 0
-- features: board
-- evidence: N4 front-end/test/unit/features/board/components/archived-cards-column.spec.tsx:88 (archived-cards-column.tsx:36) (tests)
-- last seen: 2026-10-28T14:08:17Z
-
 ### L-012 - When a spec names a visual style (dashed, highlighted, icon), assert the class or glyph that draws it, not just that the element exists.
 - signal: `ac_gap` · recurrence: 1 feature(s) · scope: `front-end/components` · harmful: 0
 - features: board-dnd
@@ -131,6 +131,18 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - features: card-checklist
 - evidence: S19 front-end/src/features/board/view-models/use-card-checklist-view-model.ts:117-120 (view-models) (view-models)
 - last seen: 2026-10-31T01:44:18Z
+
+### L-021 - Test the exact concurrent scenario an acceptance criterion names, such as two moves in flight, not a substitute overlap with another kind of change
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `api` · harmful: 0
+- features: card-checklist-dnd
+- evidence: FCLD-21 api/checklist-mutations.ts:149-156 (api)
+- last seen: 2026-11-02T15:14:03Z
+
+### L-022 - When an optimistic reorder can overlap another reorder, the spec must state the exact order the screen shows after one of them fails
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `spec` · harmful: 0
+- features: card-checklist-dnd
+- evidence: FCLD-21 (spec)
+- last seen: 2026-11-02T15:14:03Z
 
 ## Quarantined (failed when applied - ignore)
 
