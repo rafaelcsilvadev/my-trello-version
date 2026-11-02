@@ -244,9 +244,9 @@ T11 → T12 → T13 → T14
 
 **Done when**:
 
-- [ ] Unit: while loading or on a load error `actions.move.canDrag(id)` is `false`; when ready it is `true`; while a toggle of an item is in flight it is `false` for that item only
-- [ ] Unit: a keyboard move through `actions.move` reorders `state.move.preview.items` and the drop sends the move
-- [ ] Build gate passes; test count only grows
+- [x] Unit: while loading or on a load error `actions.move.canDrag(id)` is `false`; when ready it is `true`; while a toggle of an item is in flight it is `false` for that item only
+- [x] Unit: a keyboard move through `actions.move` reorders `state.move.preview.items` and the drop sends the move
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
