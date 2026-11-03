@@ -143,8 +143,8 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] Unit: `applied: true` sends `PUT /api/v1/cards/{cardId}/labels/{labelId}` and `applied: false` sends `DELETE`; the card query and the active card list show the new `labelIds` at once, in board label order (middle of three); other cards are untouched; on `5xx` only this id is reverted while an overlapping toggle of another label survives; applying an id already present and failing leaves it present; the mutation's `id` is the label id (the card is not in `pendingIds`); the board is refetched once after the last change settles
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `applied: true` sends `PUT /api/v1/cards/{cardId}/labels/{labelId}` and `applied: false` sends `DELETE`; the card query and the active card list show the new `labelIds` at once, in board label order (middle of three); other cards are untouched; on `5xx` only this id is reverted while an overlapping toggle of another label survives; applying an id already present and failing leaves it present; the mutation's `id` is the label id (the card is not in `pendingIds`); the board is refetched once after the last change settles
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
