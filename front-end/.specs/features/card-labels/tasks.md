@@ -445,8 +445,8 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] E2E: open a card, "+" → search focused; type part of a name → filtered list, "zzz" → "Nenhuma etiqueta encontrada"; check a label → chip on the detail and, after Esc, on the tile; uncheck → gone after reload; **Criar etiqueta** with an existing name → "Já existe uma etiqueta com esse nome neste quadro"; create "Errands" in Laranja → "Etiqueta criada", checked, chip on the tile and listed in the label filter; Esc closes the popover first and the detail second; archived card → chips, no "+"
-- [ ] Full gate passes
+- [x] E2E: open a card, "+" → search focused; type part of a name → filtered list, "zzz" → "Nenhuma etiqueta encontrada"; check a label → chip on the detail and, after Esc, on the tile; uncheck → gone after reload; **Criar etiqueta** with an existing name → "Já existe uma etiqueta com esse nome neste quadro"; create "Errands" in Laranja → "Etiqueta criada", checked, chip on the tile and listed in the label filter; Esc closes the popover first and the detail second; archived card → chips, no "+"
+- [x] Full gate passes
 
 **Tests**: e2e
 **Gate**: full
