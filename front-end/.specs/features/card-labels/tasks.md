@@ -92,8 +92,8 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] Unit: `LABEL_COLORS` is `purple, blue, sky, green, lime, yellow, orange, red, pink, black` and the default is `blue`; `searchLabels` with `""` and `"   "` returns every label in order; `"ur"` matches "Urgent"; `"URG"` and an accented query match ignoring case and accents; `"zzz"` returns `[]`; `withLabelId` puts the middle label of three between the other two, never adds a duplicate, keeps an id missing from the board list at the end, and does not mutate its input; `withoutLabelId` removes only that id; `isLabelNameTaken` is true only for `409` with type ending `/problems/label-name-taken` (false for `409` board-archived and for `400`)
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `LABEL_COLORS` is `purple, blue, sky, green, lime, yellow, orange, red, pink, black` and the default is `blue`; `searchLabels` with `""` and `"   "` returns every label in order; `"ur"` matches "Urgent"; `"URG"` and an accented query match ignoring case and accents; `"zzz"` returns `[]`; `withLabelId` puts the middle label of three between the other two, never adds a duplicate, keeps an id missing from the board list at the end, and does not mutate its input; `withoutLabelId` removes only that id; `isLabelNameTaken` is true only for `409` with type ending `/problems/label-name-taken` (false for `409` board-archived and for `400`)
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
