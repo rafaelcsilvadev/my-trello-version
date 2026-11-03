@@ -488,6 +488,75 @@ describe('CardDetail', () => {
       expect(await closedPath(services)).toBe(boardPath);
     });
 
+    it('closes only the popover on a press outside it and returns focus to the add button', async () => {
+      detailApi();
+      const services = await renderReady();
+      await openPopover();
+
+      await userEvent.click(screen.getByTestId('card-detail-overlay'));
+
+      await waitFor(() => expect(popover()).toBeNull());
+      expect(hiddenDetail()).toBeTruthy();
+      expect(services.router.state.location.pathname).not.toBe(boardPath);
+      await waitFor(() => expect(document.activeElement).toBe(add()));
+    });
+
+    it('clears the name error and aria-invalid when typing in the create form', async () => {
+      detailApi();
+      await renderReady();
+      await openPopover();
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Criar etiqueta' }),
+      );
+      await userEvent.click(screen.getByRole('button', { name: 'Criar' }));
+      const name = screen.getByRole('textbox', { name: 'Nome' });
+      expect(screen.getByRole('alert')).toBeTruthy();
+      expect(name.getAttribute('aria-invalid')).toBe('true');
+
+      await userEvent.type(name, 'x');
+
+      expect(screen.queryByRole('alert')).toBeNull();
+      expect(name.getAttribute('aria-invalid')).not.toBe('true');
+    });
+
+    it('keeps the detail open when removing the label leaves the board filter', async () => {
+      const card = cardFixture(cardId, backlog.id, {
+        title: 'Write the brief',
+        labelIds: ['lb1'],
+      });
+      const { seed } = detailApi({ card, tiles: [card] });
+      labelApi(seed);
+      const services = await renderReady({ withBoard: true });
+      await tile();
+      // The open detail hides the toolbar from the accessibility tree.
+      fireEvent.click(
+        await screen.findByRole('button', { name: 'Etiquetas', hidden: true }),
+      );
+      fireEvent.click(
+        await screen.findByRole('menuitemcheckbox', {
+          name: 'Urgent',
+          hidden: true,
+        }),
+      );
+      fireEvent.keyDown(screen.getByRole('menu', { hidden: true }), {
+        key: 'Escape',
+      });
+      await waitFor(() =>
+        expect(
+          screen.queryAllByRole('menuitemcheckbox', { hidden: true }),
+        ).toHaveLength(0),
+      );
+
+      await openPopover();
+      fireEvent.click(await screen.findByRole('checkbox', { name: 'Urgent' }));
+
+      await waitFor(() =>
+        expect(document.querySelector('[data-card-id]')).toBeNull(),
+      );
+      expect(hiddenDetail()).toBeTruthy();
+      expect(services.router.state.location.pathname).not.toBe(boardPath);
+    });
+
     it('closes only the popover on Esc inside the create form', async () => {
       detailApi();
       await renderReady();

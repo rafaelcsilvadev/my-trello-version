@@ -327,6 +327,17 @@ describe('useCardLabelsViewModel — create form', () => {
     });
   });
 
+  it('setName clears the error left by a rejected submit', () => {
+    const { result } = setup(card);
+    act(() => result.current.actions.startCreate());
+    act(() => result.current.actions.submitCreate());
+    expect(result.current.state.form?.error).toBe('labelNameRequired');
+
+    act(() => result.current.actions.setName('x'));
+
+    expect(result.current.state.form?.error).toBeNull();
+  });
+
   it('cancelCreate drops the form without sending a request', () => {
     const requests: string[] = [];
     server.use(
