@@ -495,8 +495,8 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] ROADMAP shows 4c Done and STATE Handoff points to `labels` (5)
-- [ ] Build gate passes; test count unchanged
+- [x] ROADMAP shows 4c Done and STATE Handoff points to `labels` (5)
+- [x] Build gate passes; test count unchanged
 
 **Tests**: none
 **Gate**: build
