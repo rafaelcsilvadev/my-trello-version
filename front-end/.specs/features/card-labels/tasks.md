@@ -243,8 +243,8 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] Unit: `startCreate` opens the form with the search text as name and `blue` as color; `setName` and `setColor` update it; `setName` clears an error; `cancelCreate` drops name, color and error and sends nothing; `setOpen(false)` drops the form
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `startCreate` opens the form with the search text as name and `blue` as color; `setName` and `setColor` update it; `setName` clears an error; `cancelCreate` drops name, color and error and sends nothing; `setOpen(false)` drops the form
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
