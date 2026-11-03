@@ -218,8 +218,8 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] Unit: toggling an unchecked label applies it and a checked one removes it, with no toast and the popover still open; the toggled option is `isPending` while in flight and the others are not; `5xx` → save-fail toast whose **Tentar novamente** repeats the same request; `409` → conflict toast whose **Recarregar** refetches exactly `boardViewKeys.all(boardId)` (L-017); `404` → save-fail toast and the board view is refetched
-- [ ] Build gate passes; test count only grows
+- [x] Unit: toggling an unchecked label applies it and a checked one removes it, with no toast and the popover still open; the toggled option is `isPending` while in flight and the others are not; `5xx` → save-fail toast whose **Tentar novamente** repeats the same request; `409` → conflict toast whose **Recarregar** refetches exactly `boardViewKeys.all(boardId)` (L-017); `404` → save-fail toast and the board view is refetched
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
