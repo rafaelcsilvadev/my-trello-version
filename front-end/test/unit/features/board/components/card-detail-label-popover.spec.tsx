@@ -8,6 +8,7 @@ import {
   CardDetailLabelPopover,
   type LabelOption,
 } from '@/features/board/components/card-detail-label-popover';
+import type { LabelForm } from '@/features/board/view-models/use-card-labels-view-model';
 import type { Label } from '@/features/board/model/types';
 import { createI18n } from '@/shared/i18n/i18n';
 
@@ -29,6 +30,8 @@ type RenderOptions = {
   isOpen?: boolean;
   query?: string;
   options?: LabelOption[];
+  form?: LabelForm | null;
+  isCreating?: boolean;
 };
 
 function renderPopover({
@@ -38,11 +41,18 @@ function renderPopover({
     { label: BUG, isChecked: true, isPending: false },
     { label: FEATURE, isChecked: false, isPending: false },
   ],
+  form = null,
+  isCreating = false,
 }: RenderOptions = {}) {
   const handlers = {
     onOpenChange: vi.fn<(open: boolean) => void>(),
     onQueryChange: vi.fn<(query: string) => void>(),
     onToggle: vi.fn<(label: Label) => void>(),
+    onStartCreate: vi.fn<() => void>(),
+    onNameChange: vi.fn<(name: string) => void>(),
+    onColorChange: vi.fn<(color: Label['color']) => void>(),
+    onSubmit: vi.fn<() => void>(),
+    onCancel: vi.fn<() => void>(),
   };
   const view = render(
     <I18nextProvider i18n={createI18n('pt-BR')}>
@@ -50,6 +60,9 @@ function renderPopover({
         isOpen={isOpen}
         query={query}
         options={options}
+        boardId="b1"
+        form={form}
+        isCreating={isCreating}
         {...handlers}
       />
     </I18nextProvider>,
@@ -170,6 +183,14 @@ describe('CardDetailLabelPopover', () => {
             }}
             onQueryChange={vi.fn<(query: string) => void>()}
             onToggle={vi.fn<(label: Label) => void>()}
+            boardId="b1"
+            form={null}
+            isCreating={false}
+            onStartCreate={vi.fn<() => void>()}
+            onNameChange={vi.fn<(name: string) => void>()}
+            onColorChange={vi.fn<(color: Label['color']) => void>()}
+            onSubmit={vi.fn<() => void>()}
+            onCancel={vi.fn<() => void>()}
           />
         </I18nextProvider>
       );
@@ -189,5 +210,54 @@ describe('CardDetailLabelPopover', () => {
     const { onOpenChange } = renderPopover();
     await userEvent.click(trigger());
     expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it('calls onStartCreate from the Criar etiqueta button', async () => {
+    const { onStartCreate } = renderPopover();
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Criar etiqueta' }),
+    );
+    expect(onStartCreate).toHaveBeenCalledTimes(1);
+  });
+
+  it('swaps the Criar etiqueta button for the form with the given state', () => {
+    renderPopover({
+      form: { name: 'Urgent', color: 'red', error: 'labelNameTaken' },
+      isCreating: true,
+    });
+    expect(screen.queryByRole('button', { name: 'Criar etiqueta' })).toBeNull();
+    expect(
+      screen.getByRole<HTMLInputElement>('textbox', { name: 'Nome' }).value,
+    ).toBe('Urgent');
+    expect(
+      screen.getByRole<HTMLInputElement>('radio', { name: 'Vermelho' }).checked,
+    ).toBe(true);
+    screen.getByRole('alert');
+    expect(
+      screen.getByRole<HTMLButtonElement>('button', { name: 'Criar' }).disabled,
+    ).toBe(true);
+  });
+
+  it('shows the Criar etiqueta button again with no form', () => {
+    renderPopover({ form: null });
+    expect(screen.getByRole('button', { name: 'Criar etiqueta' })).toBeTruthy();
+    expect(screen.queryByRole('textbox', { name: 'Nome' })).toBeNull();
+  });
+
+  it('links Gerenciar etiquetas to the board labels page', () => {
+    renderPopover();
+    expect(
+      screen
+        .getByRole('link', { name: 'Gerenciar etiquetas' })
+        .getAttribute('href'),
+    ).toBe('/b/b1/labels');
+  });
+
+  it('shows both footer actions on a board with no labels', () => {
+    renderPopover({ options: [] });
+    expect(screen.getByRole('button', { name: 'Criar etiqueta' })).toBeTruthy();
+    expect(
+      screen.getByRole('link', { name: 'Gerenciar etiquetas' }),
+    ).toBeTruthy();
   });
 });

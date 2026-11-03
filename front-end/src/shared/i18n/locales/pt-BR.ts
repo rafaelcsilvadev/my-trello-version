@@ -245,6 +245,8 @@ export const ptBR = {
         dialog: 'Etiquetas',
         search: 'Buscar etiquetas…',
         noResults: 'Nenhuma etiqueta encontrada',
+        create: 'Criar etiqueta',
+        manage: 'Gerenciar etiquetas',
         name: 'Nome',
         namePlaceholder: 'Ex.: Bug',
         color: 'Cor',
