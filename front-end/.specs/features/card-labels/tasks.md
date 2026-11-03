@@ -470,8 +470,8 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] README explains the label popover (search, apply/remove, create, manage link) and the read-only modes
-- [ ] Build gate passes; test count unchanged
+- [x] README explains the label popover (search, apply/remove, create, manage link) and the read-only modes
+- [x] Build gate passes; test count unchanged
 
 **Tests**: none
 **Gate**: build
