@@ -452,7 +452,14 @@ describe('CardDetail', () => {
       const tileText = tileEl.textContent!;
       expect(tileText.indexOf('Urgent')).toBeLessThan(tileText.indexOf('Bug'));
 
-      fireEvent.click(screen.getByRole('checkbox', { name: 'Urgent' }));
+      // A pending option ignores toggles until the server answers.
+      const urgent = screen.getByRole('checkbox', { name: 'Urgent' });
+      await waitFor(() =>
+        expect(urgent.closest('label')?.hasAttribute('data-pending')).toBe(
+          false,
+        ),
+      );
+      fireEvent.click(urgent);
 
       await waitFor(() => expect(chips(list())).toEqual(['Bug']));
       await waitFor(() =>
