@@ -202,6 +202,18 @@ export const en = {
       labelNameTooLong: 'Use up to 50 characters',
       labelNameTaken: 'A label with that name already exists on this board',
     },
+    labelColors: {
+      purple: 'Purple',
+      blue: 'Blue',
+      sky: 'Sky',
+      green: 'Green',
+      lime: 'Lime',
+      yellow: 'Yellow',
+      orange: 'Orange',
+      red: 'Red',
+      pink: 'Pink',
+      black: 'Black',
+    },
     cardDetail: {
       dialog: 'Task detail',
       back: 'Back',
@@ -226,6 +238,13 @@ export const en = {
       deleteForever: 'Delete permanently',
       archivedNotice: 'Archived task · read-only',
       boardArchivedNotice: 'Archived board · read-only',
+      labelPopover: {
+        name: 'Name',
+        namePlaceholder: 'E.g.: Bug',
+        color: 'Color',
+        submit: 'Create',
+        cancel: 'Cancel',
+      },
       checklist: {
         title: 'Checklist',
         addItem: 'Add an item and press Enter',

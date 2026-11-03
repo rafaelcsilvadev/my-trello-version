@@ -319,8 +319,8 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] Unit: the field "Nome" (placeholder "Ex.: Bug") is focused and shows the given name; the `radiogroup` "Cor" has 10 radios named Roxo…Preto in doc §8 order with the given color checked; arrow keys and clicks call `onColorChange`; Enter in the name and **Criar** call `onSubmit`; **Criar** is disabled while creating; an error shows its PT-BR text with `role="alert"` and `aria-invalid="true"` on the name; typing calls `onNameChange`; "Cancelar" (`X` icon) calls `onCancel`
-- [ ] Build gate passes; test count only grows
+- [x] Unit: the field "Nome" (placeholder "Ex.: Bug") is focused and shows the given name; the `radiogroup` "Cor" has 10 radios named Roxo…Preto in doc §8 order with the given color checked; arrow keys and clicks call `onColorChange`; Enter in the name and **Criar** call `onSubmit`; **Criar** is disabled while creating; an error shows its PT-BR text with `role="alert"` and `aria-invalid="true"` on the name; typing calls `onNameChange`; "Cancelar" (`X` icon) calls `onCancel`
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
