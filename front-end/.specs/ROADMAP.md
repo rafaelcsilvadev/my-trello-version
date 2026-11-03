@@ -15,6 +15,6 @@ Web client for the personal Trello API (`back-end/`, features 0–6). Screens an
 | 4a | `card-detail` | Card detail modal/full screen: title, description, due date, done flag, applied labels (read-only), "Mover para…", archive, archived card restore/delete, archived board read-only, load states, discard dialog | 3a | Done |
 | 4b | `card-checklist` | Checklist in the card detail: progress, add, edit, check, delete | 4a | Done |
 | 4b2 | `card-checklist-dnd` | Reorder checklist items with mouse and keyboard (grip handle, live region) | 4b | Done |
-| 4c | `card-labels` | Label popover in the card detail: search, apply/remove board labels, create a label, link to the labels page | 4a | — |
+| 4c | `card-labels` | Label popover in the card detail: search, apply/remove board labels, create a label, link to the labels page | 4a | Done |
 | 5 | `labels` | Board labels page: create, edit, delete | 4c | — |
 | 6 | `settings` | Settings screen (language, theme, session) and keyboard shortcuts dialog | 1 | — |
