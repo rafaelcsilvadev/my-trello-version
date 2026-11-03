@@ -156,6 +156,24 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: M19 front-end/src/features/board/api/checklist-mutations.ts:177; probe P2 (both moves fail) (api) (+1 more)
 - last seen: 2026-11-02T18:04:29Z
 
+### L-025 - Test that typing clears an error from a state that already holds the error, not from an initial empty one
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `view-models` · harmful: 0
+- features: card-labels
+- evidence: M1 FCLB-27 use-card-labels-view-model.ts setName (view-models)
+- last seen: 2026-11-03T21:59:35Z
+
+### L-026 - Give every OR-listed dismissal path of a popover its own test, not only the Esc path
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `components` · harmful: 0
+- features: card-labels
+- evidence: FCLB-08 click outside, validation.md Fix 2 (components)
+- last seen: 2026-11-03T21:59:35Z
+
+### L-027 - When code deliberately differs from the spec wording, mark SPEC_DEVIATION or fix the spec text
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `components` · harmful: 0
+- features: card-labels
+- evidence: FCLB-06 disable vs data-pending, validation.md G3 (components)
+- last seen: 2026-11-03T21:59:35Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
