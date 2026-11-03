@@ -266,6 +266,7 @@ export const en = {
       cardArchived: 'Task archived',
       cardRestored: 'Task restored',
       cardDeleted: 'Task permanently deleted',
+      labelCreated: 'Label created',
     },
     errors: {
       columnArchived:

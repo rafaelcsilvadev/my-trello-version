@@ -268,9 +268,9 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] Unit: a valid name sends the trimmed name and the color; a second submit in flight sends nothing; `201` → form `null`, query `""`, toast "Etiqueta criada" and a `PUT` for the new label id; empty, 51 chars and a clashing name set the matching error with no request; 50 chars is sent; `409` label-name-taken → `labelNameTaken`, form text kept and the labels refetched; `409` board-archived → conflict toast with **Recarregar**; `5xx` → form kept and the save-fail toast whose **Tentar novamente** resends the same body; create ok + `PUT` `5xx` → label in the list unchecked, "Etiqueta criada" and the save-fail toast both shown
-- [ ] PT-BR toast text is "Etiqueta criada"; the locale key parity test passes
-- [ ] Build gate passes; test count only grows
+- [x] Unit: a valid name sends the trimmed name and the color; a second submit in flight sends nothing; `201` → form `null`, query `""`, toast "Etiqueta criada" and a `PUT` for the new label id; empty, 51 chars and a clashing name set the matching error with no request; 50 chars is sent; `409` label-name-taken → `labelNameTaken`, form text kept and the labels refetched; `409` board-archived → conflict toast with **Recarregar**; `5xx` → form kept and the save-fail toast whose **Tentar novamente** resends the same body; create ok + `PUT` `5xx` → label in the list unchecked, "Etiqueta criada" and the save-fail toast both shown
+- [x] PT-BR toast text is "Etiqueta criada"; the locale key parity test passes
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build

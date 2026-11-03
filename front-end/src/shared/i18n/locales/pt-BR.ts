@@ -267,6 +267,7 @@ export const ptBR = {
       cardArchived: 'Tarefa arquivada',
       cardRestored: 'Tarefa restaurada',
       cardDeleted: 'Tarefa excluída definitivamente',
+      labelCreated: 'Etiqueta criada',
     },
     errors: {
       columnArchived:

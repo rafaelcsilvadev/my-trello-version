@@ -1,13 +1,26 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
+import type { ApiError } from '@/shared/api/api-error';
+import { useToast } from '@/shared/ui/toast/use-toast';
 import { useSaveFailureNotifier } from '@/shared/ui/toast/use-save-failure-notifier';
 
-import { useToggleCardLabel } from '../api/label-mutations';
+import { useCreateLabel, useToggleCardLabel } from '../api/label-mutations';
 import { boardViewKeys } from '../api/keys';
 import { usePendingItemIds } from '../api/mutations';
-import { DEFAULT_LABEL_COLOR, searchLabels } from '../model/labels';
-import type { Card, ItemFieldError, Label } from '../model/types';
+import {
+  DEFAULT_LABEL_COLOR,
+  isLabelNameTaken,
+  searchLabels,
+  validateLabelName,
+} from '../model/labels';
+import type {
+  Card,
+  CreateLabelDto,
+  ItemFieldError,
+  Label,
+} from '../model/types';
 
 export type LabelOption = {
   label: Label;
@@ -28,12 +41,16 @@ export function useCardLabelsViewModel(
 ) {
   const queryClient = useQueryClient();
   const toggleMutation = useToggleCardLabel(boardId);
+  const createMutation = useCreateLabel(boardId);
+  const { t } = useTranslation();
+  const toast = useToast();
+  const isSubmitting = useRef(false);
   const pendingIds = usePendingItemIds();
   const reload = () =>
     void queryClient.invalidateQueries({
       queryKey: boardViewKeys.all(boardId),
     });
-  const { runChange } = useSaveFailureNotifier(reload);
+  const { runChange, notify } = useSaveFailureNotifier(reload);
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [form, setForm] = useState<LabelForm | null>(null);
@@ -88,8 +105,52 @@ export function useCardLabelsViewModel(
     );
   }
 
+  function create(body: CreateLabelDto) {
+    isSubmitting.current = true;
+    createMutation.mutateAsync(body).then(
+      (label) => {
+        isSubmitting.current = false;
+        setForm(null);
+        setQuery('');
+        toast.show({ message: t('board.toast.labelCreated') });
+        toggle(label);
+      },
+      (err: ApiError) => {
+        isSubmitting.current = false;
+        if (isLabelNameTaken(err)) {
+          setForm(
+            (current) => current && { ...current, error: 'labelNameTaken' },
+          );
+          void queryClient.invalidateQueries({
+            queryKey: boardViewKeys.labels(boardId),
+          });
+          return;
+        }
+        notify(err, () => create(body));
+      },
+    );
+  }
+
+  // Validates against the labels the screen shows (FCLB-14, FCLB-15); a second
+  // submit while one is in flight is ignored (FCLB-22).
+  function submitCreate() {
+    if (!form || isSubmitting.current) return;
+    const error = validateLabelName(form.name, labels);
+    if (error) {
+      setForm({ ...form, error });
+      return;
+    }
+    create({ name: form.name.trim(), color: form.color });
+  }
+
   return {
-    state: { isOpen, query, options, form },
+    state: {
+      isOpen,
+      query,
+      options,
+      form,
+      isCreating: createMutation.isPending,
+    },
     actions: {
       setOpen,
       setQuery,
@@ -98,6 +159,7 @@ export function useCardLabelsViewModel(
       setName,
       setColor,
       cancelCreate,
+      submitCreate,
     },
   };
 }
