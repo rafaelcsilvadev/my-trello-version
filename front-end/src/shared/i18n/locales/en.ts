@@ -239,6 +239,10 @@ export const en = {
       archivedNotice: 'Archived task · read-only',
       boardArchivedNotice: 'Archived board · read-only',
       labelPopover: {
+        add: 'Add label',
+        dialog: 'Labels',
+        search: 'Search labels…',
+        noResults: 'No labels found',
         name: 'Name',
         namePlaceholder: 'E.g.: Bug',
         color: 'Color',

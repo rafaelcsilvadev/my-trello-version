@@ -344,9 +344,9 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] Unit: "Adicionar etiqueta" shows the `Plus` icon (L-011) and `aria-pressed`/expanded state while open; pressing it calls `onOpenChange(true)`; open → `role="dialog"` "Etiquetas" with focus in "Buscar etiquetas…"; each option is a checkbox named by the label with its chip, checked per props; click and Space call `onToggle(label)`; a pending option is disabled with the disabled style (L-018) while the others stay enabled; typing calls `onQueryChange`; no options → "Nenhuma etiqueta encontrada"; Esc and the trigger call `onOpenChange(false)` and focus returns to the trigger
-- [ ] PT-BR texts from the design's i18n table; the locale key parity test passes
-- [ ] Build gate passes; test count only grows
+- [x] Unit: "Adicionar etiqueta" shows the `Plus` icon (L-011) and `aria-pressed`/expanded state while open; pressing it calls `onOpenChange(true)`; open → `role="dialog"` "Etiquetas" with focus in "Buscar etiquetas…"; each option is a checkbox named by the label with its chip, checked per props; click and Space call `onToggle(label)`; a pending option is disabled with the disabled style (L-018) while the others stay enabled; typing calls `onQueryChange`; no options → "Nenhuma etiqueta encontrada"; Esc and the trigger call `onOpenChange(false)` and focus returns to the trigger
+- [x] PT-BR texts from the design's i18n table; the locale key parity test passes
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
