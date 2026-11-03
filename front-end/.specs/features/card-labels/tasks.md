@@ -294,8 +294,8 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] Unit: `state.labelPopover.options` reflect the loaded card and board labels; search text or an open create form leaves `dirty` false and closing needs no discard dialog; with the label filter active, removing the label that made the card match keeps the detail open (the card query still resolves)
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `state.labelPopover.options` reflect the loaded card and board labels; search text or an open create form leaves `dirty` false and closing needs no discard dialog; with the label filter active, removing the label that made the card match keeps the detail open (the card query still resolves)
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
