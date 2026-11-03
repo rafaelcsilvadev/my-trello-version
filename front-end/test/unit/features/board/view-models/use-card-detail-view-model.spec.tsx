@@ -478,6 +478,57 @@ describe('useCardDetailViewModel', () => {
     });
   });
 
+  describe('label popover', () => {
+    const labelPath = `${cardPath}/labels/${urgent.id}`;
+
+    it('lists the board labels, checked for the loaded card labels', async () => {
+      detailServer({
+        [cardUrl]: () =>
+          HttpResponse.json(
+            cardFixture(cardId, backlog.id, { labelIds: [bug.id] }),
+          ),
+      });
+      const { result } = await setupReady();
+
+      expect(
+        result.current.state.labelPopover.options.map((o) => [
+          o.label.name,
+          o.isChecked,
+        ]),
+      ).toEqual([
+        ['Urgent', false],
+        ['Later', false],
+        ['Bug', true],
+      ]);
+    });
+
+    it('keeps the detail open when the toggled label is removed', async () => {
+      const removed: string[] = [];
+      // The refetch after the change sees the label gone, as the API would.
+      detailServer({
+        [cardUrl]: () =>
+          HttpResponse.json(
+            cardFixture(cardId, backlog.id, {
+              labelIds: removed.length > 0 ? [] : [urgent.id],
+            }),
+          ),
+      });
+      server.use(
+        http.delete(`${baseUrl}${labelPath}`, ({ request }) => {
+          removed.push(new URL(request.url).pathname);
+          return new HttpResponse(null, { status: 204 });
+        }),
+      );
+      const { result } = await setupReady();
+
+      act(() => result.current.actions.labelPopover.toggle(urgent));
+
+      await waitFor(() => expect(removed).toEqual([labelPath]));
+      expect(result.current.state.status).toBe('ready');
+      expect(result.current.state.card?.labelIds).toEqual([]);
+    });
+  });
+
   describe('done and due date', () => {
     it.each([false, true])(
       'toggleDone on a card with done %s shows the flip at once, sends it and saves silently',
@@ -1048,6 +1099,20 @@ describe('useCardDetailViewModel', () => {
       expect(result.current.state.isDirty).toBe(false);
       act(() => result.current.actions.setDescriptionDraft('Notes'));
       expect(result.current.state.isDirty).toBe(true);
+    });
+
+    it('is false with search text or an open create form in the label popover', async () => {
+      detailServer();
+      const { result } = await setupReady();
+
+      act(() => result.current.actions.labelPopover.setOpen(true));
+      act(() => result.current.actions.labelPopover.setQuery('urg'));
+      expect(result.current.state.isDirty).toBe(false);
+      act(() => result.current.actions.labelPopover.startCreate());
+      act(() => result.current.actions.labelPopover.setName('New one'));
+
+      expect(result.current.state.labelPopover.form).not.toBeNull();
+      expect(result.current.state.isDirty).toBe(false);
     });
   });
 

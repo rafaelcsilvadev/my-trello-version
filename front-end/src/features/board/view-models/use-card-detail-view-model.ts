@@ -28,6 +28,7 @@ import { todayParts } from '../model/due-date';
 import { mapTitleServerError } from '../model/errors';
 import type { ItemFieldError, UpdateCardDto } from '../model/types';
 import { validateCardTitle } from '../model/validation';
+import { useCardLabelsViewModel } from './use-card-labels-view-model';
 import { useCardChecklistViewModel } from './use-card-checklist-view-model';
 
 export type CardDetailStatus = 'loading' | 'ready' | 'error' | 'notFound';
@@ -44,6 +45,12 @@ export function useCardDetailViewModel(boardId: string, cardId: string) {
   const activeCards = useCards(boardId, false);
   // Not in `queries`: the section shows its own loading and error (FCL-03).
   const checklist = useCardChecklistViewModel(boardId, cardId);
+  // Search text and the create form are not drafts: they never make the detail dirty (FCLB-28).
+  const labelPopover = useCardLabelsViewModel(
+    boardId,
+    card.data,
+    labels.data ?? [],
+  );
   // Read once, so the due labels do not change while the detail is open.
   const [today] = useState(() => todayParts());
   const { t } = useTranslation();
@@ -220,6 +227,7 @@ export function useCardDetailViewModel(boardId: string, cardId: string) {
       isDeleteOpen,
       isDiscardOpen: blocker.state === 'blocked',
       checklist: checklist.state,
+      labelPopover: labelPopover.state,
     },
     actions: {
       toggleDone: () => card.data && save({ done: !card.data.done }),
@@ -260,6 +268,7 @@ export function useCardDetailViewModel(boardId: string, cardId: string) {
       discard: () => blocker.proceed?.(),
       keepEditing: () => blocker.reset?.(),
       checklist: checklist.actions,
+      labelPopover: labelPopover.actions,
       // Only the failed requests run again (FCD-10).
       retryLoad: () => {
         for (const query of queries) if (query.isError) void query.refetch();
