@@ -395,8 +395,8 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] Unit: editable with chips → chips in board order then "Adicionar etiqueta"; editable with none → heading and "+" only; read-only with chips → chips and no "+"; read-only with none → nothing rendered; the popover receives the given state and actions
-- [ ] Build gate passes; test count only grows
+- [x] Unit: editable with chips → chips in board order then "Adicionar etiqueta"; editable with none → heading and "+" only; read-only with chips → chips and no "+"; read-only with none → nothing rendered; the popover receives the given state and actions
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
