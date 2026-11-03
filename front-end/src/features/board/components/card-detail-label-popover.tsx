@@ -6,6 +6,7 @@ import {
   DialogTrigger,
   TextField as AriaTextField,
   Input,
+  Link,
   Popover,
 } from 'react-aria-components';
 import { useTranslation } from 'react-i18next';
@@ -14,6 +15,8 @@ import { Button } from '@/shared/ui/button';
 import { inputClasses } from '@/shared/ui/text-field';
 
 import type { Label } from '../model/types';
+import type { LabelForm } from '../view-models/use-card-labels-view-model';
+import { CardDetailLabelForm } from './card-detail-label-form';
 import { LabelChip } from './label-chip';
 
 export type LabelOption = {
@@ -30,10 +33,19 @@ type CardDetailLabelPopoverProps = {
   onOpenChange: (open: boolean) => void;
   onQueryChange: (query: string) => void;
   onToggle: (label: Label) => void;
+  boardId: string;
+  // The create form is open when set (FCLB-12).
+  form: LabelForm | null;
+  isCreating: boolean;
+  onStartCreate: () => void;
+  onNameChange: (name: string) => void;
+  onColorChange: (color: Label['color']) => void;
+  onSubmit: () => void;
+  onCancel: () => void;
 };
 
 // The "+" trigger and the popover with the search field and the label checkboxes
-// (FCLB-01, FCLB-02, FCLB-03, FCLB-06, FCLB-08, FCLB-09, FCLB-10).
+// (FCLB-01, FCLB-02, FCLB-03, FCLB-06, FCLB-08, FCLB-09, FCLB-10, FCLB-12, FCLB-16, FCLB-20).
 export function CardDetailLabelPopover({
   isOpen,
   query,
@@ -41,6 +53,14 @@ export function CardDetailLabelPopover({
   onOpenChange,
   onQueryChange,
   onToggle,
+  boardId,
+  form,
+  isCreating,
+  onStartCreate,
+  onNameChange,
+  onColorChange,
+  onSubmit,
+  onCancel,
 }: CardDetailLabelPopoverProps) {
   const { t } = useTranslation();
 
@@ -91,6 +111,30 @@ export function CardDetailLabelPopover({
               ))}
             </ul>
           )}
+          <div className="flex flex-col gap-1 border-t border-border-subtle pt-2">
+            {form === null ? (
+              <Button size="sm" variant="ghost" onPress={onStartCreate}>
+                {t('board.cardDetail.labelPopover.create')}
+              </Button>
+            ) : (
+              <CardDetailLabelForm
+                name={form.name}
+                color={form.color}
+                error={form.error}
+                isCreating={isCreating}
+                onNameChange={onNameChange}
+                onColorChange={onColorChange}
+                onSubmit={onSubmit}
+                onCancel={onCancel}
+              />
+            )}
+            <Link
+              href={`/b/${boardId}/labels`}
+              className="rounded-sm px-2 py-1.5 text-sm text-text-secondary outline-none hover:bg-neutral-100 data-focus-visible:outline-2 data-focus-visible:outline-border-focus"
+            >
+              {t('board.cardDetail.labelPopover.manage')}
+            </Link>
+          </div>
         </Dialog>
       </Popover>
     </DialogTrigger>

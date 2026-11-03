@@ -370,8 +370,8 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] Unit: **Criar etiqueta** calls `onStartCreate`; with a form in props the button is gone and the form receives name, color, error and creating state; with no form the button is back; **Gerenciar etiquetas** is a link to `/b/{boardId}/labels`; a board with no labels still shows both
-- [ ] Build gate passes; test count only grows
+- [x] Unit: **Criar etiqueta** calls `onStartCreate`; with a form in props the button is gone and the form receives name, color, error and creating state; with no form the button is back; **Gerenciar etiquetas** is a link to `/b/{boardId}/labels`; a board with no labels still shows both
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build

@@ -243,6 +243,8 @@ export const en = {
         dialog: 'Labels',
         search: 'Search labels…',
         noResults: 'No labels found',
+        create: 'Create label',
+        manage: 'Manage labels',
         name: 'Name',
         namePlaceholder: 'E.g.: Bug',
         color: 'Color',
