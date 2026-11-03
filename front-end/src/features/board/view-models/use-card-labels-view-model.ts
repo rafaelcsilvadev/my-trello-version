@@ -6,13 +6,19 @@ import { useSaveFailureNotifier } from '@/shared/ui/toast/use-save-failure-notif
 import { useToggleCardLabel } from '../api/label-mutations';
 import { boardViewKeys } from '../api/keys';
 import { usePendingItemIds } from '../api/mutations';
-import { searchLabels } from '../model/labels';
-import type { Card, Label } from '../model/types';
+import { DEFAULT_LABEL_COLOR, searchLabels } from '../model/labels';
+import type { Card, ItemFieldError, Label } from '../model/types';
 
 export type LabelOption = {
   label: Label;
   isChecked: boolean;
   isPending: boolean;
+};
+
+export type LabelForm = {
+  name: string;
+  color: Label['color'];
+  error: ItemFieldError | null;
 };
 
 export function useCardLabelsViewModel(
@@ -30,6 +36,7 @@ export function useCardLabelsViewModel(
   const { runChange } = useSaveFailureNotifier(reload);
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const [form, setForm] = useState<LabelForm | null>(null);
 
   const labelIds = card?.labelIds;
   const options = useMemo<LabelOption[]>(() => {
@@ -43,10 +50,31 @@ export function useCardLabelsViewModel(
     // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [labels, labelIds, query, [...pendingIds].join()]);
 
-  // Closing drops the search so the next open lists every label (FCLB-08, FCLB-11).
+  // Closing drops the search and the form so the next open starts clean
+  // (FCLB-08, FCLB-11, FCLB-16).
   function setOpen(open: boolean) {
     setIsOpen(open);
-    if (!open) setQuery('');
+    if (!open) {
+      setQuery('');
+      setForm(null);
+    }
+  }
+
+  function startCreate() {
+    setForm({ name: query, color: DEFAULT_LABEL_COLOR, error: null });
+  }
+
+  // Typing clears the error (FCLB-27).
+  function setName(name: string) {
+    setForm((current) => current && { ...current, name, error: null });
+  }
+
+  function setColor(color: Label['color']) {
+    setForm((current) => current && { ...current, color });
+  }
+
+  function cancelCreate() {
+    setForm(null);
   }
 
   // No success toast: the checkbox already shows the change (FCLB-07).
@@ -61,7 +89,15 @@ export function useCardLabelsViewModel(
   }
 
   return {
-    state: { isOpen, query, options },
-    actions: { setOpen, setQuery, toggle },
+    state: { isOpen, query, options, form },
+    actions: {
+      setOpen,
+      setQuery,
+      toggle,
+      startCreate,
+      setName,
+      setColor,
+      cancelCreate,
+    },
   };
 }

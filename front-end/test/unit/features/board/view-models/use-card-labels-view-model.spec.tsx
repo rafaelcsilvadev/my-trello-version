@@ -289,3 +289,88 @@ describe('useCardLabelsViewModel — apply and remove', () => {
     });
   });
 });
+
+describe('useCardLabelsViewModel — create form', () => {
+  const card = cardFixture('c1', 'list-1');
+
+  it('has no form until startCreate', () => {
+    const { result } = setup(card);
+
+    expect(result.current.state.form).toBeNull();
+  });
+
+  it('startCreate opens the form with the search text as name and blue as color', () => {
+    const { result } = setup(card);
+    act(() => result.current.actions.setOpen(true));
+    act(() => result.current.actions.setQuery('Errands'));
+
+    act(() => result.current.actions.startCreate());
+
+    expect(result.current.state.form).toEqual({
+      name: 'Errands',
+      color: 'blue',
+      error: null,
+    });
+  });
+
+  it('setName and setColor update the form and keep the error empty', () => {
+    const { result } = setup(card);
+    act(() => result.current.actions.startCreate());
+
+    act(() => result.current.actions.setName('Errands'));
+    act(() => result.current.actions.setColor('orange'));
+
+    expect(result.current.state.form).toEqual({
+      name: 'Errands',
+      color: 'orange',
+      error: null,
+    });
+  });
+
+  it('cancelCreate drops the form without sending a request', () => {
+    const requests: string[] = [];
+    server.use(
+      http.all(`${baseUrl}/*`, ({ request }) => {
+        requests.push(request.method);
+        return new HttpResponse(null, { status: 204 });
+      }),
+    );
+    const { result } = setup(card);
+    act(() => result.current.actions.startCreate());
+    act(() => result.current.actions.setName('Errands'));
+    act(() => result.current.actions.setColor('red'));
+
+    act(() => result.current.actions.cancelCreate());
+
+    expect(result.current.state.form).toBeNull();
+    expect(requests).toEqual([]);
+  });
+
+  it('startCreate after a cancel starts again from the search text and blue', () => {
+    const { result } = setup(card);
+    act(() => result.current.actions.setQuery('Docs2'));
+    act(() => result.current.actions.startCreate());
+    act(() => result.current.actions.setColor('red'));
+    act(() => result.current.actions.cancelCreate());
+
+    act(() => result.current.actions.startCreate());
+
+    expect(result.current.state.form).toEqual({
+      name: 'Docs2',
+      color: 'blue',
+      error: null,
+    });
+  });
+
+  it('setOpen(false) drops the form together with the query', () => {
+    const { result } = setup(card);
+    act(() => result.current.actions.setOpen(true));
+    act(() => result.current.actions.setQuery('Errands'));
+    act(() => result.current.actions.startCreate());
+
+    act(() => result.current.actions.setOpen(false));
+
+    expect(result.current.state.form).toBeNull();
+    expect(result.current.state.query).toBe('');
+  });
+});
