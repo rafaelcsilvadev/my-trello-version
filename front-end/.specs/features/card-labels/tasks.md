@@ -168,8 +168,8 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] Unit: sends `POST` with `{ name, color }`; the labels cache does not change while in flight; on success the label is last in the labels cache and the key is invalidated; on `409` and `5xx` no cache changed and the error is an `ApiError` with its `status` and `type`
-- [ ] Build gate passes; test count only grows
+- [x] Unit: sends `POST` with `{ name, color }`; the labels cache does not change while in flight; on success the label is last in the labels cache and the key is invalidated; on `409` and `5xx` no cache changed and the error is an `ApiError` with its `status` and `type`
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
