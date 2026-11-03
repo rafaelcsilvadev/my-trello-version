@@ -4,7 +4,7 @@ const TITLE_MAX_LENGTH = 100;
 const CHECKLIST_ITEM_MAX_LENGTH = 200;
 
 // Checked trimmed, the same value the request body sends.
-function validateTitle(
+export function validateTitle(
   raw: string,
   required: ItemFieldError,
   tooLong: ItemFieldError,

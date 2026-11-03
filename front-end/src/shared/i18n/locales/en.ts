@@ -198,6 +198,9 @@ export const en = {
       checklistItemRequired: 'Write the item',
       checklistItemTooLong: 'Use up to 200 characters',
       cardDescriptionTooLong: 'Use up to 5000 characters',
+      labelNameRequired: 'Give the label a name',
+      labelNameTooLong: 'Use up to 50 characters',
+      labelNameTaken: 'A label with that name already exists on this board',
     },
     cardDetail: {
       dialog: 'Task detail',

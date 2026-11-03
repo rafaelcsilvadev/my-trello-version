@@ -1,7 +1,8 @@
 import type { ApiError } from '@/shared/api/api-error';
 
 import { normalizeText } from './filters';
-import type { Label } from './types';
+import type { ItemFieldError, Label } from './types';
+import { validateTitle } from './validation';
 
 type LabelColor = Label['color'];
 
@@ -20,6 +21,8 @@ export const LABEL_COLORS: readonly LabelColor[] = [
 ];
 
 export const DEFAULT_LABEL_COLOR: LabelColor = 'blue';
+
+const LABEL_NAME_MAX_LENGTH = 50;
 
 const LABEL_NAME_TAKEN_TYPE = '/problems/label-name-taken';
 
@@ -48,4 +51,21 @@ export function withoutLabelId(labelIds: string[], id: string): string[] {
 
 export function isLabelNameTaken(err: ApiError): boolean {
   return err.status === 409 && err.type.endsWith(LABEL_NAME_TAKEN_TYPE);
+}
+
+// Taken ignores case only, like the API's unique index on lower(name) (FCLB-15).
+export function validateLabelName(
+  raw: string,
+  labels: Label[],
+): ItemFieldError | null {
+  const error = validateTitle(
+    raw,
+    'labelNameRequired',
+    'labelNameTooLong',
+    LABEL_NAME_MAX_LENGTH,
+  );
+  if (error) return error;
+  const name = raw.trim().toLowerCase();
+  const taken = labels.some((label) => label.name.toLowerCase() === name);
+  return taken ? 'labelNameTaken' : null;
 }

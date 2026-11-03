@@ -14,6 +14,7 @@ export type ChecklistItem = Schemas['ChecklistItemResponseDto'];
 export type CreateChecklistItemDto = Schemas['CreateChecklistItemDto'];
 export type UpdateChecklistItemDto = Schemas['UpdateChecklistItemDto'];
 export type MoveChecklistItemDto = Schemas['MoveChecklistItemDto'];
+export type CreateLabelDto = Schemas['CreateLabelDto'];
 
 // One active column on screen.
 export type Column = { list: List; cards: Card[] };
@@ -34,4 +35,7 @@ export type ItemFieldError =
   | 'cardTitleRequired'
   | 'cardTitleTooLong'
   | 'checklistItemRequired'
-  | 'checklistItemTooLong';
+  | 'checklistItemTooLong'
+  | 'labelNameRequired'
+  | 'labelNameTooLong'
+  | 'labelNameTaken';

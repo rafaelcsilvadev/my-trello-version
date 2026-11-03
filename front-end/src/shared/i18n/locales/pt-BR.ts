@@ -200,6 +200,9 @@ export const ptBR = {
       checklistItemRequired: 'Escreva o item',
       checklistItemTooLong: 'Use até 200 caracteres',
       cardDescriptionTooLong: 'Use até 5000 caracteres',
+      labelNameRequired: 'Dê um nome à etiqueta',
+      labelNameTooLong: 'Use até 50 caracteres',
+      labelNameTaken: 'Já existe uma etiqueta com esse nome neste quadro',
     },
     cardDetail: {
       dialog: 'Detalhe da tarefa',
