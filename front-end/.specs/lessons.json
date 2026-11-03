@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 25,
+  "next_id": 28,
   "lessons": [
     {
       "id": "L-001",
@@ -446,6 +446,60 @@
       ],
       "created": "2026-11-02T16:02:01Z",
       "last_seen": "2026-11-02T18:04:29Z"
+    },
+    {
+      "id": "L-025",
+      "key": "surviving_mutant::test that typing clears an error from a state that already holds the error not from an initial empty one",
+      "text": "Test that typing clears an error from a state that already holds the error, not from an initial empty one",
+      "signal": "surviving_mutant",
+      "scope": "view-models",
+      "status": "candidate",
+      "features": [
+        "card-labels"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M1 FCLB-27 use-card-labels-view-model.ts setName (view-models)"
+      ],
+      "created": "2026-11-03T21:59:35Z",
+      "last_seen": "2026-11-03T21:59:35Z"
+    },
+    {
+      "id": "L-026",
+      "key": "ac_gap::give every or listed dismissal path of a popover its own test not only the esc path",
+      "text": "Give every OR-listed dismissal path of a popover its own test, not only the Esc path",
+      "signal": "ac_gap",
+      "scope": "components",
+      "status": "candidate",
+      "features": [
+        "card-labels"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "FCLB-08 click outside, validation.md Fix 2 (components)"
+      ],
+      "created": "2026-11-03T21:59:35Z",
+      "last_seen": "2026-11-03T21:59:35Z"
+    },
+    {
+      "id": "L-027",
+      "key": "spec_precision_gap::when code deliberately differs from the spec wording mark spec deviation or fix the spec text",
+      "text": "When code deliberately differs from the spec wording, mark SPEC_DEVIATION or fix the spec text",
+      "signal": "spec_precision_gap",
+      "scope": "components",
+      "status": "candidate",
+      "features": [
+        "card-labels"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "FCLB-06 disable vs data-pending, validation.md G3 (components)"
+      ],
+      "created": "2026-11-03T21:59:35Z",
+      "last_seen": "2026-11-03T21:59:35Z"
     }
   ]
 }
