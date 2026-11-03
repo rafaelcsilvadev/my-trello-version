@@ -323,6 +323,7 @@ export const ptBR = {
   },
   toast: {
     close: 'Fechar',
+    region: 'Notificações',
   },
   dates: {
     short: '{{day}} {{month}}, {{year}}',
