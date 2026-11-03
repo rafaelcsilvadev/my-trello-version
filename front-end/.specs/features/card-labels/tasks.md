@@ -420,8 +420,8 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] Unit (L-001): `CardDetailLabels` gets the applied chips and `isEditable` per mode (editable, archived card, archived board); checking a label shows its chip in the detail and on the board tile behind it in board order, unchecking removes both; Esc in the popover (and in its create form) closes only the popover and the detail stays open, a second Esc closes the detail; a failed toggle with the popover open shows a toast whose action is reachable (P3 regression); **Gerenciar etiquetas** with an unsaved title opens "Descartar alterações?" and **Descartar** lands on `/b/{boardId}/labels`; search text alone closes the detail without the dialog; a created label shows in the board label filter
-- [ ] Build gate passes; test count only grows
+- [x] Unit (L-001): `CardDetailLabels` gets the applied chips and `isEditable` per mode (editable, archived card, archived board); checking a label shows its chip in the detail and on the board tile behind it in board order, unchecking removes both; Esc in the popover (and in its create form) closes only the popover and the detail stays open, a second Esc closes the detail; a failed toggle with the popover open shows a toast whose action is reachable (P3 regression); **Gerenciar etiquetas** with an unsaved title opens "Descartar alterações?" and **Descartar** lands on `/b/{boardId}/labels`; search text alone closes the detail without the dialog; a created label shows in the board label filter
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
