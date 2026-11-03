@@ -193,8 +193,8 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] Unit: closed with an empty query at start; `options` list every board label in order, checked exactly for the ids in `labelIds`; `setQuery("ur")` keeps only Urgent; no match → `options` is `[]`; `setOpen(false)` clears the query (and later the form), so the next open lists every label; `card` undefined → every option unchecked
-- [ ] Build gate passes; test count only grows
+- [x] Unit: closed with an empty query at start; `options` list every board label in order, checked exactly for the ids in `labelIds`; `setQuery("ur")` keeps only Urgent; no match → `options` is `[]`; `setOpen(false)` clears the query (and later the form), so the next open lists every label; `card` undefined → every option unchecked
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
