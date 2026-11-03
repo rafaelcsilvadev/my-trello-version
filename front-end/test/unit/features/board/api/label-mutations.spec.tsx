@@ -5,7 +5,10 @@ import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { boardViewKeys } from '@/features/board/api/keys';
-import { useToggleCardLabel } from '@/features/board/api/label-mutations';
+import {
+  useCreateLabel,
+  useToggleCardLabel,
+} from '@/features/board/api/label-mutations';
 import { usePendingItemIds } from '@/features/board/api/mutations';
 import type { Card } from '@/features/board/model/types';
 import { ApiProvider } from '@/shared/api/api-context';
@@ -319,4 +322,101 @@ describe('useToggleCardLabel', () => {
     );
     expect(queryClient.getQueryState(cardsKey)?.isInvalidated).toBe(true);
   });
+});
+
+describe('useCreateLabel', () => {
+  const labelsUrl = `${baseUrl}/api/v1/boards/${boardId}/labels`;
+  const labelsKey = boardViewKeys.labels(boardId);
+  const errands = labelFixture('ld', { name: 'Errands', color: 'orange' });
+
+  function problem(status: number, type: string) {
+    return HttpResponse.json(
+      { type, title: 'Problem', status, detail: '' },
+      { status, headers: { 'Content-Type': 'application/problem+json' } },
+    );
+  }
+
+  it('posts the name and color to the labels of the board', async () => {
+    const bodies: unknown[] = [];
+    server.use(
+      http.post(labelsUrl, async ({ request }) => {
+        bodies.push(await request.json());
+        return HttpResponse.json(errands, { status: 201 });
+      }),
+    );
+    const { wrapper } = setup();
+    const { result } = renderHook(() => useCreateLabel(boardId), { wrapper });
+
+    await act(() =>
+      result.current.mutateAsync({ name: 'Errands', color: 'orange' }),
+    );
+
+    expect(bodies).toEqual([{ name: 'Errands', color: 'orange' }]);
+  });
+
+  it('leaves the cached labels untouched until the response arrives', async () => {
+    server.use(http.post(labelsUrl, () => delay('infinite')));
+    const { wrapper, queryClient } = setup();
+    const { result } = renderHook(() => useCreateLabel(boardId), { wrapper });
+
+    act(() => result.current.mutate({ name: 'Errands', color: 'orange' }));
+
+    await waitFor(() => expect(result.current.isPending).toBe(true));
+    expect(queryClient.getQueryData(labelsKey)).toEqual([
+      alpha,
+      bravo,
+      charlie,
+    ]);
+  });
+
+  it('appends the created label last and invalidates the labels', async () => {
+    server.use(
+      http.post(labelsUrl, () => HttpResponse.json(errands, { status: 201 })),
+    );
+    const { wrapper, queryClient } = setup();
+    const { result } = renderHook(() => useCreateLabel(boardId), { wrapper });
+
+    await act(() =>
+      result.current.mutateAsync({ name: 'Errands', color: 'orange' }),
+    );
+
+    expect(queryClient.getQueryData(labelsKey)).toEqual([
+      alpha,
+      bravo,
+      charlie,
+      errands,
+    ]);
+    expect(queryClient.getQueryState(labelsKey)?.isInvalidated).toBe(true);
+  });
+
+  it.each([
+    [409, '/problems/label-name-taken'],
+    [500, '/problems/internal-error'],
+  ])(
+    'changes no cache and rejects with the ApiError on %i',
+    async (status, type) => {
+      server.use(http.post(labelsUrl, () => problem(status, type)));
+      const { wrapper, queryClient } = setup();
+      const { result } = renderHook(() => useCreateLabel(boardId), {
+        wrapper,
+      });
+
+      const error = await act(() =>
+        result.current
+          .mutateAsync({ name: 'Alpha', color: 'blue' })
+          .catch((err: unknown) => err),
+      );
+
+      expect(error).toBeInstanceOf(ApiError);
+      expect(error).toMatchObject({ status, type });
+      expect(queryClient.getQueryData(labelsKey)).toEqual([
+        alpha,
+        bravo,
+        charlie,
+      ]);
+      expect(queryClient.getQueryState(labelsKey)?.isInvalidated).toBe(false);
+      expect(queryClient.getQueryData(cardKey)).toEqual(card);
+      expect(queryClient.getQueryData(cardsKey)).toEqual([card, other]);
+    },
+  );
 });

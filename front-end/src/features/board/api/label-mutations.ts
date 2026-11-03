@@ -1,10 +1,11 @@
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { useApi } from '@/shared/api/api-context';
-import { call } from '@/shared/api/api-error';
+import { type ApiError, call } from '@/shared/api/api-error';
 
 import { withLabelId, withoutLabelId } from '../model/labels';
-import type { Card, Label } from '../model/types';
+import type { Card, CreateLabelDto, Label } from '../model/types';
+import { appendThenInvalidate } from './create-mutations';
 import { boardViewKeys } from './keys';
 import {
   inList,
@@ -53,6 +54,24 @@ export function useToggleCardLabel(boardId: string) {
       ];
     },
   );
+}
+
+// Not optimistic: the label has no id until the API answers (FCLB-13).
+export function useCreateLabel(boardId: string) {
+  const api = useApi();
+  const queryClient = useQueryClient();
+
+  return useMutation<Label, ApiError, CreateLabelDto>({
+    mutationFn: (body) =>
+      call(
+        api.POST('/api/v1/boards/{boardId}/labels', {
+          params: { path: { boardId } },
+          body,
+        }),
+      ),
+    onSuccess: (label) =>
+      appendThenInvalidate(queryClient, boardViewKeys.labels(boardId), label),
+  });
 }
 
 // Remembers whether the id actually changed, so a failed toggle of a label
