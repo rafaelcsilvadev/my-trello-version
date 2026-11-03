@@ -1,7 +1,10 @@
 import type { Label } from '../model/types';
 
 // Full class names, so Tailwind finds them in the source (it cannot see `bg-label-${color}`).
-const LABEL_CLASSES: Record<Label['color'], { chip: string; dot: string }> = {
+export const LABEL_CLASSES: Record<
+  Label['color'],
+  { chip: string; dot: string }
+> = {
   green: { chip: 'bg-label-green/18', dot: 'bg-label-green' },
   yellow: { chip: 'bg-label-yellow/18', dot: 'bg-label-yellow' },
   orange: { chip: 'bg-label-orange/18', dot: 'bg-label-orange' },

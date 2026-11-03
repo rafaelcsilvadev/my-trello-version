@@ -204,6 +204,18 @@ export const ptBR = {
       labelNameTooLong: 'Use até 50 caracteres',
       labelNameTaken: 'Já existe uma etiqueta com esse nome neste quadro',
     },
+    labelColors: {
+      purple: 'Roxo',
+      blue: 'Azul',
+      sky: 'Céu',
+      green: 'Verde',
+      lime: 'Lima',
+      yellow: 'Amarelo',
+      orange: 'Laranja',
+      red: 'Vermelho',
+      pink: 'Rosa',
+      black: 'Preto',
+    },
     cardDetail: {
       dialog: 'Detalhe da tarefa',
       back: 'Voltar',
@@ -228,6 +240,13 @@ export const ptBR = {
       deleteForever: 'Excluir definitivamente',
       archivedNotice: 'Tarefa arquivada · somente leitura',
       boardArchivedNotice: 'Quadro arquivado · somente leitura',
+      labelPopover: {
+        name: 'Nome',
+        namePlaceholder: 'Ex.: Bug',
+        color: 'Cor',
+        submit: 'Criar',
+        cancel: 'Cancelar',
+      },
       checklist: {
         title: 'Checklist',
         addItem: 'Adicionar item e apertar Enter',
