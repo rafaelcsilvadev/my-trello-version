@@ -335,19 +335,288 @@ describe('CardDetail', () => {
     expect(await screen.findByRole('textbox', { name: 'Título' })).toBeTruthy();
   });
 
-  it('shows the label chips in board order, with no control', async () => {
-    detailApi();
-    await renderReady();
+  describe('labels', () => {
+    const labelUrl = `${cardUrl}/labels/:labelId`;
+    const add = () =>
+      screen.getByRole('button', { name: 'Adicionar etiqueta' });
+    const search = () =>
+      screen.getByRole('textbox', { name: 'Buscar etiquetas…' });
+    // The open popover hides the detail from the accessibility tree.
+    const hiddenDetail = () =>
+      screen.getByRole('dialog', { name: 'Write the brief', hidden: true });
+    const popover = () => screen.queryByRole('dialog', { name: 'Etiquetas' });
 
-    const labels = within(detail()).getByRole('list', { name: 'Etiquetas' });
-    expect(
-      within(labels)
-        .getAllByRole('listitem')
-        .map((item) => item.textContent),
-    ).toEqual(['Urgent', 'Bug']);
-    // No "+" or remove control: labels change in a later feature.
-    const block = labels.parentElement!;
-    expect(within(block).queryAllByRole('button')).toHaveLength(0);
+    // Saves each label change into the card, so the refetch after it reads it.
+    function labelApi(seed: Seed, fail = false) {
+      server.use(
+        http.put(labelUrl, ({ params }) => {
+          if (fail) return problem(500);
+          seed.card.labelIds = [
+            ...seed.card.labelIds,
+            params.labelId as string,
+          ];
+          return HttpResponse.json(seed.card);
+        }),
+        http.delete(labelUrl, ({ params }) => {
+          if (fail) return problem(500);
+          seed.card.labelIds = seed.card.labelIds.filter(
+            (id) => id !== params.labelId,
+          );
+          return HttpResponse.json(seed.card);
+        }),
+      );
+    }
+
+    async function openPopover() {
+      await userEvent.click(add());
+      await screen.findByRole('dialog', { name: 'Etiquetas' });
+    }
+
+    async function tile() {
+      return (
+        await screen.findByText('Write the brief', {
+          selector: '[data-card-id] *',
+        })
+      ).closest<HTMLElement>('[data-card-id]')!;
+    }
+
+    const chips = (scope: HTMLElement) =>
+      within(scope)
+        .getAllByRole('listitem', { hidden: true })
+        .map((item) => item.textContent);
+
+    it('shows the chips in board order, then the add button', async () => {
+      detailApi();
+      await renderReady();
+
+      const list = within(hiddenDetail()).getByRole('list', {
+        name: 'Etiquetas',
+        hidden: true,
+      });
+      expect(chips(list)).toEqual(['Urgent', 'Bug']);
+      expect(
+        list.compareDocumentPosition(add()) & Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBeTruthy();
+    });
+
+    it.each([
+      [
+        'an archived card',
+        {
+          card: cardFixture(cardId, backlog.id, {
+            title: 'Write the brief',
+            labelIds: ['lb3', 'lb1'],
+            archivedAt: stamp,
+          }),
+        },
+      ],
+      ['an archived board', { board: boardFixture({ archivedAt: stamp }) }],
+    ])('keeps the chips of %s with no add button', async (_, overrides) => {
+      detailApi(overrides);
+      await renderReady();
+
+      const list = within(hiddenDetail()).getByRole('list', {
+        name: 'Etiquetas',
+        hidden: true,
+      });
+      expect(chips(list)).toEqual(['Urgent', 'Bug']);
+      expect(
+        screen.queryByRole('button', { name: 'Adicionar etiqueta' }),
+      ).toBeNull();
+    });
+
+    it('applies and removes a label on the detail and on the board tile', async () => {
+      const card = cardFixture(cardId, backlog.id, {
+        title: 'Write the brief',
+        labelIds: ['lb3'],
+      });
+      const { seed } = detailApi({ card, tiles: [card] });
+      labelApi(seed);
+      await renderReady({ withBoard: true });
+      const tileEl = await tile();
+      await waitFor(() => expect(within(tileEl).getByText('Bug')).toBeTruthy());
+
+      await openPopover();
+      fireEvent.click(await screen.findByRole('checkbox', { name: 'Urgent' }));
+
+      const list = () =>
+        within(hiddenDetail()).getByRole('list', {
+          name: 'Etiquetas',
+          hidden: true,
+        });
+      // Board order: Urgent comes before Bug.
+      await waitFor(() => expect(chips(list())).toEqual(['Urgent', 'Bug']));
+      await waitFor(() =>
+        expect(within(tileEl).getByText('Urgent')).toBeTruthy(),
+      );
+      const tileText = tileEl.textContent!;
+      expect(tileText.indexOf('Urgent')).toBeLessThan(tileText.indexOf('Bug'));
+
+      fireEvent.click(screen.getByRole('checkbox', { name: 'Urgent' }));
+
+      await waitFor(() => expect(chips(list())).toEqual(['Bug']));
+      await waitFor(() =>
+        expect(within(tileEl).queryByText('Urgent')).toBeNull(),
+      );
+    });
+
+    it('closes only the popover on Esc, then the detail on a second Esc', async () => {
+      detailApi();
+      const services = await renderReady();
+      await openPopover();
+
+      fireEvent.keyDown(search(), { key: 'Escape' });
+
+      await waitFor(() => expect(popover()).toBeNull());
+      expect(hiddenDetail()).toBeTruthy();
+      fireEvent.keyDown(
+        within(hiddenDetail()).getByRole('button', {
+          name: 'Fechar',
+          hidden: true,
+        }),
+        {
+          key: 'Escape',
+        },
+      );
+      expect(await closedPath(services)).toBe(boardPath);
+    });
+
+    it('closes only the popover on Esc inside the create form', async () => {
+      detailApi();
+      await renderReady();
+      await openPopover();
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Criar etiqueta' }),
+      );
+
+      fireEvent.keyDown(screen.getByRole('textbox', { name: 'Nome' }), {
+        key: 'Escape',
+      });
+
+      await waitFor(() => expect(popover()).toBeNull());
+      expect(hiddenDetail()).toBeTruthy();
+    });
+
+    it('lets the keyboard reach the retry toast of a failed toggle with the popover open', async () => {
+      const { seed } = detailApi();
+      labelApi(seed, true);
+      await renderReady();
+      await openPopover();
+
+      fireEvent.click(screen.getByRole('checkbox', { name: 'Later' }));
+      const retry = await screen.findByRole('button', {
+        name: 'Tentar novamente',
+      });
+      await userEvent.keyboard('{F6}');
+      await userEvent.tab();
+
+      expect(document.activeElement).toBe(retry);
+    });
+
+    it('asks to discard an unsaved title before Gerenciar etiquetas', async () => {
+      detailApi();
+      const services = await renderReady();
+      fireEvent.change(screen.getByRole('textbox', { name: 'Título' }), {
+        target: { value: 'Unsaved title' },
+      });
+      await openPopover();
+
+      await userEvent.click(
+        screen.getByRole('link', { name: 'Gerenciar etiquetas' }),
+      );
+      const dialog = await screen.findByRole('alertdialog', {
+        name: 'Descartar alterações?',
+      });
+      await userEvent.click(
+        within(dialog).getByRole('button', { name: 'Descartar' }),
+      );
+
+      await waitFor(() =>
+        expect(services.router.state.location.pathname).toBe(
+          `${boardPath}/labels`,
+        ),
+      );
+    });
+
+    it('closes the detail without the dialog when only the search text changed', async () => {
+      detailApi();
+      const services = await renderReady();
+      await openPopover();
+      await userEvent.type(search(), 'urg');
+
+      await userEvent.click(
+        screen.getByRole('link', { name: 'Gerenciar etiquetas' }),
+      );
+
+      await waitFor(() =>
+        expect(services.router.state.location.pathname).toBe(
+          `${boardPath}/labels`,
+        ),
+      );
+      expect(screen.queryByRole('alertdialog')).toBeNull();
+    });
+
+    it('lists a created label in the board label filter', async () => {
+      const card = cardFixture(cardId, backlog.id, {
+        title: 'Write the brief',
+      });
+      const { seed } = detailApi({ card, tiles: [card] });
+      labelApi(seed);
+      const errands = labelFixture('lb4', { name: 'Errands', color: 'orange' });
+      let created = false;
+      server.use(
+        http.get(`${boardUrl}/labels`, () =>
+          HttpResponse.json(
+            created ? [urgent, later, bug, errands] : [urgent, later, bug],
+          ),
+        ),
+        http.post(`${boardUrl}/labels`, () => {
+          created = true;
+          return HttpResponse.json(errands, { status: 201 });
+        }),
+      );
+      await renderReady({ withBoard: true });
+      await tile();
+
+      await openPopover();
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Criar etiqueta' }),
+      );
+      await userEvent.type(
+        screen.getByRole('textbox', { name: 'Nome' }),
+        'Errands',
+      );
+      await userEvent.click(screen.getByRole('button', { name: 'Criar' }));
+      await waitFor(() =>
+        expect(
+          (
+            screen.getByRole('checkbox', {
+              name: 'Errands',
+            }) as HTMLInputElement
+          ).checked,
+        ).toBe(true),
+      );
+      fireEvent.keyDown(search(), { key: 'Escape' });
+      await waitFor(() => expect(popover()).toBeNull());
+      fireEvent.keyDown(
+        within(hiddenDetail()).getByRole('button', {
+          name: 'Fechar',
+          hidden: true,
+        }),
+        {
+          key: 'Escape',
+        },
+      );
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+
+      await userEvent.click(
+        await screen.findByRole('button', { name: 'Etiquetas' }),
+      );
+
+      expect(
+        await screen.findByRole('menuitemcheckbox', { name: 'Errands' }),
+      ).toBeTruthy();
+    });
   });
 
   it('wires the editable fields to the card and its changes', async () => {

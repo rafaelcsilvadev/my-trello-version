@@ -12,10 +12,10 @@ import { CardDetailDescription } from './card-detail-description';
 import { DeleteCardDialog, DiscardChangesDialog } from './card-detail-dialogs';
 import { CardDetailDueDate } from './card-detail-due-date';
 import { CardDetailFooter } from './card-detail-footer';
+import { CardDetailLabels } from './card-detail-labels';
 import { CardDetailNotices } from './card-detail-notices';
 import { CardDetailNotFound, CardDetailSkeleton } from './card-detail-states';
 import { CardDetailTitle } from './card-detail-title';
-import { LabelChip } from './label-chip';
 import { MoveToDialog } from './move-to-dialog';
 
 type CardDetailProps = {
@@ -134,24 +134,13 @@ export function CardDetail({ boardId, cardId }: CardDetailProps) {
                     onChange={actions.setDueDate}
                     onRemove={actions.removeDueDate}
                   />
-                  {state.labels.length > 0 ? (
-                    <div className="flex min-w-0 flex-col gap-1.5">
-                      <span className="text-xs font-medium text-text-secondary">
-                        {t('board.cardDetail.labels')}
-                      </span>
-                      {/* Read-only here: labels are changed by a later feature (FCD-29). */}
-                      <ul
-                        aria-label={t('board.cardDetail.labels')}
-                        className="m-0 flex min-h-8.5 list-none flex-wrap items-center gap-1.5 p-0"
-                      >
-                        {state.labels.map((label) => (
-                          <li key={label.id} className="flex">
-                            <LabelChip label={label} />
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : null}
+                  <CardDetailLabels
+                    applied={state.labels}
+                    isEditable={mode === 'editable'}
+                    boardId={boardId}
+                    state={state.labelPopover}
+                    actions={actions.labelPopover}
+                  />
                 </div>
                 <CardDetailDescription
                   description={card.description}
