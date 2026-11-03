@@ -5,6 +5,7 @@ import {
   isLabelNameTaken,
   LABEL_COLORS,
   searchLabels,
+  validateLabelName,
   withLabelId,
   withoutLabelId,
 } from '@/features/board/model/labels';
@@ -132,5 +133,37 @@ describe('isLabelNameTaken', () => {
     expect(isLabelNameTaken(problem(400, '/problems/label-name-taken'))).toBe(
       false,
     );
+  });
+});
+
+describe('validateLabelName', () => {
+  const bug = labelFixture('l4', { name: 'Bug' });
+  const board = [urgent, bug];
+
+  it.each(['', '   '])('requires a name (%j)', (raw) => {
+    expect(validateLabelName(raw, board)).toBe('labelNameRequired');
+  });
+
+  it('accepts 50 characters', () => {
+    expect(validateLabelName('a'.repeat(50), board)).toBeNull();
+  });
+
+  it('accepts 50 characters with outer spaces', () => {
+    expect(validateLabelName(`  ${'a'.repeat(50)}  `, board)).toBeNull();
+  });
+
+  it('rejects 51 characters', () => {
+    expect(validateLabelName('a'.repeat(51), board)).toBe('labelNameTooLong');
+  });
+
+  it.each(['bug', ' BUG '])(
+    'rejects a name taken on the board ignoring case (%j)',
+    (raw) => {
+      expect(validateLabelName(raw, board)).toBe('labelNameTaken');
+    },
+  );
+
+  it('accepts a name that only contains a board label name', () => {
+    expect(validateLabelName('Bugs', board)).toBeNull();
   });
 });

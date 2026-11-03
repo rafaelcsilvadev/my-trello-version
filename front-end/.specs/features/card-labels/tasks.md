@@ -117,9 +117,9 @@ T14 → T15 → T16 → T17
 
 **Done when**:
 
-- [ ] Unit: `""` and `"   "` → `labelNameRequired`; 50 chars → `null`; 50 chars with outer spaces → `null`; 51 chars → `labelNameTooLong`; `"bug"` and `" BUG "` with "Bug" on the board → `labelNameTaken`; `"Bugs"` → `null`
-- [ ] PT-BR texts are "Dê um nome à etiqueta", "Use até 50 caracteres" and "Já existe uma etiqueta com esse nome neste quadro"; the locale key parity test passes
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `""` and `"   "` → `labelNameRequired`; 50 chars → `null`; 50 chars with outer spaces → `null`; 51 chars → `labelNameTooLong`; `"bug"` and `" BUG "` with "Bug" on the board → `labelNameTaken`; `"Bugs"` → `null`
+- [x] PT-BR texts are "Dê um nome à etiqueta", "Use até 50 caracteres" and "Já existe uma etiqueta com esse nome neste quadro"; the locale key parity test passes
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
