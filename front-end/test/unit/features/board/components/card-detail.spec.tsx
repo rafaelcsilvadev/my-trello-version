@@ -737,14 +737,47 @@ describe('CardDetail', () => {
         );
         expect(moves).toEqual([{ id: 'i2', body: { position: 0 } }]);
         expect(order()).toEqual(['Draft', 'Review', 'Send']);
-        // `hidden`: React Aria hides the toast region outside the modal (STATE P3).
         const region = toast.closest<HTMLElement>('output')!;
         expect(
-          within(region).getByRole('button', {
-            name: 'Tentar novamente',
-            hidden: true,
-          }),
+          within(region).getByRole('button', { name: 'Tentar novamente' }),
         ).toBeTruthy();
+      });
+
+      it('keeps the detail open when the retry toast is clicked', async () => {
+        const { seed } = detailApi(withItems);
+        moveApi(seed, true);
+        await renderReady();
+        await readyItems();
+
+        await tabTo(grip('Review'));
+        await userEvent.keyboard(' ');
+        await userEvent.keyboard('{ArrowUp}');
+        await userEvent.keyboard(' ');
+        await userEvent.click(
+          await screen.findByRole('button', { name: 'Tentar novamente' }),
+        );
+
+        expect(screen.getByRole('dialog')).toBeTruthy();
+      });
+
+      it('lets the keyboard reach the retry toast from inside the open detail', async () => {
+        const { seed } = detailApi(withItems);
+        moveApi(seed, true);
+        await renderReady();
+        await readyItems();
+
+        await tabTo(grip('Review'));
+        await userEvent.keyboard(' ');
+        await userEvent.keyboard('{ArrowUp}');
+        await userEvent.keyboard(' ');
+        const retry = await screen.findByRole('button', {
+          name: 'Tentar novamente',
+        });
+
+        await userEvent.keyboard('{F6}');
+        await userEvent.tab();
+
+        expect(document.activeElement).toBe(retry);
       });
     });
   });

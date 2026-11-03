@@ -322,6 +322,7 @@ export const en = {
   },
   toast: {
     close: 'Close',
+    region: 'Notifications',
   },
   dates: {
     short: '{{month}} {{day}}, {{year}}',
