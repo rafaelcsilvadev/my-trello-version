@@ -241,6 +241,10 @@ export const ptBR = {
       archivedNotice: 'Tarefa arquivada · somente leitura',
       boardArchivedNotice: 'Quadro arquivado · somente leitura',
       labelPopover: {
+        add: 'Adicionar etiqueta',
+        dialog: 'Etiquetas',
+        search: 'Buscar etiquetas…',
+        noResults: 'Nenhuma etiqueta encontrada',
         name: 'Nome',
         namePlaceholder: 'Ex.: Bug',
         color: 'Cor',
