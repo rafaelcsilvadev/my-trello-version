@@ -44,6 +44,7 @@ type CardDetailLabelPopoverProps = {
   onCancel: () => void;
 };
 
+// A pending option stays enabled, as a disabled input drops the focus and Esc stops working (FCLB-06, FCLB-08).
 // The "+" trigger and the popover with the search field and the label checkboxes
 // (FCLB-01, FCLB-02, FCLB-03, FCLB-06, FCLB-08, FCLB-09, FCLB-10, FCLB-12, FCLB-16, FCLB-20).
 export function CardDetailLabelPopover({
@@ -63,7 +64,6 @@ export function CardDetailLabelPopover({
   onCancel,
 }: CardDetailLabelPopoverProps) {
   const { t } = useTranslation();
-
   return (
     <DialogTrigger isOpen={isOpen} onOpenChange={onOpenChange}>
       <Button
@@ -81,7 +81,12 @@ export function CardDetailLabelPopover({
           aria-label={t('board.cardDetail.labelPopover.dialog')}
           className="flex flex-col gap-2 outline-none"
         >
-          <SearchField value={query} onChange={onQueryChange} />
+          {/* Remounting on the form toggle refocuses the search: the name field unmounts with the form and would drop the focus to the body (FCLB-08). */}
+          <SearchField
+            key={form === null ? 'idle' : 'creating'}
+            value={query}
+            onChange={onQueryChange}
+          />
           {options.length === 0 ? (
             <p className="p-3 text-sm text-text-tertiary">
               {t('board.cardDetail.labelPopover.noResults')}
@@ -92,9 +97,11 @@ export function CardDetailLabelPopover({
                 <li key={label.id}>
                   <Checkbox
                     isSelected={isChecked}
-                    isDisabled={isPending}
-                    onChange={() => onToggle(label)}
-                    className="group relative flex min-h-9 cursor-pointer items-center gap-2.5 rounded-sm px-2 hover:bg-neutral-100 data-disabled:cursor-not-allowed data-disabled:opacity-45 data-focus-visible:outline-2 data-focus-visible:outline-border-focus"
+                    data-pending={isPending || undefined}
+                    onChange={() => {
+                      if (!isPending) onToggle(label);
+                    }}
+                    className="group relative flex min-h-9 cursor-pointer items-center gap-2.5 rounded-sm px-2 hover:bg-neutral-100 data-pending:cursor-not-allowed data-pending:opacity-45 data-focus-visible:outline-2 data-focus-visible:outline-border-focus"
                   >
                     <span
                       aria-hidden

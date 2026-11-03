@@ -128,7 +128,8 @@ describe('CardDetailLabelPopover', () => {
     expect(onToggle).toHaveBeenCalledWith(BUG);
   });
 
-  it('disables and dims only the pending option', async () => {
+  // A disabled input drops the focus to the body, and Esc stops closing the popover.
+  it('dims the pending option, keeps it focusable and ignores its toggles', async () => {
     const { onToggle } = renderPopover({
       options: [
         { label: BUG, isChecked: true, isPending: true },
@@ -139,16 +140,44 @@ describe('CardDetailLabelPopover', () => {
     const feature = screen.getByRole<HTMLInputElement>('checkbox', {
       name: 'Feature',
     });
-    expect(bug.disabled).toBe(true);
-    expect(feature.disabled).toBe(false);
-    expect(bug.closest('label')?.hasAttribute('data-disabled')).toBe(true);
-    expect(feature.closest('label')?.hasAttribute('data-disabled')).toBe(false);
+    expect(bug.disabled).toBe(false);
+    expect(bug.closest('label')?.hasAttribute('data-pending')).toBe(true);
+    expect(feature.closest('label')?.hasAttribute('data-pending')).toBe(false);
     expect(bug.closest('label')?.className).toContain(
-      'data-disabled:opacity-45',
+      'data-pending:opacity-45',
     );
 
+    bug.focus();
+    await userEvent.keyboard(' ');
     await userEvent.click(bug);
+    expect(document.activeElement).toBe(bug);
     expect(onToggle).not.toHaveBeenCalled();
+  });
+
+  // The name field unmounts with the form: without this the focus drops to the body.
+  it('moves the focus back to the search field when the form closes', () => {
+    const form: LabelForm = { name: 'Errands', color: 'blue', error: null };
+    const { view, ...handlers } = renderPopover({ form });
+    expect(document.activeElement).toBe(
+      screen.getByRole('textbox', { name: 'Nome' }),
+    );
+
+    view.rerender(
+      <I18nextProvider i18n={createI18n('pt-BR')}>
+        <CardDetailLabelPopover
+          isOpen
+          query=""
+          options={[]}
+          boardId="b1"
+          form={null}
+          isCreating={false}
+          {...handlers}
+        />
+      </I18nextProvider>,
+    );
+    expect(document.activeElement).toBe(
+      screen.getByRole('textbox', { name: 'Buscar etiquetas…' }),
+    );
   });
 
   it('calls onQueryChange while typing', async () => {
