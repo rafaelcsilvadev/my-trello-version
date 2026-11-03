@@ -37,3 +37,12 @@ git commit -m "feat(debts): register debt with amount validation"
 
 Feature work in this project follows the `tlc-spec-driven` skill, used as-is. The Development workflow and Commits rules complement it; when they overlap, the skill's Execute contract wins for task commits.
 <!-- claude-kit:end -->
+
+## Task flow in this repo
+
+- **One task per branch and PR.** Implement the whole task (TDD, gate, commit), then walk the user through the diff file by file with the key decisions. Stop and wait for the review before the next task. Never offer "inline, all tasks, one PR" or batch sub-agents at Execute; this overrides the tlc-spec-driven execution offer.
+- **Spec docs first.** The spec/design/tasks docs get their own PR, and it must be merged before T1 starts, even if the user says "segue pro T1".
+- **Tick the boxes.** Mark the task's "Done when" boxes `[x]` in `tasks.md` in a separate `docs(...)` commit in the same PR. Boxes that depend on the PR's own CI may go in a small PR after merge, never in the next task's PR.
+- **Branch from updated `main`.** Merged branches are kept, so stacked PRs never auto-retarget. Wait for the previous PR to merge, or retarget with `gh api -X PATCH repos/<owner>/<repo>/pulls/<n> -f base=main` (`gh pr edit --base` fails). Don't delete branches without asking.
+- **Verifier sensor worktree:** no `pnpm install` and no `pnpm` scripts inside it (they relink the real `node_modules` into the temp worktree). Symlink `node_modules` and call the test runner binary directly. Afterwards check `find */node_modules -maxdepth 2 -xtype l`.
+- **CI check names are required by the `main` ruleset** (`protect-main`, id 25562623): `back-end (lint|build|test|test:integration|test:e2e)`, `api-contract`, `front-end (lint|typecheck|test|build|test:e2e)`. When a job is renamed or added, update the ruleset in the same task. Skip steps on unrelated PRs, never whole jobs (a job-level `if` on a matrix leaves the check pending). Pending: enable `sha_pinning_required` once actions are pinned by SHA.
