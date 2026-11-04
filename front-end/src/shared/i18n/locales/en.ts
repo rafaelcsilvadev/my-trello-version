@@ -331,6 +331,13 @@ export const en = {
     labelsPage: {
       newLabel: 'New label',
       editLabel: 'Edit label',
+      editLabelNamed: 'Edit label {{name}}',
+      deleteLabelNamed: 'Delete label {{name}}',
+      usage: {
+        unused: 'unused',
+        one: 'used in 1 task',
+        many: 'used in {{count}} tasks',
+      },
       form: {
         create: 'Create label',
         save: 'Save',

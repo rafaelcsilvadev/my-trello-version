@@ -380,9 +380,9 @@ T14 → T15 → T16 → T17 → T18 → T19
 
 **Done when**:
 
-- [ ] Unit: rows keep the given order; each shows the chip and "não usada" / "usada em 1 tarefa" / "usada em 3 tarefas"; buttons are named "Editar etiqueta {name}" and "Excluir etiqueta {name}" with the pencil and trash icons (L-011)
-- [ ] Buttons call `onEdit(id)` and `onDelete(id)`; a pending row has both buttons disabled and dimmed (L-018) while others stay enabled; `readOnly` hides both buttons and keeps chip and usage
-- [ ] Build gate passes; test count only grows
+- [x] Unit: rows keep the given order; each shows the chip and "não usada" / "usada em 1 tarefa" / "usada em 3 tarefas"; buttons are named "Editar etiqueta {name}" and "Excluir etiqueta {name}" with the pencil and trash icons (L-011)
+- [x] Buttons call `onEdit(id)` and `onDelete(id)`; a pending row has both buttons disabled and dimmed (L-018) while others stay enabled; `readOnly` hides both buttons and keeps chip and usage
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build

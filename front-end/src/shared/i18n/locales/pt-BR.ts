@@ -332,6 +332,13 @@ export const ptBR = {
     labelsPage: {
       newLabel: 'Nova etiqueta',
       editLabel: 'Editar etiqueta',
+      editLabelNamed: 'Editar etiqueta {{name}}',
+      deleteLabelNamed: 'Excluir etiqueta {{name}}',
+      usage: {
+        unused: 'não usada',
+        one: 'usada em 1 tarefa',
+        many: 'usada em {{count}} tarefas',
+      },
       form: {
         create: 'Criar etiqueta',
         save: 'Salvar',
