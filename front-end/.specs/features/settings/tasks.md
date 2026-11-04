@@ -142,9 +142,9 @@ T7 → T8 → T9
 
 **Done when**:
 
-- [ ] Unit: `usePreferencesStore` returns the exact store given to the provider, and throws `usePreferencesStore must be used inside <PreferencesProvider>` outside it
-- [ ] Unit: inside `renderApp`, a probe component reads the same store instance as the services (`services.preferences`)
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `usePreferencesStore` returns the exact store given to the provider, and throws `usePreferencesStore must be used inside <PreferencesProvider>` outside it
+- [x] Unit: inside `renderApp`, a probe component reads the same store instance as the services (`services.preferences`)
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
