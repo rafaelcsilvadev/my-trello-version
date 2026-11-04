@@ -200,13 +200,13 @@ T7 → T8 → T9
 
 **Done when**:
 
-- [ ] Unit (model): `SHORTCUTS` lists `new`, `search`, `escape`, `move`, `help` in that order, with the keys `N`, `/`, `Esc`, translated space key, `?`
-- [ ] Unit (desktop viewport): the panel titled **Atalhos de teclado** shows five rows, each a `kbd` with its description in PT-BR (FSET-11)
-- [ ] Unit (phone viewport): the panel is not in the document (FSET-12)
-- [ ] Unit: switching the language to English shows the English descriptions and `Space` instead of `Espaço` at once (FSET-13)
-- [ ] Unit (composed `/settings`, desktop): headings in the order Idioma, Tema, Atalhos de teclado, Sessão (FSET-01); on a phone, Idioma, Tema, Sessão
-- [ ] Locale parity test passes with the new `settings.shortcuts.*` keys
-- [ ] Build gate passes; test count only grows
+- [x] Unit (model): `SHORTCUTS` lists `new`, `search`, `escape`, `move`, `help` in that order, with the keys `N`, `/`, `Esc`, translated space key, `?`
+- [x] Unit (desktop viewport): the panel titled **Atalhos de teclado** shows five rows, each a `kbd` with its description in PT-BR (FSET-11)
+- [x] Unit (phone viewport): the panel is not in the document (FSET-12)
+- [x] Unit: switching the language to English shows the English descriptions and `Space` instead of `Espaço` at once (FSET-13)
+- [x] Unit (composed `/settings`, desktop): headings in the order Idioma, Tema, Atalhos de teclado, Sessão (FSET-01); on a phone, Idioma, Tema, Sessão
+- [x] Locale parity test passes with the new `settings.shortcuts.*` keys
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
