@@ -4,7 +4,7 @@
 
 **English** | [Português](README.PT.md)
 
-> 🚧 **Work in progress.** The back-end API is feature-complete (features 0 to 6). The web front-end has sign-up, log-in, the boards list, the board view, drag and drop, board filters, the card detail, its checklist, with items reordered by mouse or keyboard, and its labels; the labels page and settings come next. The mobile app has not started yet.
+> 🚧 **Work in progress.** The back-end API is feature-complete (features 0 to 6). The web front-end has sign-up, log-in, the boards list, the board view, drag and drop, board filters, the card detail, its checklist, with items reordered by mouse or keyboard, and its labels; the labels page, with usage, create, edit and delete; settings comes next. The mobile app has not started yet.
 
 A personal take on Trello: each user signs up and manages only their own boards, lists and cards.
 
@@ -29,7 +29,7 @@ The project has two goals:
 
 MVP = features 0 to 4. Full roadmap in [`back-end/.specs/ROADMAP.md`](back-end/.specs/ROADMAP.md).
 
-Web front-end: `foundation` (app shell, routes and auth guard, typed API client, theme, PT-BR/EN i18n, toasts, Docker service, CI) `auth` (sign-up, log-in, rate-limit notice, log-out) `boards` (active/archived tabs, create, edit, archive, restore, delete) and `board` (columns and cards, done flag, archived items, read-only archived board, phone layout) `board-dnd` (move cards and columns with the mouse or the keyboard, live region, "Move to…") `board-filters` (search, label and due-date filters, `/` shortcut, drag off while filtering) and `card-detail` (title, done flag, due date, description, move, archive, restore, delete, read-only modes, discard dialog) and `card-checklist` (add, tick, rename and delete items, progress bar, read-only modes) and `card-checklist-dnd` (reorder items with the mouse or the keyboard, live region) and `card-labels` (apply, remove and create labels from the card detail) are done. The labels page comes next, one feature at a time. Roadmap in [`front-end/.specs/ROADMAP.md`](front-end/.specs/ROADMAP.md).
+Web front-end: `foundation` (app shell, routes and auth guard, typed API client, theme, PT-BR/EN i18n, toasts, Docker service, CI) `auth` (sign-up, log-in, rate-limit notice, log-out) `boards` (active/archived tabs, create, edit, archive, restore, delete) and `board` (columns and cards, done flag, archived items, read-only archived board, phone layout) `board-dnd` (move cards and columns with the mouse or the keyboard, live region, "Move to…") `board-filters` (search, label and due-date filters, `/` shortcut, drag off while filtering) and `card-detail` (title, done flag, due date, description, move, archive, restore, delete, read-only modes, discard dialog) and `card-checklist` (add, tick, rename and delete items, progress bar, read-only modes) and `card-checklist-dnd` (reorder items with the mouse or the keyboard, live region) and `card-labels` (apply, remove and create labels from the card detail) and `labels` (the board's labels page: list with usage, create, edit, delete) are done. Settings comes next, one feature at a time. Roadmap in [`front-end/.specs/ROADMAP.md`](front-end/.specs/ROADMAP.md).
 
 ---
 
@@ -206,7 +206,7 @@ Opening a task:
 - **Labels** show as chips. The **+** button next to them opens a popover with a search field ("Search labels…"), the board's labels and the links below. Tick a label to apply it, untick it to remove it: the chip changes on the detail and on the board tile at once, and the popover stays open. If a change fails, the tick goes back and a toast tells you.
 - Type in the search field to narrow the list (case and accents are ignored); "No labels found" shows when nothing matches.
 - **Create label** opens a form with a name and one of 10 colors. **Create** (or Enter) adds the label to the board and applies it to the task. An empty name, one over 50 characters or one that already exists on the board is not created.
-- **Manage labels** goes to the board's labels page, which is still a placeholder. Esc, a click outside or the **+** button closes the popover and returns the focus to **+**.
+- **Manage labels** goes to the board's labels page (see below). Esc, a click outside or the **+** button closes the popover and returns the focus to **+**.
 - In both read-only modes below the labels still show, but there is no **+** button.
 - The footer shows when the task was created, **Move to…** (the same dialog as on the board; the detail stays open on the new column) and **Archive**.
 - An archived task opens read-only with the notice "Archived task · read-only"; open it from the **Archived** column (**Show archived**). **Restore** makes it editable again and puts it at the end of its column. **Delete permanently** asks for confirmation and then removes the task with its checklist. If the task's column is archived, both buttons are off until you restore the column.
@@ -214,6 +214,15 @@ Opening a task:
 - In both read-only modes the checklist still shows the count and the progress bar, but the checkboxes and texts are off and there is no add field, no X and no grip.
 - Close the detail with X, Esc, a click outside it or the browser's Back button; focus returns to the task on the board. If the title, the description or a checklist item has unsaved edits, "Discard changes?" asks first: **Keep editing** keeps your text, **Discard** closes without saving.
 - While the detail is open, the `n` and `/` shortcuts are off.
+
+Managing a board's labels on `/b/{id}/labels`:
+
+- Open it with **Board labels** in the board header, or with **Manage labels** in a task's label popover. The breadcrumb reads Boards › board › Labels, and **Back to the board** returns to the board. Labels belong to one board only.
+- The page lists every label of the board with its color and how many tasks use it: "unused", "used in 1 task" or "used in 3 tasks". A board without labels shows "No labels yet" with **New label**.
+- **New label** opens a form with a name (up to 50 characters) and one of 10 colors. **Create label** (or Enter) adds it to the list. An empty name, one over 50 characters or one already used on the board is not saved.
+- **Edit label** (pencil on a row) opens the same form pre-filled. **Save** changes the name, the color or both, and the change shows on every task that carries the label.
+- **Delete label** (bin on a row) asks "Delete the label …?" and says how many tasks lose it ("No task uses this label.", "It will be removed from 1 task.", "It will be removed from 3 tasks."). **Delete** removes the label from the board and from those tasks. It cannot be undone.
+- On an archived board the page is read-only: a notice reads "Archived board · read-only", the list still shows, but **New label** and the edit and delete buttons are hidden.
 
 Changes show at once and are saved in the background. If saving fails, the change is undone and a toast offers **Try again**.
 
