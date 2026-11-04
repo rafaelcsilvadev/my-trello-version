@@ -394,6 +394,113 @@ describe('useArchiveBoard', () => {
   });
 });
 
+describe('overlapping board changes', () => {
+  it('puts back only the failed board when another archive is still pending', async () => {
+    const first = gate();
+    const second = gate();
+    server.use(
+      http.post(`${boardUrl(roadmap.id)}/archive`, async () => {
+        await first.opened;
+        return serverError();
+      }),
+      http.post(`${boardUrl(backlog.id)}/archive`, async () => {
+        await second.opened;
+        return HttpResponse.json(archivedBacklog);
+      }),
+    );
+    const { wrapper, queryClient } = setup();
+    queryClient.setQueryData(boardKeys.list(false), [roadmap, backlog]);
+    const { result } = renderHook(
+      () => ({ first: useArchiveBoard(), second: useArchiveBoard() }),
+      { wrapper },
+    );
+
+    act(() => result.current.first.mutate({ board: roadmap }));
+    act(() => result.current.second.mutate({ board: backlog }));
+    first.release();
+    await waitFor(() => expect(result.current.first.isError).toBe(true));
+
+    expect(queryClient.getQueryData(boardKeys.list(false))).toEqual([roadmap]);
+    second.release();
+    await waitFor(() => expect(result.current.second.isSuccess).toBe(true));
+  });
+
+  it('puts the failed board back at its original position', async () => {
+    const first = gate();
+    const second = gate();
+    const third: Board = {
+      ...backlog,
+      id: 'c1d2e3f4-0000-4000-8000-000000000003',
+    };
+    server.use(
+      http.post(`${boardUrl(backlog.id)}/archive`, async () => {
+        await first.opened;
+        return serverError();
+      }),
+      http.post(`${boardUrl(roadmap.id)}/archive`, async () => {
+        await second.opened;
+        return HttpResponse.json(archivedRoadmap);
+      }),
+    );
+    const { wrapper, queryClient } = setup();
+    queryClient.setQueryData(boardKeys.list(false), [roadmap, backlog, third]);
+    const { result } = renderHook(
+      () => ({ first: useArchiveBoard(), second: useArchiveBoard() }),
+      { wrapper },
+    );
+
+    act(() => result.current.first.mutate({ board: backlog }));
+    act(() => result.current.second.mutate({ board: roadmap }));
+    first.release();
+    await waitFor(() => expect(result.current.first.isError).toBe(true));
+
+    expect(queryClient.getQueryData(boardKeys.list(false))).toEqual([
+      backlog,
+      third,
+    ]);
+    second.release();
+    await waitFor(() => expect(result.current.second.isSuccess).toBe(true));
+  });
+
+  it('keeps a pending rename when another board change fails', async () => {
+    const first = gate();
+    const second = gate();
+    server.use(
+      http.post(`${boardUrl(backlog.id)}/archive`, async () => {
+        await first.opened;
+        return serverError();
+      }),
+      http.patch(boardUrl(roadmap.id), async () => {
+        await second.opened;
+        return HttpResponse.json({ ...roadmap, title: 'Renamed' });
+      }),
+    );
+    const { wrapper, queryClient } = setup();
+    queryClient.setQueryData(boardKeys.list(false), [roadmap, backlog]);
+    const { result } = renderHook(
+      () => ({ archive: useArchiveBoard(), update: useUpdateBoard() }),
+      { wrapper },
+    );
+
+    act(() => result.current.archive.mutate({ board: backlog }));
+    act(() =>
+      result.current.update.mutate({
+        board: roadmap,
+        body: { title: 'Renamed' },
+      }),
+    );
+    first.release();
+    await waitFor(() => expect(result.current.archive.isError).toBe(true));
+
+    expect(queryClient.getQueryData(boardKeys.list(false))).toEqual([
+      { ...roadmap, title: 'Renamed' },
+      backlog,
+    ]);
+    second.release();
+    await waitFor(() => expect(result.current.update.isSuccess).toBe(true));
+  });
+});
+
 describe('useRestoreBoard', () => {
   it('removes the board from the archived list before the unarchive response', async () => {
     const response = gate();
