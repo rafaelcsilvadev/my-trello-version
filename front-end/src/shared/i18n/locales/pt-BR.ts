@@ -12,6 +12,7 @@ export const ptBR = {
   },
   nav: {
     settings: 'Configurações',
+    shortcuts: 'Atalhos de teclado',
   },
   notFound: {
     title: 'Página não encontrada',
@@ -68,6 +69,8 @@ export const ptBR = {
     },
     shortcuts: {
       title: 'Atalhos de teclado',
+      hint: 'Teclado: Espaço pega o card, a coluna ou o item em foco · setas movem · Espaço solta · Esc cancela',
+      close: 'Fechar',
       keys: { space: 'Espaço' },
       rows: {
         new: 'Nova tarefa na primeira coluna',
