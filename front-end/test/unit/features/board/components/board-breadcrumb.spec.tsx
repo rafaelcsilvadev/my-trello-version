@@ -11,13 +11,19 @@ import { renderApp } from '../../../../support/render-app';
 
 const boardUrl = `${apiOrigin}/api/v1/boards/${boardId}`;
 
-function renderBreadcrumb(language: 'pt-BR' | 'en' = 'pt-BR') {
+function renderBreadcrumb(
+  language: 'pt-BR' | 'en' = 'pt-BR',
+  section?: 'labels',
+) {
   return renderApp({
     route: `/b/${boardId}`,
     token: 'token',
     prefs: { language },
     routes: [
-      { path: '/b/:boardId', element: <BoardBreadcrumb boardId={boardId} /> },
+      {
+        path: '/b/:boardId',
+        element: <BoardBreadcrumb boardId={boardId} section={section} />,
+      },
     ],
   });
 }
@@ -47,6 +53,43 @@ describe('BoardBreadcrumb', () => {
       ).toBe('/boards');
       const current = within(crumbs).getByText('Product launch');
       expect(current.getAttribute('aria-current')).toBe('page');
+      expect(crumbs.className).toContain('hidden');
+      expect(crumbs.className).toContain('md:flex');
+    },
+  );
+
+  it.each([
+    {
+      language: 'pt-BR' as const,
+      nav: 'Trilha de navegação',
+      boards: 'Meus quadros',
+      labels: 'Etiquetas',
+    },
+    {
+      language: 'en' as const,
+      nav: 'Breadcrumb',
+      boards: 'My boards',
+      labels: 'Labels',
+    },
+  ])(
+    'adds the labels crumb as the only current page, linking the board title ($language)',
+    async ({ language, nav, boards, labels }) => {
+      server.use(http.get(boardUrl, () => HttpResponse.json(boardFixture())));
+
+      renderBreadcrumb(language, 'labels');
+
+      const crumbs = await screen.findByRole('navigation', { name: nav });
+      expect(
+        within(crumbs).getByRole('link', { name: boards }).getAttribute('href'),
+      ).toBe('/boards');
+      expect(
+        within(crumbs)
+          .getByRole('link', { name: 'Product launch' })
+          .getAttribute('href'),
+      ).toBe(`/b/${boardId}`);
+      const current = crumbs.querySelectorAll('[aria-current="page"]');
+      expect(current).toHaveLength(1);
+      expect(current[0]?.textContent).toBe(labels);
       expect(crumbs.className).toContain('hidden');
       expect(crumbs.className).toContain('md:flex');
     },

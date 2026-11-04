@@ -13,6 +13,7 @@ export function ProtectedLayout() {
   // useMatch also treats a trailing slash as the same route.
   const onSettings = useMatch('/settings') !== null;
   const boardId = useMatch('/b/:boardId/*')?.params.boardId;
+  const onLabels = useMatch('/b/:boardId/labels') !== null;
 
   return (
     <>
@@ -20,7 +21,12 @@ export function ProtectedLayout() {
         <Link to="/boards" className={`rounded-sm p-1 ${linkFocus}`}>
           <Logo />
         </Link>
-        {boardId && <BoardBreadcrumb boardId={boardId} />}
+        {boardId && (
+          <BoardBreadcrumb
+            boardId={boardId}
+            section={onLabels ? 'labels' : undefined}
+          />
+        )}
         <div className="flex-1" />
         {!onSettings && (
           <Link

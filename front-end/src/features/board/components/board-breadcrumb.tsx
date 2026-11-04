@@ -6,11 +6,16 @@ import { useBoard } from '../api/queries';
 
 type BoardBreadcrumbProps = {
   boardId: string;
+  // A page under the board; the board title then links back to the board.
+  section?: 'labels';
 };
+
+const crumbLink =
+  'rounded-sm px-2 py-1.5 text-md font-medium whitespace-nowrap text-text-secondary hover:bg-neutral-100 hover:text-text-primary focus-visible:outline-2 focus-visible:outline-border-focus';
 
 // Port of the prototype top-bar breadcrumb (design/Task List.dc.html:169-175).
 // Desktop only; renders nothing until the board loads, and on any error.
-export function BoardBreadcrumb({ boardId }: BoardBreadcrumbProps) {
+export function BoardBreadcrumb({ boardId, section }: BoardBreadcrumbProps) {
   const { t } = useTranslation();
   const { data: board } = useBoard(boardId);
 
@@ -24,19 +29,31 @@ export function BoardBreadcrumb({ boardId }: BoardBreadcrumbProps) {
       className="ml-2 hidden min-w-0 items-center gap-1 md:flex"
     >
       <ChevronRight size={16} className="text-text-disabled" aria-hidden />
-      <Link
-        to="/boards"
-        className="rounded-sm px-2 py-1.5 text-md font-medium whitespace-nowrap text-text-secondary hover:bg-neutral-100 hover:text-text-primary focus-visible:outline-2 focus-visible:outline-border-focus"
-      >
+      <Link to="/boards" className={crumbLink}>
         {t('routes.boards')}
       </Link>
       <ChevronRight size={16} className="text-text-disabled" aria-hidden />
-      <span
-        aria-current="page"
-        className="truncate px-1.5 text-md font-semibold text-text-primary"
-      >
-        {board.title}
-      </span>
+      {section ? (
+        <>
+          <Link to={`/b/${boardId}`} className={`truncate ${crumbLink}`}>
+            {board.title}
+          </Link>
+          <ChevronRight size={16} className="text-text-disabled" aria-hidden />
+          <span
+            aria-current="page"
+            className="truncate px-1.5 text-md font-semibold text-text-primary"
+          >
+            {t(`routes.${section}`)}
+          </span>
+        </>
+      ) : (
+        <span
+          aria-current="page"
+          className="truncate px-1.5 text-md font-semibold text-text-primary"
+        >
+          {board.title}
+        </span>
+      )}
     </nav>
   );
 }
