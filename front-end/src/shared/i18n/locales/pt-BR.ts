@@ -330,6 +330,9 @@ export const ptBR = {
       deleteForever: 'Excluir definitivamente',
     },
     labelsPage: {
+      title: 'Etiquetas',
+      subtitle: '{{board}} · Valem só para este quadro.',
+      backToBoard: 'Voltar para o quadro',
       newLabel: 'Nova etiqueta',
       emptyTitle: 'Nenhuma etiqueta ainda',
       emptyDetail: 'Crie etiquetas para destacar tarefas, como Bug ou Urgent.',

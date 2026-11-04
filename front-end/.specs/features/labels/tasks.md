@@ -432,10 +432,10 @@ T14 → T15 → T16 → T17 → T18 → T19
 
 **Done when**:
 
-- [ ] Unit (`renderApp` + MSW, L-001): shows **Etiquetas**, "{board} · Valem só para este quadro.", the rows and **Nova etiqueta**; loading → skeleton; load failure → "Não foi possível carregar" with **Tentar novamente**; not found → the board-not-found screen; no labels → the empty state
-- [ ] Create from the screen adds the last row and the toast; edit changes the row; delete shows the count dialog then removes the row; after a delete focus is on **Nova etiqueta**, after a dialog from a row focus returns to that row's button
-- [ ] Archived board: the notice "Quadro arquivado · somente leitura", the list, and no **Nova etiqueta**, **Editar** or **Excluir**; the phone back arrow links to `/b/{boardId}` with an accessible name
-- [ ] Build gate passes; test count only grows
+- [x] Unit (`renderApp` + MSW, L-001): shows **Etiquetas**, "{board} · Valem só para este quadro.", the rows and **Nova etiqueta**; loading → skeleton; load failure → "Não foi possível carregar" with **Tentar novamente**; not found → the board-not-found screen; no labels → the empty state
+- [x] Create from the screen adds the last row and the toast; edit changes the row; delete shows the count dialog then removes the row; after a delete focus is on **Nova etiqueta**, after a dialog from a row focus returns to that row's button
+- [x] Archived board: the notice "Quadro arquivado · somente leitura", the list, and no **Nova etiqueta**, **Editar** or **Excluir**; the phone back arrow links to `/b/{boardId}` with an accessible name
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
