@@ -354,9 +354,9 @@ T14 → T15 → T16 → T17 → T18 → T19
 
 **Done when**:
 
-- [ ] Unit: count 0 → "Nenhuma tarefa usa esta etiqueta."; 1 → "Ela será removida de 1 tarefa."; 3 → "Ela será removida de 3 tarefas."; the title names the label; **Excluir** uses the danger style
-- [ ] **Excluir** calls `onConfirm`; **Cancelar**, Esc and an outside click call `onCancel`; role is `alertdialog`
-- [ ] Build gate passes; test count only grows
+- [x] Unit: count 0 → "Nenhuma tarefa usa esta etiqueta."; 1 → "Ela será removida de 1 tarefa."; 3 → "Ela será removida de 3 tarefas."; the title names the label; **Excluir** uses the danger style
+- [x] **Excluir** calls `onConfirm`; **Cancelar**, Esc and an outside click call `onCancel`; role is `alertdialog`
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
