@@ -165,37 +165,37 @@ The card detail (feature `card-detail`, 4a) shows the labels applied to a card a
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| FCLB-01 | P1: Apply and remove labels | Tasks | Pending |
-| FCLB-02 | P1: Apply and remove labels | Tasks | Pending |
-| FCLB-03 | P1: Apply and remove labels | Tasks | Pending |
-| FCLB-04 | P1: Apply and remove labels | Tasks | Pending |
-| FCLB-05 | P1: Apply and remove labels | Tasks | Pending |
-| FCLB-06 | P1: Apply and remove labels | Tasks | Pending |
-| FCLB-07 | P1: Apply and remove labels | Tasks | Pending |
-| FCLB-08 | P1: Apply and remove labels | Tasks | Pending |
-| FCLB-09 | P1: Search the board's labels | Tasks | Pending |
-| FCLB-10 | P1: Search the board's labels | Tasks | Pending |
-| FCLB-11 | P1: Search the board's labels | Tasks | Pending |
-| FCLB-12 | P1: Create a label from the popover | Tasks | Pending |
-| FCLB-13 | P1: Create a label from the popover | Tasks | Pending |
-| FCLB-14 | P1: Create a label from the popover | Tasks | Pending |
-| FCLB-15 | P1: Create a label from the popover | Tasks | Pending |
-| FCLB-16 | P1: Create a label from the popover | Tasks | Pending |
-| FCLB-17 | Edge cases | Tasks | Pending |
-| FCLB-18 | Edge cases | Tasks | Pending |
-| FCLB-19 | Edge cases | Tasks | Pending |
-| FCLB-20 | P2: Manage labels link and read-only modes | Tasks | Pending |
-| FCLB-21 | P2: Manage labels link and read-only modes | Tasks | Pending |
-| FCLB-22 | Edge cases | Tasks | Pending |
-| FCLB-23 | Edge cases | Tasks | Pending |
-| FCLB-24 | Edge cases | Tasks | Pending |
-| FCLB-25 | Edge cases | Tasks | Pending |
-| FCLB-26 | Edge cases | Tasks | Pending |
-| FCLB-27 | Edge cases | Tasks | Pending |
-| FCLB-28 | Edge cases | Tasks | Pending |
-| FCLB-29 | Edge cases | Tasks | Pending |
+| FCLB-01 | P1: Apply and remove labels | Verify | ✅ Verified |
+| FCLB-02 | P1: Apply and remove labels | Verify | ✅ Verified |
+| FCLB-03 | P1: Apply and remove labels | Verify | ✅ Verified |
+| FCLB-04 | P1: Apply and remove labels | Verify | ✅ Verified |
+| FCLB-05 | P1: Apply and remove labels | Verify | ✅ Verified |
+| FCLB-06 | P1: Apply and remove labels | Verify | ✅ Verified |
+| FCLB-07 | P1: Apply and remove labels | Verify | ✅ Verified |
+| FCLB-08 | P1: Apply and remove labels | Verify | ✅ Verified |
+| FCLB-09 | P1: Search the board's labels | Verify | ✅ Verified |
+| FCLB-10 | P1: Search the board's labels | Verify | ✅ Verified |
+| FCLB-11 | P1: Search the board's labels | Verify | ✅ Verified |
+| FCLB-12 | P1: Create a label from the popover | Verify | ✅ Verified |
+| FCLB-13 | P1: Create a label from the popover | Verify | ✅ Verified |
+| FCLB-14 | P1: Create a label from the popover | Verify | ✅ Verified |
+| FCLB-15 | P1: Create a label from the popover | Verify | ✅ Verified |
+| FCLB-16 | P1: Create a label from the popover | Verify | ✅ Verified |
+| FCLB-17 | Edge cases | Verify | ✅ Verified |
+| FCLB-18 | Edge cases | Verify | ✅ Verified |
+| FCLB-19 | Edge cases | Verify | ✅ Verified |
+| FCLB-20 | P2: Manage labels link and read-only modes | Verify | ✅ Verified |
+| FCLB-21 | P2: Manage labels link and read-only modes | Verify | ✅ Verified |
+| FCLB-22 | Edge cases | Verify | ✅ Verified |
+| FCLB-23 | Edge cases | Verify | ✅ Verified |
+| FCLB-24 | Edge cases | Verify | ✅ Verified |
+| FCLB-25 | Edge cases | Verify | ✅ Verified |
+| FCLB-26 | Edge cases | Verify | ✅ Verified |
+| FCLB-27 | Edge cases | Verify | ✅ Verified |
+| FCLB-28 | Edge cases | Verify | ✅ Verified |
+| FCLB-29 | Edge cases | Verify | ✅ Verified |
 
-**Coverage:** 29 total, 29 mapped to tasks (T1–T15), 0 unmapped
+**Coverage:** 29 total, 29 mapped to tasks (T1–T15), 0 unmapped. Validation iteration 2: 29 ✅ Verified (iteration 1 had gaps G1–G5, closed by `validation.md`)
 
 ---
 

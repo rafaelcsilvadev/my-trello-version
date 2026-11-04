@@ -192,46 +192,46 @@ Every ambiguity is resolved or recorded here - nothing is left silently unclear.
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| FLP-01 | P1: See the board's labels | Design | Pending |
-| FLP-02 | P1: See the board's labels | Design | Pending |
-| FLP-03 | P1: See the board's labels | Design | Pending |
-| FLP-04 | P1: See the board's labels | Design | Pending |
-| FLP-05 | P1: See the board's labels | Design | Pending |
-| FLP-06 | P1: See the board's labels | Design | Pending |
-| FLP-07 | P1: See the board's labels | Design | Pending |
-| FLP-08 | P1: See the board's labels | Design | Pending |
-| FLP-09 | P1: See the board's labels | Design | Pending |
-| FLP-10 | P1: Create a label | Design | Pending |
-| FLP-11 | P1: Create a label | Design | Pending |
-| FLP-12 | P1: Create a label | Design | Pending |
-| FLP-13 | P1: Create a label | Design | Pending |
-| FLP-14 | P1: Create a label | Design | Pending |
-| FLP-15 | P1: Create a label | Design | Pending |
-| FLP-16 | P1: Create a label | Design | Pending |
-| FLP-17 | P1: Create a label | Design | Pending |
-| FLP-18 | P1: Edit a label | Design | Pending |
-| FLP-19 | P1: Edit a label | Design | Pending |
-| FLP-20 | P1: Edit a label | Design | Pending |
-| FLP-21 | P1: Edit a label | Design | Pending |
-| FLP-22 | P1: Edit a label | Design | Pending |
-| FLP-23 | P1: Delete a label | Design | Pending |
-| FLP-24 | P1: Delete a label | Design | Pending |
-| FLP-25 | P1: Delete a label | Design | Pending |
-| FLP-26 | P1: Delete a label | Design | Pending |
-| FLP-27 | P2: Failures and read-only mode | Design | Pending |
-| FLP-28 | P2: Failures and read-only mode | Design | Pending |
-| FLP-29 | P2: Failures and read-only mode | Design | Pending |
-| FLP-30 | P2: Failures and read-only mode | Design | Pending |
-| FLP-31 | P2: Failures and read-only mode | Design | Pending |
-| FLP-32 | P2: Failures and read-only mode | Design | Pending |
-| FLP-33 | Edge cases | Design | Pending |
-| FLP-34 | Edge cases | Design | Pending |
-| FLP-35 | Edge cases | Design | Pending |
-| FLP-36 | Edge cases | Design | Pending |
-| FLP-37 | Edge cases | Design | Pending |
-| FLP-38 | Edge cases | Design | Pending |
+| FLP-01 | P1: See the board's labels | Verify | ✅ Verified |
+| FLP-02 | P1: See the board's labels | Verify | ✅ Verified |
+| FLP-03 | P1: See the board's labels | Verify | ✅ Verified |
+| FLP-04 | P1: See the board's labels | Verify | ✅ Verified |
+| FLP-05 | P1: See the board's labels | Verify | ✅ Verified |
+| FLP-06 | P1: See the board's labels | Verify | ✅ Verified |
+| FLP-07 | P1: See the board's labels | Verify | ✅ Verified |
+| FLP-08 | P1: See the board's labels | Verify | ✅ Verified |
+| FLP-09 | P1: See the board's labels | Verify | ✅ Verified |
+| FLP-10 | P1: Create a label | Verify | ✅ Verified |
+| FLP-11 | P1: Create a label | Verify | ✅ Verified |
+| FLP-12 | P1: Create a label | Verify | ✅ Verified |
+| FLP-13 | P1: Create a label | Verify | ✅ Verified |
+| FLP-14 | P1: Create a label | Verify | ✅ Verified |
+| FLP-15 | P1: Create a label | Verify | ✅ Verified |
+| FLP-16 | P1: Create a label | Verify | ✅ Verified |
+| FLP-17 | P1: Create a label | Verify | ✅ Verified |
+| FLP-18 | P1: Edit a label | Verify | ✅ Verified |
+| FLP-19 | P1: Edit a label | Verify | ✅ Verified |
+| FLP-20 | P1: Edit a label | Verify | ✅ Verified |
+| FLP-21 | P1: Edit a label | Verify | ✅ Verified |
+| FLP-22 | P1: Edit a label | Verify | ✅ Verified |
+| FLP-23 | P1: Delete a label | Verify | ✅ Verified |
+| FLP-24 | P1: Delete a label | Verify | ✅ Verified |
+| FLP-25 | P1: Delete a label | Verify | ✅ Verified |
+| FLP-26 | P1: Delete a label | Verify | ✅ Verified |
+| FLP-27 | P2: Failures and read-only mode | Verify | ✅ Verified |
+| FLP-28 | P2: Failures and read-only mode | Verify | ✅ Verified |
+| FLP-29 | P2: Failures and read-only mode | Verify | ✅ Verified |
+| FLP-30 | P2: Failures and read-only mode | Verify | ✅ Verified |
+| FLP-31 | P2: Failures and read-only mode | Verify | ✅ Verified |
+| FLP-32 | P2: Failures and read-only mode | Verify | ✅ Verified |
+| FLP-33 | Edge cases | Verify | ✅ Verified |
+| FLP-34 | Edge cases | Verify | ✅ Verified |
+| FLP-35 | Edge cases | Verify | ✅ Verified |
+| FLP-36 | Edge cases | Verify | ✅ Verified |
+| FLP-37 | Edge cases | Verify | ✅ Verified |
+| FLP-38 | Edge cases | Verify | ✅ Verified |
 
-**Coverage:** 38 total, 0 mapped to tasks, 38 unmapped (tasks come after design)
+**Coverage:** 38 total, 38 ✅ Verified (`validation.md`: 38/38 have a `file:line` assertion, 5/5 mutants killed)
 
 ---
 

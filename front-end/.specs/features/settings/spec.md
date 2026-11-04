@@ -128,37 +128,37 @@ Each requirement gets a unique ID for tracking across design, tasks, and validat
 
 | Requirement ID | Story | Phase | Status |
 | -------------- | ----- | ----- | ------ |
-| FSET-01 | P1: Language and theme (screen order) | Design | Pending |
-| FSET-02 | P1: Language and theme (language options) | Design | Pending |
-| FSET-03 | P1: Language and theme (language applies) | Design | Pending |
-| FSET-04 | P1: Language and theme (language persists) | Design | Pending |
-| FSET-05 | P1: Language and theme (theme options and subtitle) | Design | Pending |
-| FSET-06 | P1: Language and theme (theme applies) | Design | Pending |
-| FSET-07 | P1: Language and theme (theme persists) | Design | Pending |
-| FSET-08 | P1: Language and theme (system theme) | Design | Pending |
-| FSET-09 | P1: Language and theme (arrow keys) | Design | Pending |
-| FSET-10 | P1: Language and theme (storage unavailable) | Design | Pending |
-| FSET-11 | P1: Shortcuts panel (desktop rows) | Design | Pending |
-| FSET-12 | P1: Shortcuts panel (hidden on phone) | Design | Pending |
-| FSET-13 | P1: Shortcuts panel (language change) | Design | Pending |
-| FSET-14 | P1: Shortcuts dialog (icon on desktop) | Design | Pending |
-| FSET-15 | P1: Shortcuts dialog (no icon on phone) | Design | Pending |
-| FSET-16 | P1: Shortcuts dialog (icon opens it) | Design | Pending |
-| FSET-17 | P1: Shortcuts dialog (`?` opens it) | Design | Pending |
-| FSET-18 | P1: Shortcuts dialog (`?` guards) | Design | Pending |
-| FSET-19 | P1: Shortcuts dialog (`?` off on phone) | Design | Pending |
-| FSET-20 | P1: Shortcuts dialog (no second dialog) | Design | Pending |
-| FSET-21 | P1: Shortcuts dialog (close and focus) | Design | Pending |
-| FSET-22 | P1: Shortcuts dialog (closes on resize) | Design | Pending |
-| FSET-23 | Edge: language change with the dialog open | Design | Pending |
-| FSET-24 | Edge: unknown stored values | Design | Pending |
-| FSET-25 | Edge: `?` with the card detail open | Design | Pending |
+| FSET-01 | P1: Language and theme (screen order) | Verify | ✅ Verified |
+| FSET-02 | P1: Language and theme (language options) | Verify | ✅ Verified |
+| FSET-03 | P1: Language and theme (language applies) | Verify | ✅ Verified |
+| FSET-04 | P1: Language and theme (language persists) | Verify | ✅ Verified |
+| FSET-05 | P1: Language and theme (theme options and subtitle) | Verify | ✅ Verified |
+| FSET-06 | P1: Language and theme (theme applies) | Verify | ✅ Verified |
+| FSET-07 | P1: Language and theme (theme persists) | Verify | ✅ Verified |
+| FSET-08 | P1: Language and theme (system theme) | Verify | ✅ Verified |
+| FSET-09 | P1: Language and theme (arrow keys) | Verify | ✅ Verified |
+| FSET-10 | P1: Language and theme (storage unavailable) | Verify | ✅ Verified |
+| FSET-11 | P1: Shortcuts panel (desktop rows) | Verify | ✅ Verified |
+| FSET-12 | P1: Shortcuts panel (hidden on phone) | Verify | ✅ Verified |
+| FSET-13 | P1: Shortcuts panel (language change) | Verify | ✅ Verified |
+| FSET-14 | P1: Shortcuts dialog (icon on desktop) | Verify | ✅ Verified |
+| FSET-15 | P1: Shortcuts dialog (no icon on phone) | Verify | ✅ Verified |
+| FSET-16 | P1: Shortcuts dialog (icon opens it) | Verify | ✅ Verified |
+| FSET-17 | P1: Shortcuts dialog (`?` opens it) | Verify | ✅ Verified |
+| FSET-18 | P1: Shortcuts dialog (`?` guards) | Verify | ✅ Verified |
+| FSET-19 | P1: Shortcuts dialog (`?` off on phone) | Verify | ✅ Verified |
+| FSET-20 | P1: Shortcuts dialog (no second dialog) | Verify | ✅ Verified |
+| FSET-21 | P1: Shortcuts dialog (close and focus) | Verify | ✅ Verified |
+| FSET-22 | P1: Shortcuts dialog (closes on resize) | Verify | ✅ Verified |
+| FSET-23 | Edge: language change with the dialog open | Verify | ✅ Verified |
+| FSET-24 | Edge: unknown stored values | Verify | ✅ Verified |
+| FSET-25 | Edge: `?` with the card detail open | Verify | ✅ Verified |
 
 **ID format:** `FSET-NN`. Numbering follows the order of the criteria above (story criteria first, then edge cases).
 
 **Status values:** Pending → In Design → In Tasks → Implementing → Verified
 
-**Coverage:** 25 total, 0 mapped to tasks, 25 unmapped ⚠️ (tasks come next)
+**Coverage:** 25 total, 25 ✅ Verified (`validation.md`: 25/25 have a `file:line` assertion, 8/9 mutants killed, 1 equivalent)
 
 ---
 
