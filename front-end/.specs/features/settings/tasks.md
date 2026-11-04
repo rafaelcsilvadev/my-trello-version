@@ -291,10 +291,10 @@ T7 → T8 → T9
 
 **Done when**:
 
-- [ ] e2e: pick **English** and **Dark**; headings are English and `html[data-theme=dark]`; after a reload both hold
-- [ ] e2e: press `?` on `/boards` and the dialog shows; Esc closes it
-- [ ] e2e: at 390 px width the keyboard icon and the shortcuts panel are absent
-- [ ] Full gate passes; test count only grows
+- [x] e2e: pick **English** and **Dark**; headings are English and `html[data-theme=dark]`; after a reload both hold
+- [x] e2e: press `?` on `/boards` and the dialog shows; Esc closes it
+- [x] e2e: at 390 px width the keyboard icon and the shortcuts panel are absent
+- [x] Full gate passes; test count only grows
 
 **Tests**: e2e
 **Gate**: full
