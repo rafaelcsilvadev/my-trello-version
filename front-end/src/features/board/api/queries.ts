@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { useApi } from '@/shared/api/api-context';
 import { type ApiError, call } from '@/shared/api/api-error';
+import type { ApiClient } from '@/shared/api/client';
 
 import type { Board, Card, Label, List } from '../model/types';
 import { boardViewKeys } from './keys';
@@ -61,6 +62,24 @@ export function useCards(
       ),
     enabled,
   });
+}
+
+// A list's own endpoint returns only its active cards. Shared by every reader of
+// `boardViewKeys.listCards`, so they all hit one cached response per list.
+export function listCardsQuery(
+  api: ApiClient,
+  boardId: string,
+  listId: string,
+) {
+  return {
+    queryKey: boardViewKeys.listCards(boardId, listId),
+    queryFn: (): Promise<Card[]> =>
+      call(
+        api.GET('/api/v1/lists/{listId}/cards', {
+          params: { path: { listId } },
+        }),
+      ),
+  };
 }
 
 export function useLabels(boardId: string) {
