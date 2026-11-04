@@ -84,6 +84,29 @@ describe('ProtectedLayout', () => {
     expect(breadcrumb.getByText('Product launch')).toBeTruthy();
   });
 
+  it('shows the labels crumb in the top bar on /b/{id}/labels', async () => {
+    const url = `${apiOrigin}/api/v1/boards/${boardId}`;
+    server.use(
+      http.get(url, () => HttpResponse.json(boardFixture())),
+      http.get(`${url}/cards`, () => HttpResponse.json([])),
+      http.get(`${url}/labels`, () => HttpResponse.json([])),
+    );
+    renderApp({ route: `/b/${boardId}/labels`, token: TOKEN });
+
+    const banner = within(await screen.findByRole('banner'));
+    const breadcrumb = within(
+      await banner.findByRole('navigation', { name: 'Breadcrumb' }),
+    );
+    expect(
+      breadcrumb
+        .getByRole('link', { name: 'Product launch' })
+        .getAttribute('href'),
+    ).toBe(`/b/${boardId}`);
+    expect(breadcrumb.getByText('Labels').getAttribute('aria-current')).toBe(
+      'page',
+    );
+  });
+
   it.each([
     ['/boards', 'My boards'],
     ['/settings', 'Settings'],

@@ -485,8 +485,8 @@ T14 → T15 → T16 → T17 → T18 → T19
 
 **Done when**:
 
-- [ ] Unit: on the board route the breadcrumb is unchanged ("Meus quadros › {board}", title current); on the labels route it is "Meus quadros › {board} › Etiquetas", the board crumb is a link to `/b/{boardId}` and only "Etiquetas" has `aria-current="page"`; hidden below `md` as before
-- [ ] Build gate passes; test count only grows
+- [x] Unit: on the board route the breadcrumb is unchanged ("Meus quadros › {board}", title current); on the labels route it is "Meus quadros › {board} › Etiquetas", the board crumb is a link to `/b/{boardId}` and only "Etiquetas" has `aria-current="page"`; hidden below `md` as before
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
