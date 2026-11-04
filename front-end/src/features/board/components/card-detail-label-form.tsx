@@ -1,19 +1,13 @@
 import { X } from 'lucide-react';
 import { useEffect, useRef } from 'react';
-import {
-  TextField as AriaTextField,
-  Input,
-  Radio,
-  RadioGroup,
-} from 'react-aria-components';
+import { TextField as AriaTextField, Input } from 'react-aria-components';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/shared/ui/button';
 import { inputClasses } from '@/shared/ui/text-field';
 
-import { LABEL_COLORS } from '../model/labels';
 import type { ItemFieldError, Label } from '../model/types';
-import { LABEL_CLASSES } from './label-chip';
+import { LabelColorPicker } from './label-color-picker';
 
 type CardDetailLabelFormProps = {
   name: string;
@@ -73,26 +67,11 @@ export function CardDetailLabelForm({
           {t(`board.fieldErrors.${error}`)}
         </p>
       )}
-      <RadioGroup
+      <LabelColorPicker
         value={color}
-        onChange={(value) => onColorChange(value as Label['color'])}
-        orientation="horizontal"
-        aria-label={t('board.cardDetail.labelPopover.color')}
-        className="flex flex-wrap gap-1.5"
-      >
-        {LABEL_COLORS.map((value) => (
-          <Radio
-            key={value}
-            value={value}
-            aria-label={t(`board.labelColors.${value}`)}
-            className="cursor-pointer rounded-xs p-0.5 outline-none data-focus-visible:shadow-focus data-selected:ring-2 data-selected:ring-brand"
-          >
-            <span
-              className={`block size-5 rounded-xs ${LABEL_CLASSES[value].dot}`}
-            />
-          </Radio>
-        ))}
-      </RadioGroup>
+        onChange={onColorChange}
+        ariaLabel={t('board.cardDetail.labelPopover.color')}
+      />
       <div className="flex items-center gap-2">
         <Button size="sm" isDisabled={isCreating} onPress={onSubmit}>
           {t('board.cardDetail.labelPopover.submit')}
