@@ -247,11 +247,11 @@ T14 → T15 → T16 → T17 → T18 → T19
 
 **Done when**:
 
-- [ ] Unit: `openEdit` fills the label's name and color; renaming to the label's own name in another case is valid; renaming to another label's name (any case) sets `labelNameTaken` and sends nothing
-- [ ] An unchanged name and color closes the form with no request and no toast; a changed one closes the form at once, shows "Etiqueta salva" and sends `PATCH` with only the changed fields
-- [ ] Network/`5xx` reverts the row and shows the retry toast, whose action repeats the same `PATCH`; `409` label-name-taken reverts the row and reopens the form with the text and `labelNameTaken`; `409` board-archived and `404` follow the spec toasts and refetch what FLP-31/FLP-32 name
-- [ ] A row with a change in flight is `isPending`; other rows are not
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `openEdit` fills the label's name and color; renaming to the label's own name in another case is valid; renaming to another label's name (any case) sets `labelNameTaken` and sends nothing
+- [x] An unchanged name and color closes the form with no request and no toast; a changed one closes the form at once, shows "Etiqueta salva" and sends `PATCH` with only the changed fields
+- [x] Network/`5xx` reverts the row and shows the retry toast, whose action repeats the same `PATCH`; `409` label-name-taken reverts the row and reopens the form with the text and `labelNameTaken`; `409` board-archived and `404` follow the spec toasts and refetch what FLP-31/FLP-32 name
+- [x] A row with a change in flight is `isPending`; other rows are not
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
