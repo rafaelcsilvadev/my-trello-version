@@ -140,10 +140,10 @@ T14 → T15 → T16 → T17 → T18 → T19
 
 **Done when**:
 
-- [ ] Unit (MSW): the request carries only the given fields; the label query shows the new name and color before the response; board label order is kept
-- [ ] On a failed request only this label's changed fields revert, and a field changed by another pending update stays; on success the board view refetches once when no other change is pending
-- [ ] The label shows in `usePendingItemIds` while the request is in flight (FLP-22)
-- [ ] Build gate passes; test count only grows
+- [x] Unit (MSW): the request carries only the given fields; the label query shows the new name and color before the response; board label order is kept
+- [x] On a failed request only this label's changed fields revert, and a field changed by another pending update stays; on success the board view refetches once when no other change is pending
+- [x] The label shows in `usePendingItemIds` while the request is in flight (FLP-22)
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
