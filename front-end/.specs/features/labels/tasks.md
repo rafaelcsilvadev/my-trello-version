@@ -113,10 +113,10 @@ T14 → T15 → T16 → T17 → T18 → T19
 
 **Done when**:
 
-- [ ] Unit (MSW): a label on one active card, one archived card and one active card of an archived column counts `3`; a card in no source is not counted; no archived column sends no per-column request
-- [ ] `counts` is `undefined` and `isLoading` is true until every source answered; one failing source sets `isError` and keeps `counts` `undefined`; `refetch` refetches only the failed sources
-- [ ] The per-column response is read from `boardViewKeys.listCards`, so it is shared with `useArchivedListCounts` (one request for both)
-- [ ] Build gate passes; test count only grows
+- [x] Unit (MSW): a label on one active card, one archived card and one active card of an archived column counts `3`; a card in no source is not counted; no archived column sends no per-column request
+- [x] `counts` is `undefined` and `isLoading` is true until every source answered; one failing source sets `isError` and keeps `counts` `undefined`; `refetch` refetches only the failed sources
+- [x] The per-column response is read from `boardViewKeys.listCards`, so it is shared with `useArchivedListCounts` (one request for both)
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
