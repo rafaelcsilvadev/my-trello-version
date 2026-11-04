@@ -21,6 +21,7 @@ export function ShortcutsDialog({ isOpen, onClose }: ShortcutsDialogProps) {
         if (!open) onClose();
       }}
       title={t('settings.shortcuts.title')}
+      size="narrow"
       footer={
         <Button variant="secondary" onPress={onClose}>
           {t('settings.shortcuts.close')}

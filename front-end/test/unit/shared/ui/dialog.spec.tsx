@@ -42,6 +42,27 @@ describe('Dialog', () => {
     expect(document.querySelector('[aria-modal="true"]')).toBeNull();
   });
 
+  it('is 480 px wide by default and 420 px wide when narrow', () => {
+    const { rerender } = render(
+      <Dialog isOpen onOpenChange={() => {}} title="Criar quadro">
+        Corpo
+      </Dialog>,
+    );
+    const modal = () =>
+      screen.getByRole('dialog', { name: 'Criar quadro' }).parentElement;
+
+    expect(modal()?.className).toContain('w-120');
+
+    rerender(
+      <Dialog isOpen onOpenChange={() => {}} title="Criar quadro" size="narrow">
+        Corpo
+      </Dialog>,
+    );
+
+    expect(modal()?.className).toContain('w-105');
+    expect(modal()?.className).not.toContain('w-120');
+  });
+
   it('keeps single-key shortcuts quiet while open and live after it closes', () => {
     const onKey = vi.fn<() => void>();
     const { rerender } = render(

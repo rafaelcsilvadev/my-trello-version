@@ -163,6 +163,40 @@ describe('ShortcutsButton in the top bar', () => {
     await waitFor(() => expect(document.activeElement).toBe(link));
   });
 
+  it('opens no second dialog on ? while the shortcuts dialog is open (FSET-20)', async () => {
+    await renderBoards();
+    fireEvent.click(topBarButton());
+    const dialog = await screen.findByRole('dialog', {
+      name: 'Atalhos de teclado',
+    });
+
+    fireEvent.keyDown(dialog, { key: '?' });
+
+    expect(screen.getAllByRole('dialog')).toHaveLength(1);
+  });
+
+  it('ignores ? typed in a text field of the app (FSET-18)', async () => {
+    await renderBoards();
+    const field = document.createElement('input');
+    document.body.append(field);
+    field.focus();
+
+    fireEvent.keyDown(field, { key: '?' });
+
+    expect(screen.queryByRole('dialog')).toBeNull();
+    field.remove();
+  });
+
+  it('closes the rendered dialog when the viewport turns phone (FSET-22)', async () => {
+    const { viewport } = await renderBoards();
+    fireEvent.click(topBarButton());
+    await screen.findByRole('dialog', { name: 'Atalhos de teclado' });
+
+    act(() => viewport.setDesktop(false));
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  });
+
   it('shows the new language when it changes with the dialog open (FSET-23)', async () => {
     const { services } = await renderBoards();
     fireEvent.click(topBarButton());

@@ -75,10 +75,9 @@ describe('useShortcutsDialog', () => {
     expect(result.current.isOpen).toBe(false);
   });
 
-  it('keeps one open state on a second ? and closes with close (FSET-20)', () => {
+  it('closes with close', () => {
     const { result } = setup();
 
-    pressHelp();
     pressHelp();
     expect(result.current.isOpen).toBe(true);
 
