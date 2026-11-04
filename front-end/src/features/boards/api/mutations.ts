@@ -19,10 +19,11 @@ type BoardListsPatch = {
   active?: (list: BoardList) => BoardList;
   archived?: (list: BoardList) => BoardList;
 };
-type BoardListsSnapshot = {
-  active: BoardList | undefined;
-  archived: BoardList | undefined;
-};
+// Where the changed board sat in a list before the patch: itself plus the ids that
+// followed it (absent: not in that list). Ids, not an index, because overlapping
+// changes shift positions.
+type BoardPlace = { board: Board; followedBy: string[] };
+type BoardPlaces = { active?: BoardPlace; archived?: BoardPlace };
 
 export function useCreateBoard() {
   const api = useApi();
@@ -115,24 +116,57 @@ function without(board: Board) {
   return (list: BoardList) => list.filter((item) => item.id !== board.id);
 }
 
+function placeOf(list: BoardList | undefined, board: Board) {
+  const index = list ? list.findIndex((item) => item.id === board.id) : -1;
+  return list && index >= 0
+    ? {
+        board: list[index],
+        followedBy: list.slice(index + 1).map((item) => item.id),
+      }
+    : undefined;
+}
+
+// Undoes one board only: restores its previous version in place, or re-inserts it
+// before the first board that followed it and is still listed. Other boards keep
+// whatever overlapping changes did to them.
+function putBack({ board, followedBy }: BoardPlace) {
+  return (list: BoardList) => {
+    if (list.some((item) => item.id === board.id)) {
+      return list.map((item) => (item.id === board.id ? board : item));
+    }
+    const next = list.findIndex((item) => followedBy.includes(item.id));
+    return list.toSpliced(next === -1 ? list.length : next, 0, board);
+  };
+}
+
 // TanStack Query optimistic recipe (FE-AD-009): patch the cached lists now,
-// put the snapshot back on failure, refetch once no other change is in flight.
-function useOptimisticBoardChange<TVariables>(
+// put back only the failed board on failure, refetch once no other change is in flight.
+function useOptimisticBoardChange<TVariables extends BoardVariables>(
   mutationFn: (variables: TVariables) => Promise<unknown>,
   patch: (variables: TVariables) => BoardListsPatch,
 ) {
   const queryClient = useQueryClient();
 
-  return useMutation<unknown, ApiError, TVariables, BoardListsSnapshot>({
+  return useMutation<unknown, ApiError, TVariables, BoardPlaces>({
     mutationKey: BOARD_CHANGE_KEY,
     mutationFn,
     onMutate: async (variables) => {
       await queryClient.cancelQueries({ queryKey: boardKeys.all });
-      const snapshot: BoardListsSnapshot = {
-        active: queryClient.getQueryData(boardKeys.list(false)),
-        archived: queryClient.getQueryData(boardKeys.list(true)),
-      };
       const { active, archived } = patch(variables);
+      const places: BoardPlaces = {
+        active: active
+          ? placeOf(
+              queryClient.getQueryData(boardKeys.list(false)),
+              variables.board,
+            )
+          : undefined,
+        archived: archived
+          ? placeOf(
+              queryClient.getQueryData(boardKeys.list(true)),
+              variables.board,
+            )
+          : undefined,
+      };
       if (active) {
         queryClient.setQueryData<BoardList>(
           boardKeys.list(false),
@@ -145,12 +179,21 @@ function useOptimisticBoardChange<TVariables>(
           (list) => list && archived(list),
         );
       }
-      return snapshot;
+      return places;
     },
-    onError: (_error, _variables, snapshot) => {
-      if (!snapshot) return;
-      queryClient.setQueryData(boardKeys.list(false), snapshot.active);
-      queryClient.setQueryData(boardKeys.list(true), snapshot.archived);
+    onError: (_error, _variables, places) => {
+      if (places?.active) {
+        queryClient.setQueryData<BoardList>(
+          boardKeys.list(false),
+          (list) => list && putBack(places.active!)(list),
+        );
+      }
+      if (places?.archived) {
+        queryClient.setQueryData<BoardList>(
+          boardKeys.list(true),
+          (list) => list && putBack(places.archived!)(list),
+        );
+      }
     },
     // This mutation still counts as pending here, so 1 means it is the last one.
     onSettled: () =>
