@@ -562,8 +562,8 @@ T14 → T15 → T16 → T17 → T18 → T19
 
 **Done when**:
 
-- [ ] ROADMAP shows 5 Done, `FE-AD-013` lists `labels`, and the Handoff points to `settings` (6)
-- [ ] Build gate passes; test count unchanged
+- [x] ROADMAP shows 5 Done, `FE-AD-013` lists `labels`, and the Handoff points to `settings` (6)
+- [x] Build gate passes; test count unchanged
 
 **Tests**: none
 **Gate**: build
