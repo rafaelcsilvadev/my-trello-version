@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
 import { SessionSection } from '@/features/auth';
-import { LanguagePanel, ThemePanel } from '@/features/settings';
+import { LanguagePanel, ShortcutsPanel, ThemePanel } from '@/features/settings';
 
 // Port of the prototype settings screen (design/Task List.dc.html:563-584).
 export function SettingsPage() {
@@ -14,6 +14,7 @@ export function SettingsPage() {
       </h1>
       <LanguagePanel />
       <ThemePanel />
+      <ShortcutsPanel />
       <SessionSection />
     </main>
   );

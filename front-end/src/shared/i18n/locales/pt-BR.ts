@@ -66,6 +66,17 @@ export const ptBR = {
       subtitle: 'Sistema segue o aparelho.',
       options: { light: 'Claro', dark: 'Escuro', system: 'Sistema' },
     },
+    shortcuts: {
+      title: 'Atalhos de teclado',
+      keys: { space: 'Espaço' },
+      rows: {
+        new: 'Nova tarefa na primeira coluna',
+        search: 'Buscar no quadro',
+        escape: 'Fecha a camada mais interna',
+        move: 'Pegar e soltar o card, a coluna ou o item em foco',
+        help: 'Mostrar atalhos',
+      },
+    },
     session: {
       title: 'Sessão',
       connectedAs: 'Conectado como {{name}} · {{email}}',
