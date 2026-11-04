@@ -259,15 +259,15 @@ T7 → T8 → T9
 
 **Done when**:
 
-- [ ] Unit (desktop, `renderApp` on `/boards`, `/settings` and a board): a button named "Atalhos de teclado" with the `Keyboard` icon (identity asserted, L-011) sits before the Settings link on every protected screen (FSET-14)
-- [ ] Unit (phone): no such button (FSET-15)
-- [ ] Unit: clicking the button opens a dialog titled **Atalhos de teclado** with the five rows and the hint "Teclado: Espaço pega o card, a coluna ou o item em foco · setas movem · Espaço solta · Esc cancela" (FSET-16)
-- [ ] Unit: Esc closes it and focus is back on the button; **Fechar** does the same; after opening with `?` from a focused element, closing returns focus to that element (FSET-21)
-- [ ] Unit: switching the language with the dialog open shows the new language in it (FSET-23)
-- [ ] Unit: with the card detail open, `?` opens nothing (FSET-25)
-- [ ] The layout test asserts the button position and that `ProtectedLayout` passes no extra props (L-001)
-- [ ] Locale parity test passes with `nav.shortcuts`, `settings.shortcuts.hint` and `settings.shortcuts.close`
-- [ ] Build gate passes; test count only grows
+- [x] Unit (desktop, `renderApp` on `/boards`, `/settings` and a board): a button named "Atalhos de teclado" with the `Keyboard` icon (identity asserted, L-011) sits before the Settings link on every protected screen (FSET-14)
+- [x] Unit (phone): no such button (FSET-15)
+- [x] Unit: clicking the button opens a dialog titled **Atalhos de teclado** with the five rows and the hint "Teclado: Espaço pega o card, a coluna ou o item em foco · setas movem · Espaço solta · Esc cancela" (FSET-16)
+- [x] Unit: Esc closes it and focus is back on the button; **Fechar** does the same; after opening with `?` from a focused element, closing returns focus to that element (FSET-21)
+- [x] Unit: switching the language with the dialog open shows the new language in it (FSET-23)
+- [x] Unit: with the card detail open, `?` opens nothing (FSET-25)
+- [x] The layout test asserts the button position and that `ProtectedLayout` passes no extra props (L-001)
+- [x] Locale parity test passes with `nav.shortcuts`, `settings.shortcuts.hint` and `settings.shortcuts.close`
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build

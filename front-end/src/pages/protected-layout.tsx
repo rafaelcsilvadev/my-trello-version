@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, Outlet, useMatch } from 'react-router';
 
 import { BoardBreadcrumb } from '@/features/board';
+import { ShortcutsButton } from '@/features/settings';
 import { Logo } from '@/shared/ui/logo';
 
 // Port of the prototype top bar (design/Task List.dc.html:160-193).
@@ -28,6 +29,7 @@ export function ProtectedLayout() {
           />
         )}
         <div className="flex-1" />
+        <ShortcutsButton />
         {!onSettings && (
           <Link
             to="/settings"

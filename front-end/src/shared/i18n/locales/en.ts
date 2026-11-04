@@ -10,6 +10,7 @@ export const en = {
   },
   nav: {
     settings: 'Settings',
+    shortcuts: 'Keyboard shortcuts',
   },
   notFound: {
     title: 'Page not found',
@@ -66,6 +67,8 @@ export const en = {
     },
     shortcuts: {
       title: 'Keyboard shortcuts',
+      hint: 'Keyboard: Space picks up the focused card, column or item · arrows move · Space drops · Esc cancels',
+      close: 'Close',
       keys: { space: 'Space' },
       rows: {
         new: 'New task in the first column',

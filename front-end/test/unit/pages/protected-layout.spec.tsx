@@ -1,10 +1,11 @@
 import { cleanup, screen, within } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { apiOrigin } from '@/shared/config';
 
 import { boardFixture, boardId } from '../../support/fixtures/board';
+import { mockViewport } from '../../support/match-media';
 import { server } from '../../support/msw/server';
 import { renderApp } from '../../support/render-app';
 
@@ -19,6 +20,18 @@ describe('ProtectedLayout', () => {
     cleanup();
     localStorage.clear();
     document.documentElement.removeAttribute('lang');
+    vi.unstubAllGlobals();
+  });
+
+  it('puts the shortcuts button right before the Settings link on desktop', async () => {
+    mockViewport(true);
+    renderApp({ route: '/boards', token: TOKEN, prefs: { language: 'pt-BR' } });
+
+    await heading('Meus quadros');
+    const banner = within(screen.getByRole('banner'));
+    const button = banner.getByRole('button', { name: 'Atalhos de teclado' });
+    const settings = banner.getByRole('link', { name: 'Configurações' });
+    expect(button.nextElementSibling).toBe(settings);
   });
 
   it('links the logo to /boards and the Settings icon to /settings', async () => {
