@@ -301,9 +301,9 @@ T14 → T15 → T16 → T17 → T18 → T19
 
 **Done when**:
 
-- [ ] Unit: the picker renders 10 radios named by color in doc §8 order inside a radiogroup with the given name; the selected one is checked; arrow keys and click call `onChange` with the color; each swatch uses its color class (L-018)
-- [ ] `card-detail-label-form` renders the picker and its existing specs pass unchanged
-- [ ] Build gate passes; test count only grows
+- [x] Unit: the picker renders 10 radios named by color in doc §8 order inside a radiogroup with the given name; the selected one is checked; arrow keys and click call `onChange` with the color; each swatch uses its color class (L-018)
+- [x] `card-detail-label-form` renders the picker and its existing specs pass unchanged
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
