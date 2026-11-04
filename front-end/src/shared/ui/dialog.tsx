@@ -36,7 +36,14 @@ export function Dialog({
       className="fixed inset-0 z-100 flex items-center justify-center bg-surface-overlay p-6"
     >
       <Modal className="w-120 max-w-full overflow-hidden rounded-xl border border-border-subtle bg-surface-card shadow-lg">
+        {/* React Aria drops aria-modal from the props, so the element is
+            rendered here; useShortcut reads it to stay quiet (FE-AD-014). */}
         <AriaDialog
+          render={(props) => (
+            // `props` carries the dialog role, which the linter cannot see.
+            // oxlint-disable-next-line jsx-a11y/role-supports-aria-props
+            <section {...props} aria-modal="true" />
+          )}
           role={role}
           aria-describedby={description ? descriptionId : undefined}
           className="outline-none"

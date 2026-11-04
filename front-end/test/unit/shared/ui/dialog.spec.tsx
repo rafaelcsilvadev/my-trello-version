@@ -7,11 +7,66 @@ import {
 } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import { useShortcut } from '@/shared/keyboard/use-shortcut';
 import { Dialog } from '@/shared/ui/dialog';
+
+function ShortcutProbe({ onKey }: { onKey: () => void }) {
+  useShortcut('x', onKey, { enabled: true });
+  return null;
+}
 
 describe('Dialog', () => {
   afterEach(() => {
     cleanup();
+  });
+
+  it('marks the open dialog as aria-modal and nothing when closed', () => {
+    const { rerender } = render(
+      <Dialog isOpen onOpenChange={() => {}} title="Criar quadro">
+        Corpo
+      </Dialog>,
+    );
+
+    expect(
+      screen
+        .getByRole('dialog', { name: 'Criar quadro' })
+        .getAttribute('aria-modal'),
+    ).toBe('true');
+
+    rerender(
+      <Dialog isOpen={false} onOpenChange={() => {}} title="Criar quadro">
+        Corpo
+      </Dialog>,
+    );
+
+    expect(document.querySelector('[aria-modal="true"]')).toBeNull();
+  });
+
+  it('keeps single-key shortcuts quiet while open and live after it closes', () => {
+    const onKey = vi.fn<() => void>();
+    const { rerender } = render(
+      <>
+        <ShortcutProbe onKey={onKey} />
+        <Dialog isOpen onOpenChange={() => {}} title="Criar quadro">
+          Corpo
+        </Dialog>
+      </>,
+    );
+
+    fireEvent.keyDown(document, { key: 'x' });
+    expect(onKey).not.toHaveBeenCalled();
+
+    rerender(
+      <>
+        <ShortcutProbe onKey={onKey} />
+        <Dialog isOpen={false} onOpenChange={() => {}} title="Criar quadro">
+          Corpo
+        </Dialog>
+      </>,
+    );
+
+    fireEvent.keyDown(document, { key: 'x' });
+    expect(onKey).toHaveBeenCalledTimes(1);
   });
 
   it('renders nothing when closed', () => {
