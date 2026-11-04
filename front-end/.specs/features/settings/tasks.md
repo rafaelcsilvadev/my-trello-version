@@ -230,12 +230,12 @@ T7 → T8 → T9
 
 **Done when**:
 
-- [ ] Unit (`renderHook`, desktop): pressing `?` on `document` sets `isOpen` true (FSET-17)
-- [ ] Unit: `?` does nothing while the target is an `input`, with Ctrl, Meta or Alt held, and while an element with `aria-modal="true"` exists (FSET-18)
-- [ ] Unit (phone): `?` does nothing and `isDesktop` is false (FSET-19)
-- [ ] Unit: pressing `?` again while `isOpen` is true leaves one open state, and `close` sets it false (FSET-20)
-- [ ] Unit: flipping the viewport to phone while open sets `isOpen` false; flipping back to desktop does not reopen it (FSET-22)
-- [ ] Build gate passes; test count only grows
+- [x] Unit (`renderHook`, desktop): pressing `?` on `document` sets `isOpen` true (FSET-17)
+- [x] Unit: `?` does nothing while the target is an `input`, with Ctrl, Meta or Alt held, and while an element with `aria-modal="true"` exists (FSET-18)
+- [x] Unit (phone): `?` does nothing and `isDesktop` is false (FSET-19)
+- [x] Unit: pressing `?` again while `isOpen` is true leaves one open state, and `close` sets it false (FSET-20)
+- [x] Unit: flipping the viewport to phone while open sets `isOpen` false; flipping back to desktop does not reopen it (FSET-22)
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
