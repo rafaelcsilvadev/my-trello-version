@@ -293,6 +293,7 @@ export const en = {
       cardDeleted: 'Task permanently deleted',
       labelCreated: 'Label created',
       labelSaved: 'Label saved',
+      labelDeleted: 'Label deleted',
     },
     errors: {
       columnArchived:

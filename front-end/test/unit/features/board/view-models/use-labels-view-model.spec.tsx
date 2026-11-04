@@ -810,3 +810,181 @@ describe('useLabelsViewModel edit flow', () => {
     });
   });
 });
+
+describe('useLabelsViewModel delete flow', () => {
+  function problemOfType(status: number, type: string) {
+    return HttpResponse.json(
+      { type, title: 'Error', status, detail: '' },
+      { status, headers: { 'Content-Type': 'application/problem+json' } },
+    );
+  }
+
+  // Records each deleted id; answers with the next queued reply, or 204.
+  function deleteServer(...replies: (() => Response | Promise<Response>)[]) {
+    const ids: unknown[] = [];
+    server.use(
+      http.delete(`${baseUrl}/api/v1/labels/:id`, ({ params }) => {
+        ids.push(params.id);
+        const reply = replies.shift();
+        return reply ? reply() : new HttpResponse(null, { status: 204 });
+      }),
+    );
+    return ids;
+  }
+
+  async function open(id = 'lb1', cards: JsonBodyType = []) {
+    givenBoard({ labels: [bug, urgent, docs], active: cards });
+    const hook = setup();
+    await ready(hook.result);
+    act(() => hook.result.current.vm.actions.openDelete(id));
+    return hook;
+  }
+
+  type Hook = Awaited<ReturnType<typeof open>>['result'];
+
+  const ids = (result: Hook) =>
+    result.current.vm.state.rows.map((r) => r.label.id);
+
+  it.each([
+    ['no card', [], 0],
+    ['one card', [cardFixture('c1', 'l1', { labelIds: ['lb1'] })], 1],
+    [
+      'several cards',
+      [
+        cardFixture('c1', 'l1', { labelIds: ['lb1'] }),
+        cardFixture('c2', 'l1', { labelIds: ['lb1', 'lb2'] }),
+        cardFixture('c3', 'l1', { labelIds: ['lb1'] }),
+      ],
+      3,
+    ],
+  ])(
+    'openDelete sets confirmDelete with the label and its count for %s',
+    async (_case, cards, count) => {
+      const { result } = await open('lb1', cards);
+
+      expect(result.current.vm.state.confirmDelete).toEqual({
+        label: bug,
+        count,
+      });
+    },
+  );
+
+  it('openDelete ignores an unknown id', async () => {
+    const { result } = await open('nope');
+
+    expect(result.current.vm.state.confirmDelete).toBeNull();
+  });
+
+  it('keeps the count captured when the dialog opened', async () => {
+    const { result, queryClient } = await open('lb1', [
+      cardFixture('c1', 'l1', { labelIds: ['lb1'] }),
+    ]);
+
+    act(() => {
+      queryClient.setQueryData(boardViewKeys.cards(boardId, false), []);
+    });
+
+    await waitFor(() =>
+      expect(result.current.vm.state.rows[0]?.usage.count).toBe(0),
+    );
+    expect(result.current.vm.state.confirmDelete?.count).toBe(1);
+  });
+
+  it('closeDelete closes the dialog and sends nothing', async () => {
+    const { result } = await open();
+    const deleted = deleteServer();
+
+    act(() => result.current.vm.actions.closeDelete());
+
+    expect(result.current.vm.state.confirmDelete).toBeNull();
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(deleted).toEqual([]);
+    expect(ids(result)).toEqual(['lb1', 'lb2', 'lb3']);
+  });
+
+  it('confirmDelete closes the dialog, removes the row at once, toasts and sends DELETE', async () => {
+    const { result } = await open();
+    const deleted = deleteServer(async () => {
+      await delay(80);
+      return new HttpResponse(null, { status: 204 });
+    });
+
+    act(() => result.current.vm.actions.confirmDelete());
+
+    expect(result.current.vm.state.confirmDelete).toBeNull();
+    await waitFor(() => expect(ids(result)).toEqual(['lb2', 'lb3']));
+    await screen.findByText('Etiqueta excluída');
+    expect(deleted).toEqual(['lb1']);
+  });
+
+  it('confirmDelete does nothing without an open dialog', async () => {
+    givenBoard();
+    const { result } = setup();
+    await ready(result);
+    const deleted = deleteServer();
+
+    act(() => result.current.vm.actions.confirmDelete());
+
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(deleted).toEqual([]);
+  });
+
+  it('deleting the last label leaves zero rows', async () => {
+    givenBoard({ labels: [bug] });
+    const { result } = setup();
+    await ready(result);
+    deleteServer();
+    act(() => result.current.vm.actions.openDelete('lb1'));
+
+    act(() => result.current.vm.actions.confirmDelete());
+
+    await waitFor(() => expect(result.current.vm.state.rows).toEqual([]));
+    expect(result.current.vm.state.status).toBe('ready');
+  });
+
+  it('a 5xx puts the row back at its index and Tentar novamente repeats the DELETE', async () => {
+    const { result } = await open('lb2');
+    const deleted = deleteServer(() => problem(500));
+
+    act(() => result.current.vm.actions.confirmDelete());
+
+    await screen.findByText('Não foi possível salvar. Tente novamente.');
+    expect(ids(result)).toEqual(['lb1', 'lb2', 'lb3']);
+    act(() => screen.getByRole('button', { name: 'Tentar novamente' }).click());
+
+    await waitFor(() => expect(deleted).toEqual(['lb2', 'lb2']));
+    await screen.findByText('Etiqueta excluída');
+  });
+
+  it('a 409 board-archived puts the row back, shows the conflict toast and Recarregar refetches the board view', async () => {
+    const { result, queryClient } = await open();
+    deleteServer(() => problemOfType(409, '/problems/board-archived'));
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
+
+    act(() => result.current.vm.actions.confirmDelete());
+
+    await screen.findByText(
+      'Este item foi arquivado. Recarregue para ver o estado atual.',
+    );
+    expect(ids(result)).toEqual(['lb1', 'lb2', 'lb3']);
+    invalidate.mockClear();
+    act(() => screen.getByRole('button', { name: 'Recarregar' }).click());
+    expect(invalidate).toHaveBeenCalledWith({
+      queryKey: boardViewKeys.all(boardId),
+    });
+  });
+
+  it('a 404 puts the row back, toasts the save failure and refetches the labels and the cards', async () => {
+    const { result, queryClient } = await open();
+    deleteServer(() => problem(404));
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
+
+    act(() => result.current.vm.actions.confirmDelete());
+
+    await screen.findByText('Não foi possível salvar. Tente novamente.');
+    expect(invalidate).toHaveBeenCalledWith({
+      queryKey: boardViewKeys.all(boardId),
+    });
+    await waitFor(() => expect(ids(result)).toEqual(['lb1', 'lb2', 'lb3']));
+  });
+});
