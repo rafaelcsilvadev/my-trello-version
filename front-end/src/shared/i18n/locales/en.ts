@@ -330,6 +330,8 @@ export const en = {
     },
     labelsPage: {
       newLabel: 'New label',
+      emptyTitle: 'No labels yet',
+      emptyDetail: 'Create labels to highlight tasks, like Bug or Urgent.',
       editLabel: 'Edit label',
       editLabelNamed: 'Edit label {{name}}',
       deleteLabelNamed: 'Delete label {{name}}',

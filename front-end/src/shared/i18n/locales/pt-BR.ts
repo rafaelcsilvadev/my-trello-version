@@ -331,6 +331,8 @@ export const ptBR = {
     },
     labelsPage: {
       newLabel: 'Nova etiqueta',
+      emptyTitle: 'Nenhuma etiqueta ainda',
+      emptyDetail: 'Crie etiquetas para destacar tarefas, como Bug ou Urgent.',
       editLabel: 'Editar etiqueta',
       editLabelNamed: 'Editar etiqueta {{name}}',
       deleteLabelNamed: 'Excluir etiqueta {{name}}',
