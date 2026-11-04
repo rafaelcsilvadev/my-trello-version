@@ -406,9 +406,9 @@ T14 → T15 → T16 → T17 → T18 → T19
 
 **Done when**:
 
-- [ ] Unit: the empty state shows the title, "Crie etiquetas para destacar tarefas, como Bug ou Urgent." and a **Nova etiqueta** button calling `onCreate`; with `readOnly` the button is absent
-- [ ] The skeleton renders placeholder rows with no text and `aria-busy` on its container
-- [ ] Build gate passes; test count only grows
+- [x] Unit: the empty state shows the title, "Crie etiquetas para destacar tarefas, como Bug ou Urgent." and a **Nova etiqueta** button calling `onCreate`; with `readOnly` the button is absent
+- [x] The skeleton renders placeholder rows with no text and `aria-busy` on its container
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
