@@ -55,6 +55,15 @@ export const en = {
     accountCreated: 'Account created',
   },
   settings: {
+    language: {
+      title: 'Language',
+      options: { ptBR: 'Português (Brasil)', en: 'English' },
+    },
+    theme: {
+      title: 'Theme',
+      subtitle: 'System follows your device.',
+      options: { light: 'Light', dark: 'Dark', system: 'System' },
+    },
     session: {
       title: 'Session',
       connectedAs: 'Signed in as {{name}} · {{email}}',

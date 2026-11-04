@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
 import { SessionSection } from '@/features/auth';
+import { LanguagePanel, ThemePanel } from '@/features/settings';
 
 // Port of the prototype settings screen (design/Task List.dc.html:563-584).
 export function SettingsPage() {
@@ -11,6 +12,8 @@ export function SettingsPage() {
       <h1 className="mb-1 font-display text-3xl leading-tight font-semibold tracking-tight text-text-primary">
         {t('routes.settings')}
       </h1>
+      <LanguagePanel />
+      <ThemePanel />
       <SessionSection />
     </main>
   );
