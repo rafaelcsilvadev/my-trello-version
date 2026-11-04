@@ -57,6 +57,15 @@ export const ptBR = {
     accountCreated: 'Conta criada',
   },
   settings: {
+    language: {
+      title: 'Idioma',
+      options: { ptBR: 'Português (Brasil)', en: 'English' },
+    },
+    theme: {
+      title: 'Tema',
+      subtitle: 'Sistema segue o aparelho.',
+      options: { light: 'Claro', dark: 'Escuro', system: 'Sistema' },
+    },
     session: {
       title: 'Sessão',
       connectedAs: 'Conectado como {{name}} · {{email}}',
