@@ -566,3 +566,247 @@ describe('useLabelsViewModel create flow', () => {
     });
   });
 });
+
+describe('useLabelsViewModel edit flow', () => {
+  function problemOfType(status: number, type: string) {
+    return HttpResponse.json(
+      { type, title: 'Error', status, detail: '' },
+      { status, headers: { 'Content-Type': 'application/problem+json' } },
+    );
+  }
+
+  // Records each PATCH body; answers with the next queued reply, or the patched label.
+  function patchServer(...replies: (() => Response | Promise<Response>)[]) {
+    const bodies: unknown[] = [];
+    server.use(
+      http.patch(
+        `${baseUrl}/api/v1/labels/:id`,
+        async ({ request, params }) => {
+          const body = (await request.json()) as Partial<typeof bug>;
+          bodies.push(body);
+          const reply = replies.shift();
+          if (reply) return reply();
+          return HttpResponse.json({ ...bug, id: params.id, ...body });
+        },
+      ),
+    );
+    return bodies;
+  }
+
+  async function open(id = 'lb1') {
+    givenBoard();
+    const hook = setup();
+    await ready(hook.result);
+    act(() => hook.result.current.vm.actions.openEdit(id));
+    return hook;
+  }
+
+  type Hook = Awaited<ReturnType<typeof open>>['result'];
+
+  function type(result: Hook, name: string) {
+    act(() => result.current.vm.actions.setName(name));
+  }
+
+  function row(result: Hook, id: string) {
+    return result.current.vm.state.rows.find((r) => r.label.id === id);
+  }
+
+  it('openEdit fills the name and color of the label', async () => {
+    const { result } = await open('lb2');
+
+    expect(result.current.vm.state.form).toEqual({
+      mode: 'edit',
+      id: 'lb2',
+      name: 'Urgent',
+      color: 'green',
+      error: null,
+      isSubmitting: false,
+    });
+  });
+
+  it('renaming to the own name in another case is valid and sent', async () => {
+    const { result } = await open();
+    const bodies = patchServer();
+    type(result, 'bUg');
+
+    act(() => result.current.vm.actions.submit());
+
+    await waitFor(() => expect(bodies).toEqual([{ name: 'bUg' }]));
+    expect(result.current.vm.state.form).toBeNull();
+  });
+
+  it('renaming to another label name in any case sets labelNameTaken and sends nothing', async () => {
+    const { result } = await open();
+    const bodies = patchServer();
+    type(result, 'uRgEnT');
+
+    act(() => result.current.vm.actions.submit());
+
+    expect(result.current.vm.state.form?.error).toBe('labelNameTaken');
+    expect(result.current.vm.state.form?.name).toBe('uRgEnT');
+    expect(bodies).toEqual([]);
+  });
+
+  it.each([
+    ['empty', '   ', 'labelNameRequired'],
+    ['51 chars', 'a'.repeat(51), 'labelNameTooLong'],
+  ])('%s name sets the error and sends nothing', async (_case, name, error) => {
+    const { result } = await open();
+    const bodies = patchServer();
+    type(result, name);
+
+    act(() => result.current.vm.actions.submit());
+
+    expect(result.current.vm.state.form?.error).toBe(error);
+    expect(bodies).toEqual([]);
+  });
+
+  it('unchanged name and color closes the form with no request and no toast', async () => {
+    const { result } = await open();
+    const bodies = patchServer();
+    type(result, '  Bug  ');
+
+    act(() => result.current.vm.actions.submit());
+
+    expect(result.current.vm.state.form).toBeNull();
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(bodies).toEqual([]);
+    expect(screen.queryByText('Etiqueta salva')).toBeNull();
+  });
+
+  it.each([
+    ['name', 'Defect', undefined, { name: 'Defect' }],
+    ['color', undefined, 'orange', { color: 'orange' }],
+    [
+      'name and color',
+      '  Defect  ',
+      'orange',
+      { name: 'Defect', color: 'orange' },
+    ],
+  ] as const)(
+    'a changed %s closes the form at once, shows the row changed, toasts and sends only the changes',
+    async (_case, name, color, expected) => {
+      const { result } = await open();
+      const bodies = patchServer(async () => {
+        await delay(80);
+        return HttpResponse.json({ ...bug, ...expected });
+      });
+      if (name !== undefined) type(result, name);
+      if (color !== undefined)
+        act(() => result.current.vm.actions.setColor(color));
+
+      act(() => result.current.vm.actions.submit());
+
+      expect(result.current.vm.state.form).toBeNull();
+      await waitFor(() =>
+        expect(row(result, 'lb1')?.label).toMatchObject(expected),
+      );
+      await screen.findByText('Etiqueta salva');
+      expect(bodies).toEqual([expected]);
+    },
+  );
+
+  it('flags only the edited row as pending while the change is in flight', async () => {
+    const { result } = await open();
+    patchServer(async () => {
+      await delay(80);
+      return HttpResponse.json({ ...bug, name: 'Defect' });
+    });
+    type(result, 'Defect');
+
+    act(() => result.current.vm.actions.submit());
+
+    await waitFor(() =>
+      expect(result.current.vm.state.rows.map((r) => r.pending)).toEqual([
+        true,
+        false,
+        false,
+      ]),
+    );
+    await waitFor(() =>
+      expect(result.current.vm.state.rows.every((r) => !r.pending)).toBe(true),
+    );
+  });
+
+  it('a 5xx reverts the row and Tentar novamente repeats the same PATCH', async () => {
+    const { result } = await open();
+    const bodies = patchServer(() => problem(500));
+    type(result, 'Defect');
+
+    act(() => result.current.vm.actions.submit());
+
+    await screen.findByText('Não foi possível salvar. Tente novamente.');
+    expect(row(result, 'lb1')?.label.name).toBe('Bug');
+    act(() => screen.getByRole('button', { name: 'Tentar novamente' }).click());
+
+    await waitFor(() => expect(bodies).toHaveLength(2));
+    expect(bodies[1]).toEqual({ name: 'Defect' });
+    await screen.findByText('Etiqueta salva');
+  });
+
+  it('a 409 label-name-taken reverts the row, reopens the form with the text and refetches the labels', async () => {
+    const { result, queryClient } = await open();
+    patchServer(() => problemOfType(409, '/problems/label-name-taken'));
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
+    type(result, 'Defect');
+    act(() => result.current.vm.actions.setColor('orange'));
+
+    act(() => result.current.vm.actions.submit());
+
+    await waitFor(() =>
+      expect(result.current.vm.state.form).toMatchObject({
+        mode: 'edit',
+        id: 'lb1',
+        name: 'Defect',
+        color: 'orange',
+        error: 'labelNameTaken',
+        isSubmitting: false,
+      }),
+    );
+    expect(row(result, 'lb1')?.label).toMatchObject({
+      name: 'Bug',
+      color: 'green',
+    });
+    expect(invalidate).toHaveBeenCalledWith({
+      queryKey: boardViewKeys.labels(boardId),
+    });
+    expect(screen.queryByText('Etiqueta salva')).toBeNull();
+    expect(
+      screen.queryByText('Não foi possível salvar. Tente novamente.'),
+    ).toBeNull();
+  });
+
+  it('a 409 board-archived reverts the row, shows the conflict toast and Recarregar refetches the board view', async () => {
+    const { result, queryClient } = await open();
+    patchServer(() => problemOfType(409, '/problems/board-archived'));
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
+    type(result, 'Defect');
+
+    act(() => result.current.vm.actions.submit());
+
+    await screen.findByText(
+      'Este item foi arquivado. Recarregue para ver o estado atual.',
+    );
+    expect(row(result, 'lb1')?.label.name).toBe('Bug');
+    invalidate.mockClear();
+    act(() => screen.getByRole('button', { name: 'Recarregar' }).click());
+    expect(invalidate).toHaveBeenCalledWith({
+      queryKey: boardViewKeys.all(boardId),
+    });
+  });
+
+  it('a 404 reverts the row, toasts the save failure and refetches the board view', async () => {
+    const { result, queryClient } = await open();
+    patchServer(() => problem(404));
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
+    type(result, 'Defect');
+
+    act(() => result.current.vm.actions.submit());
+
+    await screen.findByText('Não foi possível salvar. Tente novamente.');
+    expect(row(result, 'lb1')?.label.name).toBe('Bug');
+    expect(invalidate).toHaveBeenCalledWith({
+      queryKey: boardViewKeys.all(boardId),
+    });
+  });
+});

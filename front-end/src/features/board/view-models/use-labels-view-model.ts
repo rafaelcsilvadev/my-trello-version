@@ -7,27 +7,35 @@ import { useSaveFailureNotifier } from '@/shared/ui/toast/use-save-failure-notif
 import { useToast } from '@/shared/ui/toast/use-toast';
 
 import { boardViewKeys } from '../api/keys';
-import { useCreateLabel } from '../api/label-mutations';
+import { useCreateLabel, useUpdateLabel } from '../api/label-mutations';
 import { useLabelUsage } from '../api/label-usage';
 import { usePendingItemIds } from '../api/mutations';
 import { useBoard, useLabels } from '../api/queries';
-import { usageText } from '../model/label-usage';
+import { labelChanges, usageText } from '../model/label-usage';
 import {
   DEFAULT_LABEL_COLOR,
   isLabelNameTaken,
   validateLabelName,
 } from '../model/labels';
-import type { CreateLabelDto, ItemFieldError, Label } from '../model/types';
+import type {
+  CreateLabelDto,
+  ItemFieldError,
+  Label,
+  UpdateLabelDto,
+} from '../model/types';
 
 export type LabelsStatus = 'loading' | 'ready' | 'error' | 'notFound';
 
-export type LabelsForm = {
-  mode: 'create';
+type FormFields = {
   name: string;
   color: Label['color'];
   error: ItemFieldError | null;
   isSubmitting: boolean;
 };
+
+export type LabelsForm =
+  | ({ mode: 'create' } & FormFields)
+  | ({ mode: 'edit'; id: string } & FormFields);
 
 export function useLabelsViewModel(boardId: string) {
   const board = useBoard(boardId);
@@ -36,6 +44,7 @@ export function useLabelsViewModel(boardId: string) {
   const pendingIds = usePendingItemIds();
   const queryClient = useQueryClient();
   const createMutation = useCreateLabel(boardId);
+  const updateMutation = useUpdateLabel(boardId);
   const { t } = useTranslation();
   const toast = useToast();
   const { notify } = useSaveFailureNotifier(
@@ -74,6 +83,19 @@ export function useLabelsViewModel(boardId: string) {
       mode: 'create',
       name: '',
       color: DEFAULT_LABEL_COLOR,
+      error: null,
+      isSubmitting: false,
+    });
+  }
+
+  function openEdit(id: string) {
+    const label = labels.data?.find((item) => item.id === id);
+    if (!label) return;
+    setForm({
+      mode: 'edit',
+      id,
+      name: label.name,
+      color: label.color,
       error: null,
       isSubmitting: false,
     });
@@ -122,9 +144,60 @@ export function useLabelsViewModel(boardId: string) {
     );
   }
 
+  // Optimistic: the form closes at once and the row shows the change (FLP-20).
+  // A name taken elsewhere puts the row back and reopens the form (FLP-30).
+  function update(
+    id: string,
+    body: UpdateLabelDto,
+    typed: Pick<FormFields, 'name' | 'color'>,
+  ) {
+    updateMutation.mutateAsync({ id, body }).then(
+      () => toast.show({ message: t('board.toast.labelSaved') }),
+      (err: ApiError) => {
+        if (isLabelNameTaken(err)) {
+          setForm({
+            mode: 'edit',
+            id,
+            ...typed,
+            error: 'labelNameTaken',
+            isSubmitting: false,
+          });
+          void queryClient.invalidateQueries({
+            queryKey: boardViewKeys.labels(boardId),
+          });
+          return;
+        }
+        notify(err, () => update(id, body, typed));
+      },
+    );
+  }
+
+  function edit(current: Extract<LabelsForm, { mode: 'edit' }>) {
+    const label = labels.data?.find((item) => item.id === current.id);
+    // The label's own name is not a clash (FLP-19).
+    const others = (labels.data ?? []).filter((item) => item.id !== current.id);
+    const error = validateLabelName(current.name, others);
+    if (error) {
+      setForm({ ...current, error });
+      return;
+    }
+    const changes = label && labelChanges(label, current.name, current.color);
+    setForm(null);
+    if (changes) {
+      update(current.id, changes, {
+        name: current.name,
+        color: current.color,
+      });
+    }
+  }
+
   // A second submit while one is in flight is ignored (FLP-17).
   function submit() {
     if (!form || isSubmitting.current) return;
+    if (form.mode === 'edit') {
+      edit(form);
+      return;
+    }
     const error = validateLabelName(form.name, labels.data ?? []);
     if (error) {
       setForm({ ...form, error });
@@ -143,6 +216,7 @@ export function useLabelsViewModel(boardId: string) {
     },
     actions: {
       openCreate,
+      openEdit,
       setName,
       setColor,
       closeForm,
