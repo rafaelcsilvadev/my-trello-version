@@ -220,10 +220,10 @@ T14 → T15 → T16 → T17 → T18 → T19
 
 **Done when**:
 
-- [ ] Unit: `openCreate` opens a form with an empty name and `blue`; an invalid name sets the error and sends nothing; 50 chars (and 50 with outer spaces) are sent trimmed; typing clears the error
-- [ ] `submit` sends `POST` once while in flight (`isSubmitting` true, second `submit` ignored); on `201` the form closes, the label is the last row as `unused` and the toast "Etiqueta criada" shows; `closeForm` drops the text with no request
-- [ ] Network/`5xx` keeps the form with its text and color and shows "Não foi possível salvar. Tente novamente." whose **Tentar novamente** repeats the same create; `409` label-name-taken keeps the form, sets `labelNameTaken` and refetches the labels; `409` board-archived shows the conflict toast and **Recarregar** refetches the board view (L-017)
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `openCreate` opens a form with an empty name and `blue`; an invalid name sets the error and sends nothing; 50 chars (and 50 with outer spaces) are sent trimmed; typing clears the error
+- [x] `submit` sends `POST` once while in flight (`isSubmitting` true, second `submit` ignored); on `201` the form closes, the label is the last row as `unused` and the toast "Etiqueta criada" shows; `closeForm` drops the text with no request
+- [x] Network/`5xx` keeps the form with its text and color and shows "Não foi possível salvar. Tente novamente." whose **Tentar novamente** repeats the same create; `409` label-name-taken keeps the form, sets `labelNameTaken` and refetches the labels; `409` board-archived shows the conflict toast and **Recarregar** refetches the board view (L-017)
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
