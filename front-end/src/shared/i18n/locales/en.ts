@@ -329,6 +329,9 @@ export const en = {
       deleteForever: 'Delete permanently',
     },
     labelsPage: {
+      title: 'Labels',
+      subtitle: '{{board}} · Apply to this board only.',
+      backToBoard: 'Back to the board',
       newLabel: 'New label',
       emptyTitle: 'No labels yet',
       emptyDetail: 'Create labels to highlight tasks, like Bug or Urgent.',
