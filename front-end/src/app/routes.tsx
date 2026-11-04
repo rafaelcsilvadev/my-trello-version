@@ -3,9 +3,9 @@ import { redirect, type RouteObject } from 'react-router';
 import { BoardPage } from '@/pages/board-page';
 import { BoardsPage } from '@/pages/boards-page';
 import { CardDetailPage } from '@/pages/card-detail-page';
+import { LabelsPage } from '@/pages/labels-page';
 import { LoginPage } from '@/pages/login-page';
 import { NotFoundPage } from '@/pages/not-found-page';
-import { PlaceholderPage } from '@/pages/placeholder-page';
 import { ProtectedLayout } from '@/pages/protected-layout';
 import { SettingsPage } from '@/pages/settings-page';
 import { SignupPage } from '@/pages/signup-page';
@@ -40,7 +40,7 @@ export function createRoutes({
         },
         {
           path: 'b/:boardId/labels',
-          element: <PlaceholderPage titleKey="labels" />,
+          element: <LabelsPage />,
         },
         { path: 'settings', element: <SettingsPage /> },
       ],

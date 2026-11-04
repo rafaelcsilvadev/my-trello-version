@@ -459,9 +459,9 @@ T14 → T15 → T16 → T17 → T18 → T19
 
 **Done when**:
 
-- [ ] Unit (`renderApp`): `/b/{id}/labels` shows the heading **Etiquetas** and not the placeholder; the board menu entry **Etiquetas do quadro** and the card popover link **Gerenciar etiquetas** both lead there
-- [ ] Moving between two boards' label pages resets the screen state (keyed by board)
-- [ ] Build gate passes; test count only grows
+- [x] Unit (`renderApp`): `/b/{id}/labels` shows the heading **Etiquetas** and not the placeholder; the board menu entry **Etiquetas do quadro** and the card popover link **Gerenciar etiquetas** both lead there
+- [x] Moving between two boards' label pages resets the screen state (keyed by board)
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
