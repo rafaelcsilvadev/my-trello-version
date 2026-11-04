@@ -167,9 +167,9 @@ T14 → T15 → T16 → T17 → T18 → T19
 
 **Done when**:
 
-- [ ] Unit (MSW): the label leaves the label query and its id leaves `labelIds` of every card in both card lists before the response; cards without the id are untouched
-- [ ] On failure the label returns at its original index and the id returns only on the cards that had it; a card that gained another label meanwhile keeps it; on success the board view refetches once when no other change is pending
-- [ ] Build gate passes; test count only grows
+- [x] Unit (MSW): the label leaves the label query and its id leaves `labelIds` of every card in both card lists before the response; cards without the id are untouched
+- [x] On failure the label returns at its original index and the id returns only on the cards that had it; a card that gained another label meanwhile keeps it; on success the board view refetches once when no other change is pending
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build

@@ -7,6 +7,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { boardViewKeys } from '@/features/board/api/keys';
 import {
   useCreateLabel,
+  useDeleteLabel,
   useToggleCardLabel,
   useUpdateLabel,
 } from '@/features/board/api/label-mutations';
@@ -580,6 +581,154 @@ describe('useUpdateLabel', () => {
         body: { name: 'Beta' },
       }),
     );
+    await waitFor(() => expect(releaseSecond).toBeDefined());
+    expect(queryClient.getQueryState(labelsKey)?.isInvalidated).toBe(false);
+
+    act(() => releaseSecond?.());
+
+    await waitFor(() =>
+      expect(queryClient.getQueryState(labelsKey)?.isInvalidated).toBe(true),
+    );
+  });
+});
+
+describe('useDeleteLabel', () => {
+  const deleteUrl = `${baseUrl}/api/v1/labels/:id`;
+  const labelsKey = boardViewKeys.labels(boardId);
+  const archivedKey = boardViewKeys.cards(boardId, true);
+  const archivedCard = cardFixture('c3', 'l1', {
+    labelIds: [alpha.id, bravo.id],
+  });
+
+  function setupWithArchived() {
+    const ctx = setup();
+    ctx.queryClient.setQueryData(archivedKey, [archivedCard]);
+    return ctx;
+  }
+
+  function stateOf(queryClient: TestQueryClient) {
+    return {
+      labels: queryClient.getQueryData<Label[]>(labelsKey),
+      active: queryClient
+        .getQueryData<Card[]>(cardsKey)
+        ?.map(({ labelIds }) => labelIds),
+      archived: queryClient
+        .getQueryData<Card[]>(archivedKey)
+        ?.map(({ labelIds }) => labelIds),
+    };
+  }
+
+  it('removes the label and its id from every card in both lists before the response', async () => {
+    server.use(http.delete(deleteUrl, () => delay('infinite')));
+    const { wrapper, queryClient } = setupWithArchived();
+    const { result } = renderHook(() => useDeleteLabel(boardId), { wrapper });
+
+    act(() => result.current.mutate({ id: alpha.id }));
+
+    await waitFor(() =>
+      expect(stateOf(queryClient)).toEqual({
+        labels: [bravo, charlie],
+        active: [[charlie.id], []],
+        archived: [[bravo.id]],
+      }),
+    );
+  });
+
+  it('sends DELETE for the label', async () => {
+    const ids: unknown[] = [];
+    server.use(
+      http.delete(deleteUrl, ({ params }) => {
+        ids.push(params.id);
+        return new HttpResponse(null, { status: 204 });
+      }),
+    );
+    const { wrapper } = setupWithArchived();
+    const { result } = renderHook(() => useDeleteLabel(boardId), { wrapper });
+
+    await act(() => result.current.mutateAsync({ id: alpha.id }));
+
+    expect(ids).toEqual([alpha.id]);
+  });
+
+  it('puts the label back at its index and the id only on the cards that had it when the request fails', async () => {
+    server.use(
+      http.delete(deleteUrl, () =>
+        HttpResponse.json(serverError, { status: 500 }),
+      ),
+    );
+    const { wrapper, queryClient } = setupWithArchived();
+    const { result } = renderHook(() => useDeleteLabel(boardId), { wrapper });
+
+    act(() => result.current.mutate({ id: bravo.id }));
+
+    await waitFor(() => expect(result.current.error).toBeInstanceOf(ApiError));
+    expect(stateOf(queryClient)).toEqual({
+      labels: [alpha, bravo, charlie],
+      active: [[alpha.id, charlie.id], [alpha.id]],
+      archived: [[alpha.id, bravo.id]],
+    });
+  });
+
+  it('keeps a label added to a card meanwhile when the delete fails', async () => {
+    let failDelete: (() => void) | undefined;
+    server.use(
+      http.delete(deleteUrl, async () => {
+        await new Promise<void>((resolve) => (failDelete = resolve));
+        return HttpResponse.json(serverError, { status: 500 });
+      }),
+      http.put(labelUrl, () => new HttpResponse(null, { status: 204 })),
+    );
+    const { wrapper, queryClient } = setupWithArchived();
+    const { result } = renderHook(
+      () => ({
+        remove: useDeleteLabel(boardId),
+        toggle: useToggleCardLabel(boardId),
+      }),
+      { wrapper },
+    );
+
+    act(() => result.current.remove.mutate({ id: alpha.id }));
+    await act(() =>
+      result.current.toggle.mutateAsync({
+        id: bravo.id,
+        cardId: other.id,
+        applied: true,
+      }),
+    );
+    await waitFor(() => expect(failDelete).toBeDefined());
+
+    act(() => failDelete?.());
+
+    await waitFor(() =>
+      expect(result.current.remove.error).toBeInstanceOf(ApiError),
+    );
+    expect(stateOf(queryClient).active).toEqual([
+      [alpha.id, charlie.id],
+      [alpha.id, bravo.id],
+    ]);
+  });
+
+  it('refetches the board once, after the last pending change settles', async () => {
+    let releaseSecond: (() => void) | undefined;
+    server.use(
+      http.delete(deleteUrl, async ({ params }) => {
+        if (params.id === bravo.id) {
+          await new Promise<void>((resolve) => (releaseSecond = resolve));
+        }
+        return new HttpResponse(null, { status: 204 });
+      }),
+    );
+    const { wrapper, queryClient } = setupWithArchived();
+    const { result } = renderHook(
+      () => ({
+        first: useDeleteLabel(boardId),
+        second: useDeleteLabel(boardId),
+      }),
+      { wrapper },
+    );
+
+    act(() => result.current.second.mutate({ id: bravo.id }));
+    await act(() => result.current.first.mutateAsync({ id: alpha.id }));
     await waitFor(() => expect(releaseSecond).toBeDefined());
     expect(queryClient.getQueryState(labelsKey)?.isInvalidated).toBe(false);
 

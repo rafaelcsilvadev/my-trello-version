@@ -16,6 +16,7 @@ import {
   fieldsPatch,
   inList,
   type ItemVariables,
+  removal,
   useOptimisticBoardViewChange,
 } from './mutations';
 
@@ -102,6 +103,48 @@ export function useUpdateLabel(boardId: string) {
       },
     ],
   );
+}
+
+// Drops the label from the list and its id from every card of both card
+// lists (FLP-24, FLP-25). Each card remembers whether it had the id, so a
+// failed delete restores only those and keeps labels added meanwhile.
+export function useDeleteLabel(boardId: string) {
+  const api = useApi();
+
+  return useOptimisticBoardViewChange<ItemVariables>(
+    boardId,
+    ({ id }) =>
+      call(api.DELETE('/api/v1/labels/{id}', { params: { path: { id } } })),
+    ({ id }) => [
+      {
+        key: boardViewKeys.labels(boardId),
+        ...removal<Label>((label) => label.id === id),
+      },
+      ...[false, true].map((archived) => ({
+        key: boardViewKeys.cards(boardId, archived),
+        ...cardsWithoutLabel(id),
+      })),
+    ],
+  );
+}
+
+function cardsWithoutLabel(id: string) {
+  const indexes = new Map<string, number>();
+  return {
+    apply: (cards: Card[]) =>
+      cards.map((card) => {
+        const index = card.labelIds.indexOf(id);
+        if (index === -1) return card;
+        indexes.set(card.id, index);
+        return { ...card, labelIds: withoutLabelId(card.labelIds, id) };
+      }),
+    revert: (cards: Card[]) =>
+      cards.map((card) => {
+        const index = indexes.get(card.id);
+        if (index === undefined || card.labelIds.includes(id)) return card;
+        return { ...card, labelIds: card.labelIds.toSpliced(index, 0, id) };
+      }),
+  };
 }
 
 // Remembers whether the id actually changed, so a failed toggle of a label
