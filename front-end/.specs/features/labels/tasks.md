@@ -537,8 +537,8 @@ T14 → T15 → T16 → T17 → T18 → T19
 
 **Done when**:
 
-- [ ] README explains the labels page (list with usage, create, edit, delete with the count, read-only archived board)
-- [ ] Build gate passes; test count unchanged
+- [x] README explains the labels page (list with usage, create, edit, delete with the count, read-only archived board)
+- [x] Build gate passes; test count unchanged
 
 **Tests**: none
 **Gate**: build
