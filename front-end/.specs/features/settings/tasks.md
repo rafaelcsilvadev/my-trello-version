@@ -168,15 +168,15 @@ T7 → T8 → T9
 
 **Done when**:
 
-- [ ] Unit (composed with `renderApp` on `/settings`): the Idioma panel shows **Português (Brasil)** and **English** with the current language selected; clicking the other one changes the headings to that language and sets `lang` on the root element at once, and `localStorage['my-trello.language']` holds it (FSET-02, 03, 04)
-- [ ] Unit: the Tema panel shows **Claro**, **Escuro**, **Sistema** and the subtitle "Sistema segue o aparelho." (EN: "System follows your device."), with the stored preference selected; clicking **Escuro** sets `data-theme="dark"` and `localStorage['my-trello.theme']` (FSET-05, 06, 07)
-- [ ] Unit: with theme **Sistema** and a device that prefers dark, `data-theme` is `dark`; flipping the device to light flips it back (FSET-08)
-- [ ] Unit: ArrowRight on the selected option selects the next one and applies it (FSET-09)
-- [ ] Unit: with a `localStorage` that throws on write, a choice still applies and the control shows it (FSET-10)
-- [ ] Unit: stored values `xx` and `blue` make the controls show **English** and **Sistema** (FSET-24)
-- [ ] The composed page asserts every prop it passes to `PreferencePanel` (L-001); the view-model returns the store's current values after each change
-- [ ] Locale parity test passes with the new `settings.language.*` and `settings.theme.*` keys
-- [ ] Build gate passes; test count only grows
+- [x] Unit (composed with `renderApp` on `/settings`): the Idioma panel shows **Português (Brasil)** and **English** with the current language selected; clicking the other one changes the headings to that language and sets `lang` on the root element at once, and `localStorage['my-trello.language']` holds it (FSET-02, 03, 04)
+- [x] Unit: the Tema panel shows **Claro**, **Escuro**, **Sistema** and the subtitle "Sistema segue o aparelho." (EN: "System follows your device."), with the stored preference selected; clicking **Escuro** sets `data-theme="dark"` and `localStorage['my-trello.theme']` (FSET-05, 06, 07)
+- [x] Unit: with theme **Sistema** and a device that prefers dark, `data-theme` is `dark`; flipping the device to light flips it back (FSET-08)
+- [x] Unit: ArrowRight on the selected option selects the next one and applies it (FSET-09)
+- [x] Unit: with a `localStorage` that throws on write, a choice still applies and the control shows it (FSET-10)
+- [x] Unit: stored values `xx` and `blue` make the controls show **English** and **Sistema** (FSET-24)
+- [x] The composed page asserts every prop it passes to `PreferencePanel` (L-001); the view-model returns the store's current values after each change
+- [x] Locale parity test passes with the new `settings.language.*` and `settings.theme.*` keys
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
