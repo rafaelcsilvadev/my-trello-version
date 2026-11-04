@@ -5,6 +5,7 @@ import { RouterProvider } from 'react-router';
 
 import { ApiProvider } from '@/shared/api/api-context';
 import { LanguageController } from '@/shared/i18n/language-controller';
+import { PreferencesProvider } from '@/shared/preferences/preferences-context';
 import { SessionProvider } from '@/shared/session/session-context';
 import { ThemeController } from '@/shared/theme/theme-controller';
 import { ToastProvider } from '@/shared/ui/toast/toast-provider';
@@ -19,16 +20,18 @@ export function App({ services }: { services: AppServices }) {
       <I18nextProvider i18n={i18n}>
         <ApiProvider client={api}>
           <SessionProvider store={session}>
-            <ToastProvider>
-              <ThemeController store={preferences} />
-              <LanguageController store={preferences} i18n={i18n} />
-              {/* React Aria links (e.g. menu items with href) navigate client-side. */}
-              <AriaRouterProvider navigate={(to) => void router.navigate(to)}>
-                <div className="min-h-screen bg-surface-page font-body text-text-primary">
-                  <RouterProvider router={router} />
-                </div>
-              </AriaRouterProvider>
-            </ToastProvider>
+            <PreferencesProvider store={preferences}>
+              <ToastProvider>
+                <ThemeController store={preferences} />
+                <LanguageController store={preferences} i18n={i18n} />
+                {/* React Aria links (e.g. menu items with href) navigate client-side. */}
+                <AriaRouterProvider navigate={(to) => void router.navigate(to)}>
+                  <div className="min-h-screen bg-surface-page font-body text-text-primary">
+                    <RouterProvider router={router} />
+                  </div>
+                </AriaRouterProvider>
+              </ToastProvider>
+            </PreferencesProvider>
           </SessionProvider>
         </ApiProvider>
       </I18nextProvider>
