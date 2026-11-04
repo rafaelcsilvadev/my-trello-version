@@ -4,7 +4,7 @@
 
 **English** | [Português](README.PT.md)
 
-> 🚧 **Work in progress.** The back-end API is feature-complete (features 0 to 6). The web front-end has sign-up, log-in, the boards list, the board view, drag and drop, board filters, the card detail, its checklist, with items reordered by mouse or keyboard, and its labels; the labels page, with usage, create, edit and delete; settings comes next. The mobile app has not started yet.
+> 🚧 **Work in progress.** The back-end API is feature-complete (features 0 to 6). The web front-end has sign-up, log-in, the boards list, the board view, drag and drop, board filters, the card detail, its checklist, with items reordered by mouse or keyboard, and its labels; the labels page, with usage, create, edit and delete; and the settings screen, with language, theme and the keyboard shortcuts. The web front-end is feature-complete. The mobile app has not started yet.
 
 A personal take on Trello: each user signs up and manages only their own boards, lists and cards.
 
@@ -29,7 +29,7 @@ The project has two goals:
 
 MVP = features 0 to 4. Full roadmap in [`back-end/.specs/ROADMAP.md`](back-end/.specs/ROADMAP.md).
 
-Web front-end: `foundation` (app shell, routes and auth guard, typed API client, theme, PT-BR/EN i18n, toasts, Docker service, CI) `auth` (sign-up, log-in, rate-limit notice, log-out) `boards` (active/archived tabs, create, edit, archive, restore, delete) and `board` (columns and cards, done flag, archived items, read-only archived board, phone layout) `board-dnd` (move cards and columns with the mouse or the keyboard, live region, "Move to…") `board-filters` (search, label and due-date filters, `/` shortcut, drag off while filtering) and `card-detail` (title, done flag, due date, description, move, archive, restore, delete, read-only modes, discard dialog) and `card-checklist` (add, tick, rename and delete items, progress bar, read-only modes) and `card-checklist-dnd` (reorder items with the mouse or the keyboard, live region) and `card-labels` (apply, remove and create labels from the card detail) and `labels` (the board's labels page: list with usage, create, edit, delete) are done. Settings comes next, one feature at a time. Roadmap in [`front-end/.specs/ROADMAP.md`](front-end/.specs/ROADMAP.md).
+Web front-end: `foundation` (app shell, routes and auth guard, typed API client, theme, PT-BR/EN i18n, toasts, Docker service, CI) `auth` (sign-up, log-in, rate-limit notice, log-out) `boards` (active/archived tabs, create, edit, archive, restore, delete) and `board` (columns and cards, done flag, archived items, read-only archived board, phone layout) `board-dnd` (move cards and columns with the mouse or the keyboard, live region, "Move to…") `board-filters` (search, label and due-date filters, `/` shortcut, drag off while filtering) and `card-detail` (title, done flag, due date, description, move, archive, restore, delete, read-only modes, discard dialog) and `card-checklist` (add, tick, rename and delete items, progress bar, read-only modes) and `card-checklist-dnd` (reorder items with the mouse or the keyboard, live region) and `card-labels` (apply, remove and create labels from the card detail) and `labels` (the board's labels page: list with usage, create, edit, delete) and `settings` (language, theme, keyboard shortcuts panel and dialog) are done. Roadmap in [`front-end/.specs/ROADMAP.md`](front-end/.specs/ROADMAP.md).
 
 ---
 
@@ -157,7 +157,7 @@ In the web app:
 
 1. Open http://localhost:5173. Without a session you land on `/login`.
 2. Log in with the demo user above, or follow **Create account** to sign up with your own e-mail (name, e-mail, password of 8 to 72 characters). Both take you to `/boards`.
-3. Open **Settings** (gear icon in the top bar) to see the signed-in account and **Sign out**.
+3. Open **Settings** (gear icon in the top bar) to pick the language and the theme, read the keyboard shortcuts and **Sign out** (see below).
 
 Managing boards on `/boards`:
 
@@ -223,6 +223,15 @@ Managing a board's labels on `/b/{id}/labels`:
 - **Edit label** (pencil on a row) opens the same form pre-filled. **Save** changes the name, the color or both, and the change shows on every task that carries the label.
 - **Delete label** (bin on a row) asks "Delete the label …?" and says how many tasks lose it ("No task uses this label.", "It will be removed from 1 task.", "It will be removed from 3 tasks."). **Delete** removes the label from the board and from those tasks. It cannot be undone.
 - On an archived board the page is read-only: a notice reads "Archived board · read-only", the list still shows, but **New label** and the edit and delete buttons are hidden.
+
+Settings on `/settings`:
+
+- **Language** offers Português (Brasil) and English. The choice applies at once, without a reload, and is kept in `my-trello.language` for the next visit. A stored value the app does not know falls back to English.
+- **Theme** offers Light, Dark and System ("System follows your device."). The app repaints at once and keeps the choice in `my-trello.theme`. With System, it follows the device's dark-mode setting. Arrow keys move between the options of each group.
+- If the browser blocks `localStorage`, the choice still holds until you close the tab.
+- **Keyboard shortcuts** (desktop only, 768 px or wider) lists the five shortcuts: `N` new task in the first column, `/` search the board, `Esc` close the innermost layer, `Space` pick up and drop the focused card, column or item, and `?` show shortcuts. The panel is not rendered on a phone.
+- On desktop, the keyboard icon in the top bar, before the gear, opens the same list in a dialog. The `?` key opens it too, unless you are typing in a field, hold Ctrl, Meta or Alt, or have another dialog (such as the card detail) open. Esc or **Close** closes it and returns the focus to where it was. Resizing below 768 px closes it.
+- **Session** shows who is signed in and **Sign out**.
 
 Changes show at once and are saved in the background. If saving fails, the change is undone and a toast offers **Try again**.
 

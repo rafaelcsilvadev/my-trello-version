@@ -318,9 +318,9 @@ T7 → T8 → T9
 
 **Done when**:
 
-- [ ] `README.md` and `README.PT.md` describe language, theme, the shortcuts panel and the `?` dialog, and the work-in-progress line no longer says settings comes next
-- [ ] `front-end/.specs/ROADMAP.md` row 6 reads Done; `front-end/.specs/STATE.md` handoff names the feature as done with its task count
-- [ ] Build gate passes
+- [x] `README.md` and `README.PT.md` describe language, theme, the shortcuts panel and the `?` dialog, and the work-in-progress line no longer says settings comes next
+- [x] `front-end/.specs/ROADMAP.md` row 6 reads Done; `front-end/.specs/STATE.md` handoff names the feature as done with its task count
+- [x] Build gate passes
 
 **Tests**: none
 **Gate**: build
