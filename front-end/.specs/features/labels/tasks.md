@@ -327,10 +327,10 @@ T14 → T15 → T16 → T17 → T18 → T19
 
 **Done when**:
 
-- [ ] Unit: create mode shows title **Nova etiqueta**, a focused "Nome" field with placeholder "Ex.: Bug", `blue` selected with its name "Azul" and the primary button **Criar etiqueta**; edit mode shows **Editar etiqueta**, the label's values and **Salvar**
-- [ ] The preview chip shows the typed name, or "Ex.: Bug" while the trimmed name is blank, and the picked color; picking a color shows its name
-- [ ] An error shows below the field with `role="alert"` and `aria-invalid="true"`, and typing calls `onNameChange` (the view-model clears it); Enter submits; while `isSubmitting` the primary button is disabled and styled so (L-018); **Cancelar**, Esc and an outside click call `onClose`
-- [ ] Build gate passes; test count only grows
+- [x] Unit: create mode shows title **Nova etiqueta**, a focused "Nome" field with placeholder "Ex.: Bug", `blue` selected with its name "Azul" and the primary button **Criar etiqueta**; edit mode shows **Editar etiqueta**, the label's values and **Salvar**
+- [x] The preview chip shows the typed name, or "Ex.: Bug" while the trimmed name is blank, and the picked color; picking a color shows its name
+- [x] An error shows below the field with `role="alert"` and `aria-invalid="true"`, and typing calls `onNameChange` (the view-model clears it); Enter submits; while `isSubmitting` the primary button is disabled and styled so (L-018); **Cancelar**, Esc and an outside click call `onClose`
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build

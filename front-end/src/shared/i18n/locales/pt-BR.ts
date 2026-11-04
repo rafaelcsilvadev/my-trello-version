@@ -329,6 +329,18 @@ export const ptBR = {
       restore: 'Restaurar',
       deleteForever: 'Excluir definitivamente',
     },
+    labelsPage: {
+      newLabel: 'Nova etiqueta',
+      editLabel: 'Editar etiqueta',
+      form: {
+        create: 'Criar etiqueta',
+        save: 'Salvar',
+        cancel: 'Cancelar',
+        name: 'Nome',
+        namePlaceholder: 'Ex.: Bug',
+        color: 'Cor',
+      },
+    },
     deleteColumn: {
       title: 'Excluir a coluna {{name}} definitivamente?',
       textNoCards:

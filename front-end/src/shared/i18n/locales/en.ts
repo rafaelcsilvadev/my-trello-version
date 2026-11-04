@@ -328,6 +328,18 @@ export const en = {
       restore: 'Restore',
       deleteForever: 'Delete permanently',
     },
+    labelsPage: {
+      newLabel: 'New label',
+      editLabel: 'Edit label',
+      form: {
+        create: 'Create label',
+        save: 'Save',
+        cancel: 'Cancel',
+        name: 'Name',
+        namePlaceholder: 'E.g. Bug',
+        color: 'Color',
+      },
+    },
     deleteColumn: {
       title: 'Delete the column {{name}} permanently?',
       textNoCards:
