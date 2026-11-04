@@ -101,6 +101,8 @@ Totals: 9 injected, 8 killed, 1 survived (equivalent, no fix task).
 
 ## Gaps (non-blocking, ranked)
 
-1. FSET-20, hook test `use-shortcuts-dialog.spec.tsx:78-87` ("keeps one open state on a second ?") cannot fail: `open` is idempotent. The real protection (modal guard) is covered by `:60-66` and the shared `dialog.spec.tsx`, but no integration test presses `?` with the shortcuts dialog itself open (one `getAllByRole('dialog')` assertion would close it). Mutation M4 was still killed.
-2. FSET-18 and FSET-22 are asserted only at the hook level; no integration test types `?` in a real field in the app, or resizes with the rendered dialog open. The wiring (`ShortcutsButton` -> hook) is simple and M2/M7 cover it indirectly.
-3. Spec assumption "Dialog width 420 px" is not met or tested: `src/shared/ui/dialog.tsx:38` uses `w-120` (480 px) and the shortcuts dialog does not override it. Not an acceptance criterion, so it does not block PASS.
+All three closed in PR #448 (`test/settings-verify-gaps`).
+
+1. FSET-20, **closed**. The hook test that could not fail (`use-shortcuts-dialog.spec.tsx`, "keeps one open state on a second ?") was replaced by "closes with close". `shortcuts-button.spec.tsx` now presses `?` with the shortcuts dialog open and asserts a single `dialog`.
+2. FSET-18 and FSET-22, **closed**. `shortcuts-button.spec.tsx` now types `?` in a real `<input>` (no dialog) and shrinks the viewport with the rendered dialog open (dialog closes). These tests passed on first run (behavior already existed); no mutation run against them.
+3. Dialog width 420 px, **closed**. The shared `Dialog` has `size="narrow"` (`w-105`, 420 px); the shortcuts dialog uses it. `dialog.spec.tsx` asserts the class for both sizes (jsdom has no layout).
