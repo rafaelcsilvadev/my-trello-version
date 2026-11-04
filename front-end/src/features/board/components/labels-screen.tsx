@@ -1,7 +1,7 @@
 import { ArrowLeft, Lock, Plus } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 
 import { Button } from '@/shared/ui/button';
 import { LoadError } from '@/shared/ui/load-error';
@@ -21,6 +21,7 @@ type LabelsScreenProps = {
 export function LabelsScreen({ boardId }: LabelsScreenProps) {
   const { state, actions } = useLabelsViewModel(boardId);
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const root = useRef<HTMLDivElement>(null);
   // The button that opened the open dialog; focus goes back to it on close (FLP-36).
   const opener = useRef<HTMLElement | null>(null);
@@ -39,6 +40,19 @@ export function LabelsScreen({ boardId }: LabelsScreenProps) {
     button?.focus();
     if (button && document.activeElement === button) opener.current = null;
   }, [dialogOpen, rowCount, state.rows]);
+
+  // Esc returns to the board unless a dialog is open: the dialog takes the key
+  // and closes itself. Focus may sit on the body, so listen on the document.
+  useEffect(() => {
+    if (dialogOpen) return;
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape' && !event.defaultPrevented) {
+        void navigate(`/b/${boardId}`);
+      }
+    }
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [dialogOpen, boardId, navigate]);
 
   function remember<Args extends unknown[]>(open: (...args: Args) => void) {
     return (...args: Args) => {

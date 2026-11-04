@@ -174,6 +174,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: FCLB-06 disable vs data-pending, validation.md G3 (components)
 - last seen: 2026-11-03T21:59:35Z
 
+### L-028 - Assert the rendered localized text of every validation error, not only the error key the view-model sets
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `components` · harmful: 0
+- features: labels
+- evidence: FLP-13 front-end/test/unit/features/board/components/label-form-dialog.spec.tsx:106 (components)
+- last seen: 2026-11-04T19:10:19Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

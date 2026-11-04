@@ -74,15 +74,17 @@ function labelsApi(overrides: Partial<Seed> = {}) {
   return seed;
 }
 
-function renderScreen() {
+function renderScreen(prefs?: Parameters<typeof renderApp>[0]['prefs']) {
   return renderApp({
     route: `/b/${boardId}/labels`,
     token: 'token',
+    prefs,
     routes: [
       {
         path: '/b/:boardId/labels',
         element: <LabelsScreen boardId={boardId} />,
       },
+      { path: '/b/:boardId', element: <p>Board stub</p> },
     ],
   });
 }
@@ -118,6 +120,28 @@ describe('LabelsScreen', () => {
     expect(screen.getByText('used in 2 tasks')).toBeTruthy();
     expect(screen.getByText('unused')).toBeTruthy();
     expect(await newLabelButton()).toBeTruthy();
+  });
+
+  it('shows the Portuguese heading and subtitle', async () => {
+    labelsApi();
+    renderScreen({ language: 'pt-BR' });
+
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Etiquetas' }),
+    ).toBeTruthy();
+    expect(
+      await screen.findByText('Product launch · Valem só para este quadro.'),
+    ).toBeTruthy();
+  });
+
+  it('shows the Portuguese load error', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    labelsApi();
+    server.use(http.get(`${boardUrl}/labels`, () => problem(500)));
+    renderScreen({ language: 'pt-BR' });
+
+    await vi.advanceTimersByTimeAsync(10_000);
+    expect(await screen.findByText('Não foi possível carregar')).toBeTruthy();
   });
 
   it('shows the skeleton while loading', async () => {
@@ -274,6 +298,65 @@ describe('LabelsScreen', () => {
         screen.queryByRole('button', { name: /^Delete label/ }),
       ).toBeNull();
     });
+  });
+
+  describe('Esc key', () => {
+    it('returns to the board when no dialog is open', async () => {
+      labelsApi();
+      renderScreen();
+      await screen.findByText('Urgent');
+
+      await userEvent.keyboard('{Escape}');
+
+      expect(await screen.findByText('Board stub')).toBeTruthy();
+    });
+
+    it('closes an open dialog and stays on the page', async () => {
+      labelsApi();
+      renderScreen();
+      await userEvent.click(await newLabelButton());
+      await screen.findByRole('dialog');
+
+      await userEvent.keyboard('{Escape}');
+
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+      expect(screen.queryByText('Board stub')).toBeNull();
+      expect(screen.getByRole('heading', { level: 1 })).toBeTruthy();
+    });
+  });
+
+  it('shows the name-taken message when the server answers 409 label-name-taken', async () => {
+    labelsApi();
+    server.use(
+      http.post(`${boardUrl}/labels`, () =>
+        HttpResponse.json(
+          {
+            type: '/problems/label-name-taken',
+            title: 'Conflict',
+            status: 409,
+            detail: '',
+          },
+          {
+            status: 409,
+            headers: { 'Content-Type': 'application/problem+json' },
+          },
+        ),
+      ),
+    );
+    renderScreen({ language: 'pt-BR' });
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Nova etiqueta' }),
+    );
+    const dialog = await screen.findByRole('dialog');
+    await userEvent.type(within(dialog).getByLabelText('Nome'), 'Docs');
+    await userEvent.click(
+      within(dialog).getByRole('button', { name: 'Criar etiqueta' }),
+    );
+
+    expect((await within(dialog).findByRole('alert')).textContent).toBe(
+      'Já existe uma etiqueta com esse nome neste quadro',
+    );
+    expect(screen.getByRole('dialog')).toBeTruthy();
   });
 
   it('links the phone back arrow to the board', async () => {

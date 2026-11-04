@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 28,
+  "next_id": 29,
   "lessons": [
     {
       "id": "L-001",
@@ -500,6 +500,24 @@
       ],
       "created": "2026-11-03T21:59:35Z",
       "last_seen": "2026-11-03T21:59:35Z"
+    },
+    {
+      "id": "L-028",
+      "key": "spec_precision_gap::assert the rendered localized text of every validation error not only the error key the view model sets",
+      "text": "Assert the rendered localized text of every validation error, not only the error key the view-model sets",
+      "signal": "spec_precision_gap",
+      "scope": "components",
+      "status": "candidate",
+      "features": [
+        "labels"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "FLP-13 front-end/test/unit/features/board/components/label-form-dialog.spec.tsx:106 (components)"
+      ],
+      "created": "2026-11-04T19:10:19Z",
+      "last_seen": "2026-11-04T19:10:19Z"
     }
   ]
 }
