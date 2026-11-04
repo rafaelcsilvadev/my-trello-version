@@ -87,9 +87,9 @@ T14 → T15 → T16 → T17 → T18 → T19
 
 **Done when**:
 
-- [ ] Unit: `countLabelUsage` over `[[c1, c2], [c3]]` counts each label once per card that carries it, returns no entry (not `0`) for a label on no card, and does not mutate its input; `usageText(0)` → `unused`, `1` → `one`, `2` and `10` → `many` with the count
-- [ ] Unit: `labelChanges` returns `null` for the same name and color, `{ name }` only when only the name changed, `{ color }` only when only the color changed, both when both changed, and the name trimmed (`"  Defect  "` → `"Defect"`); a name equal to the current one after trimming counts as unchanged; `withoutLabel` removes only that id
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `countLabelUsage` over `[[c1, c2], [c3]]` counts each label once per card that carries it, returns no entry (not `0`) for a label on no card, and does not mutate its input; `usageText(0)` → `unused`, `1` → `one`, `2` and `10` → `many` with the count
+- [x] Unit: `labelChanges` returns `null` for the same name and color, `{ name }` only when only the name changed, `{ color }` only when only the color changed, both when both changed, and the name trimmed (`"  Defect  "` → `"Defect"`); a name equal to the current one after trimming counts as unchanged; `withoutLabel` removes only that id
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build

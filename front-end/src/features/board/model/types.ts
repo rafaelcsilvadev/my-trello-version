@@ -15,6 +15,7 @@ export type CreateChecklistItemDto = Schemas['CreateChecklistItemDto'];
 export type UpdateChecklistItemDto = Schemas['UpdateChecklistItemDto'];
 export type MoveChecklistItemDto = Schemas['MoveChecklistItemDto'];
 export type CreateLabelDto = Schemas['CreateLabelDto'];
+export type UpdateLabelDto = Schemas['UpdateLabelDto'];
 
 // One active column on screen.
 export type Column = { list: List; cards: Card[] };
