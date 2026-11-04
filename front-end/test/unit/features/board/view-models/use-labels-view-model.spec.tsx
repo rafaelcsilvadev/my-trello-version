@@ -1,5 +1,11 @@
 import { QueryClientProvider } from '@tanstack/react-query';
-import { act, cleanup, renderHook, waitFor } from '@testing-library/react';
+import {
+  act,
+  cleanup,
+  renderHook,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { delay, http, HttpResponse, type JsonBodyType } from 'msw';
 import type { ReactNode } from 'react';
 import { I18nextProvider } from 'react-i18next';
@@ -336,5 +342,227 @@ describe('useLabelsViewModel read state', () => {
     await waitFor(() =>
       expect(result.current.vm.state.rows.every((r) => !r.pending)).toBe(true),
     );
+  });
+});
+
+describe('useLabelsViewModel create flow', () => {
+  const created = labelFixture('lb9', { name: 'Chore', color: 'blue' });
+
+  function problemOfType(status: number, type: string) {
+    return HttpResponse.json(
+      { type, title: 'Error', status, detail: '' },
+      { status, headers: { 'Content-Type': 'application/problem+json' } },
+    );
+  }
+
+  // Records each create body; answers with the next queued reply, or 201.
+  function createServer(...replies: (() => Response | Promise<Response>)[]) {
+    const bodies: unknown[] = [];
+    let saved = false;
+    server.use(
+      http.post(labelsUrl, async ({ request }) => {
+        bodies.push(await request.json());
+        const reply = replies.shift();
+        if (reply) return reply();
+        saved = true;
+        return HttpResponse.json(created, { status: 201 });
+      }),
+      // The settle refetch must see the label the API now holds.
+      http.get(labelsUrl, () =>
+        HttpResponse.json(
+          saved ? [bug, urgent, docs, created] : [bug, urgent, docs],
+        ),
+      ),
+    );
+    return bodies;
+  }
+
+  async function open() {
+    givenBoard();
+    const hook = setup();
+    await ready(hook.result);
+    act(() => hook.result.current.vm.actions.openCreate());
+    return hook;
+  }
+
+  function type(
+    result: Awaited<ReturnType<typeof open>>['result'],
+    name: string,
+  ) {
+    act(() => result.current.vm.actions.setName(name));
+  }
+
+  it('openCreate opens a form with an empty name and blue', async () => {
+    const { result } = await open();
+
+    expect(result.current.vm.state.form).toEqual({
+      mode: 'create',
+      name: '',
+      color: 'blue',
+      error: null,
+      isSubmitting: false,
+    });
+  });
+
+  it.each([
+    ['empty', '   ', 'labelNameRequired'],
+    ['51 chars', 'a'.repeat(51), 'labelNameTooLong'],
+    ['clashing in another case', 'bUg', 'labelNameTaken'],
+  ])('%s name sets the error and sends nothing', async (_case, name, error) => {
+    const { result } = await open();
+    const bodies = createServer();
+    type(result, name);
+
+    act(() => result.current.vm.actions.submit());
+
+    expect(result.current.vm.state.form?.error).toBe(error);
+    expect(result.current.vm.state.form?.name).toBe(name);
+    expect(bodies).toEqual([]);
+  });
+
+  it('typing clears the error', async () => {
+    const { result } = await open();
+    type(result, '');
+    act(() => result.current.vm.actions.submit());
+    expect(result.current.vm.state.form?.error).toBe('labelNameRequired');
+
+    type(result, 'C');
+
+    expect(result.current.vm.state.form?.error).toBeNull();
+  });
+
+  it.each([
+    ['50 chars', 'a'.repeat(50), 'a'.repeat(50)],
+    ['50 chars with outer spaces', `  ${'a'.repeat(50)}  `, 'a'.repeat(50)],
+  ])('%s is sent trimmed with the picked color', async (_case, name, sent) => {
+    const { result } = await open();
+    const bodies = createServer();
+    type(result, name);
+    act(() => result.current.vm.actions.setColor('green'));
+
+    act(() => result.current.vm.actions.submit());
+
+    await waitFor(() =>
+      expect(bodies).toEqual([{ name: sent, color: 'green' }]),
+    );
+  });
+
+  it('a second submit in flight sends nothing and isSubmitting is true meanwhile', async () => {
+    let release!: () => void;
+    const held = new Promise<void>((resolve) => (release = resolve));
+    const { result } = await open();
+    const bodies = createServer(async () => {
+      await held;
+      return HttpResponse.json(created, { status: 201 });
+    });
+    type(result, 'Chore');
+
+    act(() => result.current.vm.actions.submit());
+    act(() => result.current.vm.actions.submit());
+
+    await waitFor(() =>
+      expect(result.current.vm.state.form?.isSubmitting).toBe(true),
+    );
+    release();
+    await waitFor(() => expect(result.current.vm.state.form).toBeNull());
+    expect(bodies).toHaveLength(1);
+  });
+
+  it('201 closes the form, adds the label last as unused and toasts', async () => {
+    const { result } = await open();
+    createServer();
+    type(result, 'Chore');
+
+    act(() => result.current.vm.actions.submit());
+
+    await screen.findByText('Etiqueta criada');
+    expect(result.current.vm.state.form).toBeNull();
+    await waitFor(() =>
+      expect(result.current.vm.state.rows.map((row) => row.label.id)).toEqual([
+        'lb1',
+        'lb2',
+        'lb3',
+        'lb9',
+      ]),
+    );
+    expect(result.current.vm.state.rows[3].usage).toEqual({
+      key: 'unused',
+      count: 0,
+    });
+  });
+
+  it('closeForm drops the text and sends nothing', async () => {
+    const { result } = await open();
+    const bodies = createServer();
+    type(result, 'Chore');
+
+    act(() => result.current.vm.actions.closeForm());
+
+    expect(result.current.vm.state.form).toBeNull();
+    act(() => result.current.vm.actions.openCreate());
+    expect(result.current.vm.state.form?.name).toBe('');
+    expect(bodies).toEqual([]);
+  });
+
+  it('a 5xx keeps the form and Tentar novamente repeats the same create', async () => {
+    const { result } = await open();
+    const bodies = createServer(() => problem(500));
+    type(result, 'Chore');
+    act(() => result.current.vm.actions.setColor('green'));
+
+    act(() => result.current.vm.actions.submit());
+
+    await screen.findByText('Não foi possível salvar. Tente novamente.');
+    expect(result.current.vm.state.form).toMatchObject({
+      name: 'Chore',
+      color: 'green',
+      isSubmitting: false,
+    });
+    act(() => screen.getByRole('button', { name: 'Tentar novamente' }).click());
+
+    await waitFor(() => expect(bodies).toHaveLength(2));
+    expect(bodies[1]).toEqual({ name: 'Chore', color: 'green' });
+  });
+
+  it('a 409 label-name-taken keeps the form, sets the error and refetches the labels', async () => {
+    const { result, queryClient } = await open();
+    createServer(() => problemOfType(409, '/problems/label-name-taken'));
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
+    type(result, 'Chore');
+
+    act(() => result.current.vm.actions.submit());
+
+    await waitFor(() =>
+      expect(result.current.vm.state.form).toMatchObject({
+        name: 'Chore',
+        error: 'labelNameTaken',
+        isSubmitting: false,
+      }),
+    );
+    expect(invalidate).toHaveBeenCalledWith({
+      queryKey: boardViewKeys.labels(boardId),
+    });
+    expect(
+      screen.queryByText('Não foi possível salvar. Tente novamente.'),
+    ).toBeNull();
+  });
+
+  it('a 409 board-archived keeps the form, shows the conflict toast and Recarregar refetches the board view', async () => {
+    const { result, queryClient } = await open();
+    createServer(() => problemOfType(409, '/problems/board-archived'));
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
+    type(result, 'Chore');
+
+    act(() => result.current.vm.actions.submit());
+
+    await screen.findByText(
+      'Este item foi arquivado. Recarregue para ver o estado atual.',
+    );
+    expect(result.current.vm.state.form?.name).toBe('Chore');
+    invalidate.mockClear();
+    act(() => screen.getByRole('button', { name: 'Recarregar' }).click());
+    expect(invalidate).toHaveBeenCalledWith({
+      queryKey: boardViewKeys.all(boardId),
+    });
   });
 });
