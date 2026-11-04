@@ -115,10 +115,10 @@ T7 → T8 → T9
 
 **Done when**:
 
-- [ ] Unit (`renderHook`): the hook returns `matches` of the stubbed query, re-renders when the `change` event flips it both ways, and removes its listener on unmount
-- [ ] `DESKTOP_QUERY` equals `(min-width: 48rem)`
-- [ ] `test/support/match-media.ts` exports `mockViewport(isDesktop)` returning `{ setDesktop(next) }`, used by the hook's own tests
-- [ ] Build gate passes; test count only grows
+- [x] Unit (`renderHook`): the hook returns `matches` of the stubbed query, re-renders when the `change` event flips it both ways, and removes its listener on unmount
+- [x] `DESKTOP_QUERY` equals `(min-width: 48rem)`
+- [x] `test/support/match-media.ts` exports `mockViewport(isDesktop)` returning `{ setDesktop(next) }`, used by the hook's own tests
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
