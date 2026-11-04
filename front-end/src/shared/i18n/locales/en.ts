@@ -64,6 +64,17 @@ export const en = {
       subtitle: 'System follows your device.',
       options: { light: 'Light', dark: 'Dark', system: 'System' },
     },
+    shortcuts: {
+      title: 'Keyboard shortcuts',
+      keys: { space: 'Space' },
+      rows: {
+        new: 'New task in the first column',
+        search: 'Search this board',
+        escape: 'Close the innermost layer',
+        move: 'Pick up and drop the focused card, column or item',
+        help: 'Show shortcuts',
+      },
+    },
     session: {
       title: 'Session',
       connectedAs: 'Signed in as {{name}} · {{email}}',
