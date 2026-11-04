@@ -100,6 +100,15 @@ describe('LabelFormDialog', () => {
     expect(onColorChange).toHaveBeenCalledWith('red');
   });
 
+  it.each([
+    ['labelNameRequired', 'Dê um nome à etiqueta'],
+    ['labelNameTooLong', 'Use até 50 caracteres'],
+  ] as const)('shows the %s message in Portuguese', (error, text) => {
+    renderDialog({ name: 'x', error });
+
+    expect(screen.getByRole('alert').textContent).toBe(text);
+  });
+
   it('shows the error below the field as an alert and marks the field invalid', () => {
     renderDialog({ name: 'x', error: 'labelNameTaken' });
 
