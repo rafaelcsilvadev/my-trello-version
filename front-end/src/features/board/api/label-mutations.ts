@@ -4,10 +4,16 @@ import { useApi } from '@/shared/api/api-context';
 import { type ApiError, call } from '@/shared/api/api-error';
 
 import { withLabelId, withoutLabelId } from '../model/labels';
-import type { Card, CreateLabelDto, Label } from '../model/types';
+import type {
+  Card,
+  CreateLabelDto,
+  Label,
+  UpdateLabelDto,
+} from '../model/types';
 import { appendThenInvalidate } from './create-mutations';
 import { boardViewKeys } from './keys';
 import {
+  fieldsPatch,
   inList,
   type ItemVariables,
   useOptimisticBoardViewChange,
@@ -72,6 +78,30 @@ export function useCreateLabel(boardId: string) {
     onSuccess: (label) =>
       appendThenInvalidate(queryClient, boardViewKeys.labels(boardId), label),
   });
+}
+
+export type UpdateLabelVariables = ItemVariables & { body: UpdateLabelDto };
+
+// `id` is the label, so only its row shows as pending (FLP-22).
+export function useUpdateLabel(boardId: string) {
+  const api = useApi();
+
+  return useOptimisticBoardViewChange<UpdateLabelVariables>(
+    boardId,
+    ({ id, body }) =>
+      call(
+        api.PATCH('/api/v1/labels/{id}', {
+          params: { path: { id } },
+          body,
+        }),
+      ),
+    ({ id, body }) => [
+      {
+        key: boardViewKeys.labels(boardId),
+        ...inList(id, fieldsPatch<Label>(body)),
+      },
+    ],
+  );
 }
 
 // Remembers whether the id actually changed, so a failed toggle of a label

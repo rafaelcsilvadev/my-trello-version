@@ -8,9 +8,10 @@ import { boardViewKeys } from '@/features/board/api/keys';
 import {
   useCreateLabel,
   useToggleCardLabel,
+  useUpdateLabel,
 } from '@/features/board/api/label-mutations';
 import { usePendingItemIds } from '@/features/board/api/mutations';
-import type { Card } from '@/features/board/model/types';
+import type { Card, Label } from '@/features/board/model/types';
 import { ApiProvider } from '@/shared/api/api-context';
 import { ApiError } from '@/shared/api/api-error';
 import { createApiClient } from '@/shared/api/client';
@@ -419,4 +420,173 @@ describe('useCreateLabel', () => {
       expect(queryClient.getQueryData(cardsKey)).toEqual([card, other]);
     },
   );
+});
+
+describe('useUpdateLabel', () => {
+  const patchUrl = `${baseUrl}/api/v1/labels/:id`;
+  const labelsKey = boardViewKeys.labels(boardId);
+
+  function labelsOf(queryClient: TestQueryClient) {
+    return queryClient.getQueryData<Label[]>(labelsKey);
+  }
+
+  it('sends only the given fields to the label', async () => {
+    const requests: { id: unknown; body: unknown }[] = [];
+    server.use(
+      http.patch(patchUrl, async ({ params, request }) => {
+        requests.push({ id: params.id, body: await request.json() });
+        return HttpResponse.json(bravo);
+      }),
+    );
+    const { wrapper } = setup();
+    const { result } = renderHook(() => useUpdateLabel(boardId), { wrapper });
+
+    await act(() =>
+      result.current.mutateAsync({ id: bravo.id, body: { name: 'Beta' } }),
+    );
+    await act(() =>
+      result.current.mutateAsync({ id: bravo.id, body: { color: 'red' } }),
+    );
+
+    expect(requests).toEqual([
+      { id: bravo.id, body: { name: 'Beta' } },
+      { id: bravo.id, body: { color: 'red' } },
+    ]);
+  });
+
+  it('shows the new name and color before the response, keeping the label order', async () => {
+    server.use(http.patch(patchUrl, () => delay('infinite')));
+    const { wrapper, queryClient } = setup();
+    const { result } = renderHook(() => useUpdateLabel(boardId), { wrapper });
+
+    act(() =>
+      result.current.mutate({
+        id: bravo.id,
+        body: { name: 'Beta', color: 'red' },
+      }),
+    );
+
+    await waitFor(() =>
+      expect(labelsOf(queryClient)).toEqual([
+        alpha,
+        { ...bravo, name: 'Beta', color: 'red' },
+        charlie,
+      ]),
+    );
+  });
+
+  it('reverts only this label and only its changed fields when the request fails', async () => {
+    server.use(
+      http.patch(patchUrl, () =>
+        HttpResponse.json(serverError, { status: 500 }),
+      ),
+    );
+    const { wrapper, queryClient } = setup();
+    const { result } = renderHook(() => useUpdateLabel(boardId), { wrapper });
+
+    act(() => result.current.mutate({ id: bravo.id, body: { name: 'Beta' } }));
+
+    await waitFor(() => expect(result.current.error).toBeInstanceOf(ApiError));
+    expect(labelsOf(queryClient)).toEqual([alpha, bravo, charlie]);
+  });
+
+  it('keeps a field changed by another pending update when this one fails', async () => {
+    let failName: (() => void) | undefined;
+    server.use(
+      http.patch(patchUrl, async ({ request }) => {
+        const body = (await request.json()) as Record<string, unknown>;
+        if ('name' in body) {
+          await new Promise<void>((resolve) => (failName = resolve));
+          return HttpResponse.json(serverError, { status: 500 });
+        }
+        return HttpResponse.json(bravo);
+      }),
+    );
+    const { wrapper, queryClient } = setup();
+    const { result } = renderHook(
+      () => ({
+        rename: useUpdateLabel(boardId),
+        recolor: useUpdateLabel(boardId),
+      }),
+      { wrapper },
+    );
+
+    act(() =>
+      result.current.rename.mutate({ id: bravo.id, body: { name: 'Beta' } }),
+    );
+    await act(() =>
+      result.current.recolor.mutateAsync({
+        id: bravo.id,
+        body: { color: 'red' },
+      }),
+    );
+    await waitFor(() => expect(failName).toBeDefined());
+
+    act(() => failName?.());
+
+    await waitFor(() =>
+      expect(result.current.rename.error).toBeInstanceOf(ApiError),
+    );
+    expect(labelsOf(queryClient)).toEqual([
+      alpha,
+      { ...bravo, color: 'red' },
+      charlie,
+    ]);
+  });
+
+  it('marks the label as pending while the request is in flight', async () => {
+    server.use(http.patch(patchUrl, () => delay('infinite')));
+    const { wrapper } = setup();
+    const { result } = renderHook(
+      () => ({ update: useUpdateLabel(boardId), pending: usePendingItemIds() }),
+      { wrapper },
+    );
+
+    act(() =>
+      result.current.update.mutate({ id: bravo.id, body: { name: 'Beta' } }),
+    );
+
+    await waitFor(() =>
+      expect(result.current.pending).toEqual(new Set([bravo.id])),
+    );
+  });
+
+  it('refetches the board once, after the last pending change settles', async () => {
+    let releaseSecond: (() => void) | undefined;
+    server.use(
+      http.patch(patchUrl, async ({ request }) => {
+        const body = (await request.json()) as Record<string, unknown>;
+        if ('color' in body) {
+          await new Promise<void>((resolve) => (releaseSecond = resolve));
+        }
+        return HttpResponse.json(bravo);
+      }),
+    );
+    const { wrapper, queryClient } = setup();
+    const { result } = renderHook(
+      () => ({
+        first: useUpdateLabel(boardId),
+        second: useUpdateLabel(boardId),
+      }),
+      { wrapper },
+    );
+
+    act(() =>
+      result.current.second.mutate({ id: bravo.id, body: { color: 'red' } }),
+    );
+    await act(() =>
+      result.current.first.mutateAsync({
+        id: bravo.id,
+        body: { name: 'Beta' },
+      }),
+    );
+    await waitFor(() => expect(releaseSecond).toBeDefined());
+    expect(queryClient.getQueryState(labelsKey)?.isInvalidated).toBe(false);
+
+    act(() => releaseSecond?.());
+
+    await waitFor(() =>
+      expect(queryClient.getQueryState(labelsKey)?.isInvalidated).toBe(true),
+    );
+  });
 });
