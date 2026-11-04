@@ -510,10 +510,10 @@ T14 → T15 → T16 → T17 → T18 → T19
 
 **Done when**:
 
-- [ ] Seeded board with "Bug" on two cards (one archived) and "Idea" unused: the page lists "usada em 2 tarefas" and "não usada"; the Bug delete dialog says "Ela será removida de 2 tarefas." and after **Excluir** the board shows no Bug chip
-- [ ] Create "Chore" in Verde, rename it with a duplicate name (error shown) then to "Chores", recolor, and reload: the page matches
-- [ ] A board with no labels shows "Nenhuma etiqueta ainda"; an archived board shows the notice and no write buttons
-- [ ] Full gate passes
+- [x] Seeded board with "Bug" on two cards (one archived) and "Idea" unused: the page lists "usada em 2 tarefas" and "não usada"; the Bug delete dialog says "Ela será removida de 2 tarefas." and after **Excluir** the board shows no Bug chip
+- [x] Create "Chore" in Verde, rename it with a duplicate name (error shown) then to "Chores", recolor, and reload: the page matches
+- [x] A board with no labels shows "Nenhuma etiqueta ainda"; an archived board shows the notice and no write buttons
+- [x] Full gate passes
 
 **Tests**: e2e
 **Gate**: full
