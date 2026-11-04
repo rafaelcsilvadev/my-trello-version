@@ -87,11 +87,11 @@ T7 → T8 → T9
 
 **Done when**:
 
-- [ ] Unit: an open `Dialog` has an element with `role="dialog"` and `aria-modal="true"`; a closed one has none (red first)
-- [ ] Unit: with a `Dialog` open, `useShortcut('x', …)` does not fire on `x`; after it closes, it fires
-- [ ] Existing `dialog.spec.tsx` and every spec that opens a dialog still pass; no shortcut test relied on firing under a dialog
-- [ ] `FE-AD-014` appended to `front-end/.specs/STATE.md` (shared `Dialog` sets `aria-modal`; single-key shortcuts stay quiet under every dialog)
-- [ ] Build gate passes; test count only grows
+- [x] Unit: an open `Dialog` has an element with `role="dialog"` and `aria-modal="true"`; a closed one has none (red first)
+- [x] Unit: with a `Dialog` open, `useShortcut('x', …)` does not fire on `x`; after it closes, it fires
+- [x] Existing `dialog.spec.tsx` and every spec that opens a dialog still pass; no shortcut test relied on firing under a dialog
+- [x] `FE-AD-014` appended to `front-end/.specs/STATE.md` (shared `Dialog` sets `aria-modal`; single-key shortcuts stay quiet under every dialog)
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
