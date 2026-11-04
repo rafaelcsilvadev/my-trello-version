@@ -275,9 +275,9 @@ T14 → T15 → T16 → T17 → T18 → T19
 
 **Done when**:
 
-- [ ] Unit: `openDelete` sets `confirmDelete` with the label and its current count (0, 1, n); `closeDelete` closes with no request; `confirmDelete` closes the dialog, removes the row, shows "Etiqueta excluída" and sends `DELETE`
-- [ ] Deleting the last label yields zero rows (the empty state input); network/`5xx` puts the row back at its index with the retry toast, which repeats the `DELETE`; `409` board-archived and `404` follow the spec toasts; a `404` refetches the labels and the cards (L-017)
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `openDelete` sets `confirmDelete` with the label and its current count (0, 1, n); `closeDelete` closes with no request; `confirmDelete` closes the dialog, removes the row, shows "Etiqueta excluída" and sends `DELETE`
+- [x] Deleting the last label yields zero rows (the empty state input); network/`5xx` puts the row back at its index with the retry toast, which repeats the `DELETE`; `409` board-archived and `404` follow the spec toasts; a `404` refetches the labels and the cards (L-017)
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build

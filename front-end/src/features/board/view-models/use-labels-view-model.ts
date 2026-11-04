@@ -7,7 +7,11 @@ import { useSaveFailureNotifier } from '@/shared/ui/toast/use-save-failure-notif
 import { useToast } from '@/shared/ui/toast/use-toast';
 
 import { boardViewKeys } from '../api/keys';
-import { useCreateLabel, useUpdateLabel } from '../api/label-mutations';
+import {
+  useCreateLabel,
+  useDeleteLabel,
+  useUpdateLabel,
+} from '../api/label-mutations';
 import { useLabelUsage } from '../api/label-usage';
 import { usePendingItemIds } from '../api/mutations';
 import { useBoard, useLabels } from '../api/queries';
@@ -45,9 +49,10 @@ export function useLabelsViewModel(boardId: string) {
   const queryClient = useQueryClient();
   const createMutation = useCreateLabel(boardId);
   const updateMutation = useUpdateLabel(boardId);
+  const deleteMutation = useDeleteLabel(boardId);
   const { t } = useTranslation();
   const toast = useToast();
-  const { notify } = useSaveFailureNotifier(
+  const { notify, runChange } = useSaveFailureNotifier(
     () =>
       void queryClient.invalidateQueries({
         queryKey: boardViewKeys.all(boardId),
@@ -55,6 +60,11 @@ export function useLabelsViewModel(boardId: string) {
   );
   const isSubmitting = useRef(false);
   const [form, setForm] = useState<LabelsForm | null>(null);
+  // The count is read when the dialog opens, so it does not change under the user (FLP-23).
+  const [confirmDelete, setConfirmDelete] = useState<{
+    label: Label;
+    count: number;
+  } | null>(null);
 
   // Rows wait for every usage source, so a count shown is never partial (FLP-05).
   const rows = useMemo(() => {
@@ -206,9 +216,32 @@ export function useLabelsViewModel(boardId: string) {
     create({ name: form.name.trim(), color: form.color });
   }
 
+  function openDelete(id: string) {
+    const label = labels.data?.find((item) => item.id === id);
+    if (!label) return;
+    setConfirmDelete({ label, count: usage.counts?.get(id) ?? 0 });
+  }
+
+  function closeDelete() {
+    setConfirmDelete(null);
+  }
+
+  // Optimistic: the row leaves at once and a failure puts it back (FLP-24).
+  function confirmDeletion() {
+    if (!confirmDelete) return;
+    const { id } = confirmDelete.label;
+    setConfirmDelete(null);
+    runChange(
+      deleteMutation.mutateAsync,
+      { id },
+      t('board.toast.labelDeleted'),
+    );
+  }
+
   return {
     state: {
       form,
+      confirmDelete,
       status,
       board: board.data,
       readOnly: board.data !== undefined && board.data.archivedAt !== null,
@@ -221,6 +254,9 @@ export function useLabelsViewModel(boardId: string) {
       setColor,
       closeForm,
       submit,
+      openDelete,
+      closeDelete,
+      confirmDelete: confirmDeletion,
       // Only the failed requests run again (FLP-06).
       retry: () => {
         for (const query of [board, labels])
