@@ -4,7 +4,7 @@
 
 [English](README.md) | **Português**
 
-> 🚧 **Projeto em andamento.** A API do back-end está com todas as features prontas (0 a 6). O front-end (web) já tem cadastro, login, a lista de quadros, a visão do quadro, arrastar e soltar, os filtros do quadro e o detalhe da tarefa; o checklist da tarefa, etiquetas e configurações vêm a seguir. O mobile ainda não começou.
+> 🚧 **Projeto em andamento.** A API do back-end está com todas as features prontas (0 a 6). O front-end (web) já tem cadastro, login, a lista de quadros, a visão do quadro, arrastar e soltar, os filtros do quadro e o detalhe da tarefa; o checklist da tarefa, reordenado com o mouse ou o teclado, as etiquetas, a página de etiquetas, com uso, criar, editar e excluir, e a tela de configurações, com idioma, tema e atalhos de teclado. O front-end web está completo. O mobile ainda não começou.
 
 Uma versão pessoal do Trello: cada usuário se cadastra e gerencia só os próprios quadros, listas e cartões.
 
@@ -29,7 +29,7 @@ O projeto tem dois objetivos:
 
 MVP = features 0 a 4. Roadmap completo em [`back-end/.specs/ROADMAP.md`](back-end/.specs/ROADMAP.md).
 
-Front-end (web): `foundation` (estrutura do app, rotas e guard de autenticação, cliente tipado da API, tema, i18n PT-BR/EN, toasts, serviço Docker, CI) `auth` (cadastro, login, aviso de rate limit, logout) `boards` (abas de ativos/arquivados, criar, editar, arquivar, restaurar, excluir) e `board` (colunas e tarefas, marcar como concluída, itens arquivados, quadro arquivado somente leitura, layout de celular) `board-dnd` (mover tarefas e colunas com o mouse ou o teclado, região live, "Mover para…") `board-filters` (busca, filtros de etiqueta e de prazo, atalho `/`, arrastar desligado enquanto filtra) e `card-detail` (título, concluída, prazo, descrição, mover, arquivar, restaurar, excluir, modos somente leitura, diálogo de descarte) concluídas. O checklist da tarefa vem a seguir, uma feature por vez. Roadmap em [`front-end/.specs/ROADMAP.md`](front-end/.specs/ROADMAP.md).
+Front-end (web): `foundation` (estrutura do app, rotas e guard de autenticação, cliente tipado da API, tema, i18n PT-BR/EN, toasts, serviço Docker, CI) `auth` (cadastro, login, aviso de rate limit, logout) `boards` (abas de ativos/arquivados, criar, editar, arquivar, restaurar, excluir) e `board` (colunas e tarefas, marcar como concluída, itens arquivados, quadro arquivado somente leitura, layout de celular) `board-dnd` (mover tarefas e colunas com o mouse ou o teclado, região live, "Mover para…") `board-filters` (busca, filtros de etiqueta e de prazo, atalho `/`, arrastar desligado enquanto filtra) e `card-detail` (título, concluída, prazo, descrição, mover, arquivar, restaurar, excluir, modos somente leitura, diálogo de descarte) e `card-checklist` (adicionar, marcar, renomear e excluir itens, barra de progresso, modos somente leitura) e `card-checklist-dnd` (reordenar itens com o mouse ou o teclado, região live) e `card-labels` (aplicar, remover e criar etiquetas no detalhe da tarefa) e `labels` (a página de etiquetas do quadro: lista com uso, criar, editar, excluir) e `settings` (idioma, tema, painel e diálogo de atalhos de teclado) concluídas. Roadmap em [`front-end/.specs/ROADMAP.md`](front-end/.specs/ROADMAP.md).
 
 ---
 
@@ -157,7 +157,7 @@ No app web:
 
 1. Abra http://localhost:5173. Sem sessão, você cai em `/login`.
 2. Entre com o usuário demo acima, ou siga **Criar conta** para se cadastrar com seu próprio e-mail (nome, e-mail, senha de 8 a 72 caracteres). Os dois levam a `/boards`.
-3. Abra **Configurações** (ícone de engrenagem na barra superior) para ver a conta conectada e **Sair**.
+3. Abra **Configurações** (ícone de engrenagem na barra superior) para escolher o idioma e o tema, ler os atalhos de teclado e **Sair** (veja abaixo).
 
 Gerenciando quadros em `/boards`:
 
@@ -200,6 +200,15 @@ Abrindo uma tarefa:
 - Uma tarefa de quadro arquivado mostra "Quadro arquivado · somente leitura", com todos os campos desligados e nenhuma ação no rodapé.
 - Feche o detalhe pelo X, Esc, um clique fora dele ou o Voltar do navegador; o foco volta para a tarefa no quadro. Se o título ou a descrição tiverem edições não salvas, "Descartar alterações?" pergunta antes: **Continuar editando** mantém o texto, **Descartar** fecha sem salvar.
 - Com o detalhe aberto, os atalhos `n` e `/` ficam desligados.
+
+Configurações em `/settings`:
+
+- **Idioma** oferece Português (Brasil) e English. A escolha vale na hora, sem recarregar, e fica guardada em `my-trello.language` para a próxima visita. Um valor guardado que o app não conhece volta para English.
+- **Tema** oferece Claro, Escuro e Sistema ("Sistema segue o aparelho."). O app se repinta na hora e guarda a escolha em `my-trello.theme`. Com Sistema, ele segue a configuração de modo escuro do aparelho. As setas movem entre as opções de cada grupo.
+- Se o navegador bloquear o `localStorage`, a escolha continua valendo até você fechar a aba.
+- **Atalhos de teclado** (só no desktop, 768 px ou mais) lista os cinco atalhos: `N` nova tarefa na primeira coluna, `/` buscar no quadro, `Esc` fechar a camada mais interna, `Espaço` pegar e soltar o cartão, a coluna ou o item focado, e `?` mostrar atalhos. O painel não aparece no celular.
+- No desktop, o ícone de teclado na barra superior, antes da engrenagem, abre a mesma lista em um diálogo. A tecla `?` também o abre, a menos que você esteja digitando em um campo, segure Ctrl, Meta ou Alt, ou tenha outro diálogo (como o detalhe da tarefa) aberto. Esc ou **Fechar** fecha e devolve o foco ao lugar de antes. Reduzir a janela abaixo de 768 px fecha o diálogo.
+- **Sessão** mostra quem está conectado e **Sair**.
 
 As mudanças aparecem na hora e são salvas em segundo plano. Se salvar falhar, a mudança é desfeita e um toast oferece **Tentar novamente**.
 
