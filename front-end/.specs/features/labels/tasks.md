@@ -193,10 +193,10 @@ T14 → T15 → T16 → T17 → T18 → T19
 
 **Done when**:
 
-- [ ] Unit: `loading` until the board, labels and every usage source answered; `ready` with one row per label in board label order and the right usage kind (0 → `unused`, 1 → `one`, n → `many`); a created-but-unused label is a row
-- [ ] `error` when any read fails and no data exists (a failed refetch with cached data stays `ready`); clicking `retry` refetches exactly the failed queries (L-017); a `404`, a foreign id or a malformed id → `notFound`
-- [ ] `readOnly` is true only when the board has `archivedAt`
-- [ ] Build gate passes; test count only grows
+- [x] Unit: `loading` until the board, labels and every usage source answered; `ready` with one row per label in board label order and the right usage kind (0 → `unused`, 1 → `one`, n → `many`); a created-but-unused label is a row
+- [x] `error` when any read fails and no data exists (a failed refetch with cached data stays `ready`); clicking `retry` refetches exactly the failed queries (L-017); a `404`, a foreign id or a malformed id → `notFound`
+- [x] `readOnly` is true only when the board has `archivedAt`
+- [x] Build gate passes; test count only grows
 
 **Tests**: unit
 **Gate**: build
