@@ -340,6 +340,14 @@ export const ptBR = {
         namePlaceholder: 'Ex.: Bug',
         color: 'Cor',
       },
+      delete: {
+        title: 'Excluir a etiqueta {{name}}?',
+        textNoCards: 'Nenhuma tarefa usa esta etiqueta.',
+        textOneCard: 'Ela será removida de 1 tarefa.',
+        textCards: 'Ela será removida de {{count}} tarefas.',
+        cancel: 'Cancelar',
+        confirm: 'Excluir',
+      },
     },
     deleteColumn: {
       title: 'Excluir a coluna {{name}} definitivamente?',
