@@ -108,6 +108,14 @@ Decisions for the web app. They must conform to the global decisions in the root
 - **Date**: 2026-10-30
 - **Status**: active
 
+### FE-AD-014
+- **Decision**: The shared `Dialog` renders its section with `aria-modal="true"` (the `render` prop trick of `card-detail.tsx`), so single-key shortcuts stay quiet under every dialog, not only the card detail.
+- **Reason**: React Aria drops `aria-modal` from the props; `useShortcut` (FE-AD-011) reads that attribute, so the `?` dialog of settings and the existing confirm dialogs would otherwise let `n`, `/` and `?` fire underneath.
+- **Trade-off**: A shortcut can never open over any dialog; the settings `?` key ignores a second press while its own dialog is open.
+- **Scope**: front-end
+- **Date**: 2026-11-04
+- **Status**: active
+
 ## Open Items
 
 ### P1
