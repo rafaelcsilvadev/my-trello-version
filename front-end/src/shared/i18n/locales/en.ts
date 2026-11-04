@@ -339,6 +339,14 @@ export const en = {
         namePlaceholder: 'E.g. Bug',
         color: 'Color',
       },
+      delete: {
+        title: 'Delete the label {{name}}?',
+        textNoCards: 'No task uses this label.',
+        textOneCard: 'It will be removed from 1 task.',
+        textCards: 'It will be removed from {{count}} tasks.',
+        cancel: 'Cancel',
+        confirm: 'Delete',
+      },
     },
     deleteColumn: {
       title: 'Delete the column {{name}} permanently?',
