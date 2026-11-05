@@ -16,6 +16,8 @@ export default defineConfig({
       // Compose is left running after the suite; `docker compose down` stops it.
       command: 'docker compose up --wait postgres api',
       cwd: '..',
+      // Each spec signs up its own user; the default of 10 a minute is not enough.
+      env: { AUTH_RATE_LIMIT: '1000' },
       url: API_HEALTH_URL,
       reuseExistingServer: true,
       timeout: 180_000,

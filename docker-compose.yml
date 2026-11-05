@@ -31,6 +31,9 @@ services:
       JWT_EXPIRES_IN: 1h
       # Vite dev server and the web container share this host origin.
       CORS_ORIGINS: http://localhost:5173
+      # Requests per minute per IP on login and on register. The front-end e2e
+      # suite raises it, since every spec signs up its own user.
+      AUTH_RATE_LIMIT: ${AUTH_RATE_LIMIT:-10}
     ports:
       - "3000:3000"
     healthcheck:

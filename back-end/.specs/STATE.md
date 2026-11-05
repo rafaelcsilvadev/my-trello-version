@@ -128,3 +128,10 @@ App decisions for the NestJS API. Must conform to the global decisions in `../..
 
 ## Handoff
 
+### BE-AD-014
+- **Decision**: The login/register rate limit count comes from the env var `AUTH_RATE_LIMIT` (positive integer, default 10); the 60 s window stays fixed. `ThrottlerModule.forRootAsync` builds the options with `createThrottlerOptions`, and `docker-compose.yml` forwards the variable with a default of 10.
+- **Reason**: The front-end e2e suite signs up one user per spec, and the hard-coded 10 requests a minute left no room for new sign-up paths (e.g. duplicate email) or for running the suite twice in a minute.
+- **Trade-off**: A misconfigured high value weakens brute-force protection, so only the front-end Playwright run raises it (`AUTH_RATE_LIMIT=1000`) and compose defaults to 10. Nest reads the env when `AppModule` is imported, so the wiring is tested through `createThrottlerOptions`, not by changing `process.env` inside an e2e test.
+- **Scope**: auth (login and register)
+- **Date**: 2026-11-04
+- **Status**: active

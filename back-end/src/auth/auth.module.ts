@@ -6,7 +6,10 @@ import {
   type JwtModuleOptions,
   type JwtSignOptions,
 } from '@nestjs/jwt';
-import { ThrottlerModule } from '@nestjs/throttler';
+import {
+  ThrottlerModule,
+  type ThrottlerModuleOptions,
+} from '@nestjs/throttler';
 import type { Env } from '../config/env.schema';
 import { UsersModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
@@ -30,6 +33,17 @@ export function createJwtOptions(
   };
 }
 
+export function createThrottlerOptions(
+  config: ConfigService<Env, true>,
+): ThrottlerModuleOptions {
+  return {
+    throttlers: [
+      { ttl: 60_000, limit: config.get('AUTH_RATE_LIMIT', { infer: true }) },
+    ],
+    errorMessage: 'Too many requests. Try again later.',
+  };
+}
+
 @Module({
   imports: [
     UsersModule,
@@ -37,9 +51,9 @@ export function createJwtOptions(
       inject: [ConfigService],
       useFactory: createJwtOptions,
     }),
-    ThrottlerModule.forRoot({
-      throttlers: [{ ttl: 60_000, limit: 10 }],
-      errorMessage: 'Too many requests. Try again later.',
+    ThrottlerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: createThrottlerOptions,
     }),
   ],
   controllers: [AuthController],

@@ -21,6 +21,8 @@ const envSchema = z.object({
     .string()
     .regex(/^\d+[smhd]$/)
     .default('1h'),
+  // Requests per minute per IP on each of login and register.
+  AUTH_RATE_LIMIT: z.coerce.number().int().positive().default(10),
   // Comma-separated allow-list; empty keeps CORS disabled.
   CORS_ORIGINS: z
     .string()

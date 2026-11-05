@@ -37,7 +37,7 @@ Every board, list and card belongs to one user, so the API must know who is call
 | Duplicate email | `409` | Clear feedback for a registration form; enumeration risk accepted for a personal app | y |
 | Wrong credentials | Same `401` body for unknown email and wrong password | Login does not reveal which accounts exist | y |
 | Problem `type` for auth errors | Relative URIs: `/problems/email-already-registered`, `/problems/invalid-credentials`; other 401/429 use `about:blank` | RFC 9457 allows relative references; specific types only where clients branch on them | y |
-| Rate limit | 10 requests / 60 s per IP, counted per route, on login and register only | Blocks brute force without hurting normal use | y |
+| Rate limit | 10 requests / 60 s per IP by default (`AUTH_RATE_LIMIT` overrides the count), counted per route, on login and register only | Blocks brute force without hurting normal use; the front-end e2e suite raises it because every spec signs up | y |
 | Rate-limit storage | In-memory (single API instance) | One container in compose; shared store not needed yet | y |
 | Password hashing | One-way adaptive hash; algorithm chosen in Design | Implementation detail | y |
 | Timing on unknown email | Login runs a hash comparison even when the email does not exist | Response time does not reveal registered emails | y |
