@@ -71,7 +71,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         ref={regionRef}
         tabIndex={-1}
         data-react-aria-top-layer
-        className="pointer-events-none fixed inset-x-0 bottom-6 z-50 outline-none"
+        className="pointer-events-none fixed inset-x-0 bottom-6 z-110 outline-none"
       >
         {/* Always mounted so screen readers pick up the first notice. */}
         <output
