@@ -50,7 +50,7 @@ Web front-end: `foundation` (app shell, routes and auth guard, typed API client,
 
 - **Modular architecture.** One NestJS module per feature (`auth`, `users`, ...), layered as entity → repository → service → controller.
 - **Standardized errors.** Every error leaves through a single global filter as [RFC 9457 Problem Details](https://www.rfc-editor.org/rfc/rfc9457), with a `requestId`. Domain errors are mapped to HTTP status codes in one place.
-- **Secure by default.** Every route requires a token. Public routes must opt out explicitly with `@Public()`. Login and sign-up are rate-limited per IP. The app refuses to boot without a valid `JWT_SECRET`. Security headers via `helmet`, CORS limited to the origins in `CORS_ORIGINS`, and JSON bodies capped at 100kb (`413` Problem Details).
+- **Secure by default.** Every route requires a token. Public routes must opt out explicitly with `@Public()`. Login and sign-up are rate-limited per IP (10 requests per minute by default, set with `AUTH_RATE_LIMIT`). The app refuses to boot without a valid `JWT_SECRET`. Security headers via `helmet`, CORS limited to the origins in `CORS_ORIGINS`, and JSON bodies capped at 100kb (`413` Problem Details).
 - **Three test levels.** Unit (no I/O), integration (repositories against a real PostgreSQL) and e2e (HTTP against the whole app). More than 1,000 tests so far.
 - **Shared API contract.** `packages/api-contract` holds TypeScript types generated from the OpenAPI document. CI regenerates them and fails if the committed contract is out of date.
 - **One-command run.** `docker compose up` starts the web app, the API and the database, with no local Node or PostgreSQL install.
