@@ -8,6 +8,8 @@
 
 Uma versão pessoal do Trello: cada usuário se cadastra e gerencia só os próprios quadros, listas e cartões.
 
+![Visão do quadro com colunas, cartões, etiquetas, datas e progresso do checklist](docs/images/board-view.png)
+
 O projeto tem dois objetivos:
 
 1. Construir uma API com práticas de produção: arquitetura modular, testes em três níveis, erros padronizados, logs estruturados e tudo rodando com Docker.
