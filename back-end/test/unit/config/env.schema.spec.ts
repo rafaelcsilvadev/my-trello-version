@@ -13,6 +13,7 @@ describe('validateEnv', () => {
       JWT_SECRET,
       JWT_EXPIRES_IN: '15m',
       CORS_ORIGINS: 'https://app.example.com',
+      AUTH_RATE_LIMIT: '25',
     });
 
     expect(env).toEqual({
@@ -23,6 +24,7 @@ describe('validateEnv', () => {
       JWT_SECRET,
       JWT_EXPIRES_IN: '15m',
       CORS_ORIGINS: ['https://app.example.com'],
+      AUTH_RATE_LIMIT: 25,
     });
   });
 
@@ -37,6 +39,7 @@ describe('validateEnv', () => {
       JWT_SECRET,
       JWT_EXPIRES_IN: '1h',
       CORS_ORIGINS: [],
+      AUTH_RATE_LIMIT: 10,
     });
   });
 
@@ -106,6 +109,22 @@ describe('validateEnv', () => {
       expect(() =>
         validateEnv({ DATABASE_URL, JWT_SECRET, JWT_EXPIRES_IN: expiresIn }),
       ).toThrow(/JWT_EXPIRES_IN/);
+    },
+  );
+
+  it.each(['1', '10', '1000'])('accepts AUTH_RATE_LIMIT %s', (limit) => {
+    expect(
+      validateEnv({ DATABASE_URL, JWT_SECRET, AUTH_RATE_LIMIT: limit })
+        .AUTH_RATE_LIMIT,
+    ).toBe(Number(limit));
+  });
+
+  it.each(['0', '-1', '1.5', 'abc', ''])(
+    'throws naming AUTH_RATE_LIMIT when it is %p',
+    (limit) => {
+      expect(() =>
+        validateEnv({ DATABASE_URL, JWT_SECRET, AUTH_RATE_LIMIT: limit }),
+      ).toThrow(/AUTH_RATE_LIMIT/);
     },
   );
 
