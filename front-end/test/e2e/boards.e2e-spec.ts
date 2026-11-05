@@ -104,11 +104,13 @@ test('keeps the dialog and offers a retry when creating a board fails', async ()
   await dialog.getByLabel('Name').fill('Retry me');
   await dialog.getByRole('button', { name: 'Create' }).click();
 
-  await expect(page.getByText('Couldn’t save. Try again.')).toBeVisible();
+  const toast = page.getByText('Couldn’t save. Try again.');
+  await expect(toast).toBeVisible();
+  // The toast must sit above the open dialog's overlay, not behind it.
+  await toast.click({ trial: true, timeout: 2000 });
   await expect(page).toHaveURL('/boards');
 
   await page.unroute('**/api/v1/boards');
-  // The toast sits under the open dialog (z-50 vs z-100), so the retry is the Create button.
   await dialog.getByRole('button', { name: 'Create' }).click();
   await expect(page).toHaveURL(/\/b\/[^/]+$/);
 });
