@@ -8,6 +8,8 @@
 
 A personal take on Trello: each user signs up and manages only their own boards, lists and cards.
 
+![Board view with columns, cards, labels, due dates and checklist progress](docs/images/board-view.png)
+
 The project has two goals:
 
 1. Build an API with production-grade practices: modular architecture, three test levels, standardized errors, structured logs, and everything running on Docker.
