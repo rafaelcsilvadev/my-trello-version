@@ -8,7 +8,7 @@ my-trello-version/
 │   ├── README.md           # this file
 │   └── STATE.md            # GL-AD-NNN decisions
 ├── back-end/.specs/        # API (NestJS): BE-AD-NNN decisions + features/
-├── front-end/.specs/       # Web (created when the front-end starts): FE-AD-NNN
+├── front-end/.specs/       # Web (React): FE-AD-NNN decisions + features/
 └── mobile/.specs/          # Mobile (created when mobile starts): MB-AD-NNN
 ```
 
